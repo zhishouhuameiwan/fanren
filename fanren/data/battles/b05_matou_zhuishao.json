@@ -1,0 +1,48 @@
+{
+  "id": "b05_matou_zhuishao",
+  "name": "码头盯梢",
+  "chapter": 5,
+  "terrain": "indoor",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "tiequanhui_quanshi",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "tiequanhui_quanshi",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 1
+    }
+  ],
+  "rewards": {
+    "cultivation": 30,
+    "spirit_stones": 10,
+    "drops": []
+  },
+  "intro_key": "ch05.battle.matou_zhuishao.intro",
+  "origin": "改编",
+  "note": "第 5 章节点 3b（ch05_xicheng trigger_zhuishao，enter + once），十场必打之三。改编：天擦黑，往南城去的巷口，几个铁拳会的人跟上来——码头上他们看着黑熊领人跟这个外乡人走了，一个也没回来。不冲突的依据：铁拳会在 ch104 之后原著不再出现；ch103 韩立吩咐孙二狗「不想有人知道这儿发生的一切」，这一仗打完，知道的人就真没了。拳师 ×2、打手 ×4，总血 128。拳师 36 血：韩立 38 一下，他打韩立 10、打曲魂 14。单轮最大 26（22%）。can_escape 假、defeat_is_fatal 真。收获 30 修为、10 碎银。\n\n【横版平衡 B2 2026-09-26】拆成两波，各一个拳师带两个码头打手：六个人一齐上时韩立一个人挨满，第二侧（0 瓶）打完黑水巷接着打这一场，从 60 来血打到倒下、game_over；拆开之后单轮 16，实测剩 96。"
+}

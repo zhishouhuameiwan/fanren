@@ -1,0 +1,13 @@
+{
+  "id": "pill_yangjing_dan",
+  "name": "养精丹",
+  "descKey": "item.desc.pill_yangjing_dan",
+  "kind": "pill",
+  "grade": 2,
+  "price": 90,
+  "tradeable": true,
+  "restoreHp": 55,
+  "restoreMp": 0,
+  "origin": "原著",
+  "note": "原著确证：ch27 墨大夫配给他的四样灵药之一，「对内外伤都有奇效……即使不能起死回生使伤势立刻痊愈，也可让伤势大为减轻，可保住性命」。ch98 王绝楚靠一玉瓶里的药丸数次从重伤里活过来，临终才留下名字，正是这一味。\n\n第 4 章由 recipe_yangjing_dan（data/recipes/alchemy/）炼出来，是「韩神医的药物买卖」里最贵的那一档，也是节点 11 留给厉飞雨的那几瓶——scripts/ch04/xinbie.lua 的 take() 取的就是它，取得到与取不到写两条不同的信。\n\nrestoreHp 55：本章韩立气血一百二十（炼气八层 24＋12×8），一颗抬回小半条命，比金疮药（15）高一档而不是高一个数量级。price 90 对着金疮药 20：它贵在能不能保住命，不贵在恢复得快。"
+}

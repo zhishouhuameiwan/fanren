@@ -1,0 +1,31 @@
+{
+ "map": "ch02_yabi",
+ "tile": 16,
+ "width": 32,
+ "height": 36,
+ "theme": "cliff",
+ "time": "dusk",
+ "season": "autumn",
+ "ambient": [
+  218,
+  164,
+  132
+ ],
+ "dof": 0.65,
+ "bloom": 0.45,
+ "vignette": 0.4,
+ "particles": [
+  {
+   "kind": "leaf",
+   "rate": 0.5
+  },
+  {
+   "kind": "dust",
+   "rate": 0.2
+  }
+ ],
+ "lights": [],
+ "water": [],
+ "emitters": [],
+ "backdrop": "cliff_top_dusk"
+}

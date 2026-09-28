@@ -1,0 +1,27 @@
+{
+ "map": "ch01_qixuanmen",
+ "tile": 16,
+ "width": 24,
+ "height": 18,
+ "theme": "sect",
+ "time": "day",
+ "season": "spring",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.5,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.25
+  }
+ ],
+ "lights": [],
+ "water": [],
+ "emitters": [],
+ "backdrop": "sect_courtyard"
+}

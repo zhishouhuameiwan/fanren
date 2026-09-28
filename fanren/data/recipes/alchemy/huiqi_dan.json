@@ -1,0 +1,21 @@
+{
+  "id": "recipe_huiqi_dan",
+  "name": "回气丹方",
+  "kind": "alchemy",
+  "productId": "pill_huiqi_dan",
+  "productCount": 1,
+  "difficulty": 22,
+  "requiredProficiency": 12,
+  "inputs": [
+    {
+      "itemId": "herb_qingfeng_cao",
+      "count": 1,
+      "minAge": 20
+    },
+    {
+      "itemId": "herb_huangjing_cao",
+      "count": 1,
+      "minAge": 20
+    }
+  ]
+}

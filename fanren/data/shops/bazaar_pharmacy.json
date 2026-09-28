@@ -1,0 +1,25 @@
+{
+  "id": "shop_bazaar_pharmacy",
+  "name": "坊市回春堂",
+  "nameKey": "shop.name.bazaar_pharmacy",
+  "buyRate": 1.1,
+  "sellRate": 0.55,
+  "entries": [
+    {
+      "itemId": "pill_jinchuang_yao",
+      "price": 22,
+      "stock": 15,
+      "restockDays": 3,
+      "restockAmount": 8,
+      "maxStock": 30
+    },
+    {
+      "itemId": "herb_qingfeng_cao",
+      "price": 8,
+      "stock": 20,
+      "restockDays": 4,
+      "restockAmount": 10,
+      "maxStock": 40
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "jianjing_zei",
+  "name": "剪径贼",
+  "realm": "Mortal",
+  "maxHp": 28,
+  "maxMp": 0,
+  "attack": 7,
+  "defence": 5,
+  "speed": 6,
+  "element": 0,
+  "magics": [],
+  "weapons": [
+    "刀"
+  ],
+  "toughness": 2,
+  "weaknesses": [
+    "剑",
+    "拳",
+    "暗器"
+  ],
+  "origin": "改编",
+  "note": "岚州渡口外河滩上拦路讨买路钱的毛贼（改编；原著未写此遭遇）。只进第 5 章渡口的野外遭遇表（docs/interfaces-octo-encounters.md 第 5 节）。两个一伙的「凶」392，低于第 5 章最轻的剧情战（节点 1 夜宿遇狼，432）。使朴刀（刀）。架势 2，破绽 剑、拳、暗器：身法散乱，贴身一拳就乱了脚步；拳是第 5 章人人都有的手段（门禁规则 25）。"
+}

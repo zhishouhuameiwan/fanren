@@ -1,0 +1,25 @@
+{
+  "id": "recipe_juling_zhen",
+  "name": "聚灵阵图",
+  "kind": "formation",
+  "productId": "formation_juling_zhen",
+  "productCount": 1,
+  "difficulty": 25,
+  "requiredProficiency": 8,
+  "inputs": [
+    {
+      "itemId": "material_zhenqi",
+      "count": 4,
+      "catalyst": true
+    },
+    {
+      "itemId": "material_zhenpan_pei",
+      "count": 1,
+      "catalyst": true
+    },
+    {
+      "itemId": "material_lingshi",
+      "count": 2
+    }
+  ]
+}

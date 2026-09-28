@@ -1,0 +1,186 @@
+{
+  "type": "map",
+  "version": "1.10",
+  "tiledversion": "1.10.2",
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "width": 10,
+  "height": 7,
+  "tilewidth": 32,
+  "tileheight": 32,
+  "infinite": false,
+  "nextlayerid": 7,
+  "nextobjectid": 4,
+  "tilesets": [
+    {
+      "firstgid": 1,
+      "source": "tilesets/terrain_hanjiacun.tsj"
+    }
+  ],
+  "properties": [
+    { "name": "map_id", "type": "string", "value": "t_trigger_gate" },
+    { "name": "display_name_key", "type": "string", "value": "t.map.trigger_gate.name" },
+    { "name": "region", "type": "string", "value": "test" },
+    { "name": "bgm", "type": "string", "value": "none" },
+    { "name": "chapter", "type": "int", "value": 1 },
+    { "name": "outdoor", "type": "bool", "value": true },
+    { "name": "can_leave_edge", "type": "bool", "value": false }
+  ],
+  "layers": [
+    {
+      "name": "ground",
+      "type": "tilelayer",
+      "width": 10,
+      "height": 7,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1,
+        1,1,1,1,1,1,1,1,1,1
+      ]
+    },
+    {
+      "name": "overlay",
+      "type": "tilelayer",
+      "width": 10,
+      "height": 7,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0
+      ]
+    },
+    {
+      "name": "building",
+      "type": "tilelayer",
+      "width": 10,
+      "height": 7,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        5,5,5,5,5,5,5,5,5,5,
+        5,0,0,0,0,0,0,0,0,5,
+        5,0,0,0,0,0,0,0,0,5,
+        5,0,0,0,0,0,0,0,0,5,
+        5,0,0,0,0,0,0,0,0,5,
+        5,0,0,0,0,0,0,0,0,5,
+        5,5,5,5,5,5,5,5,5,5
+      ]
+    },
+    {
+      "name": "front",
+      "type": "tilelayer",
+      "width": 10,
+      "height": 7,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0,
+        0,0,0,0,0,0,0,0,0,0
+      ]
+    },
+    {
+      "name": "collision",
+      "type": "tilelayer",
+      "width": 10,
+      "height": 7,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        1,1,1,1,1,1,1,1,1,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,0,0,0,0,0,0,0,0,1,
+        1,1,1,1,1,1,1,1,1,1
+      ]
+    },
+    {
+      "name": "objects",
+      "type": "objectgroup",
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "objects": [
+        {
+          "id": 1,
+          "name": "spawn_main",
+          "type": "spawn",
+          "x": 32,
+          "y": 32,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            { "name": "id", "type": "string", "value": "spawn_main" },
+            { "name": "default", "type": "bool", "value": true },
+            { "name": "facing", "type": "string", "value": "right" }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "trigger_step_gate",
+          "type": "trigger",
+          "x": 128,
+          "y": 32,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            { "name": "script", "type": "string", "value": "t/trigger_gate.lua" },
+            { "name": "mode", "type": "string", "value": "enter" },
+            { "name": "once", "type": "bool", "value": true },
+            { "name": "set_flag", "type": "string", "value": "t.gate_done" }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "trigger_press_gate",
+          "type": "trigger",
+          "x": 224,
+          "y": 32,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            { "name": "script", "type": "string", "value": "t/trigger_gate.lua" },
+            { "name": "mode", "type": "string", "value": "interact" },
+            { "name": "once", "type": "bool", "value": true },
+            { "name": "set_flag", "type": "string", "value": "t.gate_done" }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "id": "recipe_jiedan_lingyao",
+  "name": "结丹灵药方",
+  "kind": "alchemy",
+  "productId": "pill_jiedan_lingyao",
+  "productCount": 1,
+  "difficulty": 88,
+  "requiredProficiency": 72,
+  "inputs": [
+    {
+      "itemId": "herb_xuehong_zhi",
+      "count": 1,
+      "minAge": 100
+    },
+    {
+      "itemId": "herb_huangjing_cao",
+      "count": 1,
+      "minAge": 100
+    },
+    {
+      "itemId": "material_yaodan_3",
+      "count": 1
+    }
+  ]
+}

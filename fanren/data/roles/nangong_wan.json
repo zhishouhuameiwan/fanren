@@ -1,0 +1,18 @@
+{
+  "id": "nangong_wan",
+  "name": "南宫婉",
+  "realm": "FoundationMid",
+  "maxHp": 326,
+  "maxMp": 245,
+  "attack": 33,
+  "defence": 25,
+  "speed": 20,
+  "element": 6,
+  "magics": [
+    "magic_bingjian_shu",
+    "magic_feijian_shu",
+    "magic_hushen_gang"
+  ],
+  "origin": "原著",
+  "note": "掩月宗弟子，越国之战中与韩立并肩。"
+}

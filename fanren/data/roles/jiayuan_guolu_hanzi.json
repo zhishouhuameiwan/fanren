@@ -1,0 +1,14 @@
+{
+  "id": "jiayuan_guolu_hanzi",
+  "name": "过路汉子",
+  "realm": "Mortal",
+  "maxHp": 18,
+  "maxMp": 0,
+  "attack": 2,
+  "defence": 2,
+  "speed": 4,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "南陵街上过路的汉子（改编），ch05_nancheng 的 npc_luren。路径行动 luren_dating 的文案就叫他「过路的汉子」；从前借用南城街坊的 role，街上于是有两个「南城街坊」（map_spec 规则 30）。不参与战斗。"
+}

@@ -1,0 +1,182 @@
+{
+  "id": "objectives_ch05",
+  "name": "第 5 章目标链",
+  "chapter": 5,
+  "steps": [
+    {
+      "id": "n01_dongqu",
+      "text_key": "objective.ch05.n01_dongqu",
+      "done_flag": "ch05.kaipian",
+      "target_map": "ch05_dukou",
+      "target_object": "trigger_dongqu_lu"
+    },
+    {
+      "id": "n02_shangchuan",
+      "text_key": "objective.ch05.n02_shangchuan",
+      "done_flag": "ch05.shangchuan",
+      "target_map": "ch05_dukou",
+      "target_object": "trigger_shangchuan"
+    },
+    {
+      "id": "n03_matou",
+      "text_key": "objective.ch05.n03_matou",
+      "done_flag": "ch05.matou",
+      "target_map": "ch05_xicheng",
+      "target_object": "trigger_matou"
+    },
+    {
+      "id": "n04_heishuixiang",
+      "text_key": "objective.ch05.n04_heishuixiang",
+      "done_flag": "ch05.shoufu",
+      "target_map": "ch05_xicheng",
+      "target_object": "trigger_heishuixiang"
+    },
+    {
+      "id": "n05_zhuishao",
+      "text_key": "objective.ch05.n05_zhuishao",
+      "done_flag": "ch05.zhuishao",
+      "target_map": "ch05_xicheng",
+      "target_object": "trigger_zhuishao"
+    },
+    {
+      "id": "n06_qingbao",
+      "text_key": "objective.ch05.n06_qingbao",
+      "done_flag": "ch05.qingbao",
+      "target_map": "ch05_kezhan",
+      "target_object": "trigger_qingbao"
+    },
+    {
+      "id": "n07_jieren",
+      "text_key": "objective.ch05.n07_jieren",
+      "done_flag": "ch05.jieren",
+      "target_map": "ch05_xicheng",
+      "target_object": "trigger_jieren"
+    },
+    {
+      "id": "n08_jiulou",
+      "text_key": "objective.ch05.n08_jiulou",
+      "done_flag": "ch05.jiulou",
+      "target_map": "ch05_nancheng",
+      "target_object": "trigger_jiulou"
+    },
+    {
+      "id": "n09_yeru",
+      "text_key": "objective.ch05.n09_yeru",
+      "done_flag": "ch05.yeru",
+      "target_map": "ch05_nancheng",
+      "target_object": "trigger_yeru"
+    },
+    {
+      "id": "n10_toutin",
+      "text_key": "objective.ch05.n10_toutin",
+      "done_flag": "ch05.toutin",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_toutin"
+    },
+    {
+      "id": "n11_dengmen",
+      "text_key": "objective.ch05.n11_dengmen",
+      "done_flag": "ch05.dengmen",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_dengmen"
+    },
+    {
+      "id": "n12_jianmianli",
+      "text_key": "objective.ch05.n12_jianmianli",
+      "done_flag": "ch05.jianmianli",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_jianmianli"
+    },
+    {
+      "id": "n13_huayuan",
+      "text_key": "objective.ch05.n13_huayuan",
+      "done_flag": "ch05.huayuan",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_huayuan"
+    },
+    {
+      "id": "n14_duizhi",
+      "text_key": "objective.ch05.n14_duizhi",
+      "done_flag": "ch05.duizhi",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_duizhi"
+    },
+    {
+      "id": "n15_dingji",
+      "text_key": "objective.ch05.n15_dingji",
+      "done_flag": "ch05.dingji",
+      "target_map": "ch05_kezhan",
+      "target_object": "trigger_dingji"
+    },
+    {
+      "id": "n16_xiaoxiang",
+      "text_key": "objective.ch05.n16_xiaoxiang",
+      "done_flag": "ch05.xiaoxiang",
+      "target_map": "ch05_xicheng",
+      "target_object": "trigger_xiaoxiangyuan"
+    },
+    {
+      "id": "n17_duobang",
+      "text_key": "objective.ch05.n17_duobang",
+      "done_flag": "ch05.duobang",
+      "target_map": "ch05_kezhan",
+      "target_object": "trigger_shuijiao"
+    },
+    {
+      "id": "n18_jiaoyi",
+      "text_key": "objective.ch05.n18_jiaoyi",
+      "done_flag": "ch05.jiaoyi",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_jiaoyi"
+    },
+    {
+      "id": "n19_yange",
+      "text_key": "objective.ch05.n19_yange",
+      "done_flag": "ch05.yange",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_yange"
+    },
+    {
+      "id": "n20_anpai",
+      "text_key": "objective.ch05.n20_anpai",
+      "done_flag": "ch05.anpai",
+      "target_map": "ch05_kezhan",
+      "target_object": "trigger_anpai"
+    },
+    {
+      "id": "n21_majiu",
+      "text_key": "objective.ch05.n21_majiu",
+      "done_flag": "ch05.shigui",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_majiu"
+    },
+    {
+      "id": "n22_zhuwu",
+      "text_key": "objective.ch05.n22_zhuwu",
+      "done_flag": "ch05.chuzheng",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_zhuwu"
+    },
+    {
+      "id": "n23_tancha",
+      "text_key": "objective.ch05.n23_tancha",
+      "done_flag": "ch05.tancha",
+      "target_map": "ch05_dubashanzhuang",
+      "target_object": "trigger_tancha"
+    },
+    {
+      "id": "n24_cisha",
+      "text_key": "objective.ch05.n24_cisha",
+      "done_flag": "ch05.cisha",
+      "target_map": "ch05_dubashanzhuang",
+      "target_object": "trigger_shangyue"
+    },
+    {
+      "id": "n25_huanyu",
+      "text_key": "objective.ch05.n25_huanyu",
+      "done_flag": "ch05.done",
+      "target_map": "ch05_mofu",
+      "target_object": "trigger_huanyu"
+    }
+  ]
+}

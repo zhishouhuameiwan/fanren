@@ -1,0 +1,13 @@
+{
+  "id": "pill_zhuji_dan",
+  "name": "筑基丹",
+  "descKey": "item.desc.pill_zhuji_dan",
+  "kind": "pill",
+  "grade": 5,
+  "price": 9000,
+  "tradeable": true,
+  "restoreHp": 0,
+  "restoreMp": 0,
+  "origin": "原著",
+  "note": "原著确证：ch106 首现，ch144 筑基丹之争、ch160-172 血禁试炼、ch212-216 炼丹与筑基。价格锚点 ch212：约十株灵药换一枚——本价取 9000，约合九株五十年份灵草。服后须闭关三月（ch172、216）。"
+}

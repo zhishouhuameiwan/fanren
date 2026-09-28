@@ -1,0 +1,32 @@
+{
+  "id": "b12_xutian_hudian_kuilei",
+  "name": "虚天殿·护殿傀儡",
+  "chapter": 12,
+  "legacy_id": "B_XT_GUARD",
+  "terrain": "secret",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "zi_ling",
+      "faction": "ally"
+    },
+    {
+      "role_id": "xutian_hudian_kuilei",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "xutian_hudian_kuilei",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 1100,
+    "spirit_stones": 260,
+    "drops": []
+  },
+  "intro_key": "ch12.battle.xutian_hudian_kuilei.intro",
+  "origin": "改编",
+  "rewritten_by_lore": false,
+  "note": "虚天殿三百年一现，持虚天残图入场（ch431）。原著三关是鬼冤之地 → 冰火道 → 宝光阁，未写守卫傀儡；此战保留旧原型的傀儡关作为外殿门槛，标为改编。友军紫灵与韩立组队闯第一关（ch436-443），属原著。"
+}

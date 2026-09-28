@@ -1,0 +1,13 @@
+{
+  "id": "weapon_yudai_duanjian",
+  "name": "玉带短剑",
+  "descKey": "item.desc.weapon_yudai_duanjian",
+  "kind": "artifact",
+  "grade": 1,
+  "price": 30,
+  "tradeable": true,
+  "addAttack": 4,
+  "weapon": "剑",
+  "origin": "原著",
+  "note": "原著确证 ch60：一截手指宽、约一尺半长、通体柔韧、藏在腰带夹层里的软剑，韩立花重金打的最后一柄，他并不擅长此类兵器。价 30 块碎银，刻意压在第 2 章章末余钱的分水岭上：第 2 章把钱寄回家的玩家买得起（余约 58 块），把钱全换成药材的玩家买不起（余约 5 块），于是节点 11 的处决有剑与无剑两条都真的走得到。\n\n【八方旅人化改造 2026-09-25】weapon 字段：揣在韩立身上，他的普攻就多一样「剑」可选（docs/octopath-battle.md 2.2：空手的拳永远有，背包里每件兵器再加一样）。没有装备系统，addAttack 仍然没人读。"
+}

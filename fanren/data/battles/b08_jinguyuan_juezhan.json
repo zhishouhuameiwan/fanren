@@ -1,0 +1,38 @@
+{
+  "id": "b08_jinguyuan_juezhan",
+  "name": "金鼓原决战",
+  "chapter": 8,
+  "legacy_id": "B_WAR_BOSS",
+  "terrain": "battlefield",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "nangong_wan",
+      "faction": "ally"
+    },
+    {
+      "role_id": "guilingmen_zhanglao",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "guilingmen_xiushi",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 800,
+    "spirit_stones": 260,
+    "drops": [
+      {
+        "item_id": "pill_huiqi_dan",
+        "count": 3,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch08.battle.jinguyuan_juezhan.intro",
+  "origin": "改编",
+  "rewritten_by_lore": true,
+  "note": "旧原型的「燕血魔君」查无。原著也未给金鼓原战场的魔道指挥者具名，故以「鬼灵门长老」这一门派 + 职位的泛称承担 Boss 位，门派本身是原著的（六宗中最弱、也是挑起者）。"
+}

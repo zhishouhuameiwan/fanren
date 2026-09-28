@@ -1,0 +1,23 @@
+{
+  "ui.battle.order.now": "本回合",
+  "ui.battle.order.next": "下回合",
+  "ui.battle.break": "破势",
+  "ui.battle.weak": "破绽",
+  "ui.battle.boost": "蓄劲",
+  "ui.battle.charge": "蓄势",
+  "ui.battle.charge_interrupt": "蓄势被打断",
+  "ui.battle.recover": "重整架势",
+  "ui.battle.hint.menu": "↑↓ 选择 · ←→ 蓄劲 · 回车 确定 · Esc / {key.menu} 返回 · 按住 {key.skip} 加速",
+  "ui.battle.hint.watch": "按住 {key.skip} 加速",
+
+  "ui.battle.victory": "胜",
+  "ui.battle.victory.sub": "此战告捷",
+  "ui.battle.result.cultivation": "修为",
+  "ui.battle.result.nothing": "此战别无所得",
+  "ui.battle.result.lost": "败北",
+  "ui.battle.result.lost.sub": "眼前一黑，再也撑不住了……",
+  "ui.battle.result.escaped": "脱身而去",
+  "ui.battle.result.escaped.sub": "且战且退，总算甩开了对手。",
+  "ui.battle.result.enemy_fled": "对手遁走",
+  "ui.battle.result.devour": "咬下"
+}

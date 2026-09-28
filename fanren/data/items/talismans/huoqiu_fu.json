@@ -1,0 +1,12 @@
+{
+  "id": "talisman_huoqiu_fu",
+  "name": "火球符",
+  "descKey": "item.desc.talisman_huoqiu_fu",
+  "kind": "talisman",
+  "grade": 1,
+  "price": 26,
+  "tradeable": true,
+  "addAttack": 5,
+  "origin": "原著",
+  "note": "原著确证：ch186、261（另有「火弹符」见于后文，超出本篇范围）。注意原著低阶攻击法术作「火弹术」（ch67），「火球术」全本 0 命中，勿混用。"
+}

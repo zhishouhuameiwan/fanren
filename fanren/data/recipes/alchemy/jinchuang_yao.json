@@ -1,0 +1,16 @@
+{
+  "id": "recipe_jinchuang_yao",
+  "name": "金疮药方",
+  "kind": "alchemy",
+  "productId": "pill_jinchuang_yao",
+  "productCount": 1,
+  "difficulty": 5,
+  "requiredProficiency": 0,
+  "inputs": [
+    {
+      "itemId": "herb_qingfeng_cao",
+      "count": 1,
+      "minAge": 10
+    }
+  ]
+}

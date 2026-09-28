@@ -1,0 +1,13 @@
+{
+  "id": "pill_dingyan_dan",
+  "name": "定颜丹",
+  "descKey": "item.desc.pill_dingyan_dan",
+  "kind": "pill",
+  "grade": 4,
+  "price": 8200,
+  "tradeable": true,
+  "restoreHp": 0,
+  "restoreMp": 0,
+  "origin": "原著",
+  "note": "原著确证：ch155、159、161、243、356。丹方得自岳麓殿藏室（大纲第 7 章）；材料常见、不需真火，故溢价压低。价格锚点 ch356：2 颗定颜丹 + 1000 灵石换红线遁光针一套。"
+}

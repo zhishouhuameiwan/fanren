@@ -1,0 +1,112 @@
+{
+  "id": "objectives_ch03",
+  "name": "第 3 章目标链",
+  "chapter": 3,
+  "steps": [
+    {
+      "id": "n1_elang",
+      "text_key": "objective.ch03.n1_elang",
+      "done_flag": "ch03.elang_done",
+      "target_map": "ch03_guwai",
+      "target_object": "trigger_elang"
+    },
+    {
+      "id": "n2_mogui",
+      "text_key": "objective.ch03.n2_mogui",
+      "done_flag": "ch03.mo_gui_gu",
+      "target_map": "ch01_shenshougu",
+      "target_object": "trigger_mogui"
+    },
+    {
+      "id": "n3_tanpai",
+      "text_key": "objective.ch03.n3_tanpai",
+      "done_flag": "ch03.tanpai_done",
+      "target_map": "ch03_mishi",
+      "target_object": "trigger_tanpai"
+    },
+    {
+      "id": "n4_shichong",
+      "text_key": "objective.ch03.n4_shichong",
+      "done_flag": "ch03.shichong_wan",
+      "target_map": "ch03_mishi",
+      "target_object": "trigger_shichong"
+    },
+    {
+      "id": "n5_yingdui",
+      "text_key": "objective.ch03.n5_yingdui",
+      "done_flag": "ch03.yingdui_xuan",
+      "target_map": "ch02_jusuo",
+      "target_object": "trigger_yingdui"
+    },
+    {
+      "id": "n6_miji",
+      "text_key": "objective.ch03.n6_miji",
+      "done_flag": "ch03.miji_done",
+      "target_map": "ch03_cangshu",
+      "target_object": "trigger_miji"
+    },
+    {
+      "id": "n7_beidu",
+      "text_key": "objective.ch03.n7_beidu",
+      "done_flag": "ch03.beidu_done",
+      "target_map": "ch02_yaopu",
+      "target_object": "trigger_beidu"
+    },
+    {
+      "id": "n8_yunchi",
+      "text_key": "objective.ch03.n8_yunchi",
+      "done_flag": "ch03.yuzitong_lu",
+      "target_map": "ch03_andao",
+      "target_object": "trigger_yunchi"
+    },
+    {
+      "id": "n8b_zhan",
+      "text_key": "objective.ch03.n8b_zhan",
+      "done_flag": "ch03.andao_zhan",
+      "target_map": "ch03_andao",
+      "target_object": "trigger_andao_zhan"
+    },
+    {
+      "id": "n9_jieyao",
+      "text_key": "objective.ch03.n9_jieyao",
+      "done_flag": "ch03.jieyao_xuan",
+      "target_map": "ch03_mishi",
+      "target_object": "trigger_jieyao"
+    },
+    {
+      "id": "n10_duoshe",
+      "text_key": "objective.ch03.n10_duoshe",
+      "done_flag": "ch03.shihai_done",
+      "target_map": "ch02_jusuo",
+      "target_object": "trigger_duoshe"
+    },
+    {
+      "id": "n11_chujue",
+      "text_key": "objective.ch03.n11_chujue",
+      "done_flag": "ch03.yuzitong_chujue",
+      "target_map": "ch02_jusuo",
+      "target_object": "trigger_chujue"
+    },
+    {
+      "id": "n12_tiezhe",
+      "text_key": "objective.ch03.n12_tiezhe",
+      "done_flag": "ch03.tiezhe_zhi",
+      "target_map": "ch03_andao",
+      "target_object": "trigger_tiezhe"
+    },
+    {
+      "id": "n12b_quhun",
+      "text_key": "objective.ch03.n12b_quhun",
+      "done_flag": "ch03.quhun_rudui",
+      "target_map": "ch03_andao",
+      "target_object": "trigger_quhun"
+    },
+    {
+      "id": "n12c_ligu",
+      "text_key": "objective.ch03.n12c_ligu",
+      "done_flag": "ch03.done",
+      "target_map": "ch03_guwai",
+      "target_object": "trigger_ligu"
+    }
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "checksum": "4d84033b72b1cf2e",
+  "payload": {
+    "alchemyProficiency": 0,
+    "aptitude": 50,
+    "bag": [
+      {
+        "count": 7,
+        "herbAge": 0,
+        "itemId": "herb_huangjing_cao"
+      },
+      {
+        "count": 2,
+        "herbAge": 0,
+        "itemId": "herb_zishen_cao"
+      },
+      {
+        "count": 28,
+        "herbAge": 0,
+        "itemId": "material_lingshi"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_mo_shouzha"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "herb_tugu_hua"
+      },
+      {
+        "count": 3,
+        "herbAge": 0,
+        "itemId": "pill_qingdu_san"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "weapon_yudai_duanjian"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_mo_jiashu"
+      }
+    ],
+    "bottle": {
+      "capacity": 3,
+      "drops": 3,
+      "lastChargeDay": 697,
+      "matureKnown": true,
+      "owned": true
+    },
+    "chapter": 1,
+    "cultivation": 45,
+    "cultivationRemainder": 0,
+    "day": 697,
+    "encounter": {
+      "lastDay": 0,
+      "stepsSinceLast": 0,
+      "stepsUntilNext": 0,
+      "triggeredToday": 0
+    },
+    "facing": 2,
+    "fields": [],
+    "flags": {
+      "ch01.baoming_done": 1,
+      "ch01.climb_done": 1,
+      "ch01.dazuo_done": 1,
+      "ch01.done": 1,
+      "ch01.fangbang_done": 1,
+      "ch01.koujue_received": 1,
+      "ch01.muqin_bie": 1,
+      "ch01.sanshu_met": 1,
+      "ch01.shenshougu_arrived": 1,
+      "ch01.shoutu_done": 1,
+      "ch01.zhangtie_met": 1,
+      "ch02.caiyao_done": 1,
+      "ch02.chousui_jian": 1,
+      "ch02.cuishou_unlocked": 1,
+      "ch02.dazuo_done": 1,
+      "ch02.done": 1,
+      "ch02.duan2_start": 1,
+      "ch02.duan3_start": 1,
+      "ch02.duan4_start": 1,
+      "ch02.duan5_start": 1,
+      "ch02.kaigai_done": 1,
+      "ch02.koujue_ceng": 3,
+      "ch02.qian_quxiang": 1,
+      "ch02.renqing_jiexia": 1,
+      "ch02.renyao_done": 1,
+      "ch02.shiping_done": 1,
+      "ch02.shiyao_done": 1,
+      "ch02.xiangqi_ping": 1,
+      "ch02.zaping_done": 1,
+      "ch03.andao_zhan": 1,
+      "ch03.beidu_done": 1,
+      "ch03.done": 1,
+      "ch03.elang_done": 1,
+      "ch03.jieyao_xuan": 1,
+      "ch03.miji_done": 1,
+      "ch03.miji_juewu": 1,
+      "ch03.mo_gui_gu": 1,
+      "ch03.mo_siwang": 1,
+      "ch03.quhun_rudui": 1,
+      "ch03.shichong_wan": 1,
+      "ch03.shihai_done": 1,
+      "ch03.shihai_yaoxia": 35,
+      "ch03.tanpai_done": 1,
+      "ch03.tanpai_ren": 1,
+      "ch03.tiezhe_zhi": 1,
+      "ch03.yingdui_xuan": 1,
+      "ch03.yuzitong_chujue": 1,
+      "ch03.yuzitong_lu": 1
+    },
+    "forgeProficiency": 0,
+    "formationProficiency": 0,
+    "hp": 60,
+    "knownWeaknesses": {
+      "jiang_shou": [
+        "毒"
+      ],
+      "long_zhong_shou": [
+        "剑"
+      ],
+      "wild_wolf": [
+        "拳"
+      ]
+    },
+    "lastPracticeDay": 0,
+    "learnedMagics": [],
+    "mapId": "ch03_guwai",
+    "maxHp": 60,
+    "maxMp": 30,
+    "mp": 30,
+    "party": [
+      {
+        "active": true,
+        "hp": -1,
+        "roleId": "qu_hun"
+      }
+    ],
+    "playSecondsGameplay": 4.849999999999988,
+    "playSecondsSystem": 0.0,
+    "position": {
+      "x": 19,
+      "y": 25
+    },
+    "realm": 3,
+    "realmCap": 3,
+    "talismanProficiency": 0
+  },
+  "save_version": 8
+}

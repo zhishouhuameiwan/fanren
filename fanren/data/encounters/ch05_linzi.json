@@ -1,0 +1,20 @@
+{
+  "id": "encounter_ch05_linzi",
+  "name": "庄外林子",
+  "dailyCap": 3,
+  "entries": [
+    {
+      "battleId": "be05_linzi_langqun",
+      "weight": 3,
+      "minRealm": "QiRefining5",
+      "maxRealm": "QiRefining10"
+    },
+    {
+      "battleId": "be05_linzi_yezhu",
+      "weight": 2,
+      "minRealm": "QiRefining5",
+      "maxRealm": "QiRefining10"
+    }
+  ],
+  "note": "第 5 章独霸山庄外的林子（ch05_dubashanzhuang 的 encounter_linzi）。只有野兽，不用庄丁（第 5 章校对 8.4）。"
+}

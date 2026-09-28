@@ -1,0 +1,27 @@
+{
+  "id": "be05_dukou_jianjing",
+  "name": "河滩剪径",
+  "chapter": 5,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "jianjing_zei",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "jianjing_zei",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 5,
+    "spirit_stones": 3,
+    "drops": []
+  },
+  "intro_key": "ch05.dongqu.encounter_zei",
+  "origin": "改编",
+  "rewritten_by_lore": false,
+  "note": "野外遭遇编成（docs/interfaces-octo-encounters.md 第 5 节）：defeat_is_fatal 假（输了不 game over，气血至少 1 就地放回）、can_escape 真；奖励只给少量修为、碎银与药材（门禁规则 27 钉着上限），修为照走境界上限。渡口河滩：两个剪径贼，凶 392，低于本章最轻的剧情战（432）。拦路的毛贼，不是任何一家帮会的人。"
+}

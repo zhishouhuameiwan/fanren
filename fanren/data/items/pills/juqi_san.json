@@ -1,0 +1,13 @@
+{
+  "id": "pill_juqi_san",
+  "name": "聚气散",
+  "descKey": "item.desc.pill_juqi_san",
+  "kind": "pill",
+  "grade": 1,
+  "price": 90,
+  "tradeable": true,
+  "restoreHp": 0,
+  "restoreMp": 30,
+  "origin": "改编",
+  "note": "全本检索 0 命中，属改编。低阶散剂，配方产出 2 份。"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "wild_wolf",
+  "name": "恶狼",
+  "realm": "Mortal",
+  "maxHp": 18,
+  "maxMp": 0,
+  "attack": 4,
+  "defence": 3,
+  "speed": 9,
+  "element": 0,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "剑",
+    "拳",
+    "火"
+  ],
+  "origin": "改编",
+  "note": "教学关用的普通野兽，原著未写此遭遇。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲第一版：架势 2，破绽 剑、拳、火。理由：野兽怕刃与火；第 3 章谷外那一仗韩立手里只有一块带棱的石头（拳），第一场教学就得打得出破绽。整张表与取舍见 docs/octopath-battle.md 第 7 节，B2 会用新的那只手量过再调。"
+}

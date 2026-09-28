@@ -1,0 +1,24 @@
+{
+  "id": "b14_fengxi_xiezhi",
+  "name": "磷火潭·风希挟制",
+  "chapter": 14,
+  "legacy_id": "B_FENGXI",
+  "terrain": "sea",
+  "can_escape": true,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "feng_xi",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 2200,
+    "spirit_stones": 600,
+    "drops": []
+  },
+  "intro_key": "ch14.battle.fengxi_xiezhi.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "风希是外星海磷火潭的九级裂风兽化形，ch543 才出场，与天星城、内星海政权无关（旧方案把它放在天星城一章是错的）。原著韩立被其擒住、被迫破境至结丹后期，并非战而胜之：本战应由脚本判为「撑满回合后被擒」，can_escape 置 true。"
+}

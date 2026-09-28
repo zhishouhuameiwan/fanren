@@ -1,0 +1,430 @@
+{
+  "_doc": "地图视觉预设（人工维护）。烘焙器 tools/artgen/artgen.py 读它，与推断出的光源、水面、粒子发射点合成 assets/art/maps/<map_id>/meta.json。字段说明见 docs/art-maps.md。time 取值 day|dusk|night|indoor；ambient/dof/bloom/vignette 缺省按 time 取默认，写了就覆写。zones/structures/props/trees/decals 是推断不了时的人工指认，每一条都写了 why；marks 是可走地面上贴地的痕迹（脚印、长影，不改碰撞）；dof_why 是这张图景深取值的理由。",
+  "maps": {
+    "ch01_hanjiacun": {
+      "theme": "village",
+      "time": "day",
+      "season": "spring",
+      "why": "第 1 章开篇与第 4 章回村都是白天；春日山村，村口几株桃树。",
+      "particles": [
+        {"kind": "petal", "rate": 0.5},
+        {"kind": "dust", "rate": 0.25}
+      ],
+      "backdrop": "village_road",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "trees": [
+        {"at": [3, 4], "species": "locust", "why": "村中老树（原图 3×3 树冠保留），画成老槐"},
+        {"at": [16, 3], "species": "locust", "why": "村口那棵老槐树（ch01.cunkou.dawn / depart：话别就在它底下；村口 2026-09-27 挪到北墙时补的）"}
+      ]
+    },
+    "ch01_qingniuzhen": {
+      "theme": "town",
+      "time": "day",
+      "season": "spring",
+      "why": "报名、闲聊都在白天；集镇晴日，街上尘土。",
+      "particles": [
+        {"kind": "dust", "rate": 0.4}
+      ],
+      "backdrop": "town_street",
+      "dof": 0.6,
+      "dof_why": "一排排屋顶铺满画面，上下两头的屋顶糊开，中间主角那条街才跳出来",
+      "zones": [
+        {"rect": [35, 22, 39, 22], "ground": "flagstone", "why": "报名长案底下也铺广场石：推断只给能走的格铺石板，案子那几格留着底色草地，案子四周就露出一圈草边"}
+      ],
+      "props": [
+        {"at": [35, 22], "kind": "desk", "why": "报名的两张长案之一：文案「镇东那片空场上支着两张长桌」「桌后坐着……面前摊着册子，笔头在砚台里顿了顿」（ch01.zhenshang.crowd / kg_register）"},
+        {"at": [38, 22], "kind": "desk", "why": "报名的两张长案之二，与西边那张夹着考官身前一格过道"}
+      ]
+    },
+    "ch01_caixiashan": {
+      "theme": "mountain_path",
+      "time": "day",
+      "season": "spring",
+      "why": "上山遇张铁是白天；松林山道，林间薄雾。",
+      "particles": [
+        {"kind": "leaf", "rate": 0.25},
+        {"kind": "mist", "rate": 0.3}
+      ],
+      "backdrop": "mountain_forest",
+      "dof": 0.65,
+      "dof_why": "山道穿林，画面上下多是林冠，糊得多也不丢要看的东西，移轴感最足"
+    },
+    "ch01_qixuanmen": {
+      "theme": "sect",
+      "time": "day",
+      "season": "spring",
+      "why": "本章只路过的山门院子，白天。",
+      "particles": [
+        {"kind": "dust", "rate": 0.25}
+      ],
+      "backdrop": "sect_courtyard",
+      "dof": 0.5,
+      "dof_why": "24×18 的小院子比屏幕还窄，镜头常贴着图边、主角常在画面上下沿，取室外的下限再低一点免得糊到人",
+      "zones": [
+        {"rect": [3, 5, 20, 13], "ground": "stone_road", "why": "殿前石坪：原图整院一色草地（gid 1），宗门山门里头是铺石的"},
+        {"rect": [11, 14, 12, 16], "ground": "stone_road", "why": "南门进来到石坪的甬道"},
+        {"rect": [3, 1, 4, 4], "ground": "stone_road", "why": "石坪到西北角门（去炼骨崖）的小径"}
+      ]
+    },
+    "ch01_liangu_ya": {
+      "theme": "cliff",
+      "time": "day",
+      "season": "spring",
+      "why": "考核、放榜都在白天；崖上风大，扬尘。",
+      "particles": [
+        {"kind": "dust", "rate": 0.35},
+        {"kind": "mist", "rate": 0.2}
+      ],
+      "backdrop": "cliff_top",
+      "dof": 0.65,
+      "dof_why": "竖长的崖道，一级级石阶往上，上下两头糊开最像俯看一座模型山"
+    },
+    "ch01_shenshougu": {
+      "theme": "valley",
+      "time": "day",
+      "season": "spring",
+      "why": "入谷安顿、传口诀、教打坐都在白天；谷中水潭起薄雾。",
+      "particles": [
+        {"kind": "dust", "rate": 0.2},
+        {"kind": "petal", "rate": 0.15}
+      ],
+      "backdrop": "herb_valley",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感"
+    },
+    "ch02_yaopu": {
+      "theme": "valley",
+      "time": "day",
+      "season": "spring",
+      "why": "第 2 章段一「入谷首年·春」，药圃日常都在白天。",
+      "particles": [
+        {"kind": "dust", "rate": 0.2},
+        {"kind": "petal", "rate": 0.2}
+      ],
+      "backdrop": "herb_valley",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "props": [
+        {"at": [27, 8], "kind": "stone_mill", "why": "晾药棚前的石碾（genmaps_ch02 注释：节点 8 配药就在这儿）"},
+        {"at": [21, 17], "kind": "hutch", "why": "南头空地的兔笼（段五试药）"}
+      ],
+      "trees": [
+        {"at": [34, 27], "species": "locust", "why": "药圃东头那棵老槐（ch03.ligu.clean：师父埋在它底下）"}
+      ]
+    },
+    "ch02_jusuo": {
+      "theme": "indoor_wood",
+      "time": "indoor",
+      "season": "summer",
+      "why": "韩立与张铁的住处；打坐、藏瓶、第 3 章的夺舍都在屋里，给烛光。",
+      "particles": [
+        {"kind": "dust", "rate": 0.35}
+      ],
+      "backdrop": "inn_hall",
+      "dof": 0.35,
+      "dof_why": "室内窄图（24×18），屋子比屏幕还窄，主角常在画面上下沿；只糊一点边",
+      "zones": [
+        {"rect": [14, 1, 22, 16], "ground": "grass", "road": "stone_road", "why": "东半是院子（院门进来、水缸、晒药架），不是屋里"},
+        {"rect": [1, 1, 12, 16], "road": "wood_floor", "why": "屋里那条过道（gid 2）也是木地板，不是青砖"}
+      ],
+      "props": [
+        {"at": [1, 11], "kind": "chest", "why": "墙角一只衣箱"},
+        {"at": [17, 6], "kind": "water_jar", "why": "院中水缸（第八日瓶盖在这儿开）"},
+        {"at": [20, 12], "kind": "drying_rack", "why": "晒药架"}
+      ]
+    },
+    "ch02_yabi": {
+      "theme": "cliff",
+      "time": "dusk",
+      "season": "autumn",
+      "why": "第 2 章段二「第一年·秋」山路拾瓶；取秋日傍晚，崖上枫红。",
+      "particles": [
+        {"kind": "leaf", "rate": 0.5},
+        {"kind": "dust", "rate": 0.2}
+      ],
+      "backdrop": "cliff_top_dusk",
+      "dof": 0.65,
+      "dof_why": "竖长的崖道，同炼骨崖"
+    },
+    "ch02_wairentang": {
+      "theme": "sect",
+      "time": "day",
+      "season": "summer",
+      "why": "卖药、同门往来、还人情都在白天。",
+      "particles": [
+        {"kind": "dust", "rate": 0.3}
+      ],
+      "backdrop": "drill_ground",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "zones": [
+        {"rect": [4, 21, 11, 24], "special": "earth", "why": "收药处铺前那方空地（gid 3），是夯土院子不是台阶"}
+      ]
+    },
+    "ch03_mishi": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "season": "summer",
+      "why": "堂屋底下的密室，只有烛火与丹炉的光。",
+      "particles": [
+        {"kind": "dust", "rate": 0.4},
+        {"kind": "ember", "rate": 0.15}
+      ],
+      "ambient": [96, 84, 78],
+      "backdrop": "secret_room",
+      "dof": 0.35,
+      "dof_why": "地下密室，窄（24×18），只糊一点边，别糊到主角与石案",
+      "props": [
+        {"at": [5, 6], "kind": "stone_table", "why": "石案"},
+        {"at": [16, 6], "kind": "cabinet", "why": "药柜（解药在这儿）"},
+        {"at": [17, 12], "kind": "stone_bed", "why": "石榻"},
+        {"at": [5, 12], "kind": "furnace", "why": "丹炉"}
+      ],
+      "zones": [
+        {"rect": [11, 14, 12, 17], "road": "steps", "why": "石阶甬道：自堂屋地面一级级下到密室，从南墙进屋（原在北墙，2026-09-27 为规则 29 挪过来）"}
+      ]
+    },
+    "ch03_cangshu": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "season": "summer",
+      "why": "堂屋地基下的藏书处，偷秘籍要摸黑，只给几盏壁灯。",
+      "particles": [
+        {"kind": "dust", "rate": 0.45}
+      ],
+      "ambient": [88, 80, 76],
+      "backdrop": "secret_room",
+      "dof": 0.4,
+      "dof_why": "室内，比密室宽些，取室内的常用值",
+      "props": [
+        {"at": [29, 12], "kind": "book_chest", "why": "内阁书匣（秘籍在里头）"}
+      ]
+    },
+    "ch03_andao": {
+      "theme": "cave",
+      "time": "indoor",
+      "season": "summer",
+      "why": "墨居仁凿的穿山暗道，洞穴暗光；石室里有火把。",
+      "particles": [
+        {"kind": "dust", "rate": 0.3},
+        {"kind": "mist", "rate": 0.2}
+      ],
+      "ambient": [58, 66, 88],
+      "backdrop": "cave_tunnel",
+      "dof": 0.45,
+      "dof_why": "暗道是长长的洞道，有纵深，比一般室内多糊一点，洞里本来也暗",
+      "props": [
+        {"at": [26, 9], "kind": "bird_perch", "why": "岔室鸟架（云翅鸟）"},
+        {"at": [28, 10], "kind": "cage", "why": "岔室石笼"},
+        {"at": [10, 19], "kind": "coffin", "why": "石室石棺（曲魂入队）"}
+      ]
+    },
+    "ch03_guwai": {
+      "theme": "wild",
+      "time": "dusk",
+      "season": "autumn",
+      "why": "谷外荒坡，第一场仗遇狼；取傍晚，狼出没的时辰。章末离谷亦在此。",
+      "particles": [
+        {"kind": "leaf", "rate": 0.4},
+        {"kind": "dust", "rate": 0.2}
+      ],
+      "backdrop": "mountain_forest_dusk",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "structures": [
+        {"rect": [24, 1, 38, 13], "kind": "rock", "style": "cliff", "why": "穿岩夹道北侧岩壁（不是林子）"},
+        {"rect": [24, 16, 38, 28], "kind": "rock", "style": "cliff", "why": "穿岩夹道南侧岩壁"}
+      ]
+    },
+    "ch04_getang": {
+      "theme": "sect",
+      "time": "day",
+      "season": "summer",
+      "why": "以韩神医身份留下、金光上人来访，都在白天。",
+      "particles": [
+        {"kind": "dust", "rate": 0.25}
+      ],
+      "backdrop": "sect_courtyard",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感"
+    },
+    "ch04_luorifeng": {
+      "theme": "cliff",
+      "time": "dusk",
+      "season": "autumn",
+      "why": "落日峰，名字就是时辰；丹房炉火在暮色里最好看。四面是崖，崖外画云海。",
+      "particles": [
+        {"kind": "leaf", "rate": 0.3},
+        {"kind": "mist", "rate": 0.35}
+      ],
+      "backdrop": "cliff_top_dusk",
+      "dof": 0.65,
+      "dof_why": "峰顶四面是云海，外圈糊得多更像站在高处往下看",
+      "border": "abyss"
+    },
+    "ch04_yanwuchang": {
+      "theme": "sect",
+      "time": "day",
+      "season": "summer",
+      "why": "切磋在白天；攻防战是夜袭，战斗背景另用夜版（见 battles.json）。",
+      "particles": [
+        {"kind": "dust", "rate": 0.45}
+      ],
+      "backdrop": "drill_ground",
+      "dof": 0.6,
+      "dof_why": "大校场，远处的演武台与近处的兵器架靠移轴拉开",
+      "zones": [
+        {"rect": [1, 12, 46, 38], "ground": "sand", "why": "演武台以南是校场：原图一色草地（gid 1），练兵、列阵、箭靶都在这片夯沙地上；台子四周留草"},
+        {"rect": [33, 22, 39, 27], "special": "scorched", "why": "校场东头焦土（节点 10 战利品）"}
+      ],
+      "props": [
+        {"at": [4, 34], "kind": "weapon_rack_row", "why": "兵器架（genmaps_ch04：兵器架与箭靶）"},
+        {"at": [35, 34], "kind": "weapon_rack_row", "why": "兵器架"},
+        {"at": [14, 16], "kind": "target", "why": "箭靶"},
+        {"at": [33, 16], "kind": "target", "why": "箭靶"},
+        {"at": [47, 18], "kind": "gate_doors", "why": "东辕门：只做样子的一道门，墙照旧不通"}
+      ],
+      "marks": [
+        {"rect": [1, 12, 46, 38], "trails": 14, "drags": 6, "pebbles": 45, "tufts": 40, "pole_shadows": [[1, 14], [1, 26], [1, 31]], "why": "终审 LOW-10：校场放大三倍后太空。沙地上补脚印、拖痕、零星碎石与草，西墙外旗杆的长影与兵器架、箭靶的斜影；全是贴地的，不改碰撞"}
+      ]
+    },
+    "ch04_shanxiazhen": {
+      "theme": "town",
+      "time": "day",
+      "season": "autumn",
+      "why": "药市与贾天龙拦路都在白天；彩霞山北麓，秋。",
+      "particles": [
+        {"kind": "dust", "rate": 0.35},
+        {"kind": "leaf", "rate": 0.15}
+      ],
+      "backdrop": "town_street",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感"
+    },
+    "ch05_dukou": {
+      "theme": "dock",
+      "time": "dusk",
+      "season": "autumn",
+      "why": "东去两个月到岚州渡口，野宿遇狼、上船；黄昏的江边，芦苇与江雾。",
+      "particles": [
+        {"kind": "mist", "rate": 0.5},
+        {"kind": "firefly", "rate": 0.2}
+      ],
+      "backdrop": "dock_river",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "decals": [
+        {"at": [36, 14], "w": 3, "h": 2, "kind": "boat", "why": "栈桥尽头拴着的那条船（节点 1b 上船）"}
+      ]
+    },
+    "ch05_xicheng": {
+      "theme": "town",
+      "time": "dusk",
+      "season": "autumn",
+      "why": "码头、黑水巷，盯梢在「天擦黑」（设计文档节点 3b）；黄昏的码头灯笼已点上。",
+      "particles": [
+        {"kind": "mist", "rate": 0.3},
+        {"kind": "dust", "rate": 0.2}
+      ],
+      "backdrop": "dock_river",
+      "dof": 0.6,
+      "dof_why": "屋顶群加码头，上下两头糊开，中间的巷子与栈桥才清楚",
+      "zones": [
+        {"rect": [33, 11, 41, 25], "road": "plank", "why": "码头木板（genmaps_ch05：码头木板）"}
+      ],
+      "decals": [
+        {"at": [45, 17], "w": 2, "h": 2, "kind": "boat", "why": "栈桥外的来船（节点 1b 下船处）"}
+      ]
+    },
+    "ch05_nancheng": {
+      "theme": "town",
+      "time": "day",
+      "season": "autumn",
+      "why": "香家酒楼那一节在白天；夜入墨府从后巷翻进去，那一夜在墨府图上。",
+      "particles": [
+        {"kind": "dust", "rate": 0.3},
+        {"kind": "leaf", "rate": 0.12}
+      ],
+      "backdrop": "town_street",
+      "dof": 0.6,
+      "dof_why": "屋顶群，同西城",
+      "structures": [
+        {"rect": [14, 3, 33, 14], "kind": "built", "roof": "black", "wall": "manor", "compound": true, "why": "墨府外墙与墙里的屋顶：临街一面是粉墙与黑漆大门，不是铺面"}
+      ],
+      "props": [
+        {"at": [24, 31], "kind": "well", "why": "街南后院的井台"}
+      ]
+    },
+    "ch05_kezhan": {
+      "theme": "indoor_wood",
+      "time": "indoor",
+      "season": "autumn",
+      "why": "汇源客栈，定计、睡觉、内视都在屋里；烛火。",
+      "particles": [
+        {"kind": "dust", "rate": 0.3}
+      ],
+      "backdrop": "inn_hall",
+      "dof": 0.4,
+      "dof_why": "室内（32×24），取室内的常用值",
+      "zones": [
+        {"rect": [17, 1, 30, 9], "ground": "earth", "why": "后院（药炉、木桩），露天碎石地"}
+      ],
+      "props": [
+        {"at": [2, 2], "kind": "bed", "why": "上房的床（10c 睡觉）"},
+        {"at": [8, 2], "kind": "desk", "why": "书案（摊遗书、誊抄）"},
+        {"at": [11, 7], "kind": "dais", "why": "蒲团所在的矮榻（内视、打坐）"},
+        {"at": [20, 3], "kind": "furnace", "why": "后院药炉"},
+        {"at": [27, 5], "kind": "stake", "why": "后院木桩（练符）"}
+      ]
+    },
+    "ch05_mofu": {
+      "theme": "manor",
+      "time": "night",
+      "season": "autumn",
+      "why": "第 5 章「夜入墨府」：翻墙、偷听、登门同一夜；府里点着灯。",
+      "particles": [
+        {"kind": "firefly", "rate": 0.3},
+        {"kind": "leaf", "rate": 0.15}
+      ],
+      "backdrop": "manor_night",
+      "dof": 0.55,
+      "dof_why": "夜里本来就暗，再糊多了远处成一片黑，取室外的下限",
+      "zones": [
+        {"rect": [38, 2, 45, 6], "ground": "wood_floor", "why": "后宅厢房里头（床、衣柜）"},
+        {"rect": [9, 25, 10, 26], "special": "scree", "why": "地窖口一带翻着的碎砖（gid 3 可走），不是药圃翻土"}
+      ],
+      "structures": [
+        {"rect": [8, 16, 11, 18], "kind": "rockery", "why": "中庭假山（genmaps_ch05：假山）"},
+        {"rect": [35, 15, 38, 17], "kind": "rockery", "why": "中庭假山"},
+        {"rect": [21, 1, 22, 13], "kind": "wall", "style": "bamboo", "why": "后园东边的竹篱（两格厚）"}
+      ],
+      "props": [
+        {"at": [2, 33], "kind": "haystack", "why": "马厩院草料垛"},
+        {"at": [39, 2], "kind": "bed", "why": "厢房的床（7b 宿厢房）"},
+        {"at": [44, 2], "kind": "wardrobe", "why": "厢房衣柜"},
+        {"at": [0, 31], "kind": "side_door", "why": "马厩院侧门（只是一扇门的样子）"}
+      ]
+    },
+    "ch05_dubashanzhuang": {
+      "theme": "wild",
+      "time": "night",
+      "season": "autumn",
+      "why": "刺探与巡庄在夜里，欧阳飞天独自赏月那一夜下手（节点 12c/12d）。",
+      "particles": [
+        {"kind": "firefly", "rate": 0.35},
+        {"kind": "leaf", "rate": 0.2}
+      ],
+      "backdrop": "wild_manor",
+      "dof": 0.55,
+      "dof_why": "夜里，同墨府",
+      "structures": [
+        {"rect": [20, 1, 38, 20], "kind": "built", "roof": "grey", "wall": "fortress", "compound": true, "why": "独霸山庄：外圈是庄墙，墙里是屋顶群与后园"}
+      ],
+      "props": [
+        {"at": [24, 4], "kind": "pavilion", "why": "后园赏月亭（节点 12d）"},
+        {"at": [10, 22], "kind": "stump", "why": "林子里一截老树桩（支线 Z2′）"}
+      ]
+    }
+  }
+}

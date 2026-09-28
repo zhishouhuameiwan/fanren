@@ -1,0 +1,150 @@
+{
+  "type": "map",
+  "version": "1.10",
+  "tiledversion": "1.10.2",
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "width": 10,
+  "height": 7,
+  "tilewidth": 32,
+  "tileheight": 32,
+  "infinite": false,
+  "nextlayerid": 7,
+  "nextobjectid": 5,
+  "tilesets": [
+    { "firstgid": 1, "source": "tilesets/terrain_hanjiacun.tsj" }
+  ],
+  "properties": [
+    { "name": "map_id", "type": "string", "value": "t_npc_visible" },
+    { "name": "display_name_key", "type": "string", "value": "t.map.npc_visible.name" },
+    { "name": "region", "type": "string", "value": "test" },
+    { "name": "bgm", "type": "string", "value": "none" },
+    { "name": "chapter", "type": "int", "value": 1 },
+    { "name": "outdoor", "type": "bool", "value": true },
+    { "name": "can_leave_edge", "type": "bool", "value": false }
+  ],
+  "layers": [
+    {
+      "name": "ground", "type": "tilelayer", "width": 10, "height": 7,
+      "x": 0, "y": 0, "visible": true, "opacity": 1,
+      "data": [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+      ]
+    },
+    {
+      "name": "overlay", "type": "tilelayer", "width": 10, "height": 7,
+      "x": 0, "y": 0, "visible": true, "opacity": 1,
+      "data": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ]
+    },
+    {
+      "name": "building", "type": "tilelayer", "width": 10, "height": 7,
+      "x": 0, "y": 0, "visible": true, "opacity": 1,
+      "data": [
+        5, 5, 5, 5, 5, 5, 5, 5, 5, 5,
+        5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+        5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+        5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+        5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+        5, 0, 0, 0, 0, 0, 0, 0, 0, 5,
+        5, 5, 5, 5, 5, 5, 5, 5, 5, 5
+      ]
+    },
+    {
+      "name": "front", "type": "tilelayer", "width": 10, "height": 7,
+      "x": 0, "y": 0, "visible": true, "opacity": 1,
+      "data": [
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+      ]
+    },
+    {
+      "name": "collision", "type": "tilelayer", "width": 10, "height": 7,
+      "x": 0, "y": 0, "visible": true, "opacity": 1,
+      "data": [
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+      ]
+    },
+    {
+      "name": "objects", "type": "objectgroup",
+      "x": 0, "y": 0, "visible": true, "opacity": 1,
+      "objects": [
+        {
+          "id": 1,
+          "name": "spawn_main",
+          "type": "spawn",
+          "x": 32, "y": 32, "width": 32, "height": 32,
+          "rotation": 0, "visible": true,
+          "properties": [
+            { "name": "id", "type": "string", "value": "spawn_main" },
+            { "name": "default", "type": "bool", "value": true },
+            { "name": "facing", "type": "string", "value": "right" }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "npc_ghost",
+          "type": "npc",
+          "x": 96, "y": 32, "width": 32, "height": 32,
+          "rotation": 0, "visible": true,
+          "properties": [
+            { "name": "role_id", "type": "string", "value": "han_sanshu" },
+            { "name": "facing", "type": "string", "value": "down" },
+            { "name": "script", "type": "string", "value": "t/npc_ghost.lua" },
+            { "name": "visible_flag", "type": "string", "value": "t.ghost_here" }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "npc_early",
+          "type": "npc",
+          "x": 192, "y": 32, "width": 32, "height": 32,
+          "rotation": 0, "visible": true,
+          "properties": [
+            { "name": "role_id", "type": "string", "value": "han_sanshu" },
+            { "name": "facing", "type": "string", "value": "down" },
+            { "name": "script", "type": "string", "value": "t/npc_early.lua" },
+            { "name": "hidden_flag", "type": "string", "value": "t.turned" }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "npc_late",
+          "type": "npc",
+          "x": 192, "y": 32, "width": 32, "height": 32,
+          "rotation": 0, "visible": true,
+          "properties": [
+            { "name": "role_id", "type": "string", "value": "han_sanshu" },
+            { "name": "facing", "type": "string", "value": "down" },
+            { "name": "script", "type": "string", "value": "t/npc_late.lua" },
+            { "name": "visible_flag", "type": "string", "value": "t.turned" }
+          ]
+        }
+      ]
+    }
+  ]
+}

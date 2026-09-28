@@ -1,0 +1,34 @@
+{
+  "id": "b07_zhongxinqu_duoyao",
+  "name": "禁地中心区夺药",
+  "chapter": 7,
+  "legacy_id": "B_BLOOD_BOSS",
+  "terrain": "secret",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "qingxumen_gaotu",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "huadaowu_dizi",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 280,
+    "spirit_stones": 90,
+    "drops": [
+      {
+        "item_id": "pill_juqi_san",
+        "count": 2,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch07.battle.zhongxinqu_duoyao.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "旧原型此位是「燕国精英」。全书查无燕国，血色试炼的真实冲突是七派同入、中心区争夺灵药（ch152-216），敌人改为清虚门、化刀坞等同行门派的弟子。"
+}

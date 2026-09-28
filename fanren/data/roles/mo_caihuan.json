@@ -1,0 +1,14 @@
+{
+  "id": "mo_caihuan",
+  "name": "墨彩环",
+  "realm": "Mortal",
+  "maxHp": 18,
+  "maxMp": 0,
+  "attack": 3,
+  "defence": 2,
+  "speed": 6,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "墨府三小姐，严氏之女，十五六岁（ch108-109）：精灵古怪、财迷、嘴快，看人很准。节点 7b 半路讨见面礼（ch112-113）。不参与战斗。"
+}

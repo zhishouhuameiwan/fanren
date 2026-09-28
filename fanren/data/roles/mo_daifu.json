@@ -1,0 +1,14 @@
+{
+  "id": "mo_daifu",
+  "name": "墨大夫",
+  "realm": "Mortal",
+  "maxHp": 26,
+  "maxMp": 0,
+  "attack": 3,
+  "defence": 3,
+  "speed": 4,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "出处 ch5：七玄门神手谷坐堂大夫，医术精湛，在炼骨崖考核后点名收韩立为亲传弟子。本章按凡人写，无法力、不通武技，数值与 han_sanshu 同量级。与 data/roles/mo_juren_yuanshen.json 是同一人物的不同阶段（第 3 章元神形态）；其真实身份、来历与图谋属第 3 章的揭示内容，本章任何面向玩家的文案、图鉴与数值都不得提前透出。"
+}

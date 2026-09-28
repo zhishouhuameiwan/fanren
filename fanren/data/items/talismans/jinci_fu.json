@@ -1,0 +1,12 @@
+{
+  "id": "talisman_jinci_fu",
+  "name": "金刺符",
+  "descKey": "item.desc.talisman_jinci_fu",
+  "kind": "talisman",
+  "grade": 2,
+  "price": 70,
+  "tradeable": true,
+  "addAttack": 9,
+  "origin": "改编",
+  "note": "全本检索 0 命中，属改编。"
+}

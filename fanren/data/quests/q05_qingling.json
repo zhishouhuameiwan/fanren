@@ -1,0 +1,60 @@
+{
+  "id": "q05_qingling",
+  "name": "一颗清灵散",
+  "chapter": 5,
+  "kind": "side",
+  "title_key": "ch05.quest.qingling.title",
+  "summary_key": "ch05.quest.qingling.summary",
+  "accept": [
+    {
+      "flag": "ch05.qingling_qiu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1_bei",
+      "text_key": "ch05.quest.qingling.s1",
+      "done": [
+        {
+          "item": "pill_qingling_san",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch05_kezhan",
+      "target_object": "facility_yaolu"
+    },
+    {
+      "id": "s2_songjiu",
+      "text_key": "ch05.quest.qingling.s2",
+      "done": [
+        {
+          "flag": "ch05.xiaoxiang",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch05_xicheng",
+      "target_object": "trigger_xiaoxiangyuan"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch05.xiaoxiang",
+      "op": "==",
+      "value": 1
+    }
+  ],
+  "fail": [
+    {
+      "flag": "ch05.xiaoxiang",
+      "op": "==",
+      "value": 2
+    }
+  ],
+  "fail_text_key": "ch05.quest.qingling.fail",
+  "origin": "原著（ch116 千人醉奈何不了他；ch122 点破是事先吃了一颗清灵散）",
+  "note": "支线 Z3（docs/ch05-design.md 第 6 节）。接：节点 10a 定计末尾他自己说「要毒人，自己先得有一颗」（scripts/ch05/dingji.lua 置 ch05.qingling_qiu）。一：身上备一份清灵散——客栈药炉炼，或第 4 章带来的（第 4 章终局 fixture 两侧各有 2 份，节点 9 与 10b 各自动核掉 1 份）。身上已有的人，挂起那一刻第一步就是做完的，当前步骤直接落在第二步（契约 1.3「走得最远」）。二：扮小厮去潇湘院送酒（scripts/ch05/xiaoxiang.lua）。了结：ch05.xiaoxiang == 1 毒杀；过期：ch05.xiaoxiang == 2 硬打下来的（那一场条件战）。回报不是物品，不进 rewards：潇湘院不开战斗。"
+}

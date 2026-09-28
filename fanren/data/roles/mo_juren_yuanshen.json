@@ -1,0 +1,17 @@
+{
+  "id": "mo_juren_yuanshen",
+  "name": "墨居仁元神",
+  "realm": "QiRefining13",
+  "maxHp": 120,
+  "maxMp": 150,
+  "attack": 18,
+  "defence": 6,
+  "speed": 14,
+  "element": 24,
+  "magics": [
+    "magic_huoqiu_shu",
+    "magic_shenshi_chong"
+  ],
+  "origin": "原著",
+  "note": "墨大夫本名墨居仁，炼气十三层（ch28-57）。本战在韩立识海内进行，出战的是脱体元神而非肉身，故气血与防御明显低于本体，攻击与身法保持高位。"
+}

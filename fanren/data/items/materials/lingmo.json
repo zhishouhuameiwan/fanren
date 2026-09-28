@@ -1,0 +1,11 @@
+{
+  "id": "material_lingmo",
+  "name": "灵墨",
+  "descKey": "item.desc.material_lingmo",
+  "kind": "material",
+  "grade": 0,
+  "price": 3,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "第 1-596 章检索 0 命中（全本仅 ch1341 一处，已出本篇范围），属改编。"
+}

@@ -1,0 +1,52 @@
+{
+  "id": "pathactions_ch03",
+  "name": "第 3 章路径行动",
+  "chapter": 3,
+  "note": "原著 ch28-64。本章能说话的 NPC 很少（密室里那一位此刻不该有人去跟他打听什么），只挂三条打探：一条揭开谷外恶狼的破绽（战斗在本章开放，头一仗就是它），一条替第 4 章贾天龙那一节把「四年前听人驳过」的那一回演出来，一条给节点 7 那把软剑落个来处。境界全章是三层，不设门槛；本章不开求购与切磋。",
+  "entries": [
+    {
+      "id": "guanshi_dating",
+      "kind": "inquire",
+      "map": "ch02_yaopu",
+      "npc": "npc_yaopu_guanshi",
+      "when": [{"flag": "ch02.done", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch03.elang_done", "op": ">=", "value": 1},
+        {"flag": "ch03.mo_gui_gu", "op": ">=", "value": 1},
+        {"flag": "ch03.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch03.path.guanshi_dating",
+      "text_key": "ch03.path.guanshi_dating.text",
+      "reveal": [{"role": "wild_wolf", "category": "拳"}],
+      "origin": "改编",
+      "note": "「狼是铜头铁骨豆腐腰」是山里人的老话。节点 1 谷外遇狼韩立手里只有一块石头（ch03.elang.stone），揭的就是钝器那一类（fist）。遇狼之前说，遇过就收起；管事这个对象在墨大夫归谷（ch03.mo_gui_gu）时下场，时段一并收起。"
+    },
+    {
+      "id": "lifeiyu_dating",
+      "kind": "inquire",
+      "map": "ch02_wairentang",
+      "npc": "npc_li_feiyu_ch03",
+      "when": [{"flag": "ch03.mo_gui_gu", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch03.done", "op": ">=", "value": 1}],
+      "done_flag": "ch03.path.lifeiyu_dating",
+      "text_key": "ch03.path.lifeiyu_dating.text",
+      "origin": "原著 ch38",
+      "note": "ch38：野狼帮帮主传闻青面獠牙，据厉飞雨所讲其实瘦弱俊秀、三十出头。第 4 章文案 ch04.jia.rumor / feiyu_said 说韩立「四年前就听人驳过」、驳的人是厉飞雨——这一条就是那一回。帮主的名字留给第 4 章他自己报。"
+    },
+    {
+      "id": "luchun_dating",
+      "kind": "inquire",
+      "map": "ch02_wairentang",
+      "npc": "npc_tongmen_luchun",
+      "when": [{"flag": "ch03.mo_gui_gu", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch03.beidu_done", "op": ">=", "value": 1},
+        {"flag": "ch03.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch03.path.luchun_dating",
+      "text_key": "ch03.path.luchun_dating.text",
+      "origin": "原著 ch18",
+      "note": "五长老的弟子赵子灵使一把拇指粗细的软剑（ch18、ch19）。节点 7 韩立托人捎一把能盘在腰带里的软剑（ch03.beidu.sword），这里给那个念头落个来处。名字不点，只说「五长老门下」。备毒那一节一过就收起。"
+    }
+  ]
+}

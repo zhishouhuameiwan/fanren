@@ -1,0 +1,47 @@
+{
+ "map": "ch05_nancheng",
+ "tile": 16,
+ "width": 48,
+ "height": 36,
+ "theme": "town",
+ "time": "day",
+ "season": "autumn",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  },
+  {
+   "kind": "leaf",
+   "rate": 0.12
+  }
+ ],
+ "lights": [],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "leaf",
+   "x": 20.5,
+   "y": 31.0
+  },
+  {
+   "kind": "leaf",
+   "x": 36.5,
+   "y": 31.0
+  },
+  {
+   "kind": "leaf",
+   "x": 44.5,
+   "y": 32.0
+  }
+ ],
+ "backdrop": "town_street"
+}

@@ -1,0 +1,26 @@
+{
+  "id": "shen_zhongshan",
+  "name": "沈重山",
+  "realm": "Mortal",
+  "maxHp": 86,
+  "maxMp": 0,
+  "attack": 13,
+  "defence": 12,
+  "speed": 6,
+  "element": 0,
+  "magics": [],
+  "toughness": 5,
+  "weaknesses": [
+    "剑",
+    "毒",
+    "火"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 1.8,
+    "all": true,
+    "text_key": "ch05.battle.xiaoxiangyuan.charge"
+  },
+  "origin": "原著",
+  "note": "四平帮帮主，绰号猿臂（ch104、ch121）：两臂奇长、满身黑毛，几年前杀了前任帮主上位。ch122 在潇湘院被笑魂散毒死。只在节点 10b 条件战（身上没有清灵散才打）的第二波出场：86 / 18 / 12 / 6。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲第一版：架势 5，破绽 剑、火，每 3 个出手回合蓄势一次（重招 ×1.8，打全体）。理由：猿臂：两臂奇长，重招扫一片。整张表与取舍见 docs/octopath-battle.md 第 7 节，B2 会用新的那只手量过再调。\n\n【横版平衡 B2 2026-09-26】破绽加「毒」（路径行动 luren_dating：沈帮主什么都防，只喝院里自家的酒）；攻 18 → 13。潇湘院整场压轻，理由见 data/battles/b05_xiaoxiangyuan.json 的 note。"
+}

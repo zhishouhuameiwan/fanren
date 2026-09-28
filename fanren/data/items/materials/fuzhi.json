@@ -1,0 +1,11 @@
+{
+  "id": "material_fuzhi",
+  "name": "符纸",
+  "descKey": "item.desc.material_fuzhi",
+  "kind": "material",
+  "grade": 0,
+  "price": 2,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "原著确证：ch75 首现，ch88-96、128-131 等处以「一张」「白符纸」出现。"
+}

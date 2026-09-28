@@ -1,0 +1,12 @@
+{
+  "id": "weapon_zhishi_peidao",
+  "name": "制式佩刀",
+  "descKey": "item.desc.weapon_zhishi_peidao",
+  "kind": "artifact",
+  "grade": 0,
+  "price": 50,
+  "tradeable": true,
+  "addAttack": 3,
+  "weapon": "刀",
+  "note": "【八方旅人化改造 2026-09-25】weapon 字段：揣在韩立身上，他的普攻就多一样「刀」可选（docs/octopath-battle.md 2.2：空手的拳永远有，背包里每件兵器再加一样）。没有装备系统，addAttack 仍然没人读。"
+}

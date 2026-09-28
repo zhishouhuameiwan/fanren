@@ -1,0 +1,11 @@
+{
+  "id": "story_mo_qinbixin",
+  "name": "墨居仁亲笔信",
+  "descKey": "item.desc.story_mo_qinbixin",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "墨大夫写给四夫人严氏的亲笔信（ch109-110）：明面上说送信人是关门弟子、可以托付，信里另藏一封暗信，四位夫人各拿出戒指夹层里的一样东西，字就变了（ch112）。节点 1a 给出，节点 7a 登门时交到严氏手里（scripts/ch05/dengmen.lua 的 take，看返回值）。"
+}

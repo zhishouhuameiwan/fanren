@@ -1,0 +1,13 @@
+{
+  "id": "pill_zhitong_san",
+  "name": "止痛散",
+  "descKey": "item.desc.pill_zhitong_san",
+  "kind": "pill",
+  "grade": 0,
+  "price": 12,
+  "tradeable": true,
+  "restoreHp": 4,
+  "restoreMp": 0,
+  "origin": "改编",
+  "note": "第 2 章韩立为厉飞雨所配的镇痛药粉，用凉开水冲服。原著 ch21、ch24 写明韩立确有一副能大幅降低痛觉的方子（本是闲时替张铁琢磨出来的），并于次日午时在神手谷口交付一年份的量，但未给药名，此名属改编。方子的三种配法（重剂麻沸／温和／补养）由脚本 scripts/ch02/zhitong.lua 的三选一决定，记在旗标 ch02.zhitong_fangzi 上，只影响后续口吻，不影响物品本身。"
+}

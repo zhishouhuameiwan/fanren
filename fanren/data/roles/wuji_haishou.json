@@ -1,0 +1,21 @@
+{
+  "id": "wuji_haishou",
+  "name": "五级海兽",
+  "realm": "CoreEarly",
+  "maxHp": 720,
+  "maxMp": 430,
+  "attack": 66,
+  "defence": 50,
+  "speed": 30,
+  "element": 4,
+  "magics": [
+    "magic_haichao_jue",
+    "magic_bingjian_shu"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "土"
+  ],
+  "origin": "原著",
+  "note": "原著明写五级妖兽约当结丹初期（ch503），是外星海猎妖的常规目标。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

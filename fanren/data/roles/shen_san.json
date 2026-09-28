@@ -1,0 +1,19 @@
+{
+  "id": "shen_san",
+  "name": "沈三",
+  "realm": "Mortal",
+  "maxHp": 38,
+  "maxMp": 0,
+  "attack": 11,
+  "defence": 6,
+  "speed": 4,
+  "element": 0,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "剑",
+    "火"
+  ],
+  "origin": "原著",
+  "note": "四平帮三大护法里武功最高的一个，使飞刀，沈重山的远亲（ch121）。ch122 头一个看出送酒的小厮面生。条件战第一波：50 / 16 / 6 / 7。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲第一版：架势 2，破绽 剑、火。理由：使飞刀的，近身怕刃。整张表与取舍见 docs/octopath-battle.md 第 7 节，B2 会用新的那只手量过再调。\n\n【横版平衡 B2 2026-09-26】气血 50 → 38、攻 16 → 11、速 7 → 4（他靠飞刀，不靠腿脚：排在韩立之后，第一回合出手之前就倒）。潇湘院整场压轻，理由见 data/battles/b05_xiaoxiangyuan.json 的 note。"
+}

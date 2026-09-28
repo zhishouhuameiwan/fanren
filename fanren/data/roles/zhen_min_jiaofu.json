@@ -1,0 +1,14 @@
+{
+  "id": "zhen_min_jiaofu",
+  "name": "脚夫",
+  "realm": "Mortal",
+  "maxHp": 26,
+  "maxMp": 0,
+  "attack": 4,
+  "defence": 3,
+  "speed": 3,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "青牛镇上等活的脚夫，通用 NPC，负责把「三四百人里留二三十个」的比例说给玩家听，好让节点 6 放榜的落差有依据。id 与 scripts/ch01/zhenmin_jiaofu.lua 的 talk() 发言人对齐。"
+}

@@ -1,0 +1,23 @@
+{
+  "id": "b04_qiecuo_feiyu2",
+  "name": "再与厉飞雨过招",
+  "chapter": 4,
+  "terrain": "battlefield",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "li_feiyu",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "origin": "改编",
+  "rewritten_by_lore": false,
+  "note": "【横版平衡 B2 2026-09-26】路径行动 ch04 feiyu_qiecuo（ch04_getang / npc_li_feiyu）的编成：节点 5 演武台那一场（b04_qiecuo_feiyu）之后的复赛，厉飞雨的数值照那一场（同一个 role，架势 4、破绽 拳 火、蓄势 3 / ×2.0）。按路径行动契约 6.1 建：defeat_is_fatal 假（输了不 game over，按气血至少 1 放回来）、rewards 全 0（奖励只由条目发一次）、can_escape 真（逃走按输算，可以再来）；我方照当时的队伍。条目发修为 30。"
+}

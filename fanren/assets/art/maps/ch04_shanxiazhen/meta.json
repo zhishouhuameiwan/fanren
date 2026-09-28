@@ -1,0 +1,52 @@
+{
+ "map": "ch04_shanxiazhen",
+ "tile": 16,
+ "width": 40,
+ "height": 30,
+ "theme": "town",
+ "time": "day",
+ "season": "autumn",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.35
+  },
+  {
+   "kind": "leaf",
+   "rate": 0.15
+  }
+ ],
+ "lights": [],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "leaf",
+   "x": 13.5,
+   "y": 8.0
+  },
+  {
+   "kind": "leaf",
+   "x": 26.5,
+   "y": 8.0
+  },
+  {
+   "kind": "leaf",
+   "x": 5.5,
+   "y": 20.0
+  },
+  {
+   "kind": "leaf",
+   "x": 34.5,
+   "y": 20.0
+  }
+ ],
+ "backdrop": "town_street"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "wang_chan",
+  "name": "王蝉",
+  "realm": "FoundationLate",
+  "maxHp": 470,
+  "maxMp": 300,
+  "attack": 46,
+  "defence": 34,
+  "speed": 21,
+  "element": 8,
+  "magics": [
+    "magic_huoqiu_shu",
+    "magic_shenshi_chong",
+    "magic_hushen_gang"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "水"
+  ],
+  "origin": "原著",
+  "note": "鬼灵门少门主，魔道入侵主推手之一；ch363 率众围堵韩立的古传送阵未果。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

@@ -1,0 +1,40 @@
+{
+  "id": "q05_jianfu",
+  "name": "那道剑符",
+  "chapter": 5,
+  "kind": "side",
+  "title_key": "ch05.quest.jianfu.title",
+  "summary_key": "ch05.quest.jianfu.summary",
+  "accept": [
+    {
+      "flag": "ch05.jianfu_qiu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1_lian",
+      "text_key": "ch05.quest.jianfu.s1",
+      "done": [
+        {
+          "flag": "ch05.lian_jianfu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch05_kezhan",
+      "target_object": "trigger_lian_jianfu"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch05.lian_jianfu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail": [],
+  "origin": "改编（ch92 催不动 → ch126 祭起取首级，中间原著没写）",
+  "note": "支线 Z2（docs/ch05-design.md 第 6 节）。接：节点 11a 严氏说欧阳飞天刀剑难伤（scripts/ch05/jiaoyi.lua 置 ch05.jianfu_qiu）。练两天剑符（scripts/ch05/lian_jianfu.lua 置 ch05.lian_jianfu）。同一个脚本挂两处：客栈后院的木桩（这一步 target 指的那一处）与独霸山庄林子里的老树桩（给没练就来了、在墙头看清下不了手、悄悄退回来的人留的路，施工图 8.4；复验 MEDIUM-B 方案 1：没练成就不照面）；一步只许一个 target，写客栈那一处。**不会过期**（fail 为空）：第 5 章校对 MEDIUM-1 之后剑符是取欧阳飞天首级的唯一办法，ch05.cisha 置得上的人必然已经练成——从前「火弹杀了、剑符没练成」那一条过期走不到了，连同它那句 ch05.quest.jianfu.fail 一起删掉。回报不是物品，不进 rewards：12d 那一仗里多一招「祭剑符」，第一回合取首级、不吃药（scripts/ch05/shangyue.lua 开战前借、战后还）。"
+}

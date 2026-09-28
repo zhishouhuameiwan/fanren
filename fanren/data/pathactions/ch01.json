@@ -1,0 +1,131 @@
+{
+  "id": "pathactions_ch01",
+  "name": "第 1 章路径行动",
+  "chapter": 1,
+  "note": "第 1 章只有打探（求购第 2 章起、切磋第 3 章起，施工图 5.1）。韩立此时是十岁的孩子、全章凡人，一条也不设阅历门槛。原著 ch1-9；所有情报的时段都在本章收尾时收起——青牛镇、韩家村那几个人从前第 4、5 章仍站在原地，不收起就会有人在第 5 章问出「明日崖上怎么考」。如今他们各带在场旗标、到点撤场（docs/map-links.md），时段照旧收起，两道闸一里一外。三叔与韩母见过三叔之后站在村口老槐树下（npc_*_cunkou），这两条挂在那两个对象上。",
+  "entries": [
+    {
+      "id": "sanshu_dating",
+      "kind": "inquire",
+      "map": "ch01_hanjiacun",
+      "npc": "npc_han_sanshu_cunkou",
+      "when": [{"flag": "ch01.sanshu_met", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch01.muqin_bie", "op": ">=", "value": 1},
+        {"flag": "ch01.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch01.path.sanshu_dating",
+      "text_key": "ch01.path.sanshu_dating.text",
+      "origin": "原著 ch1",
+      "note": "三叔是外门、替门里看着酒楼、膝下无子、考不进内门也能进外门，四样都是 ch1 的；次序打乱，另添他自己的一句口气。话在出村之前说，出了村就收起。"
+    },
+    {
+      "id": "hanmu_dating",
+      "kind": "inquire",
+      "map": "ch01_hanjiacun",
+      "npc": "npc_han_mu_cunkou",
+      "when": [{"flag": "ch01.sanshu_met", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch01.muqin_bie", "op": ">=", "value": 1},
+        {"flag": "ch01.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch01.path.hanmu_dating",
+      "text_key": "ch01.path.hanmu_dating.text",
+      "origin": "原著 ch12（皮袋与平安符）",
+      "note": "给第 2 章那只皮袋先落个来处：ch12 写的是韩母拿兽皮缝的、防水、装一枚野猪牙平安符；第 2 章文案（ch02.zaping.pouch）说的是「娘缝的那只皮袋」。绳子留长那一句是自己加的。"
+    },
+    {
+      "id": "zhangtie_dating",
+      "kind": "inquire",
+      "map": "ch01_caixiashan",
+      "npc": "npc_zhang_tie",
+      "when": [{"flag": "ch01.zhangtie_met", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch01.climb_done", "op": ">=", "value": 1},
+        {"flag": "ch01.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch01.path.zhangtie_dating",
+      "text_key": "ch01.path.zhangtie_dating.text",
+      "origin": "改编",
+      "note": "炼骨崖攀爬的一句提示，照游戏里那面崖写（石壁、越往上越陡、借力歇息能回气——docs/ch01-design.md 第 3 节），不照原著的竹林与麻绳。只提示「歇着能缓回来」这个方向，不报任何数。"
+    },
+    {
+      "id": "jiuke_dating",
+      "kind": "inquire",
+      "map": "ch01_qingniuzhen",
+      "npc": "npc_zhen_min_jiuke",
+      "when": [{"flag": "ch01.zhenmin_jiuke", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch01.done", "op": ">=", "value": 1}],
+      "done_flag": "ch01.path.jiuke_dating",
+      "text_key": "ch01.path.jiuke_dating.text",
+      "origin": "原著 ch2、ch19",
+      "note": "野狼帮首见 ch2：马贼出身、与七玄门争镇子、七玄门因此扩招。这是第 4 章攻防战的第一处伏笔。「北边」随游戏第 3、4 章文案的方位。"
+    },
+    {
+      "id": "yaofan_dating",
+      "kind": "inquire",
+      "map": "ch01_qingniuzhen",
+      "npc": "npc_zhen_min_yaofan",
+      "when": [{"flag": "ch01.zhenmin_yaofan", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch01.done", "op": ">=", "value": 1}],
+      "done_flag": "ch01.path.yaofan_dating",
+      "text_key": "ch01.path.yaofan_dating.text",
+      "origin": "原著 ch6",
+      "note": "墨大夫不是七玄门出身、救过门里要人、门里专为他修了神手谷（ch6）。硬约束：本章不得出现门主（ch01-design 1 第 6 条），所以写「一位管事的大人物」；也不写「没人见过他动手」，免得他此刻就显得可疑（ch01-design 第 6 节语气卡）。"
+    },
+    {
+      "id": "jiaofu_dating",
+      "kind": "inquire",
+      "map": "ch01_qingniuzhen",
+      "npc": "npc_zhen_min_jiaofu",
+      "when": [{"flag": "ch01.zhenmin_jiaofu", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch01.done", "op": ">=", "value": 1}],
+      "done_flag": "ch01.path.jiaofu_dating",
+      "text_key": "ch01.path.jiaofu_dating.text",
+      "origin": "原著 ch3",
+      "note": "落日峰是总堂、上下只一条路、路上十三处明暗哨卡（ch3）。第 4 章「山下十几处哨卡丢了九处」与攻防战都在这座峰上，这里先把地形交到玩家手里。"
+    },
+    {
+      "id": "kaoguan_dating",
+      "kind": "inquire",
+      "map": "ch01_qingniuzhen",
+      "npc": "npc_qixuan_kaoguan",
+      "when": [{"flag": "ch01.baoming_done", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch01.zhangtie_met", "op": ">=", "value": 1},
+        {"flag": "ch01.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch01.path.kaoguan_dating",
+      "text_key": "ch01.path.kaoguan_dating.text",
+      "origin": "原著 ch4-5",
+      "note": "够不到顶的也可挂记名、半年后再考（ch4 岳堂主的话、ch5 的安排），与本章节点 7「至多挂个记名」一致。报完名当天说；次日他领人上了山（镇上那位考官在山道遇张铁时撤场），这一条跟着收起。"
+    },
+    {
+      "id": "zhangtie_dating2",
+      "kind": "inquire",
+      "map": "ch01_liangu_ya",
+      "npc": "npc_zhang_tie",
+      "when": [{"flag": "ch01.climb_done", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch01.shoutu_done", "op": ">=", "value": 1},
+        {"flag": "ch01.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch01.path.zhangtie_dating2",
+      "text_key": "ch01.path.zhangtie_dating2.text",
+      "origin": "改编",
+      "note": "放榜前张铁瞥见崖顶石檐下站着个咳嗽的白发老人。游戏里墨大夫自己说「他在上头看着的」（ch01.modaifu.echo_*），这里只让一个孩子看见一个老人，不说他是谁、为什么看。"
+    },
+    {
+      "id": "modaifu_dating",
+      "kind": "inquire",
+      "map": "ch01_shenshougu",
+      "npc": "npc_mo_daifu",
+      "when": [{"flag": "ch01.shenshougu_arrived", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch01.done", "op": ">=", "value": 1}],
+      "done_flag": "ch01.path.modaifu_dating",
+      "text_key": "ch01.path.modaifu_dating.text",
+      "origin": "原著 ch6",
+      "note": "只教医、不教武，想学拳脚自去跟教习，半年后要考（ch6）。考什么留给节点 9 的口诀，口诀本身不提、没有名字。"
+    }
+  ]
+}

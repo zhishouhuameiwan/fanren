@@ -1,0 +1,11 @@
+{
+  "id": "story_wenlong_jie",
+  "name": "纹龙戒",
+  "descKey": "item.desc.story_wenlong_jie",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "墨大夫留下的信物（ch109）：与严氏手上那一枚龙纹相合。节点 1a 给出，节点 7a 隔着窗纸扔进屋，**留在严氏手里**（原著未交代去向，本作定为留下）。"
+}

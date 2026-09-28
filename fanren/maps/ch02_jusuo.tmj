@@ -1,0 +1,518 @@
+{
+  "type": "map",
+  "version": "1.10",
+  "tiledversion": "1.10.2",
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "width": 24,
+  "height": 18,
+  "tilewidth": 32,
+  "tileheight": 32,
+  "infinite": false,
+  "nextlayerid": 7,
+  "nextobjectid": 14,
+  "tilesets": [
+    {
+      "firstgid": 1,
+      "source": "tilesets/terrain_jusuo.tsj"
+    }
+  ],
+  "properties": [
+    {
+      "name": "map_id",
+      "type": "string",
+      "value": "ch02_jusuo"
+    },
+    {
+      "name": "display_name_key",
+      "type": "string",
+      "value": "ch02.map.jusuo.name"
+    },
+    {
+      "name": "region",
+      "type": "string",
+      "value": "qingzhou"
+    },
+    {
+      "name": "bgm",
+      "type": "string",
+      "value": "bgm_indoor"
+    },
+    {
+      "name": "chapter",
+      "type": "int",
+      "value": 2
+    },
+    {
+      "name": "outdoor",
+      "type": "bool",
+      "value": false
+    },
+    {
+      "name": "can_leave_edge",
+      "type": "bool",
+      "value": false
+    }
+  ],
+  "layers": [
+    {
+      "name": "ground",
+      "type": "tilelayer",
+      "width": 24,
+      "height": 18,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,2,2,1,2,2,2,2,2,2,2,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+      ]
+    },
+    {
+      "name": "overlay",
+      "type": "tilelayer",
+      "width": 24,
+      "height": 18,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,7,0,0,0,0,7,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,7,0,0,0,0,0,0,0,0,7,0,0,6,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0,7,0,0,0,6,0,7,0,6,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,6,6,6,6,6,6,6,6,0,0,0,7,0,7,0,0,0,0,0,0,0,0,0,6,6,6,6,6,6,6,6,6,0,0,7,0,0,0,0,0,0,0,7,0,0,0,0,6,6,6,6,6,6,6,6,6,0,0,0,0,0,7,0,0,0,0,0,0,0,0,0,6,6,6,6,6,6,6,6,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+      ]
+    },
+    {
+      "name": "building",
+      "type": "tilelayer",
+      "width": 24,
+      "height": 18,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,5,5,0,5,5,5,0,0,0,0,5,5,5,0,5,0,0,0,0,0,0,0,0,0,5,5,0,5,5,5,0,0,0,0,5,5,5,0,5,0,0,0,0,0,0,0,0,0,5,5,0,5,5,5,0,0,0,0,5,5,5,0,5,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,8,8,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,8,8,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,5,5,8,8,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,5,5,8,8,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,8,8,0,5,5,0,0,0,0,0,8,8,8,0,0,0,0,5,0,0,0,0,0,0,8,8,0,5,5,0,0,0,0,0,8,8,8,0,0,0,0,5,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,5,5,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5
+      ]
+    },
+    {
+      "name": "front",
+      "type": "tilelayer",
+      "width": 24,
+      "height": 18,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,4,4,0,0,0,0,4,4,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+      ]
+    },
+    {
+      "name": "collision",
+      "type": "tilelayer",
+      "width": 24,
+      "height": 18,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,0,0,0,0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,0,0,0,0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,1,1,0,1,1,1,0,0,0,0,1,1,1,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,1,1,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,1,1,1,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+      ]
+    },
+    {
+      "name": "objects",
+      "type": "objectgroup",
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "objects": [
+        {
+          "id": 1,
+          "name": "spawn_from_yaopu",
+          "type": "spawn",
+          "x": 704,
+          "y": 256,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "spawn_from_yaopu"
+            },
+            {
+              "name": "default",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "left"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "portal_to_yaopu",
+          "type": "portal",
+          "x": 736,
+          "y": 256,
+          "width": 32,
+          "height": 64,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "target_map",
+              "type": "string",
+              "value": "ch02_yaopu"
+            },
+            {
+              "name": "target_spawn",
+              "type": "string",
+              "value": "spawn_from_jusuo"
+            },
+            {
+              "name": "transition",
+              "type": "string",
+              "value": "fade"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "facility_dazuo",
+          "type": "facility",
+          "x": 192,
+          "y": 192,
+          "width": 64,
+          "height": 64,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "kind",
+              "type": "string",
+              "value": "meditate"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "trigger_dazuo",
+          "type": "trigger",
+          "x": 256,
+          "y": 192,
+          "width": 32,
+          "height": 64,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch02/dazuo.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "name": "trigger_ceng2",
+          "type": "trigger",
+          "x": 160,
+          "y": 192,
+          "width": 32,
+          "height": 64,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch02/ceng2.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "name": "trigger_zaping",
+          "type": "trigger",
+          "x": 192,
+          "y": 384,
+          "width": 96,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch02/zaping.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "name": "trigger_kaigai",
+          "type": "trigger",
+          "x": 544,
+          "y": 256,
+          "width": 64,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch02/kaigai.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": 8,
+          "name": "trigger_cangping",
+          "type": "trigger",
+          "x": 160,
+          "y": 96,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch02/cangping.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "name": "trigger_ceng3",
+          "type": "trigger",
+          "x": 64,
+          "y": 160,
+          "width": 96,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch02/ceng3.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "name": "npc_zhang_tie",
+          "type": "npc",
+          "x": 320,
+          "y": 192,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "down"
+            },
+            {
+              "name": "role_id",
+              "type": "string",
+              "value": "zhang_tie"
+            },
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch02/zhangtie.lua"
+            },
+            {
+              "name": "wander",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "visible_flag",
+              "type": "string",
+              "value": "ch01.done"
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch02.done"
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "name": "trigger_yingdui",
+          "type": "trigger",
+          "x": 64,
+          "y": 192,
+          "width": 96,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch03/yingdui.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch03.yingdui_xuan"
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "name": "trigger_duoshe",
+          "type": "trigger",
+          "x": 288,
+          "y": 160,
+          "width": 96,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch03/duoshe.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "enter"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch03.shihai_done"
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "name": "trigger_chujue",
+          "type": "trigger",
+          "x": 32,
+          "y": 32,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch03/chujue.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch03.yuzitong_chujue"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

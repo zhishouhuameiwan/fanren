@@ -1,0 +1,13 @@
+{
+  "id": "herb_tugu_hua",
+  "name": "土菇花",
+  "descKey": "item.desc.herb_tugu_hua",
+  "kind": "herb",
+  "grade": 1,
+  "price": 3,
+  "tradeable": false,
+  "herbAge": 0,
+  "maxAge": 12,
+  "origin": "原著",
+  "note": "原著确证 ch61：韩立在五毒水上加进「土菇花」配成七毒水，此草不但对常人毒性极强，对修仙者的元神也大有妨碍——这正是余子童被灭时施不出法术的原因。tradeable=false：谷里的药圃从不给它记账，外刃堂收药处也不收，它在本章的唯一用处是配毒，不该变成又一条卖钱路子。maxAge 12 按一阶毒草压低，免得掌天瓶把它催成天价货。"
+}

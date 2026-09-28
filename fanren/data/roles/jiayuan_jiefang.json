@@ -1,0 +1,14 @@
+{
+  "id": "jiayuan_jiefang",
+  "name": "南城街坊",
+  "realm": "Mortal",
+  "maxHp": 18,
+  "maxMp": 0,
+  "attack": 2,
+  "defence": 2,
+  "speed": 4,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "南陵街上的街坊（改编）。嘴碎，知道墨府门口站几个人、墨家几位小姐谁定了亲，别的就不知道了。不参与战斗。"
+}

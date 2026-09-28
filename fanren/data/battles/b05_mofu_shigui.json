@@ -1,0 +1,24 @@
+{
+  "id": "b05_mofu_shigui",
+  "name": "墨府地窖尸傀",
+  "chapter": 5,
+  "legacy_id": "B_MO_PUPPET",
+  "terrain": "indoor",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "mofu_shigui",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 90,
+    "spirit_stones": 15,
+    "drops": []
+  },
+  "intro_key": "ch05.battle.shigui.intro",
+  "origin": "改编",
+  "rewritten_by_lore": false,
+  "note": "第 5 章节点 12a「墨府尸傀」（挂点 ch05_mofu trigger_majiu，interact + once，set_flag=ch05.shigui），十场必打之七。遗留编成，用户 2026-09-23 拍板留下、接入主线，按改编处理；**编成 id、单位、场子、数值、收获一律不动**（tests/SliceTests.cpp 把它列为迁移过来、可打完的一场）。由头改了：从前写的是「夺帮之夜被对手驱使」，现为墨居仁年轻时从城外一场修仙者斗法里拖回来、封在马厩地窖里的东西，吴剑鸣撬开石门，它挨近韩立的法力就醒了（docs/ch05-design.md 8.3，那里有不与原著冲突的论证）。韩立一个人打（曲魂已在节点 10a 借给孙二狗）：他平砍 (15×2−11)×1.08 = 21，五下；它打他 (13×2−8)×0.92 = 17。意图玩家药耗 1（施工图 8.4），无必败分支。intro_key 改指 data/text/ch05.json 里的 ch05.battle.shigui.intro，让它落在 LexiconTests 扫得到的章节文案里；data/text/battles.json 里旧的那一条 ch05.battle.mofu_shigui.intro 已由协调者删除（2026-09-24）。"
+}

@@ -1,0 +1,27 @@
+{
+ "map": "ch02_wairentang",
+ "tile": 16,
+ "width": 48,
+ "height": 36,
+ "theme": "sect",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  }
+ ],
+ "lights": [],
+ "water": [],
+ "emitters": [],
+ "backdrop": "drill_ground"
+}

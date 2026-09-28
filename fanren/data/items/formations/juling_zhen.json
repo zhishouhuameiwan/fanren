@@ -1,0 +1,11 @@
+{
+  "id": "formation_juling_zhen",
+  "name": "聚灵阵",
+  "descKey": "item.desc.formation_juling_zhen",
+  "kind": "trinket",
+  "grade": 1,
+  "price": 220,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "全本检索 0 命中，属改编。ItemKind 无 Formation 一项，取最接近的 trinket（见报告）。"
+}

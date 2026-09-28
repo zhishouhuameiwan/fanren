@@ -1,0 +1,14 @@
+{
+  "id": "yu_zitong",
+  "name": "余子童",
+  "realm": "QiRefining7",
+  "maxHp": 660,
+  "maxMp": 120,
+  "attack": 12,
+  "defence": 4,
+  "speed": 12,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "出处 ch42 首现（只闻其声）、ch55-61。修士家族出身的堕落修仙者，长春功七层，法身早已被墨居仁毁去，本章自始至终只有元神形态，因此不另设肉身条目。maxHp 660 是识海吞噬战的体积：韩立入梦体积 kDevourPlayerVolume=480，660/480≈1.4，对应 ch56「比韩立大了有一圈有余」；engineer 在 data/battles/b03_shihai_duoshe.json 的 todo 里点名要 600-700，取中。element 取 0：元神无肉身五行，且吞噬模式下五行与攻防一概不参与结算。**magics 刻意留空**——识海里没有法术、没有物品、没有地形（docs/interfaces-p3-ch03.md 3.5），给元神挂法术会让这一条在吞噬战里凭空多出一套规则。"
+}

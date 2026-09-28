@@ -1,0 +1,38 @@
+{
+  "id": "b10_liuliandian_weisha",
+  "name": "六连殿委托·围杀海兽",
+  "chapter": 10,
+  "legacy_id": "B_SEA_1",
+  "terrain": "sea",
+  "can_escape": true,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "qu_hun_huashen",
+      "faction": "ally"
+    },
+    {
+      "role_id": "sanji_haishou",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "sanji_haishou",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 420,
+    "spirit_stones": 70,
+    "drops": [
+      {
+        "item_id": "material_yaodan_3",
+        "count": 2,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch10.battle.liuliandian_weisha.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "旧原型标为「外星海猎妖」，但韩立首次进外星海是 ch393（第 11 章）。第 10 章的出海是六连殿的委托（ch376-384，酬劳为降尘丹），发生在内星海，故改名归位。妖兽等阶改用原著的 1-10 级尺度。"
+}

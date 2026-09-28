@@ -1,0 +1,17 @@
+{
+  "id": "zi_ling",
+  "name": "紫灵",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 520,
+  "attack": 61,
+  "defence": 48,
+  "speed": 29,
+  "element": 2,
+  "magics": [
+    "magic_feijian_shu",
+    "magic_hushen_gang"
+  ],
+  "origin": "原著",
+  "note": "妙音门门主之女，与韩立组队闯虚天殿第一关（ch436-443）。"
+}

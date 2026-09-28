@@ -1,0 +1,30 @@
+{
+  "id": "b05_xunzhuang",
+  "name": "巡庄",
+  "chapter": 5,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "dubashanzhuang_zhuangding",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "dubashanzhuang_zhuangding",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "dubashanzhuang_xuntou",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 40,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch05.battle.xunzhuang.intro",
+  "origin": "改编",
+  "note": "第 5 章节点 12c（ch05_dubashanzhuang trigger_tancha，interact + once），十场必打之九。改编：刺探那几夜摸到墙根，撞上一队巡庄的庄丁，得在他们出声之前收拾掉、藏尸。依据：ch126 明写「不停刺探和潜入」；「一点波澜也没起」说的是刺杀那一下；ch283 说的「无人追究」是修仙界的人，与庄丁无关。庄丁 ×2、巡庄头目 ×1，总血 122。单轮最大 34（28%）。can_escape 假、defeat_is_fatal 真。收获 40 修为。\n\n【横版平衡 B2 2026-09-26】赢了之后接 ch05.tancha.drugged / drugged2（迷倒不杀、不藏尸，第 5 章校对 MEDIUM-2），旧的 ch05.tancha.hide 已删；巡庄头目气血 50 → 70（总血 142）。"
+}

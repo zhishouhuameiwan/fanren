@@ -1,0 +1,22 @@
+{
+  "id": "guilingmen_zhanglao",
+  "name": "鬼灵门长老",
+  "realm": "FoundationMid",
+  "maxHp": 430,
+  "maxMp": 265,
+  "attack": 43,
+  "defence": 30,
+  "speed": 18,
+  "element": 8,
+  "magics": [
+    "magic_huoqiu_shu",
+    "magic_shenshi_chong",
+    "magic_hushen_gang"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "水"
+  ],
+  "origin": "改编",
+  "note": "原著未给金鼓原战场的魔道指挥者具名，此处以门派 + 职位泛称，取代查无的「燕血魔君」。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

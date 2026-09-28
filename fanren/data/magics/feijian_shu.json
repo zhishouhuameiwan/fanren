@@ -1,0 +1,12 @@
+{
+  "id": "magic_feijian_shu",
+  "name": "飞剑术",
+  "descKey": "magic.desc.magic_feijian_shu",
+  "element": 1,
+  "needMp": 12,
+  "power": 20,
+  "needRealm": "QiRefining4",
+  "boost": "hits",
+  "origin": "改编",
+  "note": "改编的金系御剑攻击法术。补齐条目。data/roles/ 里早有 5 条角色引用这个 magic id，而 data/magics/ 此前是空目录；tools/validate.py 对空类别整类跳过引用校验，于是这些引用一直没被查过。第 3 章为用毒落下第一条法术之后该校验被激活，本条是为了让既有引用不悬空而补的，数值按引用它的角色境界粗定，**不是平衡结论**，归写到那一章的人重定。"
+}

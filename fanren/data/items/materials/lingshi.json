@@ -1,0 +1,11 @@
+{
+  "id": "material_lingshi",
+  "name": "灵石",
+  "descKey": "item.desc.material_lingshi",
+  "kind": "material",
+  "grade": 1,
+  "price": 1,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "灵石，全作的通用货币，本条即价格基准单位，故定价 1。原著确有低阶/中阶/高阶/超阶四级灵石体系，且在首次交代灵石的同一章就已定义，「中阶灵石」是全篇高频用词。本作在当前阶段只做单一灵石，是玩法上的简化选择，不是原著无此分级。日后若要加分级，这里是入口。"
+}

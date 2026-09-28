@@ -1,0 +1,11 @@
+{
+  "id": "pill_jinchuang_yao",
+  "name": "金疮药",
+  "descKey": "item.desc.pill_jinchuang_yao",
+  "kind": "pill",
+  "grade": 0,
+  "price": 20,
+  "tradeable": true,
+  "restoreHp": 15,
+  "restoreMp": 0
+}

@@ -1,0 +1,136 @@
+{
+  "id": "pathactions_ch02",
+  "name": "第 2 章路径行动",
+  "chapter": 2,
+  "note": "原著 ch10-27，四年。打探七条、求购一条；本章仍无战斗，所以不揭破绽。求购从本章起：全章主线最小路径上，头一回卖药（maiyao.lua）之后手里只有那六块碎银，下一笔进账是章末算账（suanzhang.lua，同一个脚本置 ch02.done），所以本章求购的价格不超过六块、时段落在头一回卖药之后。墨大夫那一条设阅历门槛（口诀第二层，本章剧情上限第三层）。",
+  "entries": [
+    {
+      "id": "guanshi_dating",
+      "kind": "inquire",
+      "map": "ch02_yaopu",
+      "npc": "npc_yaopu_guanshi",
+      "when": [{"flag": "ch02.liao_guanshi", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch02.done", "op": ">=", "value": 1}],
+      "done_flag": "ch02.path.guanshi_dating",
+      "text_key": "ch02.path.guanshi_dating.text",
+      "origin": "改编",
+      "note": "黄精一阶、年份封顶 44；紫参二阶、封顶 100（src/core/rules/Bottle.h 的 herbMaxAgeForGrade）。管事只说「紫参熬得住年头」，不说绿液——ch02-design 第 3 节：三次交易之间不许有人解释催熟。"
+    },
+    {
+      "id": "zhangtie_dating",
+      "kind": "inquire",
+      "map": "ch02_jusuo",
+      "npc": "npc_zhang_tie",
+      "when": [{"flag": "ch02.liao_zhangtie", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch02.duan3_start", "op": ">=", "value": 1},
+        {"flag": "ch02.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch02.path.zhangtie_dating",
+      "text_key": "ch02.path.zhangtie_dating.text",
+      "origin": "原著 ch9",
+      "note": "象甲功练到顶刀枪难入、第四层起一层比一层疼、多数人卡在那儿（ch9）。只取三样、次序打乱，功法名不说。第 3 章他成了曲魂，这里只是他自己的盼头，不点破。"
+    },
+    {
+      "id": "zhangtie_dating2",
+      "kind": "inquire",
+      "map": "ch02_jusuo",
+      "npc": "npc_zhang_tie",
+      "when": [{"flag": "ch02.duan3_start", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch02.done", "op": ">=", "value": 1}],
+      "done_flag": "ch02.path.zhangtie_dating2",
+      "text_key": "ch02.path.zhangtie_dating2.text",
+      "give": [{"item_id": "herb_qingfeng_cao", "count": 2, "herb_age": 3}],
+      "origin": "改编",
+      "note": "第 1 章墨大夫派张铁跟药童上山认路（ch01.shenshougu.rule），于是后崖哪儿长着野草药他比韩立清楚。给两株三年的清风草：一阶、卖不出几个钱，是个添头，不碰本章的收益账（ch02-design 第 3 节约 1160 块的产能上限）。"
+    },
+    {
+      "id": "yaoshang_dating",
+      "kind": "inquire",
+      "map": "ch02_wairentang",
+      "npc": "npc_wairentang_yaoshang",
+      "when": [{"flag": "ch02.liao_yaoshang", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch02.chousui_jian", "op": ">=", "value": 1},
+        {"flag": "ch02.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch02.path.yaoshang_dating",
+      "text_key": "ch02.path.yaoshang_dating.text",
+      "origin": "原著 ch19-20",
+      "note": "抽髓丸之祸（节点 7）的伏笔：外刃堂的人常被抬回来（ch19），有个姓厉的从不上药、往柴房一钻（第 2 章文案 ch02.chousui.tm1 也写他在柴房躺半日）。节点 7 一过就收起。"
+    },
+    {
+      "id": "luchun_dating",
+      "kind": "inquire",
+      "map": "ch02_wairentang",
+      "npc": "npc_tongmen_luchun",
+      "when": [{"flag": "ch02.liao_luchun", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch02.done", "op": ">=", "value": 1}],
+      "done_flag": "ch02.path.luchun_dating",
+      "text_key": "ch02.path.luchun_dating.text",
+      "origin": "原著 ch18",
+      "note": "厉飞雨记名出身、半年后那一考独自扛满三十招、江湖诨号厉虎（ch18）。ch18 那一长串事迹只取这三样；末一句「涨得太快」是卢春的嘴，给抽髓丸留个缝。"
+    },
+    {
+      "id": "maliu_dating",
+      "kind": "inquire",
+      "map": "ch02_wairentang",
+      "npc": "npc_tongmen_maliu",
+      "when": [{"flag": "ch02.liao_maliu", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch02.done", "op": ">=", "value": 1}],
+      "done_flag": "ch02.path.maliu_dating",
+      "text_key": "ch02.path.maliu_dating.text",
+      "origin": "原著 ch19",
+      "note": "山上少见年长的师兄：都派下山与野狼帮争镇子或去历练，门规改成出师先下山走一遭（ch19）。收遗物那一句是马六自己的，给第 4 章攻防战铺底色。"
+    },
+    {
+      "id": "lifeiyu_dating",
+      "kind": "inquire",
+      "map": "ch02_wairentang",
+      "npc": "npc_li_feiyu",
+      "when": [{"flag": "ch02.renqing_jiexia", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch02.done", "op": ">=", "value": 1}],
+      "done_flag": "ch02.path.lifeiyu_dating",
+      "text_key": "ch02.path.lifeiyu_dating.text",
+      "origin": "原著 ch18",
+      "note": "去年小一辈大较技第三、前两名是入门十几年的老师兄、有望进七绝堂（ch18）。他为什么肯拿寿数换这些，原著没说，这里也不替他说——只让他说出「值了」两个字。人情结下之后才在场（地图 visible_flag）。"
+    },
+    {
+      "id": "modaifu_dating",
+      "kind": "inquire",
+      "map": "ch02_yaopu",
+      "npc": "npc_mo_daifu",
+      "when": [{"flag": "ch02.liao_modaifu", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch02.xiangqi_ping", "op": ">=", "value": 1},
+        {"flag": "ch02.done", "op": ">=", "value": 1}
+      ],
+      "realm": 2,
+      "done_flag": "ch02.path.modaifu_dating",
+      "text_key": "ch02.path.modaifu_dating.text",
+      "refuse_key": "ch02.path.modaifu_dating.refuse",
+      "origin": "原著 ch7",
+      "note": "墨大夫整日抱着一本讲延年益寿的书（ch7，书名不说）。第 3 章夺舍的动机从这里就在，但他此刻只是个怕老的病人，不许显得可疑（ch02-design 1 第 9 条）。阅历门槛：口诀第二层（段四 ceng2 才抬上去）——师父只跟坐出样子的徒弟说这些。他段五下山，时段随地图的 hidden_flag 收起。"
+    },
+    {
+      "id": "maliu_qiugou",
+      "kind": "purchase",
+      "map": "ch02_wairentang",
+      "npc": "npc_tongmen_maliu",
+      "when": [
+        {"flag": "ch02.duan2_start", "op": ">=", "value": 1},
+        {"flag": "ch02.duan3_start", "op": ">=", "value": 1}
+      ],
+      "until": [{"flag": "ch02.done", "op": ">=", "value": 1}],
+      "done_flag": "ch02.path.maliu_qiugou",
+      "text_key": "ch02.path.maliu_qiugou.text",
+      "item_id": "pill_jinchuang_yao",
+      "count": 1,
+      "price": 6,
+      "deal_key": "ch02.path.maliu_qiugou.deal",
+      "poor_key": "ch02.path.maliu_qiugou.poor",
+      "origin": "改编",
+      "note": "马六家里有难处，把堂里按月发的一瓶金疮药匀给韩立。价钱 6：本章主线最小路径上韩立手里只有头一回卖药的六块（ch02-design 第 3 节）。本章无战斗，这瓶药留到第 3 章谷外那一仗才用得上；韩立自己也把月钱大半寄回家（原著 ch22），这笔买卖他懂。"
+    }
+  ]
+}

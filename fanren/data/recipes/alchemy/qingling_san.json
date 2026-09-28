@@ -1,0 +1,21 @@
+{
+  "id": "recipe_qingling_san",
+  "name": "清灵散方",
+  "kind": "alchemy",
+  "productId": "pill_qingling_san",
+  "productCount": 2,
+  "difficulty": 14,
+  "requiredProficiency": 0,
+  "inputs": [
+    {
+      "itemId": "herb_zishen_cao",
+      "count": 1,
+      "minAge": 10
+    },
+    {
+      "itemId": "herb_huangjing_cao",
+      "count": 2,
+      "minAge": 10
+    }
+  ]
+}

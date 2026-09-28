@@ -1,0 +1,14 @@
+{
+  "id": "chapters",
+  "name": "章节标题卡",
+  "note": "八方旅人化改造（docs/octopath-overhaul.md 第 4 节）的章节标题卡。开新局先播第 1 章的开篇卡；某一章的 done_flag 由 0 变成非 0 时，引擎记下「第 N 章　终」接「第 N+1 章」开篇卡，等那一场脚本演完、画面回到行走时再播（剧情脚本一句不改）。最后一章之后接「未完待续」。done_flag 同时是「韩立第 1–2 章用少年版」这类按章切换的判据（src/game/SpriteAtlas.h）。章名与章号是文案，在 data/text/ui.json；本表只管次序与旗标。",
+  "closing_key": "ui.chapter.closing",
+  "to_be_continued_key": "ui.chapter.to_be_continued",
+  "chapters": [
+    {"number": 1, "numeral_key": "ui.chapter.01.numeral", "title_key": "ui.chapter.01.title", "done_flag": "ch01.done"},
+    {"number": 2, "numeral_key": "ui.chapter.02.numeral", "title_key": "ui.chapter.02.title", "done_flag": "ch02.done"},
+    {"number": 3, "numeral_key": "ui.chapter.03.numeral", "title_key": "ui.chapter.03.title", "done_flag": "ch03.done"},
+    {"number": 4, "numeral_key": "ui.chapter.04.numeral", "title_key": "ui.chapter.04.title", "done_flag": "ch04.done"},
+    {"number": 5, "numeral_key": "ui.chapter.05.numeral", "title_key": "ui.chapter.05.title", "done_flag": "ch05.done"}
+  ]
+}

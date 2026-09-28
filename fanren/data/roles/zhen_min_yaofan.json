@@ -1,0 +1,14 @@
+{
+  "id": "zhen_min_yaofan",
+  "name": "卖药郎",
+  "realm": "Mortal",
+  "maxHp": 18,
+  "maxMp": 0,
+  "attack": 2,
+  "defence": 2,
+  "speed": 4,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "青牛镇上卖伤药的小贩，通用 NPC。他嘴里带出「谷中有位坐堂大夫」，是墨大夫在本章的第一次间接出场，口吻必须是寻常的好话。id 与 scripts/ch01/zhenmin_yaofan.lua 的 talk() 发言人对齐。"
+}

@@ -1,0 +1,10 @@
+{
+  "id": "talisman_hushen_fu",
+  "name": "护身符",
+  "descKey": "item.desc.talisman_hushen_fu",
+  "kind": "talisman",
+  "grade": 1,
+  "price": 30,
+  "tradeable": true,
+  "addDefence": 2
+}

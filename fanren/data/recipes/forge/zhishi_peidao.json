@@ -1,0 +1,15 @@
+{
+  "id": "recipe_zhishi_peidao",
+  "name": "制式佩刀图",
+  "kind": "forge",
+  "productId": "weapon_zhishi_peidao",
+  "productCount": 1,
+  "difficulty": 10,
+  "requiredProficiency": 0,
+  "inputs": [
+    {
+      "itemId": "material_jingtie",
+      "count": 2
+    }
+  ]
+}

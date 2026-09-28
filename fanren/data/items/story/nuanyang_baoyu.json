@@ -1,0 +1,11 @@
+{
+  "id": "story_nuanyang_baoyu",
+  "name": "暖阳宝玉",
+  "descKey": "item.desc.story_nuanyang_baoyu",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "墨家传下来的那块玉（ch62、ch126），韩立身上阴毒的唯一解法。节点 12e 以欧阳飞天的首级换得，**本章到手即停表**；除毒是第 6 章开头半个月的事（ch126）。描述里不写「灵气」：ch126 才有那一句，第 5 章不许出现（docs/ch05-design.md 12.1）。"
+}

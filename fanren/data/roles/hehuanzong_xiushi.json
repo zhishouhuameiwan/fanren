@@ -1,0 +1,20 @@
+{
+  "id": "hehuanzong_xiushi",
+  "name": "合欢宗修士",
+  "realm": "FoundationEarly",
+  "maxHp": 240,
+  "maxMp": 205,
+  "attack": 31,
+  "defence": 22,
+  "speed": 17,
+  "element": 4,
+  "magics": [
+    "magic_bingjian_shu"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "土"
+  ],
+  "origin": "原著",
+  "note": "合欢宗，天罗国魔道六宗之一（ch262）。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

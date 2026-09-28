@@ -1,0 +1,12 @@
+{
+  "id": "formation_huansha_zhen",
+  "name": "幻杀阵",
+  "descKey": "item.desc.formation_huansha_zhen",
+  "kind": "trinket",
+  "grade": 2,
+  "price": 290,
+  "tradeable": true,
+  "addAttack": 6,
+  "origin": "改编",
+  "note": "全本检索 0 命中，属改编。ItemKind 无 Formation 一项，取 trinket。"
+}

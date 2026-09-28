@@ -1,0 +1,14 @@
+{
+  "id": "wairentang_yaoshang",
+  "name": "外刃堂药商",
+  "realm": "Mortal",
+  "maxHp": 24,
+  "maxMp": 0,
+  "attack": 3,
+  "defence": 2,
+  "speed": 3,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "在七玄门外刃堂门前收药的商人，通用 NPC。原著写明药材的贵贱几乎全看年份，年份越久越难寻、价越高（ch26），本作把这条设定落在这个人身上：第 2 章的三次交易（一年份、十一年份、四十四年份）由他给出价格对照，是核心循环的教学口。他只报价不讲道理，倍数由玩家自己算。对应商店 data/shops/ch02_wairentang_yaoshang.json。"
+}

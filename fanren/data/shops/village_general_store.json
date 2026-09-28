@@ -1,0 +1,33 @@
+{
+  "id": "shop_village_general",
+  "name": "村镇杂货铺",
+  "nameKey": "shop.name.village_general",
+  "buyRate": 1.0,
+  "sellRate": 0.5,
+  "entries": [
+    {
+      "itemId": "weapon_zhishi_peidao",
+      "price": 50,
+      "stock": 5,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 8
+    },
+    {
+      "itemId": "pill_jinchuang_yao",
+      "price": 20,
+      "stock": 10,
+      "restockDays": 5,
+      "restockAmount": 5,
+      "maxStock": 20
+    },
+    {
+      "itemId": "talisman_hushen_fu",
+      "price": 30,
+      "stock": 3,
+      "restockDays": 15,
+      "restockAmount": 1,
+      "maxStock": 5
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "magic_yufeng_jue",
+  "name": "御风决",
+  "descKey": "magic.desc.magic_yufeng_jue",
+  "element": 0,
+  "needMp": 6,
+  "power": 0,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "原著",
+  "note": "原著确证：ch74 章题。硬约束 1 的后半——火弹术（ch67）在先，它在后，中间隔着一段，第 4 章节点 2 与节点 4 之间隔着节点 3 的开炉与一段日子，对得上。\n写法取「御风决」：ch74 的章题作「决」，正文多作「诀」（全本 8 : 12）。本作从设计文档与 data/flags.json 的 ch04.yufeng_xue 一路统一到章题那一种写法，不在同一部作品里两种混用。\n**power 0 / castRange 0 是「它不是攻击法术」的如实写法，不是没定好数值。** 它在原著里是辅助型，只施在自己身上（ch74 原文与天眼术同类）。引擎的 core::Magic 目前只表达得了伤害与毒，表达不了「加身法」，所以四个取值里只有这一组不撒谎：写 power 就是凭空多出一门攻击法术，写 castRange 就是假装它够得着别人。\n代价要写明：BattleScene::buildMagicItems 会给每一门已习得法术建一行，于是它在战斗菜单里是一条点不动的行，理由写着「超出【御风决】的施法距离」——那句话对一门辅助法术是误导。同目录的 hushen_gang.json（护身罡，power 0 / castRange 0）早有同样的处境。这一条已写进交付报告请主控裁决，建议的口径是给 core::Magic 加一位「只施于己」，菜单或另列或不列，由引擎方定。\n\n【八方旅人化改造 2026-09-25】横版没有距离，castRange 已删。上文「castRange 0 让它在菜单里是一条点不动的行、理由写着超出施法距离、那句话对一门辅助法术是误导」——现在挡它的是一条说得出口的规则：power 0 且不带毒的法术不是伤人的法术（core::offensiveMagic），菜单上那句理由就是这个。"
+}

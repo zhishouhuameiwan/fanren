@@ -1,0 +1,19 @@
+{
+  "id": "mofu_huyuan_lingban",
+  "name": "护院领班",
+  "realm": "Mortal",
+  "maxHp": 70,
+  "maxMp": 0,
+  "attack": 12,
+  "defence": 10,
+  "speed": 6,
+  "element": 0,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "拳",
+    "暗器"
+  ],
+  "origin": "改编",
+  "note": "【横版平衡 B2 2026-09-26】新建，路径行动切磋 b05_qiecuo_lingban 的对手（契约 docs/interfaces-octo-pathactions.md 6.3：节点 9 之后才挂，强度介于护院与燕歌之间）。原著墨府的护院有人领着，名字没写，这里只叫他的差事。气血 70、攻 12、防 10：炼气八层的韩立平砍一下 32，三下收场；他一下打韩立 11，挨不到三成。齐眉棍，普攻缺省「拳」。破绽 拳、暗器，架势 3：领班的棍子使得圆，贴身与暗处来的东西才是他的空门；「拳」是第 5 章人人都有的手段（门禁规则 25）。"
+}

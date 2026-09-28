@@ -1,0 +1,13 @@
+{
+  "id": "pill_jiedan_lingyao",
+  "name": "结丹灵药",
+  "descKey": "item.desc.pill_jiedan_lingyao",
+  "kind": "pill",
+  "grade": 6,
+  "price": 16000,
+  "tradeable": true,
+  "restoreHp": 0,
+  "restoreMp": 0,
+  "origin": "改编",
+  "note": "全本检索 0 命中，属改编泛称。原著同位物为降尘丹（ch377-380）、天火液／雪灵水（ch376、386）等具名之物。"
+}

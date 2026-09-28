@@ -1,0 +1,13 @@
+{
+  "id": "pill_qingdu_san",
+  "name": "清毒散",
+  "descKey": "item.desc.pill_qingdu_san",
+  "kind": "pill",
+  "grade": 1,
+  "price": 45,
+  "tradeable": true,
+  "restoreHp": 0,
+  "curesPoison": true,
+  "origin": "改编",
+  "note": "引擎方为用毒系统落 schema 与写测试临时加的一条。curesPoison 解的是战斗里的毒（Unit::poison），**解不掉尸虫丸**——那是剧情状态（旗标 ch03.shichong_wan 加期限），刻意不在战斗里结算，见 src/core/model/Types.h 的注释。编剧写真正的解毒药时可直接改本条或另起新条。刻意不写 descKey：文案归编剧。 || 编剧已接手（P3 第 3 章）：不另起新条，本条就是韩立在节点 7 备毒时一并配出来的那一样，descKey 已补。数值（价 45）未动。它在暗道那一仗里用来解 jiang_shou 的尸毒爪；尸虫丸照旧解不掉，文案 ch03.jieyao.* 也不曾暗示能解。"
+}

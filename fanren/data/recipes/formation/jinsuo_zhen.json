@@ -1,0 +1,25 @@
+{
+  "id": "recipe_jinsuo_zhen",
+  "name": "禁锁阵图",
+  "kind": "formation",
+  "productId": "formation_jinsuo_zhen",
+  "productCount": 1,
+  "difficulty": 58,
+  "requiredProficiency": 36,
+  "inputs": [
+    {
+      "itemId": "material_zhenqi",
+      "count": 6,
+      "catalyst": true
+    },
+    {
+      "itemId": "material_zhenpan_pei",
+      "count": 1,
+      "catalyst": true
+    },
+    {
+      "itemId": "material_lingshi",
+      "count": 8
+    }
+  ]
+}

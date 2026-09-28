@@ -1,0 +1,74 @@
+{
+ "map": "ch04_luorifeng",
+ "tile": 16,
+ "width": 40,
+ "height": 30,
+ "theme": "cliff",
+ "time": "dusk",
+ "season": "autumn",
+ "ambient": [
+  218,
+  164,
+  132
+ ],
+ "dof": 0.65,
+ "bloom": 0.45,
+ "vignette": 0.4,
+ "particles": [
+  {
+   "kind": "leaf",
+   "rate": 0.3
+  },
+  {
+   "kind": "mist",
+   "rate": 0.35
+  }
+ ],
+ "lights": [
+  {
+   "x": 8.0,
+   "y": 10.0,
+   "r": 4.5,
+   "color": [
+    207,
+    116,
+    66
+   ],
+   "intensity": 1.0,
+   "flicker": 0.35,
+   "kind": "furnace"
+  },
+  {
+   "x": 12.5,
+   "y": 14.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "leaf",
+   "x": 29.5,
+   "y": 3.0
+  },
+  {
+   "kind": "leaf",
+   "x": 10.5,
+   "y": 24.0
+  },
+  {
+   "kind": "ember",
+   "x": 8.0,
+   "y": 9.5
+  }
+ ],
+ "backdrop": "cliff_top_dusk"
+}

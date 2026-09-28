@@ -1,0 +1,11 @@
+{
+  "id": "story_mo_yishu",
+  "name": "墨居仁遗书",
+  "descKey": "item.desc.story_mo_yishu",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch62 墨大夫留给韩立的遗书：解药里掺了阴毒、只有暖阳宝玉拔得出来；要他一两年内去嘉元城护住妻女；许一个女儿与半副家当加那块玉；另附亲信、可疑与仇家的名单。**来处改编**（用户已同意，docs/ch05-design.md 节点 1）：原著藏在墨大夫身上的香囊里，而第 3 章 ch03.tiezhe.find1 写死了身上「一共四样」没有香囊，所以改成那串钥匙里最小的一把开了床下的暗格。第 5 章节点 1a 由 scripts/ch05/dongqu_lu.lua 给出，本章不收回。"
+}

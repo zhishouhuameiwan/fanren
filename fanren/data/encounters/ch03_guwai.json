@@ -1,0 +1,32 @@
+{
+  "id": "encounter_ch03_guwai",
+  "name": "谷外荒坡",
+  "dailyCap": 3,
+  "entries": [
+    {
+      "battleId": "be03_guwai_gulang",
+      "weight": 3,
+      "minRealm": "Mortal",
+      "maxRealm": "QiRefining4"
+    },
+    {
+      "battleId": "be03_guwai_yezhu",
+      "weight": 2,
+      "minRealm": "Mortal",
+      "maxRealm": "QiRefining4"
+    },
+    {
+      "battleId": "be04_guwai_langqun",
+      "weight": 3,
+      "minRealm": "QiRefining4",
+      "maxRealm": "QiRefining7"
+    },
+    {
+      "battleId": "be04_guwai_yezhu",
+      "weight": 2,
+      "minRealm": "QiRefining4",
+      "maxRealm": "QiRefining7"
+    }
+  ],
+  "note": "第 3 章谷外荒坡（ch03_guwai 的 encounter_huangpo，教学那一仗打完才开）。第 4 章的韩立从山下镇一路走回来也遇得上，按境界换成那一章的编成；第 5 章（炼气八层）走回来一场也遇不上。步数区间在地图的遭遇区上。"
+}

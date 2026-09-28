@@ -1,0 +1,23 @@
+{
+  "id": "b05_qiecuo_lingban",
+  "name": "与护院领班过招",
+  "chapter": 5,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "mofu_huyuan_lingban",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "origin": "改编",
+  "rewritten_by_lore": false,
+  "note": "【横版平衡 B2 2026-09-26】路径行动 ch05 huyuan_a_qiecuo（ch05_nancheng / npc_huyuan_a）的编成：护院领班一人（新角色 mofu_huyuan_lingban），节点 9 之后才挂，强度介于护院与燕歌之间。按路径行动契约 6.1 建：defeat_is_fatal 假（输了不 game over，按气血至少 1 放回来）、rewards 全 0（奖励只由条目发一次）、can_escape 真（逃走按输算，可以再来）；我方照当时的队伍。条目发修为 25、碎银 20 块。"
+}

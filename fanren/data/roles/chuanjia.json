@@ -1,0 +1,14 @@
+{
+  "id": "chuanjia",
+  "name": "船家",
+  "realm": "Mortal",
+  "maxHp": 20,
+  "maxMp": 0,
+  "attack": 4,
+  "defence": 3,
+  "speed": 3,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "岚州界上渡口的船夫，原著无名（ch101：操舟的船夫提醒他嘉元城码头的行规）。本作让他在船上说出这条行规。不参与战斗。"
+}

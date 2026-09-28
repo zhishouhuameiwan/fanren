@@ -1,0 +1,12 @@
+{
+  "id": "magic_shenshi_chong",
+  "name": "神识冲",
+  "descKey": "magic.desc.magic_shenshi_chong",
+  "element": 0,
+  "needMp": 14,
+  "power": 16,
+  "needRealm": "QiRefining7",
+  "boost": "power",
+  "origin": "改编",
+  "note": "改编的神识攻击法术。**留一条给引擎方**：mo_juren_yuanshen 挂着本条与 magic_huoqiu_shu 两条法术，而 b03_shihai_duoshe 是吞噬战，契约 3.5 节写明识海里没有法术；devour 模式目前并不屏蔽施法，这两条会在梦里放得出来。见交付报告。补齐条目。data/roles/ 里早有 4 条角色引用这个 magic id，而 data/magics/ 此前是空目录；tools/validate.py 对空类别整类跳过引用校验，于是这些引用一直没被查过。第 3 章为用毒落下第一条法术之后该校验被激活，本条是为了让既有引用不悬空而补的，数值按引用它的角色境界粗定，**不是平衡结论**，归写到那一章的人重定。"
+}

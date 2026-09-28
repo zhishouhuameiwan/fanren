@@ -1,0 +1,11 @@
+{
+  "id": "story_yigao_chaoben",
+  "name": "遗稿抄本",
+  "descKey": "item.desc.story_yigao_chaoben",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "改编",
+  "note": "支线 Z1：ch124 墨凤舞求韩立把墨大夫的医道心得誊一份给她，他答应次日带来；交付原著没写，本作补上。由 scripts/ch05/chaoxie.lua 在客栈书案誊出（只抄手札前半本的方子与医案），scripts/ch05/fengwu.lua 在墨府药圃交给她（take 看返回值）。"
+}

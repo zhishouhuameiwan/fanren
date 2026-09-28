@@ -1,0 +1,11 @@
+{
+  "id": "material_yaodan_3",
+  "name": "三级妖丹",
+  "descKey": "item.desc.material_yaodan_3",
+  "kind": "material",
+  "grade": 3,
+  "price": 95,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "三级妖丹。原著中妖兽按级论，妖丹是炼丹与制符的常用材料。曾因两个模块并行各自命名而出现过 material_yaodan_sanji 这一重复 id，已合并到本条：代码不做 id 别名，重复意味着其中一份永远无法被配方消耗。"
+}

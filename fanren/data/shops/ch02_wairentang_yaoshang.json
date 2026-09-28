@@ -1,0 +1,51 @@
+{
+  "id": "ch02_wairentang_yaoshang",
+  "name": "外刃堂收药处",
+  "nameKey": "ch02.shop.name.wairentang_yaoshang",
+  "buyRate": 1.2,
+  "sellRate": 1.0,
+  "entries": [
+    {
+      "itemId": "herb_huangjing_cao",
+      "price": 6,
+      "stock": 20,
+      "restockDays": 30,
+      "restockAmount": 8,
+      "maxStock": 20
+    },
+    {
+      "itemId": "herb_qingfeng_cao",
+      "price": 10,
+      "stock": 12,
+      "restockDays": 30,
+      "restockAmount": 5,
+      "maxStock": 12
+    },
+    {
+      "itemId": "herb_zishen_cao",
+      "price": 7,
+      "stock": 8,
+      "restockDays": 60,
+      "restockAmount": 3,
+      "maxStock": 8
+    },
+    {
+      "itemId": "pill_jinchuang_yao",
+      "price": 24,
+      "stock": 10,
+      "restockDays": 15,
+      "restockAmount": 5,
+      "maxStock": 10
+    },
+    {
+      "itemId": "pill_zhitong_san",
+      "price": 14,
+      "stock": 0,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": 0
+    }
+  ],
+  "origin": "改编",
+  "note": "第 2 章外刃堂门前的收药处。全章的价格对照在这里发生：灵草按年份超线性计价（src/core/rules/Bottle.h 的 herbPrice，(age+10)^2/100 倍基价），黄精基价 5，于是一年份 6、十一年份 22、四十四年份 145——一年份的药确实卖不了几个钱，攒满一瓶绿液催上去的才值钱。主线三次交易的具体数额由 scripts/ch02 的脚本直接结算（maiyao.lua 六块、suanzhang.lua 二十二与一百四十五），本文件供玩家在剧情之外自由买卖时使用。黄精一阶，年份上限 44（herbMaxAgeForGrade），浇满三滴即到顶，不存在一直浇下去无限涨价的路子。止痛散列在册上但 stock 为 0 且不补货：这药是韩立自己配的，药商只认得、不出售。\n种苗就是药本身，游戏里没有单独的种子物品：FieldScene 播种消耗背包里的一株灵草，采收时把同一味药连年份一并还回背包，所以这里卖的是低年份的黄精／清风草／紫参草，不另造 seed_* 的 id。\n挂牌价按 buyRate 1.2 对基价取整：黄精 5→6、清风草 8→10、紫参草 6→7、金疮药 20→24、止痛散 12→14。本章一整章的循环收益实算约 1160 灵石（瓶颈是 8 个槽位与一年一年份的生长速度，不是绿液），对照回气丹 500、筑基丹 9000，这套定价正落在该有的量级上。\n血红芝虽在 data/items/herbs 下，本店不上架：它的条目注明是禁地出产的筑基丹主药（大纲第 7 章），第 2 章的门派药商手里不该有。 收购倍率取 1.0 而非常见的折价：本章三场交易的数字（一年份 6、浇一滴 22、攒满三滴 145）是剧情台词与 docs/ch02-design.md 第 3 节实算表共同钉住的，柜台若折价，玩家会在同一家店看到两套价钱。宗门药房收自家杂役的药不赚差价，说得通；买进仍是 1.2 倍，买回再卖不赚钱，开不出印钞口子。"
+}

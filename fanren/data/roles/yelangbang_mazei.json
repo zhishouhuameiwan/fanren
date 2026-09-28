@@ -1,0 +1,20 @@
+{
+  "id": "yelangbang_mazei",
+  "name": "野狼帮马贼",
+  "realm": "Mortal",
+  "maxHp": 42,
+  "maxMp": 0,
+  "attack": 8,
+  "defence": 6,
+  "speed": 7,
+  "element": 0,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "剑",
+    "拳",
+    "毒"
+  ],
+  "origin": "原著",
+  "note": "野狼帮是镜州马贼出身的帮会，与七玄门开战（ch2、74-95）。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲第一版：架势 2，破绽 剑、拳。理由：马贼弱剑弱拳。整张表与取舍见 docs/octopath-battle.md 第 7 节，B2 会用新的那只手量过再调。\n\n【横版平衡 B2 2026-09-26】破绽加「毒」（剑 拳 → 剑 拳 毒）：路径行动 wangjuechu_dating 揭的是「毒」（契约 docs/interfaces-octo-pathactions.md 第 7 节：夜里爬上东坡的人头一件找水）。"
+}

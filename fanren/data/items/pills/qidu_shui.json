@@ -1,0 +1,13 @@
+{
+  "id": "pill_qidu_shui",
+  "name": "七毒水",
+  "descKey": "item.desc.pill_qidu_shui",
+  "kind": "pill",
+  "grade": 2,
+  "price": 90,
+  "tradeable": false,
+  "poison": 4,
+  "poisonPower": 9,
+  "origin": "原著",
+  "note": "原著确证 ch61：加进土菇花改进而成，对修仙者元神大有妨碍，余子童被灭时施不出法术正因于此。节点 7 备毒时配成，节点 11 处决余子童时用掉。本章没有任何一场战斗登记它——它是给剧情用的那一筒，poison/poisonPower 仍照契约第 2 节写全，是为了将来第 4 章之后它进战斗时口径已经定死。"
+}

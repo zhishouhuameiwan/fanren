@@ -1,0 +1,17 @@
+{
+  "id": "huangfenggu_zhuji_xiushi",
+  "name": "黄枫谷筑基修士",
+  "realm": "FoundationMid",
+  "maxHp": 340,
+  "maxMp": 230,
+  "attack": 38,
+  "defence": 29,
+  "speed": 16,
+  "element": 1,
+  "magics": [
+    "magic_feijian_shu",
+    "magic_hushen_gang"
+  ],
+  "origin": "改编",
+  "note": "泛称的同门援军，取代旧原型查无的「墨韵真人」。"
+}

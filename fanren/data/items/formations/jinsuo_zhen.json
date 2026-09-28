@@ -1,0 +1,12 @@
+{
+  "id": "formation_jinsuo_zhen",
+  "name": "禁锁阵",
+  "descKey": "item.desc.formation_jinsuo_zhen",
+  "kind": "trinket",
+  "grade": 3,
+  "price": 320,
+  "tradeable": true,
+  "addDefence": 8,
+  "origin": "改编",
+  "note": "全本检索 0 命中，属改编。ItemKind 无 Formation 一项，取 trinket。"
+}

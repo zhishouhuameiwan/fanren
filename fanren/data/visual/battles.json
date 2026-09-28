@@ -1,0 +1,160 @@
+{
+  "_doc": "战斗背景指派（人工维护）：battle_id → assets/art/battle/<backdrop>/ 那一套四层图。依据：这一仗由哪个脚本在哪张图上发起（scripts/chNN/*.lua 里的 battle(\"...\") 与 maps/*.tmj 的触发器）、那张图上 battle_anchor 的 terrain、以及设计文档里这一仗的时辰。野外遭遇（be*）按遭遇所在的那张图与那张图烘焙的时辰指派——走在暮色里的图上，开打时背景不该换成白天。没写在这里的战斗由运行时退回所在地图 meta.json 的 backdrop。",
+  "battles": {
+    "b03_andao_shishou": {
+      "backdrop": "cave_tunnel",
+      "map": "ch03_andao",
+      "why": "暗道石室（battle_anchor terrain=cave）"
+    },
+    "b03_gu_wai_elang": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch03_guwai",
+      "why": "谷外荒坡遇狼，谷外图取傍晚"
+    },
+    "b03_shihai_duoshe": {
+      "backdrop": "soulsea",
+      "map": "ch02_jusuo",
+      "why": "识海夺舍（terrain=mind）：元神之战不在居所里，在识海里"
+    },
+    "b04_gongfang_weijian": {
+      "backdrop": "drill_ground_night",
+      "map": "ch04_yanwuchang",
+      "why": "门派攻防战是夜袭（ch04 设计：夜袭，没有人问过他）"
+    },
+    "b04_gongfang_xiadu": {
+      "backdrop": "drill_ground_night",
+      "map": "ch04_yanwuchang",
+      "why": "同上"
+    },
+    "b04_yelangbang_laifan": {
+      "backdrop": "drill_ground_night",
+      "map": "ch04_yanwuchang",
+      "why": "同上（守辕门）"
+    },
+    "b04_jia_tianlong": {
+      "backdrop": "town_street",
+      "map": "ch04_shanxiazhen",
+      "why": "山下镇坊门下拦路，白天"
+    },
+    "b04_qiecuo_feiyu": {
+      "backdrop": "drill_ground",
+      "map": "ch04_yanwuchang",
+      "why": "演武台切磋，白天"
+    },
+    "b04_qiecuo_feiyu2": {
+      "backdrop": "sect_courtyard",
+      "map": "ch04_getang",
+      "why": "路径行动 feiyu_qiecuo：在阁堂找厉飞雨再过招，不在演武台；阁堂那张图是白天的宗门院落"
+    },
+    "b04_qiecuo_maliu": {
+      "backdrop": "drill_ground",
+      "map": "ch02_wairentang",
+      "why": "路径行动 maliu_qiecuo：外刃堂弟子缠布木刀过招。没有宗门殿内的背景，取外刃堂院里兵器架环着的练武沙地，白天（与外刃堂地图的背景一致）"
+    },
+    "b05_duobang": {
+      "backdrop": "manor_night",
+      "map": "ch05_kezhan",
+      "why": "夺帮一夜打在四平帮总舵的院子里（韩立在客栈睡觉，仗不在客栈）"
+    },
+    "b05_heishuixiang": {
+      "backdrop": "town_street_dusk",
+      "map": "ch05_xicheng",
+      "why": "黑水巷，西城取黄昏"
+    },
+    "b05_matou_zhuishao": {
+      "backdrop": "town_street_dusk",
+      "map": "ch05_xicheng",
+      "why": "往南城去的巷口，天擦黑（设计文档节点 3b）"
+    },
+    "b05_mofu_shigui": {
+      "backdrop": "secret_room",
+      "map": "ch05_mofu",
+      "why": "马厩角上那扇地窖石门底下"
+    },
+    "b05_ouyang_feitian": {
+      "backdrop": "wild_manor",
+      "map": "ch05_dubashanzhuang",
+      "why": "独霸山庄赏月亭，挑他独自赏月那一夜"
+    },
+    "b05_qiecuo_huyuan": {
+      "backdrop": "manor_court",
+      "map": "ch05_nancheng",
+      "why": "路径行动 huyuan_b_qiecuo：南城墨府门前的护院试棍。护院是墨府的人，取白天的墨府院子，与府里其他切磋（b05_yange_qiecuo）同一套；南城地图也是白天"
+    },
+    "b05_qiecuo_lingban": {
+      "backdrop": "manor_court",
+      "map": "ch05_nancheng",
+      "why": "路径行动 huyuan_a_qiecuo：护院领班，理由同上"
+    },
+    "b05_tiequanhui_jieren": {
+      "backdrop": "dock_river",
+      "map": "ch05_xicheng",
+      "why": "码头后头的仓房"
+    },
+    "b05_wu_jianming": {
+      "backdrop": "manor_court",
+      "map": "ch05_mofu",
+      "why": "马厩院院门，一早去取马（设计文档节点 12a/12b）"
+    },
+    "b05_xiaoxiangyuan": {
+      "backdrop": "inn_hall",
+      "map": "ch05_xicheng",
+      "why": "潇湘院里头：有灯笼、有酒坛的厅堂"
+    },
+    "b05_xunzhuang": {
+      "backdrop": "wild_manor",
+      "map": "ch05_dubashanzhuang",
+      "why": "巡庄在夜里，庄墙根下"
+    },
+    "b05_yange_qiecuo": {
+      "backdrop": "manor_court",
+      "map": "ch05_mofu",
+      "why": "月洞门外讨教，白天的墨府"
+    },
+    "b05_yesu_yelang": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch05_dukou",
+      "why": "野宿遇狼在渡口西边的峡口（两道土坡夹出来的野地），黄昏"
+    },
+    "be03_guwai_gulang": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch03_guwai",
+      "why": "野外遭遇：谷外荒坡的孤狼。谷外这张图烘成黄昏，与同地的剧情战 b03_gu_wai_elang 同一套"
+    },
+    "be03_guwai_yezhu": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch03_guwai",
+      "why": "野外遭遇：谷外荒坡的野猪，同上（黄昏的林边山道）"
+    },
+    "be04_guwai_langqun": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch03_guwai",
+      "why": "野外遭遇：第 4 章回谷外撞上的狼群。走的还是那张黄昏的谷外图，背景跟着地图的时辰，不另换白天版——刚走过暮色、一开打天又亮了会跳"
+    },
+    "be04_guwai_yezhu": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch03_guwai",
+      "why": "野外遭遇：第 4 章谷外的野猪，理由同上"
+    },
+    "be05_dukou_jianjing": {
+      "backdrop": "dock_river",
+      "map": "ch05_dukou",
+      "why": "野外遭遇：峡口以东河滩上拦路的剪径贼。背后是河与对岸，黄昏，与渡口地图同一时辰"
+    },
+    "be05_dukou_yezhu": {
+      "backdrop": "dock_river",
+      "map": "ch05_dukou",
+      "why": "野外遭遇：峡口以东河滩的野猪（节点 1a 之后、上船之前），同上"
+    },
+    "be05_linzi_langqun": {
+      "backdrop": "wild_manor",
+      "map": "ch05_dubashanzhuang",
+      "why": "野外遭遇：独霸山庄外林子里的狼群。山庄那张图是夜里；林间山道的背景没有夜版，取夜里的庄外野地（远处庄墙灯火、两侧矮树丛）"
+    },
+    "be05_linzi_yezhu": {
+      "backdrop": "wild_manor",
+      "map": "ch05_dubashanzhuang",
+      "why": "野外遭遇：庄外林子的野猪，同上"
+    }
+  }
+}

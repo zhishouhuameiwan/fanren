@@ -1,0 +1,11 @@
+{
+  "id": "material_yaodan_wuji",
+  "name": "五级妖丹",
+  "descKey": "item.desc.material_yaodan_wuji",
+  "kind": "material",
+  "grade": 5,
+  "price": 950,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "妖丹为原著物（ch344 起）；等阶用原著的 1-10 级尺度（ch395、503、516、520、542、544），五级≈结丹初期。价格锚点 ch389：五级妖丹约值近千灵石；ch397 韩立一趟猎得数百颗、自估值数十万灵石——本价 950 与两条锚点同时吻合。"
+}

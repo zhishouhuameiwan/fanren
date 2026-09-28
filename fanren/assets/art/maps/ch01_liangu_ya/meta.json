@@ -1,0 +1,31 @@
+{
+ "map": "ch01_liangu_ya",
+ "tile": 16,
+ "width": 32,
+ "height": 40,
+ "theme": "cliff",
+ "time": "day",
+ "season": "spring",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.65,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.35
+  },
+  {
+   "kind": "mist",
+   "rate": 0.2
+  }
+ ],
+ "lights": [],
+ "water": [],
+ "emitters": [],
+ "backdrop": "cliff_top"
+}

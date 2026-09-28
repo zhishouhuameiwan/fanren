@@ -1,0 +1,20 @@
+{
+  "id": "qian_jin",
+  "name": "钱进",
+  "realm": "Mortal",
+  "maxHp": 60,
+  "maxMp": 0,
+  "attack": 10,
+  "defence": 8,
+  "speed": 3,
+  "element": 0,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "剑",
+    "暗器",
+    "火"
+  ],
+  "origin": "原著",
+  "note": "四平帮三大护法之一，绰号狂拳，一个胖得出奇的酒徒（ch121）。条件战第二波：70 / 15 / 8 / 3。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲第一版：架势 3，破绽 剑、暗器、火。理由：狂拳胖酒徒，破绽多。整张表与取舍见 docs/octopath-battle.md 第 7 节，B2 会用新的那只手量过再调。\n\n【横版平衡 B2 2026-09-26】气血 70 → 60、攻 15 → 10。潇湘院整场压轻，理由见 data/battles/b05_xiaoxiangyuan.json 的 note。"
+}

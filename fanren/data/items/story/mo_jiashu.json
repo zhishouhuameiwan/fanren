@@ -1,0 +1,11 @@
+{
+  "id": "story_mo_jiashu",
+  "name": "墨居仁家书",
+  "descKey": "item.desc.story_mo_jiashu",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "大纲第 3 章明列「搜得遗物、家书」。信上落款嘉元城，是第 5 章墨府那一章的入口；本章只让玩家拿到，不解释用途——韩立收下它的理由写成「那个地方现在没有人当家了」，是盘算，不是志向。"
+}

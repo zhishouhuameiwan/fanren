@@ -1,0 +1,31 @@
+{
+  "id": "b03_andao_shishou",
+  "name": "暗道试兽",
+  "chapter": 3,
+  "terrain": "cave",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "long_zhong_shou",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "long_zhong_shou",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "jiang_shou",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 30,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch03.battle.andao_shishou.intro",
+  "origin": "改编",
+  "rewritten_by_lore": false,
+  "note": "战棋教学第二场（docs/ch03-design.md 第 2 节），教法术与物品、重点教用毒。原著此处无遭遇：ch42 只写墨大夫「用动物试过」功法、其中死了一只，ch64 写他曾想成批炼尸而只做成一具。本战把这两条并到暗道的十一只笼子上，玩家在这里第一次看见那些试验的下场。编成两快一慢：两只 long_zhong_shou 防 3、韩立平砍三下一只，用来教移动与站位；jiang_shou 防 9、平砍只掉 3 点，三十点气血要砍十下，而蚀心散 3 回合 × 6 点不过防——玩家自己就会得出「砍不动就下毒」。它的尸毒爪反过来给玩家上毒，清毒散的用处在同一场里教掉。can_escape=true、defeat_is_fatal=false：设计写明这一场可败，败了是爬出暗道、腿上带一道发青的口子，不是死。**脚本不得把 won==false 当死局**。spirit_stones 刻意给 0：节点 7 那把 30 块的玉带短剑买不买得起，是第 2 章章末那次选择的回响，这一仗掉钱会把那条分支冲掉。\n\n【八方旅人化改造 2026-09-25】横版没有格子：上文「教移动与站位」那一半作废。两只笼中兽改教**蓄劲连击**（架势 2、破绽 剑 / 拳），僵兽的「砍不动就下毒」原样保住——它的破绽是毒与火，刀剑拳一样也不是；两包蚀心散正好把它打到破势一次，破势期间伤害翻倍，这时再蓄满劲砍才砍得动。架势与破绽的取舍见 docs/octopath-battle.md 第 7 节。\n\n【横版平衡 B2 2026-09-26】笼中兽攻 6 → 3、僵兽攻 8 → 6 / 防 9 → 10（见两份 role 的 note）。编成不动，仍是一波：三只从第一回合一齐出手，但笼中兽只挠两点，真正的威胁是僵兽的爪子与它砍不动的那身皮。实测：会用毒的那只手赢下来，恰好撒掉两包蚀心散（第 3 章通关测试钉着）。"
+}

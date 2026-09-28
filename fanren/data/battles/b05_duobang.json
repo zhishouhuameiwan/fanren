@@ -1,0 +1,66 @@
+{
+  "id": "b05_duobang",
+  "name": "夺帮一夜",
+  "chapter": 5,
+  "terrain": "field",
+  "hero_absent": true,
+  "can_escape": false,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "qu_hun",
+      "faction": "ally"
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "ally"
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "ally"
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "sipingbang_toumu",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "sipingbang_toumu",
+      "faction": "enemy",
+      "wave": 2
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch05.battle.duobang.intro",
+  "origin": "原著",
+  "note": "第 5 章节点 10c（ch05_kezhan trigger_shuijiao，interact + once），十场必打之五。原著 ch122：沈重山与三大护法被毒死的当夜，四平帮的头目为帮主之位火拼，孙二狗靠曲魂一夜杀光反对他的高层；韩立那一夜在客栈睡觉。**韩立不在场**：hero_absent 真（docs/interfaces-p3-ch05.md 2.1）——不建韩立、不带队伍里的同伴、不登记背包；我方是编成里写死的三个友军：曲魂与孙二狗手下两个脚夫（ch104：他管着四五十个苦力）。曲魂此时已由节点 10a 的 party.remove 借给孙二狗，不在队伍里，不会重复出场。三波：① 打手 ×4 ② 四平帮头目 ＋ 打手 ③ 四平帮头目，总血 118。第一波四个打手全围上曲魂时单轮 16 / 55（29%）；敌人专挑最脆的打，两个脚夫先挨。can_escape 假、**defeat_is_fatal 假**：这一仗韩立在睡觉，不该让他死在里头；输了孙二狗退回码头，第二夜再来（scripts/ch05/shuijiao.lua）。收获 0 / 0。player_spawn 写在 (1,5) 只为不与曲魂同格：hero_absent 为真时引擎不读它（契约 2.1）。\n曲魂在这一仗里是编成里写死的友军单位，按 data/roles/qu_hun.json 满血 55 上场，与存档里它离队前是多少血无关（fixture 里是 31/55；hero_absent 为真时不带队伍，契约 2.2）。（第 4 章终局 fixture 实测，2026-09-24 协调者转达：tests/fixtures/ch04-end-first.sav 养精丹 12、ch04-end-second.sav 养精丹 0，两侧清灵散各 2、软剑各 1，曲魂 31/55，炼丹熟练度 100。）\n\n【八方旅人化改造 2026-09-25】横版没有格子：上文「player_spawn 写在 (1,5) 只为不与曲魂同格」作废，player_spawn 与坐标一并删除。我方三人都只有拳，所以本场敌人的破绽里都有拳（门禁规则 25 按这一场我方的兵刃算）。"
+}

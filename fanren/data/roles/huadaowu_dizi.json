@@ -1,0 +1,20 @@
+{
+  "id": "huadaowu_dizi",
+  "name": "化刀坞弟子",
+  "realm": "QiRefining10",
+  "maxHp": 132,
+  "maxMp": 80,
+  "attack": 20,
+  "defence": 14,
+  "speed": 11,
+  "element": 1,
+  "magics": [
+    "magic_feijian_shu"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "火"
+  ],
+  "origin": "原著",
+  "note": "化刀坞为越国七派之一（ch127），血色试炼七派同入、中心区争药。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

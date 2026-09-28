@@ -1,0 +1,12 @@
+{
+  "id": "magic_fenglei_chi",
+  "name": "风雷翅",
+  "descKey": "magic.desc.magic_fenglei_chi",
+  "element": 4,
+  "needMp": 16,
+  "power": 0,
+  "needRealm": "FoundationEarly",
+  "boost": "power",
+  "origin": "原著",
+  "note": "原著确证：韩立的成名遁术，起落极快。补齐条目。data/roles/ 里早有 1 条角色引用这个 magic id，而 data/magics/ 此前是空目录；tools/validate.py 对空类别整类跳过引用校验，于是这些引用一直没被查过。第 3 章为用毒落下第一条法术之后该校验被激活，本条是为了让既有引用不悬空而补的，数值按引用它的角色境界粗定，**不是平衡结论**，归写到那一章的人重定。\n\n【八方旅人化改造 2026-09-25】横版没有距离，castRange 已删。power 0：不是伤人的法术，菜单里点不动，理由照实写。"
+}

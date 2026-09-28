@@ -1,0 +1,34 @@
+{
+  "id": "b13_waixinghai_lieyao",
+  "name": "外星海·五级海兽群",
+  "chapter": 13,
+  "legacy_id": "B_SEA_BOSS",
+  "terrain": "sea",
+  "can_escape": true,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "wuji_haishou",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "wuji_haishou",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 1400,
+    "spirit_stones": 320,
+    "drops": [
+      {
+        "item_id": "material_yaodan_wuji",
+        "count": 2,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch13.battle.waixinghai_lieyao.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "逆星盟之乱后偷渡外星海、立府雾中岛，靠猎妖炼丹推到结丹中期（ch512-535）。旧原型此战的敌人是筑基后期档，与第 13 章的结丹曲线脱节，按五级妖兽（≈结丹初期）重新校准。"
+}

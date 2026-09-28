@@ -1,0 +1,14 @@
+{
+  "id": "qixuan_kaoguan",
+  "name": "七玄门考官",
+  "realm": "Mortal",
+  "maxHp": 44,
+  "maxMp": 0,
+  "attack": 8,
+  "defence": 7,
+  "speed": 5,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "主持炼骨崖入门考核的门中执事。原著只写七玄门在青牛镇一带招收七到十二岁孩童、考核在炼骨崖攀爬（ch1-4），未给具体考官具名，此为通用 NPC。数值按凡人武馆执事设定，本章不参与战斗。"
+}

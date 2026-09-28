@@ -1,0 +1,71 @@
+{
+  "id": "b04_yelangbang_laifan",
+  "name": "门派攻防战·守辕门",
+  "chapter": 4,
+  "legacy_id": "B_BANDIT",
+  "terrain": "battlefield",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "yelangbang_toumu",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "yelangbang_toumu",
+      "faction": "enemy",
+      "wave": 2
+    },
+    {
+      "role_id": "yelangbang_toumu",
+      "faction": "enemy",
+      "wave": 2
+    },
+    {
+      "role_id": "jinguang_shangren",
+      "faction": "enemy",
+      "wave": 3
+    },
+    {
+      "role_id": "jia_tianlong",
+      "faction": "enemy",
+      "wave": 3
+    }
+  ],
+  "rewards": {
+    "cultivation": 180,
+    "spirit_stones": 60,
+    "drops": [
+      {
+        "item_id": "pill_jinchuang_yao",
+        "count": 3,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch04.battle.gongfang_yuanmen.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "第 4 章节点 9 门派攻防战的**第一种编成**，对应节点 6 三选一的第 1 条（ch04.bushu == 1，守辕门）。另两种见 b04_gongfang_weijian.json（放进空场合围）与 b04_gongfang_xiadu.json（先下药）。三张由 scripts/ch04/gongfang.lua 按旗标挑。\n\n本条是就地改写旧档，不是新建：旧原型是泛称的「山贼伏击」（legacy_id B_BANDIT），2026 年归位成野狼帮攻山之后一直是单波三人。现在它是四波九人的攻防战。**intro_key 也换了**：旧的那条（ch04.battle.yelangbang_laifan.intro，在 data/text/battles.json 里）写的是「冲上落日峰的石阶」，而本作的攻防战摆在各堂东门外的演武场，不在峰上；那条文案留在原处不动（多一条没人引的文案不是错），本条另指一条对得上地方的。\n\n**can_escape 假、defeat_is_fatal 真。** 这是自家的辕门，没有逃这一说；输了就是输了，脚本 scripts/ch04/gongfang.lua 落 game_over。设计文档第 0 节写明这一章的落点是「守住了门派」，硬约束 5 写明门派存续——那就只有一种活着走出去的走法。这与第 3 章识海那一场同一口径。\n\n四波九人的形状（守辕门的样子：口子窄，一次只挤得进来几个）：\n  第 0 波 马贼 ×2 —— 先来试深浅的。\n  第 1 波 马贼 ×2 ＋ 头目 ×1 —— 铁枪会、断水门那些杂牌帮众，人多手杂（ch81）。\n  第 2 波 头目 ×2 —— 野狼帮自己的人上来了。\n  第 3 波 金光上人 ＋ 贾天龙 —— ch82 那一对。\n**波与波之间不回血、不回法力**（契约 docs/interfaces-p3-ch04.md 2.1），所以前三波省不省得下法力，直接决定第四波打不打得动金光上人（防 30，刀砍不进去）。这一场的算计全在这里。\n\n**实测（2026-09-23 二次整改后重量，tests/Ch04SliceTests.cpp 的 ThreeWaysToHoldTheGate 与 Ch04HandSweep）：**\n起点是第 3 章通关测试的终局存档（两侧各跑一遍）；药只来自本章分次发的俸禄（docs/ch04-design.md 3.3，照价那一条炼出 23 瓶）；三天备战挪到了坊门那一战之后，攻防战前韩立 120/120、曲魂 16/55；那只手按物品 id 只给韩立喂养精丹，对面下一轮打得死就吃。\n\n| 布置 | 门槛六成：收场气血 | 23 瓶用掉 | 最少要几瓶（门槛 40/50/60/70%） |\n| --- | --- | --- | --- |\n| 1 守辕门 | 90/120 | 8 | 5 / 6 / 6 / 8 |\n| 2 围歼 | 100/120 | 9 | 6 / 6 / 7 / 4 |\n| 3 先下药 | 100/120 | 8 | 5 / 6 / 6 / 3 |\n\n吃药门槛 40–70% 七档 × 药数 N−2 / N / N＋2 × 背包原样 / 多一样 / 少一样，三张各 63 格，一格不输。\n**这些数是一只不完美的手打出来的**（它不走位风筝、不换目标集火），所以「它赢了」证明得了走得通，「它输了」证明不了打不过——日后这一条转红，先看 Ch04HandSweep 那张表，再查编成。\n\n【八方旅人化改造 2026-09-25】横版没有格子：上文那张实测表是战棋规则下量的（「它不走位风筝」一句随之作废），等 B2 用新的那只手重量。最后一波的贾天龙会**蓄势**（每三个出手回合一次，重招 ×1.8 横扫我方全体），在他出手之前把他打到破势就能打断——那是这一仗新的「最硬的一口」。"
+}

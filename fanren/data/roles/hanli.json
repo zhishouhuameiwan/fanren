@@ -1,0 +1,14 @@
+{
+  "id": "hanli",
+  "name": "韩立",
+  "realm": "Mortal",
+  "maxHp": 10,
+  "maxMp": 0,
+  "attack": 6,
+  "defence": 3,
+  "speed": 5,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "主角。**这份模板只用来给他一个名字**：战斗里他的气血与境界一律取自 GameState（存档），不读这里的数值。\n不建它的话，speakerName() 查不到就回显 id，战斗日志与菜单上会当着玩家的面写着 hanli。\nmagics 留空是实情：全作没有任何一处写着他会什么法术，他学会第一门是第 6 章入黄枫谷的事（技术债 G-4）。"
+}

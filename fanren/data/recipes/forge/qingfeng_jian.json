@@ -1,0 +1,19 @@
+{
+  "id": "recipe_qingfeng_jian",
+  "name": "青锋剑图",
+  "kind": "forge",
+  "productId": "weapon_qingfeng_jian",
+  "productCount": 1,
+  "difficulty": 32,
+  "requiredProficiency": 16,
+  "inputs": [
+    {
+      "itemId": "material_jingtie",
+      "count": 3
+    },
+    {
+      "itemId": "material_xuantie",
+      "count": 1
+    }
+  ]
+}

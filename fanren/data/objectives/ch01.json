@@ -1,0 +1,77 @@
+{
+  "id": "objectives_ch01",
+  "name": "第 1 章目标链",
+  "chapter": 1,
+  "steps": [
+    {
+      "id": "n1_sanshu",
+      "text_key": "objective.ch01.n1_sanshu",
+      "done_flag": "ch01.sanshu_met",
+      "target_map": "ch01_hanjiacun",
+      "target_object": "npc_han_sanshu"
+    },
+    {
+      "id": "n2_cunkou",
+      "text_key": "objective.ch01.n2_cunkou",
+      "done_flag": "ch01.muqin_bie",
+      "target_map": "ch01_hanjiacun",
+      "target_object": "trigger_cunkou_bie"
+    },
+    {
+      "id": "n3_baoming",
+      "text_key": "objective.ch01.n3_baoming",
+      "done_flag": "ch01.baoming_done",
+      "target_map": "ch01_qingniuzhen",
+      "target_object": "trigger_baoming"
+    },
+    {
+      "id": "n4_shandao",
+      "text_key": "objective.ch01.n4_shandao",
+      "done_flag": "ch01.zhangtie_met",
+      "target_map": "ch01_caixiashan",
+      "target_object": "trigger_yu_zhangtie"
+    },
+    {
+      "id": "n5_kaohe",
+      "text_key": "objective.ch01.n5_kaohe",
+      "done_flag": "ch01.climb_done",
+      "target_map": "ch01_liangu_ya",
+      "target_object": "trigger_kaohe_start"
+    },
+    {
+      "id": "n6_fangbang",
+      "text_key": "objective.ch01.n6_fangbang",
+      "done_flag": "ch01.fangbang_done",
+      "target_map": "ch01_liangu_ya",
+      "target_object": "trigger_fangbang"
+    },
+    {
+      "id": "n7_shoutu",
+      "text_key": "objective.ch01.n7_shoutu",
+      "done_flag": "ch01.shoutu_done",
+      "target_map": "ch01_liangu_ya",
+      "target_object": "npc_mo_daifu"
+    },
+    {
+      "id": "n8_rugu",
+      "text_key": "objective.ch01.n8_rugu",
+      "done_flag": "ch01.shenshougu_arrived",
+      "target_map": "ch01_shenshougu",
+      "target_object": "trigger_ru_gu_anding"
+    },
+    {
+      "id": "n8b_dazuo",
+      "text_key": "objective.ch01.n8b_dazuo",
+      "done_flag": "ch01.dazuo_done",
+      "target_map": "ch01_shenshougu",
+      "target_object": "trigger_dazuo_jiaoxue"
+    },
+    {
+      "id": "n9_koujue",
+      "text_key": "objective.ch01.n9_koujue",
+      "done_flag": "ch01.koujue_received",
+      "target_map": "ch01_shenshougu",
+      "target_object": "npc_mo_daifu"
+    }
+  ]
+}

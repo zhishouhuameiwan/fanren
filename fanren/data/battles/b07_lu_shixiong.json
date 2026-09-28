@@ -1,0 +1,30 @@
+{
+  "id": "b07_lu_shixiong",
+  "name": "坊市夜路·陆师兄",
+  "chapter": 7,
+  "legacy_id": "B_BLOOD_1",
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "lu_shixiong",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 200,
+    "spirit_stones": 60,
+    "drops": [
+      {
+        "item_id": "pill_zhuji_dan",
+        "count": 2,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch07.battle.lu_shixiong.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "旧原型此位是「禁地魔修 / 燕血魔门」，而血色禁地是越国七派共管、筑基以下弟子同入之地，魔道入侵要到 ch217 之后，不可能出现在这里。改为原著实有的「坊市备战期夜遇并击杀陆师兄夺两枚筑基丹」（ch160-171）。"
+}

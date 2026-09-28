@@ -1,0 +1,106 @@
+{
+ "map": "ch02_jusuo",
+ "tile": 16,
+ "width": 24,
+ "height": 18,
+ "theme": "indoor_wood",
+ "time": "indoor",
+ "season": "summer",
+ "ambient": [
+  132,
+  116,
+  98
+ ],
+ "dof": 0.35,
+ "bloom": 0.5,
+ "vignette": 0.45,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.35
+  }
+ ],
+ "lights": [
+  {
+   "x": 7.5,
+   "y": 13.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 5.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 10.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 15.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 20.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 3.5,
+   "y": 4.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "inn_hall"
+}

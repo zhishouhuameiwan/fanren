@@ -1,0 +1,14 @@
+{
+  "id": "xi_tieniu",
+  "name": "席铁牛",
+  "realm": "Mortal",
+  "maxHp": 40,
+  "maxMp": 0,
+  "attack": 10,
+  "defence": 6,
+  "speed": 5,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "四平帮的小头目，满脸横肉（ch124）：那夜在西郊撞见一对骑鸟的男女神仙、听见「神仙大会」的就是他；ch125 想起女的说过要先去「太南谷」。事后当了四平帮副帮主。不参与战斗。"
+}

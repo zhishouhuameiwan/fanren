@@ -1,0 +1,22 @@
+{
+  "id": "b04_qiecuo_feiyu",
+  "name": "演武台切磋",
+  "chapter": 4,
+  "terrain": "battlefield",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "li_feiyu",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 40,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch04.battle.qiecuo.intro",
+  "origin": "改编",
+  "note": "第 4 章节点 5「法武并用」的那一场。演武台台面上的切磋，**不是生死斗**：can_escape 真、defeat_is_fatal 假，输赢逃都往下走，脚本 scripts/ch04/qiecuo.lua 三条落点各有各的台词。\n\n只编一个单位（厉飞雨）是有意的。曲魂由 BattleScene::addPartyUnits 自动带上场，所以台上实际是二对一——厉飞雨自己要的，他那手奔雷刀在同辈里没有对手（data/roles/li_feiyu.json），让他一对二正是设计文档第 6 节那句「别把他写成陪衬」。\n\n数值是为了把「刀砍不动，火弹收得了口」这件事摆到玩家眼前：\n  厉飞雨 58 血 / 防 8。韩立平砍 6×2−8 = 4，乘跨境界 1.6 得 6 点，十下才收；火弹术 12×2−4 = 20，乘 1.6 得 32 点，两发就够。\n  他回手 14×2−3 = 25，乘凡人打修士的 0.7 得 18 点，韩立六下就要躺下。\n这一场**不教任何东西**（没有教程文案）：法武并用是他自己摸出来的（原著 ch75，设计文档硬约束 1），场上不许有人提示，脚本里厉飞雨也一个字不点。"
+}

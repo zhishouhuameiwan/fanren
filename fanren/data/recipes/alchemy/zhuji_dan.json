@@ -1,0 +1,26 @@
+{
+  "id": "recipe_zhuji_dan",
+  "name": "筑基丹方",
+  "kind": "alchemy",
+  "productId": "pill_zhuji_dan",
+  "productCount": 1,
+  "difficulty": 48,
+  "requiredProficiency": 30,
+  "inputs": [
+    {
+      "itemId": "herb_xuehong_zhi",
+      "count": 1,
+      "minAge": 50
+    },
+    {
+      "itemId": "herb_huangjing_cao",
+      "count": 1,
+      "minAge": 50
+    },
+    {
+      "itemId": "herb_zishen_cao",
+      "count": 1,
+      "minAge": 50
+    }
+  ]
+}

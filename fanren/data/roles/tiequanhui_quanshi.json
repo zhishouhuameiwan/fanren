@@ -1,0 +1,20 @@
+{
+  "id": "tiequanhui_quanshi",
+  "name": "铁拳会拳师",
+  "realm": "Mortal",
+  "maxHp": 36,
+  "maxMp": 0,
+  "attack": 11,
+  "defence": 6,
+  "speed": 5,
+  "element": 0,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "剑",
+    "刀",
+    "火"
+  ],
+  "origin": "改编",
+  "note": "铁拳会里会几手的（改编；铁拳会本身出自 ch100）。比打手硬一截，仍是韩立一刀一个：(15×2−6)×1.6 = 38。第 5 章节点 3b 码头盯梢、4b 截人两场用他。铁拳会在 ch104 之后原著不再出现。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲第一版：架势 2，破绽 剑、刀、火。理由：铁拳会的拳脚硬，怕刃与火。整张表与取舍见 docs/octopath-battle.md 第 7 节，B2 会用新的那只手量过再调。"
+}

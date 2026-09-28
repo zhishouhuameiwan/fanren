@@ -1,0 +1,29 @@
+{
+  "id": "recipe_huansha_zhen",
+  "name": "幻杀阵图",
+  "kind": "formation",
+  "productId": "formation_huansha_zhen",
+  "productCount": 1,
+  "difficulty": 44,
+  "requiredProficiency": 22,
+  "inputs": [
+    {
+      "itemId": "material_zhenqi",
+      "count": 4,
+      "catalyst": true
+    },
+    {
+      "itemId": "material_zhenpan_pei",
+      "count": 1,
+      "catalyst": true
+    },
+    {
+      "itemId": "material_yaodan_2",
+      "count": 1
+    },
+    {
+      "itemId": "material_lingshi",
+      "count": 4
+    }
+  ]
+}

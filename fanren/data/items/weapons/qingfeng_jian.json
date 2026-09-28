@@ -1,0 +1,13 @@
+{
+  "id": "weapon_qingfeng_jian",
+  "name": "青锋剑",
+  "descKey": "item.desc.weapon_qingfeng_jian",
+  "kind": "artifact",
+  "grade": 2,
+  "price": 340,
+  "tradeable": true,
+  "addAttack": 8,
+  "weapon": "剑",
+  "origin": "改编",
+  "note": "全本检索 0 命中，属改编。以铁精三份配玄铁一份锻成（recipe_qingfeng_jian）。\n\n【八方旅人化改造 2026-09-25】weapon 字段：揣在韩立身上，他的普攻就多一样「剑」可选（docs/octopath-battle.md 2.2：空手的拳永远有，背包里每件兵器再加一样）。没有装备系统，addAttack 仍然没人读。"
+}

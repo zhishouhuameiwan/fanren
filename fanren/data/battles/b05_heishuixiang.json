@@ -1,0 +1,63 @@
+{
+  "id": "b05_heishuixiang",
+  "name": "黑水巷",
+  "chapter": 5,
+  "terrain": "indoor",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "matou_dashou",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "hei_xiong",
+      "faction": "enemy",
+      "wave": 1
+    }
+  ],
+  "rewards": {
+    "cultivation": 40,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch05.battle.heishuixiang.intro",
+  "origin": "原著",
+  "note": "第 5 章节点 3a（ch05_xicheng trigger_heishuixiang，enter + once），十场必打之二。原著 ch102-103：两个脚夫把他领进死巷，前后各堵一簇，黑熊与孙二狗在后头。码头打手 ×8、黑熊 ×1，总血 146，前后两簇把韩立夹在当中。打手 14 血：韩立 42、曲魂 14，都是一下；他们打韩立 3、打曲魂 4。黑熊 34 血：韩立 35 一下，他打韩立 14。单轮最大 23（19%）。can_escape 假、defeat_is_fatal 真。收获 40 修为。无必败分支。孙二狗不在编成里：他不会武功，站在一边吓瘫了（ch103）。\n黑熊那一下的两种写法（有软剑 / 空手）：fixture 两侧都带着软剑，从第 4 章终局接过来只走得到有剑那一条；空手那一条留给手搭的起点。（第 4 章终局 fixture 实测，2026-09-24 协调者转达：tests/fixtures/ch04-end-first.sav 养精丹 12、ch04-end-second.sav 养精丹 0，两侧清灵散各 2、软剑各 1，曲魂 31/55，炼丹熟练度 100。）\n\n【横版平衡 B2 2026-09-26】拆成两波：① 码头打手 ×4 ② 码头打手 ×4、黑熊。横版里一波的人每回合都够得着他，八个打手加黑熊一齐上单轮 38，破了三成斩杀线（docs/octopath-battle.md 7.3 那张表的红格）；拆开之后第二波最重 26（22%）。总血、收获不变。"
+}

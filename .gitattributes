@@ -1,0 +1,5 @@
+# 所有文件按字节原样入库、原样检出，不做换行符转换。
+# genmaps.py --check 把 maps/*.tmj 与生成器输出逐字比对，检出时 LF 被换成 CRLF
+# （Git for Windows 默认 core.autocrlf=true）就会误报漂移；
+# 仓库里 .bat 是 CRLF、其余大多是 LF，本来就混着放。
+* -text

@@ -1,0 +1,28 @@
+{
+  "id": "b03_gu_wai_elang",
+  "name": "谷外恶狼",
+  "chapter": 3,
+  "legacy_id": "B_WOLF",
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "wild_wolf",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "wild_wolf",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 15,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch03.battle.gu_wai_elang.intro",
+  "origin": "改编",
+  "rewritten_by_lore": false,
+  "note": "战棋战斗在第 3 章正式开放（大纲第 3 章玩法），本战是教学关，故从旧原型的第一场位置顺延到此。"
+}

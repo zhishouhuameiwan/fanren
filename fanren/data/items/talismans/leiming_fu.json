@@ -1,0 +1,12 @@
+{
+  "id": "talisman_leiming_fu",
+  "name": "雷鸣符",
+  "descKey": "item.desc.talisman_leiming_fu",
+  "kind": "talisman",
+  "grade": 3,
+  "price": 200,
+  "tradeable": true,
+  "addAttack": 18,
+  "origin": "改编",
+  "note": "全本检索 0 命中，属改编。"
+}

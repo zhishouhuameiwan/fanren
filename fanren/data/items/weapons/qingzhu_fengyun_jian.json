@@ -1,0 +1,13 @@
+{
+  "id": "weapon_qingzhu_fengyun_jian",
+  "name": "青竹蜂云剑",
+  "descKey": "item.desc.weapon_qingzhu_fengyun_jian",
+  "kind": "artifact",
+  "grade": 8,
+  "price": 12000,
+  "tradeable": false,
+  "addAttack": 40,
+  "weapon": "剑",
+  "origin": "原著",
+  "note": "原著确证：ch412、414-415（大纲 4.1 硬约束）。木属性成套飞剑，标准一套 12 把、上限 72 把，韩立一次炼成 72 口，属结丹期本命法宝，自带辟邪神雷。本命法宝不可交易，故 tradeable=false。\n\n【八方旅人化改造 2026-09-25】weapon 字段：揣在韩立身上，他的普攻就多一样「剑」可选（docs/octopath-battle.md 2.2：空手的拳永远有，背包里每件兵器再加一样）。没有装备系统，addAttack 仍然没人读。"
+}

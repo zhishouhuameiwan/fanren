@@ -1,0 +1,34 @@
+{
+  "id": "b11_ningcuidao_youyao",
+  "name": "凝翠岛诱妖",
+  "chapter": 11,
+  "legacy_id": "B_SEA_2",
+  "terrain": "sea",
+  "can_escape": true,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "siji_haishou",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "sanji_haishou",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 700,
+    "spirit_stones": 150,
+    "drops": [
+      {
+        "item_id": "material_yaodan_siji",
+        "count": 1,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch11.battle.ningcuidao_youyao.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "经天星城第 50 层星空殿传送阵赴外星海凝翠岛，以霓裳草诱妖、杀妖取丹（ch393-396）。无「猎妖令」，接单形式是商行订单与门派悬赏（大纲第 11 章）。"
+}

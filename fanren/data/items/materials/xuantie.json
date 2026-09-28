@@ -1,0 +1,11 @@
+{
+  "id": "material_xuantie",
+  "name": "玄铁",
+  "descKey": "item.desc.material_xuantie",
+  "kind": "material",
+  "grade": 2,
+  "price": 150,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "玄铁。原著中作为炼器材料出现，用于铸造防御类重器（如玄铁飞天盾）。注意原著并无以玄铁铸飞剑的设定，早前本条的例证有误，已更正。"
+}

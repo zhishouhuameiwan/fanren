@@ -1,0 +1,22 @@
+{
+  "id": "b05_wu_jianming",
+  "name": "吴剑鸣",
+  "chapter": 5,
+  "terrain": "indoor",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "wu_jianming",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 60,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch05.battle.wu_jianming.intro",
+  "origin": "改编",
+  "note": "第 5 章节点 12b（ch05_mofu trigger_zhuwu，enter + once），十场必打之八。改编：撬开马厩地窖的人从侧门夺路，被韩立截住——是吴剑鸣。依据：ch106 韩立就判定他是来「试探」的；ch109 严氏说过实在拖不下去就「翻脸擒下他」；吴剑鸣在 ch123 之后原著不再出现——**本作只写到擒下交给严氏，下场不写**。真假当面对上的只有这一次。吴剑鸣 80 血：韩立 32 三下；他打韩立 20（17%）。开打前韩立带着尸傀那一仗的伤（约 90）。can_escape **真**：逃即吴剑鸣走脱（ch05.qinwu = 2，他去给师父报信，12c 刺探多三天），不是死路；defeat_is_fatal 真。收获 60 修为。必败分支的提示（施工图 8.4）：目标链第 21 步「出远门前把药箱清点一遍」；11c 孙二狗那句「药可带足了」；前院存档点在马厩之前。\nfixture 第二侧养精丹 0 瓶（协调者定为「什么都不备、身上一瓶药不剩」那一档的起点）：这一侧打完尸傀接这一仗，按 8.4 那张表是输，走「逃」——吴剑鸣走脱、刺探多三天，不是死路。那一侧还有 6 份金疮药，意图玩家按 id 先吃养精丹、不碰金疮药（施工图 8.1），所以不算进去。（第 4 章终局 fixture 实测，2026-09-24 协调者转达：tests/fixtures/ch04-end-first.sav 养精丹 12、ch04-end-second.sav 养精丹 0，两侧清灵散各 2、软剑各 1，曲魂 31/55，炼丹熟练度 100。）\n\n【横版平衡 B2 2026-09-26】defeat_is_fatal 真 → 假；上文「逃即吴剑鸣走脱（ch05.qinwu = 2）」「defeat_is_fatal 真」作废。第 5 章校对 MEDIUM-2 的拍板：吴剑鸣**总会被擒**——赢了是韩立亲手按倒（ch05.zhuwu.won），输了、逃了是他夺路时被侧门的护院堵回、韩立挨了一剑才按住（ch05.zhuwu.blocked）；两条都记 ch05.qinwu = 1，走脱与「刺探多三天」一并取消（scripts/ch05/zhuwu.lua）。吴剑鸣气血抬到 110。"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "b12_neidian_duoding",
+  "name": "内殿夺鼎混战",
+  "chapter": 12,
+  "legacy_id": "B_XT_BOSS",
+  "terrain": "secret",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "wu_chou",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "duoding_xiushi",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 1600,
+    "spirit_stones": 400,
+    "drops": [
+      {
+        "item_id": "pill_dingyan_dan",
+        "count": 1,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch12.battle.neidian_duoding.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "旧原型的「殿灵」查无（虚天鼎逸出的是狼形器灵，且其名在本篇不得使用）。改为内殿正魔混战中与乌丑一方的交手（ch472-499）。所得为虚天鼎与乾蓝冰珠，不是紫罗极火。"
+}

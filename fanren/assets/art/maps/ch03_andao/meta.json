@@ -1,0 +1,239 @@
+{
+ "map": "ch03_andao",
+ "tile": 16,
+ "width": 40,
+ "height": 32,
+ "theme": "cave",
+ "time": "indoor",
+ "season": "summer",
+ "ambient": [
+  58,
+  66,
+  88
+ ],
+ "dof": 0.45,
+ "bloom": 0.5,
+ "vignette": 0.45,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  },
+  {
+   "kind": "mist",
+   "rate": 0.2
+  }
+ ],
+ "lights": [
+  {
+   "x": 9.5,
+   "y": 23.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  },
+  {
+   "x": 11.0,
+   "y": 19.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 21.5,
+   "y": 0.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 16.5,
+   "y": 4.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 23.5,
+   "y": 4.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 30.5,
+   "y": 4.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 37.5,
+   "y": 4.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 28.5,
+   "y": 7.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 19.5,
+   "y": 10.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 8.5,
+   "y": 16.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 15.5,
+   "y": 16.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 22.5,
+   "y": 16.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "ember",
+   "x": 21.5,
+   "y": 0.4
+  },
+  {
+   "kind": "ember",
+   "x": 16.5,
+   "y": 4.4
+  },
+  {
+   "kind": "ember",
+   "x": 23.5,
+   "y": 4.4
+  },
+  {
+   "kind": "ember",
+   "x": 30.5,
+   "y": 4.4
+  },
+  {
+   "kind": "ember",
+   "x": 37.5,
+   "y": 4.4
+  },
+  {
+   "kind": "ember",
+   "x": 28.5,
+   "y": 7.4
+  },
+  {
+   "kind": "ember",
+   "x": 19.5,
+   "y": 10.4
+  },
+  {
+   "kind": "ember",
+   "x": 8.5,
+   "y": 16.4
+  },
+  {
+   "kind": "ember",
+   "x": 15.5,
+   "y": 16.4
+  },
+  {
+   "kind": "ember",
+   "x": 22.5,
+   "y": 16.4
+  }
+ ],
+ "backdrop": "cave_tunnel"
+}

@@ -1,0 +1,20 @@
+{
+  "id": "encounter_ch05_dukou",
+  "name": "渡口河滩",
+  "dailyCap": 3,
+  "entries": [
+    {
+      "battleId": "be05_dukou_yezhu",
+      "weight": 3,
+      "minRealm": "QiRefining5",
+      "maxRealm": "QiRefining10"
+    },
+    {
+      "battleId": "be05_dukou_jianjing",
+      "weight": 2,
+      "minRealm": "QiRefining5",
+      "maxRealm": "QiRefining10"
+    }
+  ],
+  "note": "第 5 章岚州渡口峡口以东的河滩（ch05_dukou 的 encounter_hetan，节点 1a 之后才开）。"
+}

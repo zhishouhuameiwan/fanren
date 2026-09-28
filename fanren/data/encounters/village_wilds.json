@@ -1,0 +1,21 @@
+{
+  "id": "encounter_village_wilds",
+  "name": "村野遭遇表",
+  "stepsMin": 15,
+  "stepsMax": 40,
+  "dailyCap": 6,
+  "entries": [
+    {
+      "battleId": "b03_gu_wai_elang",
+      "weight": 5,
+      "minRealm": "Mortal",
+      "maxRealm": "QiRefining3"
+    },
+    {
+      "battleId": "b04_yelangbang_laifan",
+      "weight": 3,
+      "minRealm": "QiRefining1",
+      "maxRealm": "QiRefining5"
+    }
+  ]
+}

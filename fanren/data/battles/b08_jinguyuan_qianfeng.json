@@ -1,0 +1,32 @@
+{
+  "id": "b08_jinguyuan_qianfeng",
+  "name": "金鼓原·前锋遭遇",
+  "chapter": 8,
+  "legacy_id": "B_WAR_1",
+  "terrain": "battlefield",
+  "can_escape": true,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "guilingmen_xiushi",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "guilingmen_xiushi",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "hehuanzong_xiushi",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 420,
+    "spirit_stones": 120,
+    "drops": []
+  },
+  "intro_key": "ch08.battle.jinguyuan_qianfeng.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "旧原型的「越燕大战」三场之一。全书「燕国」0 命中，入侵方是天罗国魔道六宗，具名战场为金鼓原（越国与车骑国交界，ch272）。本战为第一轮大战的前锋遭遇（ch245-270）。"
+}

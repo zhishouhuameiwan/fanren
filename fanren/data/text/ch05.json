@@ -1,0 +1,42 @@
+{
+  "ch05.map.dukou.name": "岚州渡口",
+  "ch05.map.xicheng.name": "嘉元城西城",
+  "ch05.map.nancheng.name": "嘉元城南城",
+  "ch05.map.kezhan.name": "汇源客栈",
+  "ch05.map.mofu.name": "墨府",
+  "ch05.map.dubashanzhuang.name": "独霸山庄",
+
+  "ch05.block.dukou": "东边篱笆外那条小道通到江边，再往前是他没去过的地方。手头的事还没个了结，这会儿往那头走，走不踏实。",
+  "ch05.block.nancheng": "他那只包还在两个脚夫肩上。人往南走了，包往哪儿去可就说不准了——先把东西跟紧。",
+  "ch05.block.mofu": "墨府大门口站着一排护院，谁从门前过，都要被他们的眼睛刮一遍。一个外乡人没有拜帖，门槛都挨不着。",
+
+  "ch05.shop.name.nancheng_yaopu": "南城药铺",
+
+  "ch05.npc.chuanjia.night": "船家蹲在船头补篷子，头也不抬，说天黑不开船，林子那边闹狼，客官要在这儿过夜，离火堆近些。",
+  "ch05.npc.chuanjia.ready": "船家把竹篙插在泥里等着，说客官要走就上船，雾一散，水就急了。",
+  "ch05.npc.jiefang.gossip1": "卖糖糕的老头说，墨府门口那几个护院一个时辰换一班，换下来的总有一两个绕到他摊上买块糖糕，边嚼边往后巷走。",
+  "ch05.npc.jiefang.gossip2": "他又说墨家三位小姐一个比一个俊，城里的少爷们打那门口过，都要放慢了步子；如今大小姐有了主，剩下那两位怕也快了。",
+  "ch05.npc.fengwu.pre": "药圃里蹲着一个姑娘，正拿小铲子松土，裙角沾了一圈泥。见有人来，她站起来福了一福，没说话，脸先红了。",
+  "ch05.npc.fengwu.wait": "墨凤舞见了他，眼睛亮了一下，又不好意思开口问，只把手里那把小铲子攥紧了些。",
+  "ch05.npc.fengwu.give1": "他把抄本递过去。墨凤舞双手接了，翻了两页就不肯放下，翻到那行小字时停了很久。",
+  "ch05.npc.fengwu.give2": "她从药圃里挖了几株黄精和紫参，用湿布包好塞给他，说都是四十年往上的，家父当年留下的根。",
+  "ch05.npc.fengwu.after": "墨凤舞坐在药圃边上看那本抄本，看得很慢，见了他也只点一点头，又低下头去。",
+  "ch05.npc.fengwu.lost": "他往怀里一摸，抄本不在。墨凤舞没说什么，低下头接着松她的土。",
+  "ch05.npc.yange.idle": "燕歌在廊下擦他那双手，擦得很仔细。见了韩立，他咧嘴一笑，笑完眼睛又往园子那头飘过去了。",
+
+  "ch05.battle.yesu_yelang.intro": "火堆噼啪一声，林子里的绿点子一齐往前挪了一步。",
+  "ch05.battle.heishuixiang.intro": "巷子前后都堵死了，墙根底下的污水被踩得四溅。",
+  "ch05.battle.matou_zhuishao.intro": "巷口两头各站着人，手里的短棍在暮色里一晃一晃。",
+  "ch05.battle.tiequanhui_jieren.intro": "仓房里堆着麻包，梁底下还吊着半截绳子，几个人抄起家伙围了上来。",
+  "ch05.battle.duobang.intro": "火把插在院墙上，院子当中站满了人，谁也没料到先动手的是斗篷底下那一个。",
+  "ch05.battle.xiaoxiangyuan.intro": "包房里桌翻酒洒，黑衣人的飞刀先到，书生的剑随后就递了过来。",
+  "ch05.battle.yange_qiecuo.intro": "月洞门底下的石板扫得干干净净，燕歌摆开架子，两只手慢慢抬了起来。",
+  "ch05.battle.shigui.intro": "石门底下爬出来的那东西站直了，满身尸斑，一步一步朝他挪过来。",
+  "ch05.battle.wu_jianming.intro": "院门口只容得下两个人，吴剑鸣的剑尖已经抬到了他胸口。",
+  "ch05.battle.xunzhuang.intro": "灯笼晃了一下，墙根底下三个人同时站住了。",
+  "ch05.battle.ouyang_feitian.intro": "亭子里的人正端着酒杯看月亮，连头都没回。",
+  "ch05.dongqu.encounter_yezhu": "河滩上的苇子往两边一分，两头野猪闯了出来，蹄子把湿泥踩得啪啪响。",
+  "ch05.dongqu.encounter_zei": "坡后转出两个短打汉子，一人拎一把朴刀，横在路当中：「过路的，留下点盘缠再走。」",
+  "ch05.tancha.encounter_lang": "林子深处亮起几点绿光。四头恶狼悄没声地散开，从三面围了上来。",
+  "ch05.tancha.encounter_yezhu": "落叶底下一阵乱拱，三头野猪从灌木丛里冲了出来，直奔他脚下。"
+}

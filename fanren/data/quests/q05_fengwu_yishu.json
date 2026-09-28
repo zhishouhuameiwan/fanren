@@ -1,0 +1,72 @@
+{
+  "id": "q05_fengwu_yishu",
+  "name": "墨凤舞的医书",
+  "chapter": 5,
+  "kind": "side",
+  "title_key": "ch05.quest.fengwu.title",
+  "summary_key": "ch05.quest.fengwu.summary",
+  "accept": [
+    {
+      "flag": "ch05.fengwu_qiu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1_chaoxie",
+      "text_key": "ch05.quest.fengwu.s1",
+      "done": [
+        {
+          "flag": "ch05.fengwu_chao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch05_kezhan",
+      "target_object": "trigger_chaoxie"
+    },
+    {
+      "id": "s2_jiaofu",
+      "text_key": "ch05.quest.fengwu.s2",
+      "done": [
+        {
+          "flag": "ch05.fengwu_yigao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch05_mofu",
+      "target_object": "npc_mo_fengwu"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch05.fengwu_yigao",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail": [
+    {
+      "flag": "ch05.done",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch05.quest.fengwu.fail",
+  "rewards": [
+    {
+      "item_id": "herb_huangjing_cao",
+      "count": 6,
+      "herb_age": 40
+    },
+    {
+      "item_id": "herb_zishen_cao",
+      "count": 3,
+      "herb_age": 40
+    }
+  ],
+  "origin": "原著 ch124；交付为改编",
+  "note": "支线 Z1（docs/ch05-design.md 第 6 节）。ch124 墨凤舞求韩立把墨大夫的医道心得誊一份给她，他答应次日带来；交付原著没写，本作补上。接：节点 11a 墨凤舞在楼下拦住他（scripts/ch05/jiaoyi.lua 置 ch05.fengwu_qiu）。一：客栈书案誊抄手札前半本，拨一天，得遗稿抄本（scripts/ch05/chaoxie.lua 置 ch05.fengwu_chao）。二：墨府药圃交给她（scripts/ch05/fengwu.lua：take 抄本看返回值，置 ch05.fengwu_yigao）。过期：ch05.done 置位时还没交（她 hidden_flag=ch05.done，章末之后不在药圃里）。交过医书的人章末照样置 ch05.done，了结压过过期（契约 1.3）。rewards 只给测试对账：药材由 fengwu.lua 的 give 发（黄精 6、紫参 3，都是 40 年），任务系统不发（契约 1.1 / Q4）。ch05.fengwu_yigao 留给第 8 章当记号（墨凤舞 ch282-283 再出场）。"
+}

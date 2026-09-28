@@ -1,0 +1,19 @@
+{
+  "id": "dubashanzhuang_zhuangding",
+  "name": "独霸山庄庄丁",
+  "realm": "Mortal",
+  "maxHp": 36,
+  "maxMp": 0,
+  "attack": 11,
+  "defence": 6,
+  "speed": 5,
+  "element": 0,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "拳",
+    "暗器"
+  ],
+  "origin": "改编",
+  "note": "独霸山庄巡夜的庄丁（改编，ch123、ch126）。节点 12c 巡庄那一仗，与铁拳会拳师同档。本作只写到「在他们出声之前收拾掉、藏尸」，与 ch126「一点波澜也没起」不冲突：那句话说的是刺杀那一下。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲第一版：架势 2，破绽 拳、暗器。理由：在他们出声之前收拾掉。整张表与取舍见 docs/octopath-battle.md 第 7 节，B2 会用新的那只手量过再调。"
+}

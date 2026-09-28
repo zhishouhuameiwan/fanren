@@ -1,0 +1,19 @@
+{
+  "id": "tiequanhui_fushou",
+  "name": "铁拳会副手",
+  "realm": "Mortal",
+  "maxHp": 60,
+  "maxMp": 0,
+  "attack": 15,
+  "defence": 8,
+  "speed": 6,
+  "element": 0,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "剑",
+    "火"
+  ],
+  "origin": "改编",
+  "note": "黑熊手下的二把手（改编）。节点 4b 仓房里主事的那一个：韩立两下，他打韩立 (15×2−8)×0.7 = 15。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲第一版：架势 3，破绽 剑、火。理由：黑熊之下那一个。整张表与取舍见 docs/octopath-battle.md 第 7 节，B2 会用新的那只手量过再调。"
+}

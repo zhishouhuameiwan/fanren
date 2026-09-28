@@ -1,0 +1,24 @@
+{
+  "id": "recipe_leiming_fu",
+  "name": "雷鸣符方",
+  "kind": "talisman",
+  "productId": "talisman_leiming_fu",
+  "productCount": 1,
+  "difficulty": 42,
+  "requiredProficiency": 26,
+  "inputs": [
+    {
+      "itemId": "material_fuzhi",
+      "count": 2
+    },
+    {
+      "itemId": "material_lingmo",
+      "count": 2
+    },
+    {
+      "itemId": "material_yaodan_3",
+      "count": 1,
+      "catalyst": true
+    }
+  ]
+}

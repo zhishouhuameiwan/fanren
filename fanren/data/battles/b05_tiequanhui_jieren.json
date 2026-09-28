@@ -1,0 +1,30 @@
+{
+  "id": "b05_tiequanhui_jieren",
+  "name": "铁拳会截人",
+  "chapter": 5,
+  "terrain": "indoor",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "tiequanhui_quanshi",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "tiequanhui_quanshi",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "tiequanhui_fushou",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 40,
+    "spirit_stones": 15,
+    "drops": []
+  },
+  "intro_key": "ch05.battle.tiequanhui_jieren.intro",
+  "origin": "改编",
+  "note": "第 5 章节点 4b（ch05_xicheng trigger_jieren，interact + once），十场必打之四。改编：孙二狗是黑水巷唯一活着出来的人，铁拳会把他拖进码头后头的仓房问黑熊的下落，韩立踹门进去。不冲突的依据：ch100 铁拳会与四平帮是同盟帮派，所以拖他去问、不当场杀（第 5 章校对 LOW-1 改：旧稿引「ch104 孙二狗自陈想报给上头又不敢」是引错——那两段是叙述者写他心里想把韩立的事报给四平帮上头，既非自陈，也与铁拳会无关）；ch105-106 这几天原著只有「一番打听」四个字；铁拳会此后不再出现。拳师 ×2、副手 ×1，总血 132。副手 60 血：韩立 35 两下，他打韩立 15。单轮最大 35（29%）。can_escape 假、defeat_is_fatal 真。收获 40 修为、15 碎银。"
+}

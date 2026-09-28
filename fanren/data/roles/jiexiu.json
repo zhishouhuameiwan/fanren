@@ -1,0 +1,20 @@
+{
+  "id": "jiexiu",
+  "name": "劫修",
+  "realm": "QiRefining4",
+  "maxHp": 72,
+  "maxMp": 30,
+  "attack": 12,
+  "defence": 8,
+  "speed": 9,
+  "element": 16,
+  "magics": [
+    "magic_huoqiu_shu"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "木"
+  ],
+  "origin": "原著",
+  "note": "韩立识破升仙令用途后遭袭杀、反斩敌手（ch140-143）。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

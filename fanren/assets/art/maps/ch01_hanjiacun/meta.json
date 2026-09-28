@@ -1,0 +1,37 @@
+{
+ "map": "ch01_hanjiacun",
+ "tile": 16,
+ "width": 40,
+ "height": 30,
+ "theme": "village",
+ "time": "day",
+ "season": "spring",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "petal",
+   "rate": 0.5
+  },
+  {
+   "kind": "dust",
+   "rate": 0.25
+  }
+ ],
+ "lights": [],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "petal",
+   "x": 34.5,
+   "y": 16.0
+  }
+ ],
+ "backdrop": "village_road"
+}

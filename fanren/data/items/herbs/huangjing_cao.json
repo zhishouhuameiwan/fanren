@@ -1,0 +1,14 @@
+{
+  "id": "herb_huangjing_cao",
+  "name": "黄精",
+  "descKey": "item.desc.herb_huangjing_cao",
+  "kind": "herb",
+  "grade": 1,
+  "price": 5,
+  "tradeable": true,
+  "herbAge": 0,
+  "maxAge": 44,
+  "restoreHp": 6,
+  "origin": "原著",
+  "note": "原著作「黄精」，ch163-164、225-226 以「株」「年」计；id 沿用炼制模块既有引用 huangjing_cao。"
+}

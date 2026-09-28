@@ -1,0 +1,168 @@
+{
+  "id": "pathactions_ch04",
+  "name": "第 4 章路径行动",
+  "chapter": 4,
+  "note": "原著 ch65-99。本章境界三层进、八层出（节点 1 到五层、节点 2 到七层、节点 4 到八层，ch04-design 1.2），阅历门槛在这一章才真正有分量：马六的切磋要等他在山上站住脚（五层）、门主那一句要等他习完火弹术（七层）。打探六条，四条替攻防战揭破绽（马贼两类、头目一类、金光上人一类）；求购一条，只卖清风草——设计 3.3 那张药账不动：不卖养精丹，也不卖炼养精丹的黄精紫参。切磋两条，编成尚未建好（pending，等战斗路按横版格式补建）。那块牌子本章一个字不提（ch04-design 1.1）。",
+  "entries": [
+    {
+      "id": "feiyu_dating",
+      "kind": "inquire",
+      "map": "ch04_getang",
+      "npc": "npc_li_feiyu",
+      "when": [{"flag": "ch04.liuxia", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch04.kaizhan", "op": ">=", "value": 1},
+        {"flag": "ch04.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch04.path.feiyu_dating",
+      "text_key": "ch04.path.feiyu_dating.text",
+      "reveal": [{"role": "yelangbang_mazei", "category": "剑"}],
+      "origin": "原著 ch19；改编",
+      "note": "野狼帮照马贼的法子练兵、见血就疯（ch19）。「刀只会劈、腋下是空的」是厉飞雨这个使刀的人的眼力，揭的是马贼的剑类破绽——韩立手上那把软剑（第 3 章 beidu 买的）用得上。开战之后他顾不上讲这些，收起。"
+    },
+    {
+      "id": "feiyu_dating2",
+      "kind": "inquire",
+      "map": "ch04_getang",
+      "npc": "npc_li_feiyu",
+      "when": [{"flag": "ch04.kaizhan", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch04.gongfang_zhan", "op": ">=", "value": 1},
+        {"flag": "ch04.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch04.path.feiyu_dating2",
+      "text_key": "ch04.path.feiyu_dating2.text",
+      "origin": "原著 ch81",
+      "note": "贾天龙手里的是官军连珠弩（ch81，从当副将的堂兄那里弄来）。节点 6 韩立验过三具尸首、把三棱箭头画在纸上压在药案底下（ch04.kaizhan.arrow / guess），这一条是那张纸的下文。弩从哪儿来厉飞雨不知道，这里也不说。"
+    },
+    {
+      "id": "wangjuechu_dating",
+      "kind": "inquire",
+      "map": "ch04_getang",
+      "npc": "npc_wang_juechu",
+      "when": [{"flag": "ch04.liuxia", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch04.kaizhan", "op": ">=", "value": 1},
+        {"flag": "ch04.done", "op": ">=", "value": 1}
+      ],
+      "realm": 7,
+      "done_flag": "ch04.path.wangjuechu_dating",
+      "text_key": "ch04.path.wangjuechu_dating.text",
+      "refuse_key": "ch04.path.wangjuechu_dating.refuse",
+      "reveal": [{"role": "yelangbang_mazei", "category": "毒"}],
+      "origin": "改编",
+      "note": "门主惜字如金（ch04.npc.wang_juechu.*），只给一句地形：从山脚走到东坡正好一夜。想明白的是韩立自己——爬一夜山的人头一件找水，东坡那口井供着半山（节点 6 第三项「先下药」、ch04.gongfang.plan_xiadu 写的正是他们扑到井边抢水）。阅历门槛七层：习完火弹术之前，殿上那人不见他。开战即收起。"
+    },
+    {
+      "id": "maliu_dating",
+      "kind": "inquire",
+      "map": "ch02_wairentang",
+      "npc": "npc_tongmen_maliu",
+      "when": [{"flag": "ch03.done", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch04.gongfang_zhan", "op": ">=", "value": 1},
+        {"flag": "ch04.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch04.path.maliu_dating",
+      "text_key": "ch04.path.maliu_dating.text",
+      "reveal": [{"role": "yelangbang_toumu", "category": "拳"}],
+      "origin": "改编",
+      "note": "外刃堂常年与野狼帮厮杀（ch19）。头目穿浸油的皮甲、刀剑易滑、钝器隔甲照样伤人，是马六这种老弟子吃过亏才知道的——揭的是头目的钝器（拳）类破绽，曲魂的拳头正对路。坊门那一仗（节点 7）就有两个头目。"
+    },
+    {
+      "id": "luchun_dating",
+      "kind": "inquire",
+      "map": "ch02_wairentang",
+      "npc": "npc_tongmen_luchun",
+      "when": [{"flag": "ch04.liuxia", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch04.kaizhan", "op": ">=", "value": 1},
+        {"flag": "ch04.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch04.path.luchun_dating",
+      "text_key": "ch04.path.luchun_dating.text",
+      "origin": "原著 ch69；改编",
+      "note": "厉飞雨心里有了人（ch69 张袖儿；游戏里是「山下姓张的那位姑娘」，ch04.npc.feiyu.zhang_1）。卢春只负责嚼舌头，名字与来历一概不说。他是拿寿数换刀的人（第 2 章），这一句是他那点盼头。"
+    },
+    {
+      "id": "yaofan_dating",
+      "kind": "inquire",
+      "map": "ch04_shanxiazhen",
+      "npc": "npc_zhen_min_yaofan",
+      "when": [{"flag": "ch04.jinguang_jian", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch04.gongfang_zhan", "op": ">=", "value": 1},
+        {"flag": "ch04.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch04.path.yaofan_dating",
+      "text_key": "ch04.path.yaofan_dating.text",
+      "reveal": [{"role": "jinguang_shangren", "category": "火"}],
+      "origin": "原著 ch82；改编",
+      "note": "金光上人出自金光观（ch82）；「怕热、大伏天不出观」是走江湖的人当笑话传的，揭的是火类破绽——与设计 1.2「砍不动，只能靠火弹与毒」、攻防战文案「刀不行就换别的」同一件事。卖药郎认不出韩立（scripts/ch04/yaofan.lua 首部），这里也不让他认出来。"
+    },
+    {
+      "id": "yaofan_qiugou",
+      "kind": "purchase",
+      "map": "ch04_shanxiazhen",
+      "npc": "npc_zhen_min_yaofan",
+      "when": [{"flag": "ch04.liuxia", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch04.kaizhan", "op": ">=", "value": 1},
+        {"flag": "ch04.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch04.path.yaofan_qiugou",
+      "text_key": "ch04.path.yaofan_qiugou.text",
+      "item_id": "herb_qingfeng_cao",
+      "count": 3,
+      "herb_age": 2,
+      "price": 24,
+      "deal_key": "ch04.path.yaofan_qiugou.deal",
+      "poor_key": "ch04.path.yaofan_qiugou.poor",
+      "origin": "改编",
+      "note": "三株两年的清风草：嚼着能回点法力，火弹术用得上；也能入炉炼金疮药、聚气散（那还是峰上炉子炼的，不另开成药来源）。不卖养精丹、不卖黄精紫参：设计 3.3「养精丹只有峰上那座丹炉一个来源」的药账不动。价钱 24：本章开局只有第 3 章带来的 28 块（tests/fixtures/ch03-end-*.sav），坊门那一仗之前不再有进账。"
+    },
+    {
+      "id": "maliu_qiecuo",
+      "kind": "challenge",
+      "map": "ch02_wairentang",
+      "npc": "npc_tongmen_maliu",
+      "when": [{"flag": "ch03.done", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch04.kaizhan", "op": ">=", "value": 1},
+        {"flag": "ch04.done", "op": ">=", "value": 1}
+      ],
+      "realm": 5,
+      "done_flag": "ch04.path.maliu_qiecuo",
+      "text_key": "ch04.path.maliu_qiecuo.text",
+      "refuse_key": "ch04.path.maliu_qiecuo.refuse",
+      "battle": "b04_qiecuo_maliu",
+      "win_key": "ch04.path.maliu_qiecuo.win",
+      "lose_key": "ch04.path.maliu_qiecuo.lose",
+      "reward": {
+        "cultivation": 25,
+        "items": [{"item_id": "weapon_zhishi_peidao", "count": 1}]
+      },
+      "origin": "改编",
+      "note": "外刃堂的老规矩：跟堂里的人过招，赢了的拿走一把堂里的刀（改编）。编成待建：马六（tongmen_maliu）＋卢春（tongmen_luchun）二人，曲魂照常随队；can_escape 真、defeat_is_fatal 假、rewards 全 0（奖励由本条目发）。两人现有数值是闲聊 NPC 的，要按炼气五层重调，见 docs/interfaces-octo-pathactions.md 第 6 节。阅历五层：留下之前他们不跟韩大夫动手。"
+    },
+    {
+      "id": "feiyu_qiecuo",
+      "kind": "challenge",
+      "map": "ch04_getang",
+      "npc": "npc_li_feiyu",
+      "when": [{"flag": "ch04.fawu_bingyong", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch04.kaizhan", "op": ">=", "value": 1},
+        {"flag": "ch04.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch04.path.feiyu_qiecuo",
+      "text_key": "ch04.path.feiyu_qiecuo.text",
+      "battle": "b04_qiecuo_feiyu2",
+      "win_key": "ch04.path.feiyu_qiecuo.win",
+      "lose_key": "ch04.path.feiyu_qiecuo.lose",
+      "reward": {"cultivation": 30},
+      "origin": "改编",
+      "note": "演武台那一场（节点 5，b04_qiecuo_feiyu）之后厉飞雨不服气，院子里再来一回。只在节点 5 与开战之间挂着：法武并用是他自己摸出来的（ch04-design 1 第 2 条），不许在节点 5 之前先让人跟他过招。编成待建：厉飞雨一人（li_feiyu，数值照 b04_qiecuo_feiyu），曲魂照常随队；输了不死、rewards 全 0。修为 30 不超过节点 5 那一场的 40。"
+    }
+  ]
+}

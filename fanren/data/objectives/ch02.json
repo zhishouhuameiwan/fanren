@@ -1,0 +1,105 @@
+{
+  "id": "objectives_ch02",
+  "name": "第 2 章目标链",
+  "chapter": 2,
+  "steps": [
+    {
+      "id": "n1_renyao",
+      "text_key": "objective.ch02.n1_renyao",
+      "done_flag": "ch02.renyao_done",
+      "target_map": "ch02_yaopu",
+      "target_object": "trigger_renyao"
+    },
+    {
+      "id": "n2_dazuo",
+      "text_key": "objective.ch02.n2_dazuo",
+      "done_flag": "ch02.dazuo_done",
+      "target_map": "ch02_jusuo",
+      "target_object": "trigger_dazuo"
+    },
+    {
+      "id": "n3_caiyao",
+      "text_key": "objective.ch02.n3_caiyao",
+      "done_flag": "ch02.caiyao_done",
+      "target_map": "ch02_yaopu",
+      "target_object": "trigger_caiyao"
+    },
+    {
+      "id": "n3b_maiyao",
+      "text_key": "objective.ch02.n3b_maiyao",
+      "done_flag": "ch02.duan2_start",
+      "target_map": "ch02_wairentang",
+      "target_object": "trigger_maiyao"
+    },
+    {
+      "id": "n4_shiping",
+      "text_key": "objective.ch02.n4_shiping",
+      "done_flag": "ch02.shiping_done",
+      "target_map": "ch02_yabi",
+      "target_object": "trigger_shiping"
+    },
+    {
+      "id": "n5_zaping",
+      "text_key": "objective.ch02.n5_zaping",
+      "done_flag": "ch02.zaping_done",
+      "target_map": "ch02_jusuo",
+      "target_object": "trigger_zaping"
+    },
+    {
+      "id": "n5b_kaigai",
+      "text_key": "objective.ch02.n5b_kaigai",
+      "done_flag": "ch02.kaigai_done",
+      "target_map": "ch02_jusuo",
+      "target_object": "trigger_kaigai"
+    },
+    {
+      "id": "n6_cangping",
+      "text_key": "objective.ch02.n6_cangping",
+      "done_flag": "ch02.duan3_start",
+      "target_map": "ch02_jusuo",
+      "target_object": "trigger_cangping"
+    },
+    {
+      "id": "n7_chousui",
+      "text_key": "objective.ch02.n7_chousui",
+      "done_flag": "ch02.chousui_jian",
+      "target_map": "ch02_wairentang",
+      "target_object": "trigger_chousui"
+    },
+    {
+      "id": "n8_zhitong",
+      "text_key": "objective.ch02.n8_zhitong",
+      "done_flag": "ch02.duan4_start",
+      "target_map": "ch02_yaopu",
+      "target_object": "trigger_zhitong"
+    },
+    {
+      "id": "n9_renqing",
+      "text_key": "objective.ch02.n9_renqing",
+      "done_flag": "ch02.duan5_start",
+      "target_map": "ch02_wairentang",
+      "target_object": "trigger_renqing"
+    },
+    {
+      "id": "n10_shiyao",
+      "text_key": "objective.ch02.n10_shiyao",
+      "done_flag": "ch02.shiyao_done",
+      "target_map": "ch02_yaopu",
+      "target_object": "trigger_shiyao"
+    },
+    {
+      "id": "n10b_cuishu",
+      "text_key": "objective.ch02.n10b_cuishu",
+      "done_flag": "ch02.cuishou_unlocked",
+      "target_map": "ch02_yaopu",
+      "target_object": "trigger_cuishu"
+    },
+    {
+      "id": "n11_suanzhang",
+      "text_key": "objective.ch02.n11_suanzhang",
+      "done_flag": "ch02.done",
+      "target_map": "ch02_wairentang",
+      "target_object": "trigger_suanzhang"
+    }
+  ]
+}

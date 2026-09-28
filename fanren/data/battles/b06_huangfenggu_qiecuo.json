@@ -1,0 +1,28 @@
+{
+  "id": "b06_huangfenggu_qiecuo",
+  "name": "黄枫谷外门切磋",
+  "chapter": 6,
+  "legacy_id": "B_HF_TEST",
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "huangfenggu_waimen_dizi",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "huangfenggu_waimen_dizi",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 70,
+    "spirit_stones": 20,
+    "drops": []
+  },
+  "intro_key": "ch06.battle.huangfenggu_qiecuo.intro",
+  "origin": "原著",
+  "rewritten_by_lore": false,
+  "note": "切磋性质，败了不致命（沿用旧原型 LoseEvent=0 的语义，现表达为 defeat_is_fatal=false）。"
+}

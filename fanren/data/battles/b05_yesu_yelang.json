@@ -1,0 +1,42 @@
+{
+  "id": "b05_yesu_yelang",
+  "name": "野宿遇狼",
+  "chapter": 5,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "wild_wolf",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "wild_wolf",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "wild_wolf",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "wild_wolf",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "wild_wolf",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "wild_wolf",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 10,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch05.battle.yesu_yelang.intro",
+  "origin": "原著",
+  "note": "第 5 章节点 1a（ch05_dukou trigger_dongqu_lu，enter + once），十场必打之一。原著 ch101：一路上唯一的一次意外，是野外露宿时撞上几只饿红了眼的野狼，结果成了他的晚饭。这一仗没有危险，用处是让玩家看见第 4 章之后的自己：第 3 章两条狼要他拿石头拼命，如今一刀一条。野狼 ×6（现有 wild_wolf，18 血，不动），总血 108。韩立八层平砍 (15×2−3)×1.6 = 43，一下；曲魂 9×2−3 = 15，两拳；狼打韩立 (4×2−8) 夹到 1、乘 0.7 得 1。can_escape 真、defeat_is_fatal 真（脚本收 game_over）。收获 10 修为。无必败分支（施工图 8.4）。\n开打前：第 4 章终局交过来的曲魂是 31/55，不是施工图第 2 节估的满血；但节点 1a 在开打前先走了六十天的路，静养每天回上限一成、同伴一起（Application::restFor），到这一仗时两人都是满的。（第 4 章终局 fixture 实测，2026-09-24 协调者转达：tests/fixtures/ch04-end-first.sav 养精丹 12、ch04-end-second.sav 养精丹 0，两侧清灵散各 2、软剑各 1，曲魂 31/55，炼丹熟练度 100。）"
+}

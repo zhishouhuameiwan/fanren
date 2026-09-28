@@ -1,0 +1,11 @@
+{
+  "id": "material_jinleizhu",
+  "name": "金雷竹",
+  "descKey": "item.desc.material_jinleizhu",
+  "kind": "material",
+  "grade": 8,
+  "price": 20000,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "原著确证：ch411-413；天雷竹 ch401 起，催至万年份即金雷竹（大纲 4.1 硬约束）。韩立最终催出 6 根（ch411、413）。价值锚点 ch410：紫灵以半截天雷竹加年俸 300 灵石聘其为名义长老。"
+}

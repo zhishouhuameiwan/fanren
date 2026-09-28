@@ -1,0 +1,218 @@
+{
+  "id": "pathactions_ch05",
+  "name": "第 5 章路径行动",
+  "chapter": 5,
+  "note": "原著 ch100-126（刺杀与换玉是 ch126 追叙）。本章能说话的只有渡口船家、南城街坊与过路人、墨府门口四个护院、墨凤舞、燕歌；严氏、孙二狗那些人只在剧情里出场，不在地图上站着。打探八条，六条替后面的仗揭破绽（码头打手、铁拳会拳师、燕歌、吴剑鸣、尸傀、沈重山）；**欧阳飞天一条也不揭、不提前说刀剑难伤与霸王甲**（第 5 章独立校对 8.2 / 8.4，协调者拍板：他只能以剑符取首级，那两条信息是 11a、12e 才换来的），独霸山庄与庄丁的事一概不写。求购两条（不卖清灵散、不卖养精丹），其中二十年的紫参补的是施工偏差第 3 条（商店没有年份字段、卖不了够年份的药）；切磋两条（不挂在燕歌、吴剑鸣身上），编成待建（pending）。境界全章八层、上限八层，不设门槛。章内先后按施工图 12.2：寒毒 9、惊蛟会 4、五色门与独霸山庄 9、太南谷与太南山 11——每条文案按它挂出来的那一节登记在 tests/Ch05LexiconTests.cpp 的节点表里（ch05.path.<条目 id>. 一行一条）。升仙、仙令、天眼、那块牌子一概不提。",
+  "entries": [
+    {
+      "id": "chuanjia_dating",
+      "kind": "inquire",
+      "map": "ch05_dukou",
+      "npc": "npc_chuanjia",
+      "when": [{"flag": "ch05.kaipian", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.shangchuan", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.chuanjia_dating",
+      "text_key": "ch05.path.chuanjia_dating.text",
+      "reveal": [{"role": "matou_dashou", "category": "拳"}],
+      "origin": "原著 ch100-102；改编",
+      "note": "嘉元城一条大运河穿城而过（ch100）；码头雇脚夫的行规上船那一节已经说过（ch05.shangchuan.rule），这里不重复。揭码头打手的拳类破绽：ch102 曲魂一拳一个，施工图 8.3「码头打手 = 曲魂一拳一个」是同一件事。上船即收起。"
+    },
+    {
+      "id": "jiefang_dating",
+      "kind": "inquire",
+      "map": "ch05_nancheng",
+      "npc": "npc_jiefang",
+      "when": [{"flag": "ch05.zhuishao", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.jieren", "op": ">=", "value": 1},
+        {"flag": "ch05.jiulou", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.jiefang_dating",
+      "text_key": "ch05.path.jiefang_dating.text",
+      "reveal": [{"role": "tiequanhui_quanshi", "category": "剑"}],
+      "origin": "改编",
+      "note": "铁拳会的人在找那天跟黑熊打过照面的人——节点 4b 截人（b05_tiequanhui_jieren）的由头，施工图 8.3 写的就是铁拳会要问孙二狗黑熊哪去了。揭拳师的剑类破绽（韩立腰里那把软剑）。第 3 节的文案：不提惊蛟会（节点 4 才第一次出现）。"
+    },
+    {
+      "id": "jiefang_dating2",
+      "kind": "inquire",
+      "map": "ch05_nancheng",
+      "npc": "npc_jiefang",
+      "when": [{"flag": "ch05.jiulou", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.yeru", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.jiefang_dating2",
+      "text_key": "ch05.path.jiefang_dating2.text",
+      "origin": "改编",
+      "note": "夜入墨府（6a）的一句提示：后墙那面只一个打更的，临街屋脊上倒蹲着人。与 6a 两项对得上——翻后墙是原著（ch107-108 他绕过了所有暗哨），走正街屋顶会被暗处的人瞥见一个影子（ch05.yeru.roof）。只说他看见了什么，不替玩家选。"
+    },
+    {
+      "id": "huyuan_a_dating",
+      "kind": "inquire",
+      "map": "ch05_nancheng",
+      "npc": "npc_huyuan_a",
+      "when": [{"flag": "ch05.huayuan", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.chuzheng", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.huyuan_a_dating",
+      "text_key": "ch05.path.huyuan_a_dating.text",
+      "reveal": [{"role": "wu_jianming", "category": "火"}],
+      "origin": "改编",
+      "note": "吴剑鸣在府里住了一年多，常拉护院喂招（改编；原著 ch106 他连败十六个情敌，剑是真练过的，施工图语气卡）。剑快、收势慢、最怕隔着距离耗——揭火类破绽，12b 韩立一个人对他，手里除了软剑就是火弹。节点 8 挂出：不说他是谁的徒弟（那是 11a 的事），也不说他是假的。"
+    },
+    {
+      "id": "huyuan_d_dating",
+      "kind": "inquire",
+      "map": "ch05_nancheng",
+      "npc": "npc_huyuan_d",
+      "when": [{"flag": "ch05.anpai", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.shigui", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.huyuan_d_dating",
+      "text_key": "ch05.path.huyuan_d_dating.text",
+      "reveal": [{"role": "mofu_shigui", "category": "火"}],
+      "origin": "改编",
+      "note": "马厩角上那扇石门老爷在时就封了、谁也不许下去（施工图 8.3 尸傀的由头）；前几夜马惊了两回——是吴剑鸣夜里去撬门（同一处由头），护院不知道。不替原著补结局、不认领三夫人 ch123 那句话。揭火类破绽，用的是老辈人的说法。11c 之后、取马之前挂着。"
+    },
+    {
+      "id": "fengwu_dating",
+      "kind": "inquire",
+      "map": "ch05_mofu",
+      "npc": "npc_mo_fengwu",
+      "when": [{"flag": "ch05.dengmen", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.jiaoyi", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.fengwu_dating",
+      "text_key": "ch05.path.fengwu_dating.text",
+      "set_flags": ["ch05.path.zhi_fengwu_yao"],
+      "origin": "原著 ch104、ch124；改编",
+      "note": "墨大夫离家时她七岁（ch104）、后园的药是她种的、她钻研父亲的医书（ch124）。照一张药单种药是自己加的，给支线 Z1（她求誊医道心得，11a）先埋一句「好些字认不全」，不抢 ch124 那一段。问过之后才知道她的药圃里有够年份的药，求购那一条因此挂出（ch05.path.zhi_fengwu_yao）。11a 她开口求书之后收起，那以后的话归支线。"
+    },
+    {
+      "id": "yange_dating",
+      "kind": "inquire",
+      "map": "ch05_mofu",
+      "npc": "npc_yan_ge",
+      "when": [{"flag": "ch05.huayuan", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.yange", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.yange_dating",
+      "text_key": "ch05.path.yange_dating.text",
+      "reveal": [{"role": "yan_ge", "category": "火"}],
+      "origin": "原著 ch104、ch114",
+      "note": "魔银手是墨大夫走那年（他十二岁）传的、资质一般（ch104）；直爽、不瞒人（ch114 语气）。他自己说近身不怕、隔远了只能挨——揭火类破绽，11b 讨教那一仗用得上。ch114 他对墨玉珠那一番话一句不照搬：这里只说手上的功夫。随地图的 visible_flag / hidden_flag 挂在节点 8 到 11b 之间。"
+    },
+    {
+      "id": "luren_dating",
+      "kind": "inquire",
+      "map": "ch05_nancheng",
+      "npc": "npc_luren",
+      "when": [{"flag": "ch05.dingji", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.xiaoxiang", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.luren_dating",
+      "text_key": "ch05.path.luren_dating.text",
+      "reveal": [{"role": "shen_zhongshan", "category": "毒"}],
+      "origin": "原著 ch120-121；改编",
+      "note": "潇湘院是天霸门的产业、沈重山这几日下午在那儿（ch120；节点 10a 孙二狗说过「这几日下午在潇湘院」）。「只喝院里自家窖的酒」是自己加的，与 10b 扮小厮送酒对得上：送的正是院里的酒，范沮让小厮先尝（施工图 3.2）也照旧成立。揭沈重山的毒类破绽——备好清灵散的人根本打不到那一仗，没备的人才用得上。"
+    },
+    {
+      "id": "fengwu_qiugou",
+      "kind": "purchase",
+      "map": "ch05_mofu",
+      "npc": "npc_mo_fengwu",
+      "when": [
+        {"flag": "ch05.dengmen", "op": ">=", "value": 1},
+        {"flag": "ch05.path.zhi_fengwu_yao", "op": ">=", "value": 1}
+      ],
+      "until": [{"flag": "ch05.done", "op": ">=", "value": 1}],
+      "done_flag": "ch05.path.fengwu_qiugou",
+      "text_key": "ch05.path.fengwu_qiugou.text",
+      "item_id": "herb_zishen_cao",
+      "count": 2,
+      "herb_age": 20,
+      "price": 40,
+      "deal_key": "ch05.path.fengwu_qiugou.deal",
+      "poor_key": "ch05.path.fengwu_qiugou.poor",
+      "origin": "改编",
+      "note": "两株二十年的紫参：够两炉养精丹的那一味（配方 recipe_yangjing_dan：紫参 1、黄精 2，都要 20 年以上）。施工图第 9 节本要南城药铺卖二十年的药，商店条目没有年份字段只好卖零年的（施工偏差第 3 条）——求购带得了年份，补的就是这一处。只卖原料、不卖成药：第 9 节「成药只有炼出来一条路」不动。价钱 40，远低于市价（herbPrice 二十年紫参一株 54），是她给父亲弟子的面子；本章最省的一条路上手里至少 87 块。"
+    },
+    {
+      "id": "huyuan_c_qiugou",
+      "kind": "purchase",
+      "map": "ch05_nancheng",
+      "npc": "npc_huyuan_c",
+      "when": [{"flag": "ch05.dengmen", "op": ">=", "value": 1}],
+      "until": [{"flag": "ch05.done", "op": ">=", "value": 1}],
+      "done_flag": "ch05.path.huyuan_c_qiugou",
+      "text_key": "ch05.path.huyuan_c_qiugou.text",
+      "item_id": "pill_jinchuang_yao",
+      "count": 2,
+      "price": 30,
+      "deal_key": "ch05.path.huyuan_c_qiugou.deal",
+      "poor_key": "ch05.path.huyuan_c_qiugou.poor",
+      "origin": "改编",
+      "note": "护院按月领的金疮药，守门的难得用上。登门之后他才是府里的客人，护院才肯私下跟他做这笔买卖。两瓶 30 块，比南城药铺（每瓶 24）便宜；金疮药本来就有商店卖，不另开成药来源。"
+    },
+    {
+      "id": "huyuan_b_qiecuo",
+      "kind": "challenge",
+      "map": "ch05_nancheng",
+      "npc": "npc_huyuan_b",
+      "when": [{"flag": "ch05.dengmen", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.chuzheng", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.huyuan_b_qiecuo",
+      "text_key": "ch05.path.huyuan_b_qiecuo.text",
+      "battle": "b05_qiecuo_huyuan",
+      "win_key": "ch05.path.huyuan_b_qiecuo.win",
+      "lose_key": "ch05.path.huyuan_b_qiecuo.lose",
+      "reward": {
+        "cultivation": 20,
+        "items": [{"item_id": "pill_jinchuang_yao", "count": 1}]
+      },
+      "origin": "改编",
+      "note": "墨府门口的护院不服新来的公子（原著 ch106 门口八个劲装大汉；这四个就是地图上的 npc_huyuan_a–d）。编成待建：四个 mofu_huyuan 一起上，齐眉棍；韩立一人（10a 之前曲魂还在队里就一起上）；输了不死、rewards 全 0。修为 20 不超过燕歌讨教那一场的 30。出发去山庄（12b）之后收起。"
+    },
+    {
+      "id": "huyuan_a_qiecuo",
+      "kind": "challenge",
+      "map": "ch05_nancheng",
+      "npc": "npc_huyuan_a",
+      "when": [{"flag": "ch05.duizhi", "op": ">=", "value": 1}],
+      "until": [
+        {"flag": "ch05.chuzheng", "op": ">=", "value": 1},
+        {"flag": "ch05.done", "op": ">=", "value": 1}
+      ],
+      "done_flag": "ch05.path.huyuan_a_qiecuo",
+      "text_key": "ch05.path.huyuan_a_qiecuo.text",
+      "battle": "b05_qiecuo_lingban",
+      "win_key": "ch05.path.huyuan_a_qiecuo.win",
+      "lose_key": "ch05.path.huyuan_a_qiecuo.lose",
+      "reward": {
+        "cultivation": 25,
+        "items": [{"item_id": "material_lingshi", "count": 20}]
+      },
+      "origin": "改编",
+      "note": "节点 9 墨府头一回说出「修仙者」三个字之后，护院领班想亲眼见识一下。编成待建：新角色护院领班（mofu_huyuan_lingban，要新建）一人；输了不死、rewards 全 0。赏银一包（碎银 20 块，material_lingshi）由本条目发；修为 25 不超过燕歌讨教那一场的 30。"
+    }
+  ]
+}

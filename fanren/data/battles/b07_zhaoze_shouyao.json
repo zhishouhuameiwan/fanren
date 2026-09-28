@@ -1,0 +1,38 @@
+{
+  "id": "b07_zhaoze_shouyao",
+  "name": "地下沼泽守药妖兽",
+  "chapter": 7,
+  "legacy_id": "B_BLOOD_2",
+  "terrain": "secret",
+  "can_escape": true,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "zhaoze_yaoshou",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "zhaoze_yaoshou",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "zhaoze_yaoshou",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 160,
+    "spirit_stones": 40,
+    "drops": [
+      {
+        "item_id": "pill_huiqi_dan",
+        "count": 2,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch07.battle.zhaoze_shouyao.intro",
+  "origin": "改编",
+  "rewritten_by_lore": true,
+  "note": "旧原型的「血傀」依托查无的燕血魔门。改为禁地地下沼泽／乌龙潭一带的守药妖兽，与「月阳宝珠驱瘴、与南宫婉同逃出地下沼泽」的场景衔接。妖兽本身原著未具名，标为改编。"
+}

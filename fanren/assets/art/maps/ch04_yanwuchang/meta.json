@@ -1,0 +1,41 @@
+{
+ "map": "ch04_yanwuchang",
+ "tile": 16,
+ "width": 48,
+ "height": 40,
+ "theme": "sect",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.45
+  }
+ ],
+ "lights": [
+  {
+   "x": 3.5,
+   "y": 17.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "drill_ground"
+}

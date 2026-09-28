@@ -1,0 +1,59 @@
+{
+  "id": "b04_gongfang_xiadu",
+  "name": "门派攻防战·先下药",
+  "chapter": 4,
+  "terrain": "battlefield",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "yelangbang_toumu",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "jinguang_shangren",
+      "faction": "enemy",
+      "wave": 2
+    },
+    {
+      "role_id": "jia_tianlong",
+      "faction": "enemy",
+      "wave": 2
+    }
+  ],
+  "rewards": {
+    "cultivation": 150,
+    "spirit_stones": 40,
+    "drops": [
+      {
+        "item_id": "pill_jinchuang_yao",
+        "count": 1,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch04.battle.gongfang_xiadu.intro",
+  "origin": "改编",
+  "note": "第 4 章节点 9 门派攻防战的**第三种编成**，对应节点 6 三选一的第 3 条（ch04.bushu == 3，先下药）。\n\n**设计文档硬约束 7 落在这一张上**：韩立此时仍是炼气期，全歼来犯者靠的是算计与毒，不是境界压制。三波七人，是三张里人最少的一张——上来的那些已经喝过山上的水，站都站不稳。\n\n**但它不是免费的那一条。** 代价不写在数值里，写在剧情里（scripts/ch04/kaizhan.lua 与 gongfang.lua）：东坡那口井是全山共用的，下药下不出敌我；山上跟着倒下的人也得他一个个救回来，丹房里存的清灵散因此空了。收获是三张里最低的（修为 150、碎银 40、一份金疮药）——这一条不是在罚玩家，是账面上的实情：仗打得短，场上留下的东西就少，而他这几日都在救自己人。\n\n**金光上人不受影响，这一条是硬的。** 他是修仙者，不喝凡人的水，也不吃凡人的饭；他那一波原样上来，防 30 一点没掉。所以第 2 波仍旧要靠火弹术与毒去啃——毒能少打两波，不能替他打完最后一波。这正是「算计是有用的，但算计不能替你把最后那一下做掉」。\n\n与另两张一样：can_escape 假、defeat_is_fatal 真、波间不回血不回法力。\n\n**实测（2026-09-23 二次整改后重量，tests/Ch04SliceTests.cpp 的 ThreeWaysToHoldTheGate 与 Ch04HandSweep）：**\n起点是第 3 章通关测试的终局存档（两侧各跑一遍）；药只来自本章分次发的俸禄（docs/ch04-design.md 3.3，照价那一条炼出 23 瓶）；三天备战挪到了坊门那一战之后，攻防战前韩立 120/120、曲魂 16/55；那只手按物品 id 只给韩立喂养精丹，对面下一轮打得死就吃。\n\n| 布置 | 门槛六成：收场气血 | 23 瓶用掉 | 最少要几瓶（门槛 40/50/60/70%） |\n| --- | --- | --- | --- |\n| 1 守辕门 | 90/120 | 8 | 5 / 6 / 6 / 8 |\n| 2 围歼 | 100/120 | 9 | 6 / 6 / 7 / 4 |\n| 3 先下药 | 100/120 | 8 | 5 / 6 / 6 / 3 |\n\n吃药门槛 40–70% 七档 × 药数 N−2 / N / N＋2 × 背包原样 / 多一样 / 少一样，三张各 63 格，一格不输。\n**这些数是一只不完美的手打出来的**（它不走位风筝、不换目标集火），所以「它赢了」证明得了走得通，「它输了」证明不了打不过——日后这一条转红，先看 Ch04HandSweep 那张表，再查编成。\n\n【八方旅人化改造 2026-09-25】横版没有格子：上文那张实测表是战棋规则下量的（「它不走位风筝」一句随之作废），等 B2 用新的那只手重量。金光上人的破绽是毒与火（docs/octopath-battle.md 第 7 节）：火弹蓄满劲四连发、正好把他五点架势削到只剩一点。"
+}

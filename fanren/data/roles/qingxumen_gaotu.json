@@ -1,0 +1,21 @@
+{
+  "id": "qingxumen_gaotu",
+  "name": "清虚门高徒",
+  "realm": "QiRefining12",
+  "maxHp": 178,
+  "maxMp": 120,
+  "attack": 25,
+  "defence": 17,
+  "speed": 13,
+  "element": 8,
+  "magics": [
+    "magic_huoqiu_shu",
+    "magic_hushen_gang"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "水"
+  ],
+  "origin": "原著",
+  "note": "清虚门为越国七派之一（ch127/175）。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

@@ -1,0 +1,18 @@
+{
+  "id": "sanji_haishou",
+  "name": "三级海兽",
+  "realm": "FoundationEarly",
+  "maxHp": 268,
+  "maxMp": 120,
+  "attack": 38,
+  "defence": 26,
+  "speed": 22,
+  "element": 4,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "土"
+  ],
+  "origin": "原著",
+  "note": "乱星海妖兽分十级，三级大致对应筑基。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

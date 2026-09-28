@@ -1,0 +1,41 @@
+{
+ "map": "ch04_getang",
+ "tile": 16,
+ "width": 48,
+ "height": 36,
+ "theme": "sect",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.25
+  }
+ ],
+ "lights": [
+  {
+   "x": 27.5,
+   "y": 23.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "sect_courtyard"
+}

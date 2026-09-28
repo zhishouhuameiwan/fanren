@@ -1,0 +1,11 @@
+{
+  "id": "material_zhenqi",
+  "name": "阵旗",
+  "descKey": "item.desc.material_zhenqi",
+  "kind": "material",
+  "grade": 1,
+  "price": 15,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "原著确证：ch221-227；ch227 颠倒五行阵为 18 阵盘 + 36 阵旗，购自天星宗坊市。"
+}

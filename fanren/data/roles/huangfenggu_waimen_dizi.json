@@ -1,0 +1,20 @@
+{
+  "id": "huangfenggu_waimen_dizi",
+  "name": "黄枫谷外门弟子",
+  "realm": "QiRefining6",
+  "maxHp": 92,
+  "maxMp": 60,
+  "attack": 14,
+  "defence": 10,
+  "speed": 10,
+  "element": 2,
+  "magics": [
+    "magic_feijian_shu"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "金"
+  ],
+  "origin": "原著",
+  "note": "黄枫谷外门同门，切磋性质，非生死斗。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

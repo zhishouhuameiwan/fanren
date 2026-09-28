@@ -1,0 +1,14 @@
+{
+  "id": "zhang_tie",
+  "name": "张铁",
+  "realm": "Mortal",
+  "maxHp": 32,
+  "maxMp": 0,
+  "attack": 5,
+  "defence": 5,
+  "speed": 3,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "首次登场 ch5：炼骨崖上与韩立同为没按时登顶、被点作记名弟子的两人，一同归墨大夫门下；游戏让两人先在彩霞山道结识、说他家在东边二十里，是改编（docs/ch01-design.md 第 1 节第 7 条）。憨直好信人，入门后修外家横练的象甲功（ch9）。本条是他十一岁（ch01.shandao.zt_ask）的凡人少年阶段，气血与防御略高于同龄人以呼应后来的象甲功体质。人物总表登记为 zhang_tie_qu_hun（涵盖 ch63-64 异变后的曲魂形态），本章按 docs/ch01-design.md 第 5 节用 zhang_tie。"
+}

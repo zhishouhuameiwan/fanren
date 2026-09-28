@@ -1,0 +1,28 @@
+{
+  "id": "b04_qiecuo_maliu",
+  "name": "外刃堂过招",
+  "chapter": 4,
+  "terrain": "indoor",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "tongmen_maliu",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "tongmen_luchun",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "origin": "改编",
+  "rewritten_by_lore": false,
+  "note": "【横版平衡 B2 2026-09-26】路径行动 ch04 maliu_qiecuo（ch02_wairentang / npc_tongmen_maliu）的编成：马六、卢春两个外刃堂弟子，缠布木刀。按路径行动契约 6.1 建：defeat_is_fatal 假（输了不 game over，按气血至少 1 放回来）、rewards 全 0（奖励只由条目发一次）、can_escape 真（逃走按输算，可以再来）；我方照当时的队伍。条目发修为 25 与一把制式佩刀。"
+}

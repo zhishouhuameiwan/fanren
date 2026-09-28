@@ -1,0 +1,19 @@
+{
+  "id": "recipe_qingzhu_fengyun_jian",
+  "name": "青竹蜂云剑图",
+  "kind": "forge",
+  "productId": "weapon_qingzhu_fengyun_jian",
+  "productCount": 12,
+  "difficulty": 90,
+  "requiredProficiency": 80,
+  "inputs": [
+    {
+      "itemId": "material_jinleizhu",
+      "count": 4
+    },
+    {
+      "itemId": "material_lingshi",
+      "count": 20
+    }
+  ]
+}

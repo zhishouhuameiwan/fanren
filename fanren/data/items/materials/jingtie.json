@@ -1,0 +1,11 @@
+{
+  "id": "material_jingtie",
+  "name": "铁精",
+  "descKey": "item.desc.material_jingtie",
+  "kind": "material",
+  "grade": 0,
+  "price": 12,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "原著用「铁精」而非「精铁」：前者出现频次明显更高，且有章题直接印证；后者亦偶见，但属少数写法。id 沿用建立时的拼写，显示名以原著高频用词为准。"
+}

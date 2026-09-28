@@ -1,0 +1,23 @@
+{
+  "id": "ye_zhu",
+  "name": "野猪",
+  "realm": "Mortal",
+  "maxHp": 26,
+  "maxMp": 0,
+  "attack": 5,
+  "defence": 4,
+  "speed": 4,
+  "element": 0,
+  "magics": [],
+  "weapons": [
+    "拳"
+  ],
+  "toughness": 2,
+  "weaknesses": [
+    "拳",
+    "刀",
+    "火"
+  ],
+  "origin": "改编",
+  "note": "野外遭遇用的山林野兽（改编；原著未写此遭遇）。第 3–5 章野外遭遇表共用（docs/interfaces-octo-encounters.md 第 5 节）。数值比恶狼（wild_wolf，气血 18、攻 4）皮厚一截、慢一截：一头的「凶」（气血 × 攻）130，仍低于第 3 章教学那一仗两头恶狼的 144。普攻是低头一撞（拳）。架势 2，破绽 拳、刀、火：拳是第 3 章人人都有的手段（门禁规则 25），刀砍得进它的软肋，野兽怕火。"
+}

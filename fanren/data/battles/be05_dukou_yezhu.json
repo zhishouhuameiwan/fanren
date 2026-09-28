@@ -1,0 +1,33 @@
+{
+  "id": "be05_dukou_yezhu",
+  "name": "河滩野猪",
+  "chapter": 5,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "ye_zhu",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "ye_zhu",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 5,
+    "spirit_stones": 1,
+    "drops": [
+      {
+        "item_id": "herb_qingfeng_cao",
+        "count": 1,
+        "herb_age": 1
+      }
+    ]
+  },
+  "intro_key": "ch05.dongqu.encounter_yezhu",
+  "origin": "改编",
+  "rewritten_by_lore": false,
+  "note": "野外遭遇编成（docs/interfaces-octo-encounters.md 第 5 节）：defeat_is_fatal 假（输了不 game over，气血至少 1 就地放回）、can_escape 真；奖励只给少量修为、碎银与药材（门禁规则 27 钉着上限），修为照走境界上限。渡口河滩（节点 1a 之后、上船之前）：两头野猪，凶 260，低于本章最轻的剧情战（夜宿遇狼，432）。"
+}

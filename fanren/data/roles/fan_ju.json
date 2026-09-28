@@ -1,0 +1,19 @@
+{
+  "id": "fan_ju",
+  "name": "范沮",
+  "realm": "Mortal",
+  "maxHp": 38,
+  "maxMp": 0,
+  "attack": 10,
+  "defence": 6,
+  "speed": 5,
+  "element": 0,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "拳",
+    "刀"
+  ],
+  "origin": "原著",
+  "note": "四平帮三大护法之一，绰号毒秀才，脸上一颗黑痣，自命帮里的智囊（ch121）。ch122 让送酒的小厮先尝的主意是他出的。条件战第一波：44 / 14 / 6 / 5。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲第一版：架势 2，破绽 拳、刀。理由：毒秀才不怕毒。整张表与取舍见 docs/octopath-battle.md 第 7 节，B2 会用新的那只手量过再调。\n\n【横版平衡 B2 2026-09-26】气血 44 → 38、攻 14 → 10。潇湘院整场压轻，理由见 data/battles/b05_xiaoxiangyuan.json 的 note。"
+}

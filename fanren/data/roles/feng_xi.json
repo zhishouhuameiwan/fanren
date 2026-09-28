@@ -1,0 +1,21 @@
+{
+  "id": "feng_xi",
+  "name": "风希",
+  "realm": "CoreLate",
+  "maxHp": 1450,
+  "maxMp": 900,
+  "attack": 104,
+  "defence": 86,
+  "speed": 46,
+  "element": 2,
+  "magics": [
+    "magic_fenglei_chi",
+    "magic_hushen_gang"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "金"
+  ],
+  "origin": "原著",
+  "note": "外星海磷火潭的九级裂风兽化形（ch543）。原著九级妖修约当元婴，而本作 Realm 枚举上限为结丹后期（CoreLate），故以 CoreLate + 大幅超格数值近似，剧情上不以击杀收场。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}

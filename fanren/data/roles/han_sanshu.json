@@ -1,0 +1,12 @@
+{
+  "id": "han_sanshu",
+  "name": "韩三叔",
+  "realm": "Mortal",
+  "maxHp": 24,
+  "maxMp": 0,
+  "attack": 4,
+  "defence": 3,
+  "speed": 3,
+  "element": 0,
+  "magics": []
+}

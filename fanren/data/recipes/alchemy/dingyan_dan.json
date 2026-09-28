@@ -1,0 +1,21 @@
+{
+  "id": "recipe_dingyan_dan",
+  "name": "定颜丹方",
+  "kind": "alchemy",
+  "productId": "pill_dingyan_dan",
+  "productCount": 1,
+  "difficulty": 55,
+  "requiredProficiency": 38,
+  "inputs": [
+    {
+      "itemId": "herb_zishen_cao",
+      "count": 2,
+      "minAge": 60
+    },
+    {
+      "itemId": "herb_qingfeng_cao",
+      "count": 2,
+      "minAge": 60
+    }
+  ]
+}

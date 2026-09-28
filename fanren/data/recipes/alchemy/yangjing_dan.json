@@ -1,0 +1,21 @@
+{
+  "id": "recipe_yangjing_dan",
+  "name": "养精丹方",
+  "kind": "alchemy",
+  "productId": "pill_yangjing_dan",
+  "productCount": 1,
+  "difficulty": 26,
+  "requiredProficiency": 6,
+  "inputs": [
+    {
+      "itemId": "herb_zishen_cao",
+      "count": 1,
+      "minAge": 20
+    },
+    {
+      "itemId": "herb_huangjing_cao",
+      "count": 2,
+      "minAge": 20
+    }
+  ]
+}

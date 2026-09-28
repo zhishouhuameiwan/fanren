@@ -1,0 +1,11 @@
+{
+  "id": "material_yaodan_1",
+  "name": "一级妖丹",
+  "descKey": "item.desc.material_yaodan_1",
+  "kind": "material",
+  "grade": 1,
+  "price": 10,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "妖丹为原著物（ch344 起）；等阶用原著的 1-10 级尺度（ch395、503、516、520、542、544），五级≈结丹初期。一级对应炼气期妖兽。"
+}

@@ -1,0 +1,30 @@
+{
+  "id": "b03_shihai_duoshe",
+  "name": "识海夺舍",
+  "chapter": 3,
+  "legacy_id": "B_MO_SOUL",
+  "terrain": "mind",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "mo_juren_yuanshen",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "yu_zitong",
+      "faction": "enemy",
+      "wave": 1
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch03.battle.shihai_duoshe.intro",
+  "origin": "原著",
+  "rewritten_by_lore": true,
+  "note": "按 ch56 原文重做：原著是两场连着的，不是一场。第一团（黄光球）是墨居仁元神，拇指大、比韩立小好几倍（maxHp 120 对韩立入梦体积 480），靠体积轻易吞掉；第二团（绿光球）是余子童元神，比韩立大一圈（660/480≈1.4）但虚弱，是个空架子，每被咬住就脱开那块继续跑，最终逃脱，体积少三分之一。terrain=mind 即吞噬模式：体积映射到 maxHp，没有法术、没有物品、没有地形、不能逃（见 docs/interfaces-p3-ch03.md 第 3 与第 5.3 节）。两团一起摆在场上而不是拆成两份战斗配置：拆开要多一个战斗 id，而脚本侧的调用口径归编剧，本批不单方面加。近的那团一照面就咬，远的那团在对角，要玩家自己走过去——原著里追上去是韩立贪心，不是被逼的。rewards.cultivation 从前写的是 150，2026-09-23 改成 0：这一场设计上必然以敌逃（enemy_fled）收场，按 docs/interfaces-p2.md 6.1「只有打赢才发奖励」的口径永远发不下来；数据照写 150 就是一个永远到不了手的数，写成 0 是为了不让数字说谎。玩家这边零变化。\n\n【八方旅人化改造 2026-09-25】横版没有格子：从前「近的那团一照面就咬、远的那团在对角，要玩家自己走过去」靠的是站位，现在改成**两波**——余子童（绿光球）编进第 1 波，墨居仁元神被吞掉之后它才进场。这正是原著「两场连着的」，而且不改就不成立：两团同时贴上来时绿光球每回合咬韩立 41 分，韩立一边吞黄光球一边被它啃，吞噬这一场会从「靠体积轻易吞掉」变成拼血。识海里没有架势、破绽与劲（setDevourMode 清成 0）。"
+}

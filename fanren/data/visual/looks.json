@@ -1,0 +1,656 @@
+{
+  "_说明": "角色外观表（人工维护，生成器 tools/artgen/sprites.py 的输入）。字段与取值见 docs/art-sprites.md。原则：只按身份、年纪、气质做类型化设计；外貌细节只取本作文本（data/text、data/roles 的 note）里已经写明的，不凭原著记忆添加。",
+  "version": 1,
+  "archetypes": {
+    "arch_villager_m": {
+      "name": "原型·村民（男）",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "headwear": "scarf", "headwear_colors": ["ma", "he"],
+      "outfit": "duanhe", "colors": {"main": "he", "sub": "ma", "belt": "cha"}
+    },
+    "arch_villager_f": {
+      "name": "原型·村妇",
+      "gender": "f", "age": "adult", "build": "normal", "skin": "tan",
+      "hair": "woman_bun", "hair_color": "black", "headwear": "kerchief", "headwear_colors": ["qingbu", "zangqing"],
+      "outfit": "ruqun", "colors": {"main": "cha", "sub": "he", "belt": "ma"}
+    },
+    "arch_townsman": {
+      "name": "原型·镇民",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "headwear": "scarf", "headwear_colors": ["huibu", "hei"],
+      "outfit": "changshan", "colors": {"main": "huibu", "sub": "hei", "belt": "hei"}
+    },
+    "arch_merchant": {
+      "name": "原型·商贩",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "headwear": "scholar_cap", "headwear_colors": ["hei", "hei"],
+      "outfit": "changshan", "colors": {"main": "xiang", "sub": "cha", "belt": "hei"},
+      "props": ["abacus"], "beard": "mustache"
+    },
+    "arch_laborer": {
+      "name": "原型·苦力",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "tan",
+      "hair": "wild", "hair_color": "black",
+      "outfit": "open", "colors": {"main": "ma", "sub": "he", "belt": "cha", "wrap": "he"},
+      "beard": "stubble", "weapon": "fist"
+    },
+    "arch_bandit": {
+      "name": "原型·匪",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "dark", "face": "fierce",
+      "hair": "wild", "hair_color": "black", "headwear": "bandana", "headwear_colors": ["he", "he"],
+      "outfit": "open", "colors": {"main": "tuhuang", "sub": "hei", "belt": "he", "wrap": "ma"},
+      "props": ["dao_hip"], "beard": "stubble"
+    },
+    "arch_guard": {
+      "name": "原型·护卫",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "band": "hei",
+      "outfit": "jinzhuang", "colors": {"main": "zangqing", "sub": "hei", "belt": "hei", "wrap": "hei"},
+      "props": ["dao_hip"]
+    },
+    "arch_disciple": {
+      "name": "原型·门派弟子",
+      "gender": "m", "age": "youth", "build": "normal", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "band": "tianqing",
+      "outfit": "jinzhuang", "colors": {"main": "qianhui", "sub": "zangqing", "belt": "zangqing", "wrap": "zangqing"},
+      "props": ["sword_back"]
+    },
+    "arch_cultivator_m": {
+      "name": "原型·修仙者（男）",
+      "gender": "m", "age": "adult", "build": "slim", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "headwear": "crown", "headwear_colors": ["jade3", "jade1"],
+      "outfit": "daopao", "colors": {"main": "lanshan", "sub": "bai", "belt": "zangqing", "trim": "bai"},
+      "props": ["sword_back"]
+    },
+    "arch_cultivator_f": {
+      "name": "原型·修仙者（女）",
+      "gender": "f", "age": "adult", "build": "slim", "skin": "fair",
+      "hair": "high_bun", "hair_color": "black", "headwear": "hairpin",
+      "outfit": "shanqun", "colors": {"main": "shuilv", "sub": "bai", "belt": "tianqing"},
+      "props": ["sword_back"]
+    },
+    "arch_demonic_m": {
+      "name": "原型·魔道修士",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "pale", "face": "fierce",
+      "hair": "loose", "hair_color": "black",
+      "outfit": "kuanpao", "colors": {"main": "xuan", "sub": "zi", "belt": "zi", "trim": "zi"},
+      "weapon": "none"
+    },
+    "arch_demonic_f": {
+      "name": "原型·魔道女修",
+      "gender": "f", "age": "adult", "build": "slim", "skin": "pale",
+      "hair": "high_bun", "hair_color": "black", "headwear": "flower",
+      "outfit": "shanqun", "colors": {"main": "yanzhi", "sub": "xuan", "belt": "zi"},
+      "weapon": "none"
+    },
+    "arch_elder_m": {
+      "name": "原型·老者",
+      "gender": "m", "age": "elder", "build": "slim", "skin": "fair",
+      "hair": "bun_low", "hair_color": "white",
+      "outfit": "changshan", "colors": {"main": "huibu", "sub": "hei", "belt": "hei"},
+      "beard": "long"
+    },
+    "arch_noblewoman": {
+      "name": "原型·富家妇人",
+      "gender": "f", "age": "adult", "build": "slim", "skin": "fair",
+      "hair": "high_bun", "hair_color": "black", "headwear": "hairpin",
+      "outfit": "shanqun", "colors": {"main": "zi", "sub": "xuan", "belt": "jin"}
+    },
+    "arch_maid": {
+      "name": "原型·丫鬟",
+      "gender": "f", "age": "youth", "build": "slim", "skin": "fair",
+      "hair": "twin_buns", "hair_color": "black", "band": "fen",
+      "outfit": "ruqun", "colors": {"main": "fen", "sub": "xingbai", "belt": "ouhe"}
+    },
+    "arch_child": {
+      "name": "原型·孩童",
+      "gender": "m", "age": "child", "build": "normal", "skin": "tan",
+      "hair": "tufts", "hair_color": "black",
+      "outfit": "duanhe", "colors": {"main": "ma", "sub": "he", "belt": "he"}
+    },
+    "arch_puppet": {
+      "name": "原型·傀儡",
+      "gender": "m", "age": "adult", "build": "giant", "skin": "corpse", "face": "blank",
+      "hair": "bald", "hair_color": "black",
+      "outfit": "pijia", "colors": {"main": "huibu", "sub": "hei", "belt": "hei", "armor": "heipi"},
+      "weapon": "fist"
+    }
+  },
+  "looks": {
+    "hanli": {
+      "name": "韩立（第 3 章起）",
+      "note": "主角。衣色朴素（青灰），在人群里不该最花哨；靠剪影认人：头顶发髻 + 一截天青色发带飘在脑后，全作只有他一个人这样扎。第 2 章文本「个子拔高一截，人也黑了」「瘦得吓人」→ 偏瘦。兵刃取他腰带夹层里那把软剑（ch03.beidu.sword），行走帧不露。",
+      "gender": "m", "age": "adult", "build": "slim", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "band": "tianqing", "headwear": "ribbon",
+      "outfit": "changshan", "colors": {"main": "qinghui", "sub": "cang", "belt": "hei", "trim": "xingbai"},
+      "weapon": "sword"
+    },
+    "hanli_child": {
+      "base": "hanli",
+      "name": "韩立（第 1–2 章，十岁到十四岁）",
+      "note": "农家孩子：短褐、布鞋，个子矮一截。发髻与天青发带保留——长大前后是同一个剪影，玩家到第 3 章不用重新认人。",
+      "age": "child",
+      "outfit": "duanhe", "colors": {"main": "qinghui", "sub": "he", "belt": "he", "wrap": "ma"}
+    },
+    "han_mu": {
+      "name": "韩母",
+      "note": "凡人农妇（role note）。文本里她「把手在围裙上擦了擦」「转身去理背篓」→ 包头巾、背篓。",
+      "gender": "f", "age": "adult", "build": "normal", "skin": "tan",
+      "hair": "woman_bun", "hair_color": "black", "headwear": "kerchief", "headwear_colors": ["qingbu", "zangqing"],
+      "outfit": "ruqun", "colors": {"main": "he", "sub": "cha", "belt": "ma"},
+      "props": ["basket"]
+    },
+    "han_sanshu": {
+      "name": "韩三叔",
+      "note": "「市井热心肠，话密，爱拍胸脯」（ch01-design）：镇上人的长衫、裹头巾、八字胡，身板结实。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "headwear": "scarf", "headwear_colors": ["he", "cha"],
+      "outfit": "changshan", "colors": {"main": "tuhuang", "sub": "he", "belt": "he"},
+      "beard": "mustache"
+    },
+    "zhang_tie_child": {
+      "name": "张铁（第 1–2 章，少年）",
+      "note": "「比韩立高出半头的少年」「他个子大」（ch01.shandao）；嗓门大、憨直；入门后练横练的象甲功。所以比韩立高两行、宽一列，头顶两撮总角。",
+      "gender": "m", "age": "child", "build": "stout", "height": 2, "skin": "tan",
+      "hair": "tufts", "hair_color": "black",
+      "outfit": "duanhe", "colors": {"main": "ma", "sub": "he", "belt": "he", "wrap": "he"},
+      "weapon": "fist"
+    },
+    "zhang_tie": {
+      "name": "张铁（第 3 章起，若再出场）",
+      "note": "练了几年象甲功的壮汉。第 3 章他即被炼成曲魂（另见 qu_hun），本条只作兜底。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "band": "he",
+      "outfit": "duanda", "colors": {"main": "ma", "sub": "he", "belt": "he", "wrap": "he"},
+      "weapon": "fist"
+    },
+    "qixuan_kaoguan": {
+      "name": "七玄门考官",
+      "note": "「穿灰袍的中年人，面前摊着册子」（ch01.zhenshang.kg_register）：灰长衫、八字胡、门中执事的规矩样子。",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "band": "hei",
+      "outfit": "changshan", "colors": {"main": "huibu", "sub": "hei", "belt": "hei", "trim": "xingbai"},
+      "beard": "mustache"
+    },
+    "mo_daifu": {
+      "name": "墨大夫 / 墨居仁",
+      "note": "「头发全白了，在脑后松松束着一截。他瘦，那身青布袍子穿在身上是空的」（ch01.modaifu.appear）。白发、脑后松束、青布袍、瘦；长者配一绺白须（类型化）。摊牌前后是同一具身子，墨居仁用同一条外观。",
+      "gender": "m", "age": "elder", "build": "slim", "skin": "pale",
+      "hair": "bun_low", "hair_color": "white",
+      "outfit": "changshan", "colors": {"main": "qingbu", "sub": "zangqing", "belt": "zangqing", "trim": "xingbai"},
+      "beard": "goatee", "weapon": "fist"
+    },
+    "zhen_min_jiaofu": {
+      "name": "脚夫（青牛镇）",
+      "note": "「脚夫把扁担换了个肩」：短褐、裹头巾、扛扁担。",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "headwear": "scarf", "headwear_colors": ["xingbai", "ma"],
+      "outfit": "duanhe", "colors": {"main": "he", "sub": "ma", "belt": "cha", "wrap": "ma"},
+      "props": ["pole"], "beard": "stubble", "weapon": "fist"
+    },
+    "zhen_min_jiuke": {
+      "name": "镇上酒客",
+      "note": "街边喝闲酒的汉子：长衫敞着、腰挂酒葫芦、脸喝得发红、胡茬。",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "ruddy",
+      "hair": "wild", "hair_color": "black",
+      "outfit": "changshan", "colors": {"main": "cha", "sub": "he", "belt": "he"},
+      "props": ["gourd"], "beard": "stubble"
+    },
+    "zhen_min_yaofan": {
+      "name": "卖药郎",
+      "note": "镇上卖伤药的小贩（第 1、4 章）：背药篓、裹头巾的行脚小贩。",
+      "gender": "m", "age": "adult", "build": "slim", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "headwear": "scarf", "headwear_colors": ["songlv", "cang"],
+      "outfit": "duanda", "colors": {"main": "tuhuang", "sub": "he", "belt": "songlv", "wrap": "xingbai"},
+      "props": ["basket"]
+    },
+    "qingniu_laohan": {
+      "base": "arch_elder_m",
+      "name": "镇上老汉",
+      "note": "青牛镇街上的路人（role note）：常住镇上的老人，短褐、灰白头发，与打探那三位（药贩、脚夫、酒客）一眼分得开。",
+      "hair_color": "grey",
+      "outfit": "duanhe", "colors": {"main": "cha", "sub": "he", "belt": "hei"},
+      "beard": "full"
+    },
+    "qingniu_furen": {
+      "base": "arch_villager_f",
+      "name": "镇上妇人",
+      "note": "青牛镇街上的路人（role note）：镇上人家的妇人，包头巾、襦裙，衣色家常。",
+      "skin": "fair", "headwear_colors": ["ouhe", "zhe"],
+      "colors": {"main": "ouhe", "sub": "qingbu", "belt": "zhe"}
+    },
+    "qingniu_chebashi": {
+      "base": "arch_villager_m",
+      "name": "车把式",
+      "note": "青牛镇街上的路人（role note）：赶车拉脚的汉子，戴草帽、短打、晒得黑。",
+      "build": "stout", "headwear": "straw_hat", "headwear_colors": ["tuhuang", "he"],
+      "outfit": "duanda", "colors": {"main": "qingbu", "sub": "he", "belt": "cha", "wrap": "ma"},
+      "beard": "stubble", "weapon": "fist"
+    },
+    "qingniu_chatan_huoji": {
+      "base": "arch_villager_m",
+      "name": "茶摊伙计",
+      "note": "青牛镇街上的路人（role note）：街边茶摊跑堂的后生，杏白短打、额前碎发。",
+      "age": "youth", "build": "slim", "skin": "fair",
+      "hair": "topknot_fringe", "headwear": "none",
+      "outfit": "duanda", "colors": {"main": "xingbai", "sub": "qianhui", "belt": "zangqing", "wrap": "qianhui"}
+    },
+    "qingniu_haitong": {
+      "base": "arch_child",
+      "name": "镇上孩童",
+      "note": "青牛镇街上的路人（role note）：镇上人家的小孩，总角、衣色鲜一些，比来报名的半大孩子小一截。",
+      "colors": {"main": "zhu", "sub": "he", "belt": "he"}
+    },
+    "qingniu_modaojiang": {
+      "base": "arch_villager_m",
+      "name": "磨刀匠",
+      "note": "青牛镇街上的路人（role note）：走街串巷的磨刀匠，灰布短褐、腰挂刀囊。",
+      "build": "stout", "headwear_colors": ["hei", "huibu"],
+      "outfit": "duanhe", "colors": {"main": "huibu", "sub": "hei", "belt": "he", "wrap": "hei"},
+      "props": ["knife_pouch"], "beard": "mustache", "weapon": "fist"
+    },
+    "li_feiyu": {
+      "name": "厉飞雨",
+      "note": "七玄门护法弟子，一手奔雷刀法；「背上还是那把刀」（ch02.zhitong.noon）→ 背刀。劲装、马尾、朱红发带与腰带点出锋芒；他穿白袍那一段是特写，平时取藏青。",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "tan",
+      "hair": "ponytail", "hair_color": "black", "band": "zhu",
+      "outfit": "jinzhuang", "colors": {"main": "zangqing", "sub": "hei", "belt": "zhu", "wrap": "hei", "trim": "bai"},
+      "props": ["dao_back"]
+    },
+    "tongmen_luchun": {
+      "name": "卢春（外刃堂杂役弟子）",
+      "note": "嘴碎爱打听的杂役少年：短打、发髻、额前碎发，衣色偏暖好认。",
+      "gender": "m", "age": "youth", "build": "slim", "skin": "fair",
+      "hair": "topknot_fringe", "hair_color": "black", "band": "tuhuang",
+      "outfit": "duanda", "colors": {"main": "tuhuang", "sub": "he", "belt": "he", "wrap": "xingbai"}
+    },
+    "tongmen_maliu": {
+      "name": "马六（外刃堂杂役弟子）",
+      "note": "寡言，与卢春一对照：同是杂役短打，他更壮、衣色更沉、裹着头巾。",
+      "gender": "m", "age": "youth", "build": "stout", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "headwear": "scarf", "headwear_colors": ["huibu", "hei"],
+      "outfit": "duanda", "colors": {"main": "huibu", "sub": "hei", "belt": "hei", "wrap": "hei"}
+    },
+    "wairentang_yaoshang": {
+      "name": "外刃堂药商",
+      "note": "收药的商人：方巾、香色长衫、腰前挂算盘、八字胡，体面而精明。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "headwear": "scholar_cap", "headwear_colors": ["hei", "hei"],
+      "outfit": "changshan", "colors": {"main": "xiang", "sub": "cha", "belt": "hei"},
+      "props": ["abacus"], "beard": "mustache"
+    },
+    "yaopu_guanshi": {
+      "name": "药圃管事",
+      "note": "药圃老把式：「锄头靠在老地方，草帽扣在锄把上」（ch03.mogui.quiet）→ 草帽、锄头、短褐、花白头发。",
+      "gender": "m", "age": "elder", "build": "normal", "skin": "tan",
+      "hair": "topknot", "hair_color": "grey", "headwear": "straw_hat", "headwear_colors": ["tuhuang", "he"],
+      "outfit": "duanhe", "colors": {"main": "huilv", "sub": "he", "belt": "he", "wrap": "ma"},
+      "props": ["hoe"], "beard": "goatee"
+    },
+    "wang_juechu": {
+      "name": "王绝楚（七玄门门主）",
+      "note": "「犹如冰人」、冷、短、不解释：玄色长衫、白玉小冠、一绺须，脸色偏白。",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "pale",
+      "hair": "topknot", "hair_color": "black", "headwear": "crown", "headwear_colors": ["bai", "qianhui"],
+      "outfit": "changshan", "colors": {"main": "xuan", "sub": "hei", "belt": "hei", "trim": "qianhui"},
+      "beard": "goatee", "weapon": "fist"
+    },
+    "yelangbang_mazei": {
+      "name": "野狼帮马贼",
+      "note": "马贼出身的帮会：赭红头巾、赭红腰带、敞怀的本色麻布短打、腰刀、胡茬、凶相；同一帮的头目、铁卫都用这一抹赭红（ch04.battle.jia_tianlong.intro「四个红衣的」）。衣服用浅麻色，是为了让敞开的深色胸口看得出来。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "dark", "face": "fierce",
+      "hair": "wild", "hair_color": "black", "headwear": "bandana", "headwear_colors": ["zhehong", "zhehong"],
+      "outfit": "open", "colors": {"main": "ma", "sub": "hei", "belt": "zhehong", "wrap": "he"},
+      "props": ["dao_hip"], "beard": "stubble"
+    },
+    "yelangbang_toumu": {
+      "name": "野狼帮头目",
+      "note": "攻山的小头目 / 红衣铁卫：赭红外衣罩皮甲、络腮胡、腰刀。比马贼多一身甲，一眼看出是领头的。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "dark", "face": "fierce",
+      "hair": "topknot", "hair_color": "black", "band": "zhehong",
+      "outfit": "pijia", "colors": {"main": "zhehong", "sub": "hei", "belt": "hei", "armor": "heipi", "wrap": "hei"},
+      "props": ["dao_hip"], "beard": "full"
+    },
+    "jinguang_shangren": {
+      "name": "金光上人",
+      "note": "「三尺来高，四十几岁，一件红袍滚着金线，手上脖子上都是金的」（ch04.jinguang.envoy）：侏儒身量、朱红道袍金缘、金冠、金链。修仙者，出手是法术。",
+      "gender": "m", "age": "adult", "build": "dwarf", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "headwear": "crown", "headwear_colors": ["jin", "xiang"],
+      "outfit": "daopao", "colors": {"main": "zhu", "sub": "jin", "belt": "jin", "trim": "jin"},
+      "props": ["gold_chain"], "weapon": "none"
+    },
+    "jia_tianlong": {
+      "name": "贾天龙（野狼帮帮主）",
+      "note": "「个子不高，脸白得像是没睡够。一件寻常青布袍子，手上什么也没拿」（ch04.jia.man）；三十出头、瘦。正是「不像传闻」这一点让韩立认出他——所以他看上去最不像马贼。",
+      "gender": "m", "age": "adult", "build": "slim", "height": -1, "skin": "pale",
+      "hair": "topknot", "hair_color": "black", "band": "hei",
+      "outfit": "changshan", "colors": {"main": "qingbu", "sub": "zangqing", "belt": "hei", "trim": "xingbai"},
+      "weapon": "fist"
+    },
+    "chuanjia": {
+      "name": "船家",
+      "note": "「船家是个黑瘦老汉」（ch05.shangchuan.boat）：斗笠、短褐、黑瘦、花白头发、八字胡。",
+      "gender": "m", "age": "elder", "build": "slim", "skin": "dark",
+      "hair": "bun_low", "hair_color": "grey", "headwear": "bamboo_hat", "headwear_colors": ["tuhuang", "he"],
+      "outfit": "duanhe", "colors": {"main": "ma", "sub": "he", "belt": "he", "wrap": "ma"},
+      "beard": "mustache"
+    },
+    "jiayuan_jiefang": {
+      "name": "南城街坊",
+      "note": "嘴碎的街坊（南陵街）：市井妇人，挽髻包头巾、衣色家常。",
+      "gender": "f", "age": "adult", "build": "stout", "skin": "fair",
+      "hair": "woman_bun", "hair_color": "black", "headwear": "kerchief", "headwear_colors": ["zhe", "he"],
+      "outfit": "ruqun", "colors": {"main": "shuilv", "sub": "cha", "belt": "zhe"}
+    },
+    "jiayuan_guolu_hanzi": {
+      "base": "arch_townsman",
+      "name": "过路汉子",
+      "note": "南陵街上过路的汉子（ch05.path.luren_dating.text「过路的汉子」）：戴斗笠的行路人，苍色长衫。",
+      "headwear": "bamboo_hat", "headwear_colors": ["tuhuang", "he"],
+      "colors": {"main": "cang", "sub": "he", "belt": "he"},
+      "beard": "stubble"
+    },
+    "mofu_huyuan": {
+      "name": "墨府护院",
+      "note": "「墨府门口八个劲装大汉」（role note，ch106）：藏青劲装、黑头巾、腰刀、壮。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "headwear": "bandana", "headwear_colors": ["hei", "hei"],
+      "outfit": "jinzhuang", "colors": {"main": "zangqing", "sub": "hei", "belt": "hei", "wrap": "hei"},
+      "props": ["dao_hip"]
+    },
+    "mofu_huyuan_lingban": {
+      "base": "mofu_huyuan",
+      "name": "墨府护院领班",
+      "note": "墨府护院的领头（role note：原著只写护院有人领着，名字没写，只叫差事），使齐眉棍。沿用护院的藏青劲装，多罩一层黑皮甲、留八字胡、不裹头巾只束髻——站在护院堆里一眼看出是领头的。",
+      "headwear": "none", "band": "zangqing",
+      "outfit": "pijia", "colors": {"main": "zangqing", "sub": "hei", "belt": "hei", "armor": "heipi", "wrap": "hei"},
+      "props": [], "beard": "mustache", "weapon": "staff"
+    },
+    "mo_fengwu": {
+      "name": "墨凤舞",
+      "note": "「黄衫姑娘……十六七岁，瓜子脸」「脸先红了」（ch05）：黄衫白裙、垂髻、簪，会脸红。",
+      "gender": "f", "age": "youth", "build": "slim", "skin": "fair", "blush": true,
+      "hair": "maiden", "hair_color": "black", "headwear": "hairpin",
+      "outfit": "ruqun", "colors": {"main": "huang", "sub": "xingbai", "belt": "ouhe"}
+    },
+    "mo_caihuan": {
+      "name": "墨彩环",
+      "note": "三小姐，十五六岁，精灵古怪、嘴快：双髻、桃粉襦裙，比两位姐姐更跳。",
+      "gender": "f", "age": "youth", "build": "slim", "skin": "fair", "blush": true,
+      "hair": "twin_buns", "hair_color": "black", "band": "yanzhi",
+      "outfit": "ruqun", "colors": {"main": "fen", "sub": "ouhe", "belt": "yanzhi"}
+    },
+    "mo_yuzhu": {
+      "name": "墨玉珠",
+      "note": "大小姐，爱骑射打猎（role note）：短打骑装（露出长裤与靴）、马尾、簪。几乎不开口——脸用平常的圆眼，不加表情。",
+      "gender": "f", "age": "youth", "build": "slim", "skin": "fair",
+      "hair": "ponytail", "hair_color": "black", "band": "zhu",
+      "outfit": "jinzhuang", "colors": {"main": "zhu", "sub": "hei", "belt": "hei", "wrap": "hei", "trim": "xingbai"}
+    },
+    "yan_shi": {
+      "name": "严氏（四夫人）",
+      "note": "代理当家人，三十许，沉稳：高髻金簪、紫色大袖衫裙。",
+      "gender": "f", "age": "adult", "build": "slim", "skin": "fair",
+      "hair": "high_bun", "hair_color": "black", "headwear": "hairpin",
+      "outfit": "shanqun", "colors": {"main": "zi", "sub": "xuan", "belt": "jin"}
+    },
+    "li_shi": {
+      "name": "李氏（二夫人）",
+      "note": "书香门第出身、最讲辈分：高髻、青色大袖衫配白裙，素净。",
+      "gender": "f", "age": "adult", "build": "slim", "skin": "fair",
+      "hair": "high_bun", "hair_color": "black", "headwear": "hairpin",
+      "outfit": "shanqun", "colors": {"main": "qingbu", "sub": "xingbai", "belt": "tianqing"}
+    },
+    "liu_shi": {
+      "name": "刘氏（三夫人）",
+      "note": "泼辣狐媚、看着二十几岁：高髻簪花、胭脂色大袖衫、桃粉裙。",
+      "gender": "f", "age": "adult", "build": "slim", "skin": "fair", "blush": true,
+      "hair": "high_bun", "hair_color": "black", "headwear": "flower",
+      "outfit": "shanqun", "colors": {"main": "yanzhi", "sub": "fen", "belt": "jin"}
+    },
+    "wang_shi": {
+      "name": "王氏（五夫人）",
+      "note": "原是大夫人的贴身丫鬟、冷、话最少、内力精湛：低髻、窄袖深色衣裙，利落。",
+      "gender": "f", "age": "adult", "build": "slim", "skin": "fair",
+      "hair": "woman_bun", "hair_color": "black", "headwear": "hairpin",
+      "outfit": "ruqun", "colors": {"main": "cang", "sub": "hei", "belt": "hei"}
+    },
+    "xiao_jinzhi": {
+      "name": "小金芝",
+      "note": "潇湘院头牌：高髻簪花、桃粉大袖衫配胭脂裙。",
+      "gender": "f", "age": "youth", "build": "slim", "skin": "fair", "blush": true,
+      "hair": "high_bun", "hair_color": "black", "headwear": "flower",
+      "outfit": "shanqun", "colors": {"main": "fen", "sub": "yanzhi", "belt": "jin"}
+    },
+    "yan_ge": {
+      "name": "燕歌",
+      "note": "「二十来岁的汉子，浓眉大眼」（ch05.huayuan.knock）、直爽；使的是手上功夫（魔银手）→ 劲装、浓眉、空手。",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "tan", "brows": true,
+      "hair": "topknot", "hair_color": "black", "band": "tianqing",
+      "outfit": "jinzhuang", "colors": {"main": "tianqing", "sub": "zangqing", "belt": "zangqing", "wrap": "zangqing"},
+      "weapon": "fist"
+    },
+    "wu_jianming": {
+      "name": "吴剑鸣",
+      "note": "「二十出头，一张白净脸」（ch05.qingbao.wu）、英俊、会哄人、先拔剑：白长衫、束冠、腰剑。",
+      "gender": "m", "age": "adult", "build": "slim", "skin": "pale",
+      "hair": "topknot_fringe", "hair_color": "black", "headwear": "crown", "headwear_colors": ["bai", "tianqing"],
+      "outfit": "changshan", "colors": {"main": "bai", "sub": "tianqing", "belt": "tianqing", "trim": "tianqing"},
+      "props": ["sword_hip"]
+    },
+    "ouyang_feitian": {
+      "name": "欧阳飞天（独霸山庄庄主）",
+      "note": "绰号怒狮、与墨大夫同辈、横练硬功（role note）：花白披发与络腮须像一头鬃毛，绛红大袍，壮；空手。",
+      "gender": "m", "age": "elder", "build": "stout", "skin": "ruddy", "face": "fierce",
+      "hair": "loose", "hair_color": "grey",
+      "outfit": "kuanpao", "colors": {"main": "jiang", "sub": "hei", "belt": "jin", "trim": "jin"},
+      "beard": "full", "weapon": "fist"
+    },
+    "sun_ergou": {
+      "name": "孙二狗",
+      "note": "「眉眼长歪了的瘦子」、码头小管事，后来「换了一身绸衫」：瘦、香色坎肩罩麻布衫、麻布头巾、细眼。",
+      "gender": "m", "age": "adult", "build": "slim", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "headwear": "scarf", "headwear_colors": ["ma", "cha"],
+      "outfit": "beixin", "colors": {"main": "ma", "sub": "xiang", "belt": "hei", "wrap": "xingbai"},
+      "beard": "mustache", "weapon": "fist"
+    },
+    "xi_tieniu": {
+      "name": "席铁牛",
+      "note": "「满脸横肉」（ch124）的四平帮小头目：凶相、胡茬、壮、敞怀短打、黑头巾。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "tan", "face": "fierce",
+      "hair": "wild", "hair_color": "black", "headwear": "bandana", "headwear_colors": ["hei", "hei"],
+      "outfit": "open", "colors": {"main": "zangqing", "sub": "hei", "belt": "hei", "wrap": "hei"},
+      "beard": "stubble", "weapon": "fist"
+    },
+    "lanyi_ren": {
+      "name": "蓝衣人",
+      "note": "「穿蓝衫的人，二十七八岁」（ch05.jiulou.blue1），修仙者：蓝衫道袍、玉冠、背剑。",
+      "gender": "m", "age": "adult", "build": "slim", "skin": "fair",
+      "hair": "topknot", "hair_color": "black", "headwear": "crown", "headwear_colors": ["jade3", "jade1"],
+      "outfit": "daopao", "colors": {"main": "lanshan", "sub": "bai", "belt": "zangqing", "trim": "bai"},
+      "props": ["sword_back"]
+    },
+    "hei_xiong": {
+      "name": "黑熊（铁拳会码头头目）",
+      "note": "人，不是兽：铁拳会的头目，拳脚（role note）；码头上的「黑大个」（ch05.matou.eyes）→ 黑皮、高壮、络腮胡、敞怀黑衣、空手。",
+      "gender": "m", "age": "adult", "build": "stout", "height": 2, "skin": "dark", "face": "fierce",
+      "hair": "wild", "hair_color": "black",
+      "outfit": "open", "colors": {"main": "he", "sub": "hei", "belt": "heipi", "wrap": "hei"},
+      "beard": "full", "weapon": "fist"
+    },
+    "tiequanhui_quanshi": {
+      "name": "铁拳会拳师",
+      "note": "铁拳会会几手的：黑劲装、灰头巾、空手——铁拳会一派黑与铁灰。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "headwear": "bandana", "headwear_colors": ["qianhui", "huibu"],
+      "outfit": "jinzhuang", "colors": {"main": "hei", "sub": "huibu", "belt": "qianhui", "wrap": "huibu"},
+      "weapon": "fist"
+    },
+    "tiequanhui_fushou": {
+      "name": "铁拳会副手",
+      "note": "黑熊手下的二把手：比拳师多一层皮甲、留八字胡。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "tan", "face": "fierce",
+      "hair": "topknot", "hair_color": "black", "band": "qianhui",
+      "outfit": "pijia", "colors": {"main": "hei", "sub": "huibu", "belt": "qianhui", "armor": "heipi", "wrap": "huibu"},
+      "beard": "mustache", "weapon": "fist"
+    },
+    "matou_dashou": {
+      "name": "码头打手 / 脚夫",
+      "note": "码头上的苦力打手，敌友两边都用：本色麻布敞怀短打、乱发、胡茬、空手。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "tan",
+      "hair": "wild", "hair_color": "black",
+      "outfit": "open", "colors": {"main": "ma", "sub": "he", "belt": "cha", "wrap": "he"},
+      "beard": "stubble", "weapon": "fist"
+    },
+    "sipingbang_toumu": {
+      "name": "四平帮头目",
+      "note": "四平帮里的二流头目：藏青短打、藏青头巾、腰刀、八字胡。",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "tan", "face": "fierce",
+      "hair": "topknot", "hair_color": "black", "headwear": "scarf", "headwear_colors": ["zangqing", "hei"],
+      "outfit": "duanda", "colors": {"main": "zangqing", "sub": "hei", "belt": "hei", "wrap": "hei"},
+      "props": ["dao_hip"], "beard": "mustache"
+    },
+    "shen_san": {
+      "name": "沈三",
+      "note": "「角落里穿黑衣的那个……一只手搭着刀囊」（ch05.xiaoxiang.shen3）、使飞刀：黑劲装、腰挎刀囊、精瘦。",
+      "gender": "m", "age": "adult", "build": "slim", "skin": "tan", "face": "fierce",
+      "hair": "topknot", "hair_color": "black", "band": "hei",
+      "outfit": "jinzhuang", "colors": {"main": "hei", "sub": "hei", "belt": "heipi", "wrap": "hei"},
+      "props": ["knife_pouch"], "weapon": "knife"
+    },
+    "fan_ju": {
+      "name": "范沮（毒秀才）",
+      "note": "「书生模样的那个，嘴角一颗黑痣」（ch05.xiaoxiang.fan），出手用剑：方巾、杏白长衫、腰剑、痣。",
+      "gender": "m", "age": "adult", "build": "slim", "skin": "fair", "mole": true,
+      "hair": "topknot", "hair_color": "black", "headwear": "scholar_cap", "headwear_colors": ["hei", "hei"],
+      "outfit": "changshan", "colors": {"main": "xingbai", "sub": "cha", "belt": "cha", "trim": "cha"},
+      "props": ["sword_hip"]
+    },
+    "shen_zhongshan": {
+      "name": "沈重山（四平帮帮主，猿臂）",
+      "note": "「最壮的那个胳膊长得出奇，满身黑毛」（ch05.xiaoxiang.dress）：高壮、络腮胡、乱发、敞怀，空手。",
+      "gender": "m", "age": "adult", "build": "stout", "height": 1, "skin": "tan", "face": "fierce",
+      "hair": "wild", "hair_color": "black",
+      "outfit": "open", "colors": {"main": "zhe", "sub": "hei", "belt": "jin", "wrap": "hei"},
+      "beard": "full", "weapon": "fist"
+    },
+    "qian_jin": {
+      "name": "钱进（狂拳）",
+      "note": "「一个胖得出奇的酒徒」（role note）→ 胖、红脸、光头、腰挂酒葫芦、敞怀；空手。",
+      "gender": "m", "age": "adult", "build": "fat", "skin": "ruddy",
+      "hair": "bald", "hair_color": "black",
+      "outfit": "open", "colors": {"main": "he", "sub": "hei", "belt": "zhehong", "wrap": "hei"},
+      "props": ["gourd"], "beard": "mustache", "weapon": "fist"
+    },
+    "dubashanzhuang_zhuangding": {
+      "name": "独霸山庄庄丁",
+      "note": "巡夜的庄丁：灰短打、绛红头巾（独霸山庄一律绛红）、手提灯笼，打起来使齐眉棍。",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "tan",
+      "hair": "topknot", "hair_color": "black", "headwear": "scarf", "headwear_colors": ["jiang", "hei"],
+      "outfit": "duanda", "colors": {"main": "huibu", "sub": "hei", "belt": "jiang", "wrap": "hei"},
+      "props": ["lantern"], "weapon": "staff"
+    },
+    "dubashanzhuang_xuntou": {
+      "name": "巡庄头目",
+      "note": "带队的：皮甲罩绛红短打、腰刀、络腮胡。",
+      "gender": "m", "age": "adult", "build": "stout", "skin": "tan", "face": "fierce",
+      "hair": "topknot", "hair_color": "black", "band": "jiang",
+      "outfit": "pijia", "colors": {"main": "jiang", "sub": "hei", "belt": "hei", "armor": "heipi", "wrap": "hei"},
+      "props": ["dao_hip"], "beard": "full"
+    },
+    "jianjing_zei": {
+      "name": "剪径贼",
+      "note": "岚州渡口外河滩上拦路讨买路钱的毛贼（role note，改编），使朴刀。类型化的「绿林」：松绿头巾、茶褐短打、草鞋绑腿、胡茬凶相，肩上扛一杆朴刀。配色特意避开野狼帮马贼的赭红头巾与浅麻敞怀衣、也避开原型·匪的褐头巾土黄衣。",
+      "gender": "m", "age": "adult", "build": "normal", "skin": "tan", "face": "fierce",
+      "hair": "wild", "hair_color": "black", "headwear": "bandana", "headwear_colors": ["songlv", "cang"],
+      "outfit": "duanda", "colors": {"main": "cha", "sub": "hei", "belt": "songlv", "wrap": "ma"},
+      "props": ["podao"], "beard": "stubble"
+    },
+    "qu_hun": {
+      "name": "曲魂",
+      "note": "张铁的身子被炼成的无魂躯壳，比常人大一号（帧 24×32）。连帽斗篷：「从头到脚罩着一件宽袍，帽兜压得很低」（ch03.mogui.giant）、「帽兜压得很低」（ch03.miji.mingdao_2）；第 4 章五处「斗篷底下那位 / 戴斗篷的」（ch04.gongfang.ready 等）；原著 ch100「头戴斗篷」（docs/ch05-review.md LOW-6）。第 5 章文案里的「斗笠」是笔误，文案路改回「斗篷」，所以这里不画斗笠。→ 低兜帽压到眉下，帽兜底下一团黑、只透出一点下巴（「帽兜底下是什么，他还没有伸手去掀」ch03.quhun.gate）；茶褐的旧斗篷从兜帽下披过两肩、盖到腰下，前襟分开露出黑袍，褶子顺着肩膀和手臂往下走，两只死人皮色的大拳头从斗篷边上露出来——斗篷用茶褐，是为了让灰绿的拳头、黑袍、兜帽下的黑影三样在暗处分得开（终审 LOW-5：灰斗篷整块发闷，像一块墓碑）；空眼。空手，一拳一个。身体是 sprites_quhun.py 手画的 24×32 专用模板。",
+      "gender": "m", "age": "adult", "build": "giant", "skin": "corpse", "face": "blank",
+      "hair": "loose", "hair_color": "black", "headwear": "cowl", "headwear_colors": ["cha", "hei"],
+      "outfit": "doupeng_giant", "colors": {"main": "cha", "sub": "hei", "belt": "hei", "trim": "hei"},
+      "weapon": "fist"
+    }
+  },
+  "roles": {
+    "hanli": {"look": "hanli", "variants": [{"max_chapter": 2, "look": "hanli_child"}], "note": "第 1–2 章用童年版"},
+    "zhang_tie": {"look": "zhang_tie", "variants": [{"max_chapter": 2, "look": "zhang_tie_child"}], "note": "第 1–2 章用少年版"},
+    "han_mu": "han_mu",
+    "han_sanshu": "han_sanshu",
+    "qixuan_kaoguan": "qixuan_kaoguan",
+    "mo_daifu": "mo_daifu",
+    "mo_juren": {"look": "mo_daifu", "note": "与墨大夫同一具身子"},
+    "zhen_min_jiaofu": "zhen_min_jiaofu",
+    "zhen_min_jiuke": "zhen_min_jiuke",
+    "zhen_min_yaofan": "zhen_min_yaofan",
+    "qingniu_laohan": "qingniu_laohan",
+    "qingniu_furen": "qingniu_furen",
+    "qingniu_chebashi": "qingniu_chebashi",
+    "qingniu_chatan_huoji": "qingniu_chatan_huoji",
+    "qingniu_haitong": "qingniu_haitong",
+    "qingniu_modaojiang": "qingniu_modaojiang",
+    "li_feiyu": "li_feiyu",
+    "tongmen_luchun": "tongmen_luchun",
+    "tongmen_maliu": "tongmen_maliu",
+    "wairentang_yaoshang": "wairentang_yaoshang",
+    "yaopu_guanshi": "yaopu_guanshi",
+    "wang_juechu": "wang_juechu",
+    "yelangbang_mazei": "yelangbang_mazei",
+    "yelangbang_toumu": "yelangbang_toumu",
+    "jinguang_shangren": "jinguang_shangren",
+    "jia_tianlong": "jia_tianlong",
+    "chuanjia": "chuanjia",
+    "jiayuan_jiefang": "jiayuan_jiefang",
+    "jiayuan_guolu_hanzi": "jiayuan_guolu_hanzi",
+    "mofu_huyuan": "mofu_huyuan",
+    "mofu_huyuan_lingban": "mofu_huyuan_lingban",
+    "mo_fengwu": "mo_fengwu",
+    "mo_caihuan": "mo_caihuan",
+    "mo_yuzhu": "mo_yuzhu",
+    "yan_shi": "yan_shi",
+    "li_shi": "li_shi",
+    "liu_shi": "liu_shi",
+    "wang_shi": "wang_shi",
+    "xiao_jinzhi": "xiao_jinzhi",
+    "yan_ge": "yan_ge",
+    "wu_jianming": "wu_jianming",
+    "ouyang_feitian": "ouyang_feitian",
+    "sun_ergou": "sun_ergou",
+    "xi_tieniu": "xi_tieniu",
+    "lanyi_ren": "lanyi_ren",
+    "hei_xiong": "hei_xiong",
+    "tiequanhui_quanshi": "tiequanhui_quanshi",
+    "tiequanhui_fushou": "tiequanhui_fushou",
+    "matou_dashou": "matou_dashou",
+    "sipingbang_toumu": "sipingbang_toumu",
+    "shen_san": "shen_san",
+    "fan_ju": "fan_ju",
+    "shen_zhongshan": "shen_zhongshan",
+    "qian_jin": "qian_jin",
+    "dubashanzhuang_zhuangding": "dubashanzhuang_zhuangding",
+    "dubashanzhuang_xuntou": "dubashanzhuang_xuntou",
+    "jianjing_zei": "jianjing_zei",
+    "qu_hun": "qu_hun",
+    "qu_hun_huashen": {"look": "qu_hun", "note": "第 6 章以后的身外化身，暂用同一具身子"},
+    "daoyu_husui": {"look": "arch_guard", "note": "第 6 章以后：原型兜底"},
+    "duoding_xiushi": {"look": "arch_demonic_m", "note": "第 6 章以后：原型兜底"},
+    "feng_xi": {"look": "arch_cultivator_m", "note": "第 6 章以后：化形妖修，原型兜底"},
+    "guilingmen_xiushi": {"look": "arch_demonic_m", "note": "第 6 章以后：原型兜底"},
+    "guilingmen_zhanglao": {"look": "arch_demonic_m", "note": "第 6 章以后：原型兜底"},
+    "hehuanzong_xiushi": {"look": "arch_demonic_f", "note": "第 6 章以后：原型兜底"},
+    "huadaowu_dizi": {"look": "arch_disciple", "note": "第 6 章以后：原型兜底"},
+    "huangfenggu_waimen_dizi": {"look": "arch_disciple", "note": "第 6 章以后：原型兜底"},
+    "huangfenggu_zhuji_xiushi": {"look": "arch_cultivator_m", "note": "第 6 章以后：原型兜底"},
+    "jiexiu": {"look": "arch_demonic_m", "note": "第 6 章以后：原型兜底"},
+    "lu_shixiong": {"look": "arch_disciple", "note": "第 6 章以后：原型兜底"},
+    "nangong_wan": {"look": "arch_cultivator_f", "note": "第 6 章以后：原型兜底"},
+    "qingxumen_gaotu": {"look": "arch_disciple", "note": "第 6 章以后：原型兜底"},
+    "wang_chan": {"look": "arch_demonic_m", "note": "第 6 章以后：原型兜底"},
+    "wu_chou": {"look": "arch_demonic_m", "note": "第 6 章以后：原型兜底"},
+    "zi_ling": {"look": "arch_cultivator_f", "note": "第 6 章以后：原型兜底"},
+    "xutian_hudian_kuilei": {"look": "arch_puppet", "note": "第 6 章以后：禁制傀儡，巨汉原型兜底"}
+  }
+}

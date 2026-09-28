@@ -1,0 +1,192 @@
+{
+ "_说明": "由 tools/artgen/fx.py 生成，勿手改。每个图标 16×16，运行时 ×2 绘制。",
+ "categories": {
+  "刀": "attack.blade",
+  "剑": "attack.sword",
+  "土": "element.earth",
+  "拳": "attack.fist",
+  "暗器": "attack.hidden",
+  "木": "element.wood",
+  "毒": "attack.poison",
+  "水": "element.water",
+  "火": "element.fire",
+  "金": "element.metal"
+ },
+ "file": "icons.png",
+ "icons": {
+  "attack.blade": {
+   "name": "刀",
+   "rect": [
+    16,
+    0,
+    16,
+    16
+   ]
+  },
+  "attack.fist": {
+   "name": "拳",
+   "rect": [
+    32,
+    0,
+    16,
+    16
+   ]
+  },
+  "attack.hidden": {
+   "name": "暗器",
+   "rect": [
+    48,
+    0,
+    16,
+    16
+   ]
+  },
+  "attack.poison": {
+   "name": "毒",
+   "rect": [
+    64,
+    0,
+    16,
+    16
+   ]
+  },
+  "attack.sword": {
+   "name": "剑",
+   "rect": [
+    0,
+    0,
+    16,
+    16
+   ]
+  },
+  "element.earth": {
+   "name": "土",
+   "rect": [
+    16,
+    16,
+    16,
+    16
+   ]
+  },
+  "element.fire": {
+   "name": "火",
+   "rect": [
+    0,
+    16,
+    16,
+    16
+   ]
+  },
+  "element.metal": {
+   "name": "金",
+   "rect": [
+    80,
+    0,
+    16,
+    16
+   ]
+  },
+  "element.water": {
+   "name": "水",
+   "rect": [
+    112,
+    0,
+    16,
+    16
+   ]
+  },
+  "element.wood": {
+   "name": "木",
+   "rect": [
+    96,
+    0,
+    16,
+    16
+   ]
+  },
+  "item.chest": {
+   "name": "宝箱",
+   "rect": [
+    16,
+    32,
+    16,
+    16
+   ]
+  },
+  "item.cultivation": {
+   "name": "修为",
+   "rect": [
+    112,
+    16,
+    16,
+    16
+   ]
+  },
+  "item.medicine": {
+   "name": "药",
+   "rect": [
+    32,
+    32,
+    16,
+    16
+   ]
+  },
+  "item.silver": {
+   "name": "碎银",
+   "rect": [
+    0,
+    32,
+    16,
+    16
+   ]
+  },
+  "mark.bp_empty": {
+   "name": "劲·空",
+   "rect": [
+    80,
+    16,
+    16,
+    16
+   ]
+  },
+  "mark.bp_full": {
+   "name": "劲·满",
+   "rect": [
+    64,
+    16,
+    16,
+    16
+   ]
+  },
+  "mark.pointer": {
+   "name": "指针",
+   "rect": [
+    96,
+    16,
+    16,
+    16
+   ]
+  },
+  "mark.stance": {
+   "name": "架势",
+   "rect": [
+    48,
+    16,
+    16,
+    16
+   ]
+  },
+  "mark.unknown": {
+   "name": "未知",
+   "rect": [
+    32,
+    16,
+    16,
+    16
+   ]
+  }
+ },
+ "scale": 2,
+ "size": 16,
+ "version": 1
+}

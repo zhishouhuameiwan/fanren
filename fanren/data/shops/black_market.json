@@ -1,0 +1,33 @@
+{
+  "id": "shop_black_market",
+  "name": "黑市地摊",
+  "nameKey": "shop.name.black_market",
+  "buyRate": 1.8,
+  "sellRate": 0.65,
+  "entries": [
+    {
+      "itemId": "weapon_zhishi_peidao",
+      "price": 90,
+      "stock": 2,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": -1
+    },
+    {
+      "itemId": "talisman_hushen_fu",
+      "price": 54,
+      "stock": 1,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": -1
+    },
+    {
+      "itemId": "herb_qingfeng_cao",
+      "price": 15,
+      "stock": -1,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": -1
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "id": "qingniu_chatan_huoji",
+  "name": "茶摊伙计",
+  "realm": "Mortal",
+  "maxHp": 18,
+  "maxMp": 0,
+  "attack": 2,
+  "defence": 2,
+  "speed": 4,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "青牛镇街上的路人（改编），常住镇上，不挂脚本、不参与战斗，只为把镇子填满。从前这六个位置借用卖药郎、脚夫、镇上酒客三个打探 NPC 的 role，名牌上于是各有三个；如今每人一个自己的 role（map_spec 规则 30）。"
+}

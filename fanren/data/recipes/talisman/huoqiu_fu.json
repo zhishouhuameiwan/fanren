@@ -1,0 +1,24 @@
+{
+  "id": "recipe_huoqiu_fu",
+  "name": "火球符方",
+  "kind": "talisman",
+  "productId": "talisman_huoqiu_fu",
+  "productCount": 2,
+  "difficulty": 20,
+  "requiredProficiency": 6,
+  "inputs": [
+    {
+      "itemId": "material_fuzhi",
+      "count": 2
+    },
+    {
+      "itemId": "material_lingmo",
+      "count": 1
+    },
+    {
+      "itemId": "material_yaodan_1",
+      "count": 1,
+      "catalyst": true
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "id": "story_mo_shouzha",
+  "name": "墨居仁手札",
+  "descKey": "item.desc.story_mo_shouzha",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "改编",
+  "note": "改编。原著里长春功后几层与七毒水的后两味并没有一本「被偷的册子」作载体，本作把它落成实物，是为了让旗标 ch03.miji_done 的那句「备毒与识海一战都以它为前置」在玩家手上成立：后半本的日子与分量对应暗道那十一只笼子（ch03.andao.book），行间另一只年轻的手写的小字是余子童浮出水面的唯一线索（ch03.niao.hand/sign）。章末三大铁则也抄在这本册子上（ch59 原著由余子童口述，本作改由墨居仁的笔记转出，因为节点 12 时余子童已被处决）。"
+}

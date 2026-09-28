@@ -1,0 +1,13 @@
+{
+  "id": "pill_qingling_san",
+  "name": "清灵散",
+  "descKey": "item.desc.pill_qingling_san",
+  "kind": "pill",
+  "grade": 2,
+  "price": 60,
+  "tradeable": true,
+  "restoreHp": 0,
+  "curesPoison": true,
+  "origin": "原著",
+  "note": "原著确证：ch27 墨大夫那四样灵药之一，「世间少有的解毒圣药，能解天下千百种剧毒」。\n\n**它解不掉尸虫丸，这一条是原著明写的**（ch32：可解天下百毒的清灵散竟然对此丸毫无作用；ch66 他把身上那丝阴寒之物翻来覆去试过，清灵散与其余驱毒法子都不奏效）。落到本作里不必另写代码：尸虫丸是剧情状态（旗标 ch03.shichong_wan 加期限，见 src/core/model/Types.h 的注释），本来就不走战斗毒那一套，curesPoison 碰不到它。**第 4 章的文案一个字也没有暗示它能解**，往后也不许暗示。\n\n与 pill_qingdu_san（清毒散，价 45）的分别：清毒散是韩立第 3 章自己配的土方，本条是墨大夫留下的方子，价高一档。两条在战斗里的效果都是 curesPoison——引擎只有这一个开关，这是实情，不必为了区分而给本条添一个假字段。\n\n本章它是「韩神医的药物买卖」里走量的那一味：recipe_qingling_san 难度低、熟练度门槛零，节点 3 开炉第一炉炼的就是它，炼出来挑到山下镇卖（shop_village_general 的 sellRate 0.5，一份换三十块碎银）。"
+}

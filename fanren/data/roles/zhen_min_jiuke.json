@@ -1,0 +1,14 @@
+{
+  "id": "zhen_min_jiuke",
+  "name": "镇上酒客",
+  "realm": "Mortal",
+  "maxHp": 22,
+  "maxMp": 0,
+  "attack": 3,
+  "defence": 2,
+  "speed": 3,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "青牛镇街边喝闲酒的汉子，通用 NPC，在本章讲炼骨崖考核的铃声规矩。青牛镇本身属原著（ch2，七玄门辖下十几个城镇之一），镇民无一具名。id 与 scripts/ch01/zhenmin_jiuke.lua 的 talk() 发言人对齐。"
+}

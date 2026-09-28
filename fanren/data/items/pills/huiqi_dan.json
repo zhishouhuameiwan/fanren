@@ -1,0 +1,13 @@
+{
+  "id": "pill_huiqi_dan",
+  "name": "回气丹",
+  "descKey": "item.desc.pill_huiqi_dan",
+  "kind": "pill",
+  "grade": 2,
+  "price": 500,
+  "tradeable": true,
+  "restoreHp": 0,
+  "restoreMp": 90,
+  "origin": "改编",
+  "note": "全本检索 0 命中，属改编。原著同位概念另有辟谷丹（ch215）等，未直接对应。"
+}

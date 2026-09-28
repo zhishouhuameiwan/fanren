@@ -1,0 +1,40 @@
+{
+  "id": "b04_jia_tianlong",
+  "name": "坊门下的红衣铁卫",
+  "chapter": 4,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "yelangbang_toumu",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "yelangbang_toumu",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "yelangbang_mazei",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 90,
+    "spirit_stones": 24,
+    "drops": [
+      {
+        "item_id": "pill_jinchuang_yao",
+        "count": 2,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch04.battle.jia_tianlong.intro",
+  "origin": "改编",
+  "note": "第 4 章节点 7。山下镇坊门下那一场。\n\n**贾天龙在场，但不在编成里。** 他站在坊墙根下从头看到尾，看完就走了。让玩家在这一节把他打死，与原著 ch94 直接冲突——他要死在节点 9 的最后一波上。所以这一场打的是他那四名红衣铁卫（ch81：五六十名子弟兵，武功精湛、忠心耿耿，平时舍不得用）。本作按泛称处理，复用既有的野狼帮头目与马贼两条角色档，不新建 role：本批的文件白名单只给了贾天龙与金光上人两个新档。\n\ncan_escape 真、defeat_is_fatal 假。输了不是死路：脚本 scripts/ch04/jia_tianlong.lua 里输与逃走同一条——药篓翻了，他空着手爬回山上。**贾天龙叫住手下不是慈悲**：他要七玄门知道他就在山下，一个死人捎不了话。\n\n数值（2026-09-23 按引擎公式重算，复验 N-8；旧稿里平砍与法力那几个数，是技术债 G-10 之前韩立攻写死 6、按炼气七层算的，作废）：两名头目（凡人 64 血 / 攻 11 / 防 8）＋两名马贼（凡人 42 血 / 攻 8 / 防 6），总血 212。\n这一场只能在节点 4 之后打：演武场的门认 ch04.yufeng_xue，坊门这处 trigger 的 guard_flag 是 ch04.kaizhan。所以韩立是炼气八层，攻 15 / 防 8 / 气血 120 / 法力 80（src/core/rules/Realm.h 逐层表，BattleScene 照当前境界取）。\n公式出处 src/core/battle/Damage.cpp：平砍 攻×2−防，法术 power×2−防×0.5；基数先夹到至少 1，再乘境界压制（src/core/rules/Realm.cpp 的 suppressionFactor：炼气打凡人 1.6，凡人打炼气 0.7）与五行系数（这四个人都没有属性，1.0），最后 std::lround。\n  韩立平砍：头目 (15×2−8)×1.6 = 35.2 → 35，马贼 (15×2−6)×1.6 = 38.4 → 38，都是两下一个。\n  火弹（data/magics/huodan_shu.json，power 12 / needMp 8）：头目 (12×2−8×0.5)×1.6 = 32，马贼 (12×2−6×0.5)×1.6 = 33.6 → 34，也都是两发一个；八十点法力放得出十发。\n  他们打韩立：头目 (11×2−8)×0.7 = 9.8 → 10，马贼 (8×2−8)×0.7 = 5.6 → 6；四个人同一回合都够得着的话，一回合 32 点。\n刀与火弹对这四个人一样是两下一个，差别在火弹隔四格（castRange 4）就能先出手，刀得贴上去挨打。这一场是节点 9 的预演：同样的凡人、同样的两下一个，节点 9 多出来的是最后一波那个刀砍不动的人。\n\n【八方旅人化改造 2026-09-25】横版没有格子：上文「火弹隔四格先出手，刀得贴上去挨打」作废——横版里刀与火弹都够得着人，分工改由破绽说话：马贼的破绽是剑与拳，头目的是剑与火。"
+}

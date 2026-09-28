@@ -1,0 +1,35 @@
+{
+  "id": "ch05_nancheng_yaopu",
+  "name": "南城药铺",
+  "nameKey": "ch05.shop.name.nancheng_yaopu",
+  "buyRate": 1.2,
+  "sellRate": 0.8,
+  "entries": [
+    {
+      "itemId": "herb_huangjing_cao",
+      "price": 6,
+      "stock": 16,
+      "restockDays": 10,
+      "restockAmount": 6,
+      "maxStock": 16
+    },
+    {
+      "itemId": "herb_zishen_cao",
+      "price": 7,
+      "stock": 8,
+      "restockDays": 10,
+      "restockAmount": 3,
+      "maxStock": 8
+    },
+    {
+      "itemId": "pill_jinchuang_yao",
+      "price": 24,
+      "stock": 6,
+      "restockDays": 7,
+      "restockAmount": 3,
+      "maxStock": 6
+    }
+  ],
+  "origin": "改编",
+  "note": "第 5 章南陵街上的药铺（ch05_nancheng 的 facility_yaopu）。卖黄精、紫参与金疮药，收药；**不卖清灵散**——清灵散只有客栈药炉炼出来一条路（docs/ch05-design.md 第 9 节）。**与施工图的偏差**：施工图写的是卖「20 年」的黄精、紫参，但商店条目没有年份字段（src/io/ShopLoader.cpp 只读 itemId / price / 库存五项，ShopScene 买进一律按零年入包），这里卖的是零年的，要养精丹得靠掌天瓶催熟或支线 Z1 墨凤舞给的四十年药材。已记进施工图末尾「施工偏差」，商店带年份要引擎路另做。挂牌价按 buyRate 1.2 对基价取整（黄精 5→6、紫参 6→7、金疮药 20→24），与第 2 章外刃堂收药处同一口径；收购 0.8，买进再卖回不赚钱。"
+}

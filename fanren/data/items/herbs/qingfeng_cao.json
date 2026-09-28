@@ -1,0 +1,12 @@
+{
+  "id": "herb_qingfeng_cao",
+  "name": "清风草",
+  "descKey": "item.desc.herb_qingfeng_cao",
+  "kind": "herb",
+  "grade": 1,
+  "price": 8,
+  "tradeable": true,
+  "herbAge": 0,
+  "maxAge": 44,
+  "restoreMp": 5
+}

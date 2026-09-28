@@ -1,0 +1,16 @@
+{
+  "id": "recipe_juqi_san",
+  "name": "聚气散方",
+  "kind": "alchemy",
+  "productId": "pill_juqi_san",
+  "productCount": 2,
+  "difficulty": 12,
+  "requiredProficiency": 5,
+  "inputs": [
+    {
+      "itemId": "herb_qingfeng_cao",
+      "count": 2,
+      "minAge": 10
+    }
+  ]
+}

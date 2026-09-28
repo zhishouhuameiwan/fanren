@@ -1,0 +1,22 @@
+{
+  "id": "wu_chou",
+  "name": "乌丑",
+  "realm": "CoreMid",
+  "maxHp": 900,
+  "maxMp": 600,
+  "attack": 78,
+  "defence": 62,
+  "speed": 32,
+  "element": 4,
+  "magics": [
+    "magic_bingjian_shu",
+    "magic_shenshi_chong",
+    "magic_hushen_gang"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "土"
+  ],
+  "origin": "原著",
+  "note": "极阴祖师孙辈，对韩立天然敌视（ch405-489）。原著他最终死于玄骨之手，本战只是内殿混战中的交手，不以其死亡收场。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+}
