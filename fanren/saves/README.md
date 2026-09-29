@@ -14,7 +14,8 @@ cd H:\Work\Kys\fanren
 .\build-ch05main\fanren.exe --assets . --load saves\ch04-siege.sav
 ```
 
-`--assets` 指资产根目录（`data/` `maps/` `scripts/` `assets/` 的上一级）。
+`--assets` 指资产根目录（`data/` `maps/` `scripts/` `assets/` 的上一级）。不给时从工作目录、exe 目录
+各往上找同时有 `data/` 与 `maps/` 的那一层，所以**直接双击 `build\fanren.exe` 就进标题画面**（「继续旅程」读 `saves/quick.sav`）。
 不给 `--load` 就是从第 1 章新开一局。
 
 **读档失败会如实报错并退出，不会悄悄给你一个新档**——玩家指名要读这一份，

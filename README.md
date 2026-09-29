@@ -35,6 +35,8 @@ cd fanren
 
 ## 运行
 
+构建完直接双击 `fanren\build\fanren.exe` 即可：不给 `--assets` 时，它从当前目录和 exe 所在目录各往上找几层，找到同时有 `data/` 与 `maps/` 的那一层就当游戏目录；找不到或起不来会弹框说原因。命令行照旧可用：
+
 ```powershell
 cd fanren
 .\build\fanren.exe --assets .

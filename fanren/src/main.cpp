@@ -10,8 +10,10 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <filesystem>
 #include <memory>
 #include <string>
+#include <system_error>
 #include <vector>
 
 #include "game/Application.h"
@@ -26,10 +28,13 @@
 #include "game/ShopScene.h"
 #include "game/TitleScene.h"
 #include "game/WorldScene.h"
+#include "io/GameRoot.h"
 #include "io/SaveFile.h"
 #include "io/SettingsFile.h"
 
+#include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_main.h>
+#include <SDL3/SDL_messagebox.h>
 
 namespace {
 
@@ -41,10 +46,32 @@ std::string optionValue(int argc, char** argv, const char* flag) {
     return std::string{};
 }
 
-// 资产根目录。默认取工作目录，允许命令行覆盖，方便从 build/ 直接跑。
+// 资产根目录。给了 --assets 就用它；没给就从工作目录、exe 目录各往上找（io/GameRoot.h）——
+// 双击 build\fanren.exe 时工作目录是 build\，从前一律取「.」，一启动就读不到 data/。
+// 两处都找不到返回空串，由 main 如实报错。
 std::string resolveAssetRoot(int argc, char** argv) {
     const std::string value = optionValue(argc, argv, "--assets");
-    return value.empty() ? std::string(".") : value;
+    if (!value.empty()) return value;
+    std::vector<std::filesystem::path> starts{std::filesystem::path(".")};
+    // SDL_GetBasePath 给的是 UTF-8，按 char8_t 构造才不会被当成本机代码页。
+    if (const char* base = SDL_GetBasePath()) starts.emplace_back(reinterpret_cast<const char8_t*>(base));
+    const std::filesystem::path found = fanren::io::locateGameRoot(starts);
+    if (found.empty()) return std::string{};
+    // 工作目录本身就是根（命令行 cd 到工程根再跑）时照旧给「.」，与改动前一字不差：
+    // string() 要按本机代码页把绝对路径窄化，路径里有代码页表示不了的字的话会坏掉，而「.」不经这一步。
+    std::error_code ec;
+    if (std::filesystem::equivalent(found, ".", ec)) return std::string(".");
+    return found.string();
+}
+
+// 起不来时的报错。fanren.exe 是窗口程序，双击启动时 stderr 没有地方显示，人只看到「点了没反应」，
+// 所以正常游玩时再弹一个框。--headless 与 --screenshot 不弹：那是冒烟与截图脚本在跑，没人去点那个框，
+// 一个模态框会把它们卡死。调用方先 shutdown 再调它：全屏窗口还在的话会把框盖住。
+void reportFatal(bool interactive, const std::string& message) {
+    std::fprintf(stderr, "%s\n", message.c_str());
+    if (interactive) {
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "凡人修仙传", message.c_str(), nullptr);
+    }
 }
 
 bool hasFlag(int argc, char** argv, const char* flag) {
@@ -175,14 +202,23 @@ bool pushPathShot(fanren::game::Application& app, const std::string& arg) {
 }  // namespace
 
 int main(int argc, char** argv) {
-    const std::string assetRoot = resolveAssetRoot(argc, argv);
     // --headless 供 CI 与冒烟脚本使用：不开窗口，跑几帧就退出。
     const bool headless = hasFlag(argc, argv, "--headless");
+    const bool interactive = !headless && optionValue(argc, argv, "--screenshot").empty();
+
+    const std::string assetRoot = resolveAssetRoot(argc, argv);
+    if (assetRoot.empty()) {
+        reportFatal(interactive,
+                    "找不到游戏目录（同时有 data 与 maps 的那一层）。\n"
+                    "请从工程的构建目录（如 fanren\\build）里启动 fanren.exe，或用 --assets 指定。");
+        return 1;
+    }
 
     fanren::game::Application app;
     auto ready = app.init(assetRoot, headless);
     if (!ready) {
-        std::fprintf(stderr, "初始化失败：%s\n", ready.error.c_str());
+        app.shutdown();
+        reportFatal(interactive, "初始化失败：" + ready.error + "\n游戏目录：" + assetRoot);
         return 1;
     }
     // 野外遭遇：Application 缺省关着（几百条无头测试不该冷不丁被拖进一场仗），上线的游戏打开。
@@ -243,8 +279,8 @@ int main(int argc, char** argv) {
         // 悄悄给他一个新档是最糟的那种「成功」。
         auto resumed = app.continueJourney(savePath);
         if (!resumed) {
-            std::fprintf(stderr, "读档失败：%s\n", resumed.error.c_str());
             app.shutdown();
+            reportFatal(interactive, "读档失败：" + resumed.error);
             return 1;
         }
     } else {
@@ -252,8 +288,8 @@ int main(int argc, char** argv) {
             // --load 与 --map 同给：状态取存档，站位取 --map 那张图的出生点。
             auto save = fanren::io::loadGame(savePath);
             if (!save) {
-                std::fprintf(stderr, "读档失败：%s\n", save.error.c_str());
                 app.shutdown();
+                reportFatal(interactive, "读档失败：" + save.error);
                 return 1;
             }
             app.state() = save.value;
@@ -262,8 +298,8 @@ int main(int argc, char** argv) {
             !mapOverride.empty() ? mapOverride : std::string(fanren::game::kNewGameMap);
         auto mapLoaded = app.loadMap(firstMap, std::string{});
         if (!mapLoaded) {
-            std::fprintf(stderr, "载入地图失败：%s\n", mapLoaded.error.c_str());
             app.shutdown();
+            reportFatal(interactive, "载入地图失败：" + mapLoaded.error);
             return 1;
         }
         app.pushScene(std::make_unique<fanren::game::WorldScene>());

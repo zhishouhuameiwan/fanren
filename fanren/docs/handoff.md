@@ -40,6 +40,7 @@ python tools/artgen/artgen.py --check       → ARTGEN_IN_SYNC（约 11–20 秒
 | 测试源文件 | 74 个（系统设置新增 `SettingsFileTests` / `SettingsWiringTests` / `KeyBindingTests`；出入口与人物整理新增 `MapLinkTests` / `NpcPresenceTests`） |
 
 **想手测**：不带参数启动就是标题画面（新的旅程 / 继续旅程 / 设置 / 离开）。
+**双击 `build\fanren.exe`（或桌面上指向它的快捷方式）就能进**：不给 `--assets` 时从工作目录、exe 目录各往上找同时有 `data/` 与 `maps/` 的那层（`src/io/GameRoot.h`，2026-09-28）；起不来弹框说原因（`--headless`、`--screenshot` 不弹）。双击的是 `build\`，**改完代码要重跑一次不带槽名的构建**它才是新的——agent 会话里跑要先清掉 `CLAUDE_CODE_SESSION_ID`，否则落进会话自己的槽（`build_slot.bat`）。
 设置存在 `saves/settings.json`（与存档分开，`--settings <文件>` 指另一份；`--headless` 永不读，`--screenshot` 只在显式给 `--settings` 时只读）。
 存档检查点见 `saves/README.md`；交接存档夹具在 `tests/fixtures/ch0N-end-*.sav`（存档版本 v8）。
 
