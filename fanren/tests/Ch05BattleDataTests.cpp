@@ -408,6 +408,7 @@ TEST_F(Ch05BattleData, TheLegacyPuppetKeepsItsFieldAndItsOneUnit) {
     EXPECT_EQ(r->realm, Realm::QiRefining6) << "施工图 8.3：Realm.h 注释拿它当炼气六层的数据点，数值不动";
 
     // 施工图 8.3：「data/encounters/village_wilds.json 把它列为野外随机遭遇……从这张表里删掉这一条」。
+    //（那张旧表 2026-09-29 已整张删除。）
     // 扫整个遭遇目录（换一张表写进去也不行：墨府地窖里的东西不该在野地里撞上）。
     const auto readAll = [](const fs::path& path) {
         std::ifstream in(path, std::ios::binary);

@@ -6,12 +6,6 @@ import zipfile
 import tarfile
 
 ROOT = pathlib.Path(__file__).resolve().parent
-# Reuse already-downloaded, SHA256-verified archives from the P0 probe (or the
-# archived fanren-sdl3 prototype) instead of re-downloading them.
-REUSE_VENDORS = (
-    ROOT.parent / "probe" / "vendor",
-    ROOT.parent / "_archive" / "fanren-sdl3" / "vendor",
-)
 
 # (archive_name, url, sha256, extracted_dir_name_or_None, kind)
 #   kind: "zip"  -> zip archive, extract into vendor/
@@ -105,13 +99,6 @@ def main():
     vendor.mkdir(exist_ok=True)
     for name, url, checksum, directory, kind in PACKAGES:
         archive = vendor / name
-        if not archive.exists():
-            for reuse_dir in REUSE_VENDORS:
-                source_copy = reuse_dir / name
-                if source_copy.exists():
-                    print(f"Reusing {name} from {reuse_dir}", flush=True)
-                    shutil.copyfile(source_copy, archive)
-                    break
         if not archive.exists():
             temporary = archive.with_suffix(archive.suffix + ".download")
             print(f"Downloading {name}", flush=True)

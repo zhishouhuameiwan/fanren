@@ -2,7 +2,6 @@
   "id": "b08_jinguyuan_weigong",
   "name": "金鼓原·第二轮围攻",
   "chapter": 8,
-  "legacy_id": "B_WAR_2",
   "terrain": "battlefield",
   "can_escape": false,
   "defeat_is_fatal": true,

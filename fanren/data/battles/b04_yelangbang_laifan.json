@@ -2,7 +2,6 @@
   "id": "b04_yelangbang_laifan",
   "name": "门派攻防战·守辕门",
   "chapter": 4,
-  "legacy_id": "B_BANDIT",
   "terrain": "battlefield",
   "can_escape": false,
   "defeat_is_fatal": true,

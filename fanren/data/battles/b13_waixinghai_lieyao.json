@@ -2,7 +2,6 @@
   "id": "b13_waixinghai_lieyao",
   "name": "外星海·五级海兽群",
   "chapter": 13,
-  "legacy_id": "B_SEA_BOSS",
   "terrain": "sea",
   "can_escape": true,
   "defeat_is_fatal": true,

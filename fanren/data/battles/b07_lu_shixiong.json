@@ -2,7 +2,6 @@
   "id": "b07_lu_shixiong",
   "name": "坊市夜路·陆师兄",
   "chapter": 7,
-  "legacy_id": "B_BLOOD_1",
   "terrain": "field",
   "can_escape": false,
   "defeat_is_fatal": true,

@@ -2,7 +2,6 @@
   "id": "b06_huangfenggu_qiecuo",
   "name": "黄枫谷外门切磋",
   "chapter": 6,
-  "legacy_id": "B_HF_TEST",
   "terrain": "field",
   "can_escape": true,
   "defeat_is_fatal": false,

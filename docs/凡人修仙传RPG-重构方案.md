@@ -291,7 +291,7 @@ end
 | fanren-sdl3 | `bootstrap.py`、CMake 结构、`RepeatGate`、bot 思路 | 工程根、`engine/input`、`tests/` | 直接沿用 |
 | kys-cpp | Event 指令集、战斗 AI、UI 绘制顺序 | `script/`、`core/battle/ai`、`ui/` | 只借鉴设计 |
 
-旧工程处理：`fanren-kys`、`fanren-sdl3` 移入 `_archive/` 只读；`kys-cpp` 原位作参考。
+旧工程处理：`fanren-kys`、`fanren-sdl3` 移入 `_archive/` 只读；`kys-cpp` 原位作参考。（2026-09-29：`_archive/`（连同这两份旧工程）与 `kys-cpp/` 均已从磁盘删除，本表只作记录。）
 
 ---
 
@@ -344,7 +344,7 @@ end
 | 1 | 原著文本 | 已提供，位于 `H:/Work/Kys/novel`（GB18030 全本 2451 章，不入库）。P0 校对以原文为唯一依据，fallback 不启用 |
 | 2 | 技术栈 | SDL3 + JSON + Tiled + Lua/sol2 + gtest |
 | 3 | 美术路线 | 先程序生成占位，后整包替换 |
-| 4 | 旧工程 | `fanren-kys`、`fanren-sdl3` 归档到 `_archive/`（P1 建新工程时执行） |
+| 4 | 旧工程 | `fanren-kys`、`fanren-sdl3` 归档到 `_archive/`（P1 建新工程时执行；2026-09-29 连同 `_archive/` 一并删除） |
 | 5 | 章末界定 | 以"启动传送阵返回天南"为准；具体章号与届时境界由 P0 校对定死为硬约束 |
 | 6 | 内容规模 | 物品 150 / 法术 25 / 配方 30 |
 | 7 | 生产方式 | P3–P5 按 7.1 多代理流水线并行 |
@@ -361,7 +361,7 @@ end
 | 人间篇校对 | `docs/lore/人间篇-校对.md` | **完成**（抽查 8/8 吻合，见 `校对抽查记录.md`） |
 | 乱星海篇校对 | `docs/lore/乱星海篇-校对.md` | **完成**（可验证项 10/10 吻合） |
 | 势力与地理表 | `docs/lore/势力与地理.md` | **完成**（抽查 9/9 吻合） |
-| 依赖锁定 + 链接探针 | `docs/deps.md`、`probe/` | **完成**（主控亲自复跑 PROBE_OK，退出码 0） |
+| 依赖锁定 + 链接探针 | `docs/deps.md`、`probe/`（2026-09-29 已删除） | **完成**（主控亲自复跑 PROBE_OK，退出码 0） |
 | 人物总表 | `docs/lore/人物总表.md` | 进行中 |
 | 数字设定汇总 | `docs/lore/数字设定.md` | 进行中 |
 | 逐章大纲 v3 | `docs/大纲.md` | **完成**（12 章；14 章备选待拍板） |

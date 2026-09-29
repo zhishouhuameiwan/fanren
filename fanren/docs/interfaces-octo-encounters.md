@@ -35,8 +35,9 @@
 - 字段都照 `rules::EncounterTable`；`stepsMin` / `stepsMax` / `dailyCap` 可选（区上写了以区为准，见第 3 节）。
 - 加载器口径「写了就得写对」：`entries` 非空；`battleId` 在 `data/battles` 里；`weight` ≥ 1；
   境界写枚举标识符（与 `data/roles` 的 `realm` 同一套，对照表只在 `io::parseRealmName` 一处）、下不高于上。
-- 早年的三张（`mountain_road` / `secret_realm` / `village_wilds`）照旧加载、**没挂在任何图上**：它们引用的是剧情战。
-  哪天有人把它们挂上图，门禁规则 27 的编成那一截当场会报（id 不以 `be` 打头、输了会 game over）。
+- 早年的三张（`mountain_road` / `secret_realm` / `village_wilds`）引用的是剧情战、没挂在任何图上，**2026-09-29 清理时已删**；
+  现存的三张（`ch03_guwai` / `ch05_dukou` / `ch05_linzi`）都挂在图上。哪张表若混进剧情战又挂上了图，
+  门禁规则 27 的编成那一截当场会报（id 不以 `be` 打头、输了会 game over）。
 
 ## 3. 遭遇区（地图 `encounter` 对象，map_spec 4.5）与触发规则
 

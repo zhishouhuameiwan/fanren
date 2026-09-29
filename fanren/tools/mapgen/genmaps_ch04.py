@@ -208,16 +208,6 @@ def map_props(map_id, bgm, outdoor=True):
     ]
 
 
-def battle_anchor(name, x, y, w, h, terrain, ally_zone, enemy_zone):
-    """战斗地形锚点（map_spec 4.7）。引擎目前不消费它，校验器查三个必填属性。
-
-    摆它是为了让战斗场景取地形与初始站位时有据可依，而不是让战斗数据里
-    再抄一遍坐标 —— 抄两遍的东西迟早会对不上。
-    """
-    return obj(name, "battle_anchor", x, y, w, h,
-               terrain=terrain, ally_zone=ally_zone, enemy_zone=enemy_zone)
-
-
 # ---------------------------------------------------------------------------
 # 网格小工具（与 genmaps_ch02/ch03 同形；那两边的没有导出，这里各留一份）
 # ---------------------------------------------------------------------------
@@ -473,7 +463,8 @@ def make_getang():
 # 四张里最大的一张，理由只有一个：门派攻防战是多波次的
 # （docs/interfaces-p3-ch04.md §2：打完一波下一波进场，中途不回血不重置），
 # 战场小了，第二波压上来时根本没有地方站。所以校场中段 x4..43 / y14..35
-# 整整一片四十乘二十二格全留空，battle_anchor_gongfang 就框在那里。
+# 整整一片四十乘二十二格全留空（战棋时代 battle_anchor_gongfang 就框在那里；
+# 那个对象 2026-09-29 已删，场地布局照旧）。
 #
 #   西辕门：一条八格深、两格宽的甬道，两侧砌墙 —— 全图唯一的入口。
 #           节点 6 与节点 9 两处 enter 触发前后相邻各占一格（见第三节，
@@ -533,8 +524,6 @@ def make_yanwuchang():
         # ---- 节点 5：法武并用（演武台台面正中）----
         trigger("trigger_qiecuo", 23, 7, "ch04/qiecuo.lua", "interact", True, w=2,
                 set_flag="ch04.fawu_bingyong"),
-        battle_anchor("battle_anchor_qiecuo", 18, 4, 12, 8, "battlefield",
-                      ally_zone="20,9,3,2", enemy_zone="25,5,3,2"),
 
         # ---- 节点 6：野狼帮来犯，开战（甬道末格）----
         # 切磋完从台上回西门，出甬道之前必踩这一格 —— 号角是在他背后响的。
@@ -544,8 +533,6 @@ def make_yanwuchang():
         # ---- 节点 9：门派攻防战（甬道口外第一格；与上一处不同格）----
         trigger("trigger_gongfang", 9, 20, "ch04/gongfang.lua", "enter", True, h=2,
                 guard_flag="ch04.jinguang_jian", set_flag="ch04.gongfang_zhan"),
-        battle_anchor("battle_anchor_gongfang", 4, 14, 40, 22, "battlefield",
-                      ally_zone="6,22,4,4", enemy_zone="36,22,4,4"),
 
         # ---- 节点 10：战利品（焦土。剑符与那块牌子都在这儿）----
         # 设计文档 1.1：那块牌子在本章不得有名字、不得有任何用途暗示。
@@ -624,8 +611,6 @@ def make_shanxiazhen():
         # ---- 节点 7：贾天龙现身（坊门，下市集必踩）----
         trigger("trigger_jia_tianlong", 19, 17, "ch04/jia_tianlong.lua", "enter", True, w=2,
                 guard_flag="ch04.kaizhan", set_flag="ch04.jia_tianlong"),
-        battle_anchor("battle_anchor_jia", 8, 18, 24, 10, "field",
-                      ally_zone="18,25,4,2", enemy_zone="18,19,4,2"),
 
         # ---- 药市：节点 3 开炉之后的经营循环要走这一趟 ----
         facility("facility_yaoshi", 12, 21, "shop", w=2, h=2,

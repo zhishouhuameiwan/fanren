@@ -2,7 +2,6 @@
   "id": "b10_liuliandian_weisha",
   "name": "六连殿委托·围杀海兽",
   "chapter": 10,
-  "legacy_id": "B_SEA_1",
   "terrain": "sea",
   "can_escape": true,
   "defeat_is_fatal": true,

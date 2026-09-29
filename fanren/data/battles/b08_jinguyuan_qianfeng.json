@@ -2,7 +2,6 @@
   "id": "b08_jinguyuan_qianfeng",
   "name": "金鼓原·前锋遭遇",
   "chapter": 8,
-  "legacy_id": "B_WAR_1",
   "terrain": "battlefield",
   "can_escape": true,
   "defeat_is_fatal": true,

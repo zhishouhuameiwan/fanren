@@ -2,7 +2,6 @@
   "id": "b03_shihai_duoshe",
   "name": "识海夺舍",
   "chapter": 3,
-  "legacy_id": "B_MO_SOUL",
   "terrain": "mind",
   "can_escape": false,
   "defeat_is_fatal": true,

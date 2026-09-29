@@ -1,10 +1,10 @@
 {
-  "_doc": "战斗背景指派（人工维护）：battle_id → assets/art/battle/<backdrop>/ 那一套四层图。依据：这一仗由哪个脚本在哪张图上发起（scripts/chNN/*.lua 里的 battle(\"...\") 与 maps/*.tmj 的触发器）、那张图上 battle_anchor 的 terrain、以及设计文档里这一仗的时辰。野外遭遇（be*）按遭遇所在的那张图与那张图烘焙的时辰指派——走在暮色里的图上，开打时背景不该换成白天。没写在这里的战斗由运行时退回所在地图 meta.json 的 backdrop。",
+  "_doc": "战斗背景指派（人工维护）：battle_id → assets/art/battle/<backdrop>/ 那一套四层图。依据：这一仗由哪个脚本在哪张图上发起（scripts/chNN/*.lua 里的 battle(\"...\") 与 maps/*.tmj 的触发器）、那张图是什么地方（洞窟、野外、镇上……）、以及设计文档里这一仗的时辰。野外遭遇（be*）按遭遇所在的那张图与那张图烘焙的时辰指派——走在暮色里的图上，开打时背景不该换成白天。没写在这里的战斗由运行时退回所在地图 meta.json 的 backdrop。",
   "battles": {
     "b03_andao_shishou": {
       "backdrop": "cave_tunnel",
       "map": "ch03_andao",
-      "why": "暗道石室（battle_anchor terrain=cave）"
+      "why": "暗道石室（洞窟）"
     },
     "b03_gu_wai_elang": {
       "backdrop": "mountain_forest_dusk",

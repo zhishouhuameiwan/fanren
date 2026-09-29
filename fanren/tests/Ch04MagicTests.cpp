@@ -46,7 +46,6 @@ using fanren::game::Application;
 using fanren::game::BattleMenuMode;
 using fanren::game::BattleScene;
 using fanren::game::kBattleMenuCast;
-using fanren::game::kBattleMenuDefend;
 using fanren::io::kSaveVersion;
 using fanren::rules::Realm;
 
@@ -577,50 +576,38 @@ TEST_F(Ch04MagicBattleTest, TheLearnedMagicReachesTheBattlefieldAndCanActuallyBe
         << "第 3 章定的口径：声明几条就是几条，不许退回「战场登记的都会」";
 
     const int mpBefore = scene.battle().units()[0].mp;
-    bool cast = false;
     // 走真实行动序：狼比韩立快（身法 9 对 5），先让它们出手。横版没有射程，
-    // 轮到他就放得出来；下面那一支「点不动就运功等一轮」是战棋时代留下的，现在走不到。
-    for (int turn = 0; turn < 20 && !cast; ++turn) {
-        const int actor = scene.runToAllyTurn();
-        ASSERT_GE(actor, 0) << "战斗先结束了，这一条就什么也没测到";
-        scene.openMenu(app_);
-        ASSERT_EQ(scene.menuMode(), BattleMenuMode::Root);
+    // 第一次轮到他就放得出来。
+    const int actor = scene.runToAllyTurn();
+    ASSERT_GE(actor, 0) << "战斗先结束了，这一条就什么也没测到";
+    scene.openMenu(app_);
+    ASSERT_EQ(scene.menuMode(), BattleMenuMode::Root);
 
-        const fanren::ui::ListItem& castRow =
-            scene.menuList().items()[static_cast<std::size_t>(kBattleMenuCast)];
-        ASSERT_TRUE(castRow.enabled) << "学过了，这一项就该亮：" << castRow.disabledReason;
-        ASSERT_TRUE(scene.menuChoose(app_, kBattleMenuCast));
-        ASSERT_EQ(scene.menuMode(), BattleMenuMode::Magic);
+    const fanren::ui::ListItem& castRow =
+        scene.menuList().items()[static_cast<std::size_t>(kBattleMenuCast)];
+    ASSERT_TRUE(castRow.enabled) << "学过了，这一项就该亮：" << castRow.disabledReason;
+    ASSERT_TRUE(scene.menuChoose(app_, kBattleMenuCast));
+    ASSERT_EQ(scene.menuMode(), BattleMenuMode::Magic);
 
-        const int row = indexOfLabel(scene.menuList(), kKnownMagicName);
-        ASSERT_GE(row, 0) << "施法列表里找不到刚学会的那一门";
-        const fanren::ui::ListItem& magicRow =
-            scene.menuList().items()[static_cast<std::size_t>(row)];
-        if (!magicRow.enabled) {
-            // 够不着。禁用理由照样要有内容（本项目的硬口径），然后运功等一轮。
-            ASSERT_FALSE(magicRow.disabledReason.empty());
-            scene.menuBack(app_);
-            ASSERT_EQ(scene.menuMode(), BattleMenuMode::Root);
-            ASSERT_TRUE(scene.menuChoose(app_, kBattleMenuDefend));
-            continue;
+    const int row = indexOfLabel(scene.menuList(), kKnownMagicName);
+    ASSERT_GE(row, 0) << "施法列表里找不到刚学会的那一门";
+    const fanren::ui::ListItem& magicRow =
+        scene.menuList().items()[static_cast<std::size_t>(row)];
+    ASSERT_TRUE(magicRow.enabled) << "横版没有射程，轮到他就该放得出来：" << magicRow.disabledReason;
+
+    ASSERT_TRUE(scene.menuChoose(app_, row));
+    ASSERT_EQ(scene.menuMode(), BattleMenuMode::Target);
+    int target = -1;
+    for (int i = 0; i < scene.menuList().count(); ++i) {
+        const fanren::ui::ListItem& item = scene.menuList().items()[static_cast<std::size_t>(i)];
+        if (item.enabled && item.label != "返回") {
+            target = i;
+            break;
         }
-
-        ASSERT_TRUE(scene.menuChoose(app_, row));
-        ASSERT_EQ(scene.menuMode(), BattleMenuMode::Target);
-        int target = -1;
-        for (int i = 0; i < scene.menuList().count(); ++i) {
-            const fanren::ui::ListItem& item = scene.menuList().items()[static_cast<std::size_t>(i)];
-            if (item.enabled && item.label != "返回") {
-                target = i;
-                break;
-            }
-        }
-        ASSERT_GE(target, 0);
-        ASSERT_TRUE(scene.menuChoose(app_, target));
-        cast = true;
     }
+    ASSERT_GE(target, 0);
+    ASSERT_TRUE(scene.menuChoose(app_, target));
 
-    ASSERT_TRUE(cast) << "二十个回合都没能把刚学会的法术放出去";
     EXPECT_TRUE(logHas(scene.battle(), kKnownMagicName)) << "战斗日志上没有这一击";
     const fanren::core::Magic* magic = app_.data().findMagic(kKnownMagic);
     ASSERT_NE(magic, nullptr);

@@ -2,7 +2,6 @@
   "id": "b06_shengxianling_jiesha",
   "name": "升仙令劫杀",
   "chapter": 6,
-  "legacy_id": "B_MARKET_THIEF",
   "terrain": "field",
   "can_escape": true,
   "defeat_is_fatal": true,

@@ -1,7 +1,7 @@
 # 八方旅人化改造 · 施工图（第 1–5 章）
 
 > 2026-09-25 · 协调者起草 · **用户已授权全程不再确认，疑问一律按本文推荐方案走**，直到第 1–5 章做完。
-> 改造前的源码快照：`H:\Work\Kys\_archive\fanren-snapshot-20260925-pre-octopath`（615 个文件，回滚与比对用）。
+> 改造前的源码快照：`H:\Work\Kys\_archive\fanren-snapshot-20260925-pre-octopath`（615 个文件，回滚与比对用）——**2026-09-29 已删除**；八方旅人化之前的源码已不存在，git 历史从 84f30df 起。
 > 改造前基线（槽 `octo` 实测）：1062 个测试全绿，三道门禁全过。截图在协调者 scratchpad 的 `before/`。
 
 本文是这一轮改造的**唯一施工依据**。各路代理的战场、接口与验收以本文为准；与旧文档冲突时，
@@ -243,7 +243,7 @@ SDL 类型仍不出头文件。新增（签名以实现为准，这里是能力�
 | A1 地图美术 | 地图烘焙 24 张 + 战斗背景 14 套 + 标题背景；`artgen.py` 入口与 `--check` 门禁 | 共享树 | `tools/artgen/**`（除 sprites/fx 系列）、`assets/art/maps|battle|title/**`、`data/visual/maps.json|battles.json`、`docs/art-maps.md` | 无 |
 | A2 人物美术 | 外观表、人物/敌人/物件精灵、特效贴图、UI 小图标 | 共享树 | `tools/artgen/sprites*.py|fx*.py|sprite_preview.py`、`assets/art/sprites|fx|ui/**`、`data/visual/looks.json`、`docs/art-sprites.md` | 无 |
 | E 引擎 | Engine 新接口、PostFx、Particles、`--scene fxdemo` | 共享树 | `src/engine/**`、`src/game/FxDemoScene.*`、`src/main.cpp`（仅 fxdemo 分支）、`tests/EngineTests|PostFxTests|ParticlesTests.cpp`、`docs/interfaces-octo-engine.md` | `engfx` |
-| B1 战斗 | 战棋 → 横版破势与蓄劲：规则、数据字段、加载、校验、存档 v7、战斗场景功能版、核心单测 | **隔离副本 `H:\Work\Kys\fanren-battle`** | 副本内战斗相关全部；**不碰共享树** | 副本内 `b1` |
+| B1 战斗 | 战棋 → 横版破势与蓄劲：规则、数据字段、加载、校验、存档 v7、战斗场景功能版、核心单测 | **隔离副本 `H:\Work\Kys\fanren-battle`**（09-26 已合回共享树，副本不复存在；其归档 2026-09-29 已删） | 副本内战斗相关全部；**不碰共享树** | 副本内 `b1` |
 | P 路径行动 | 规则层、加载器、校验、第 1–5 章数据与文案（游戏层入口后接） | 共享树 | `src/core/rules/PathActions.*`、`src/io/PathActionLoader.*`、Types.h 只追加、`tools/validate*.py` 只加函数、`data/pathactions/**`、`data/text/chNN_path.json`、`data/flags.json` 只追加、`tests/PathActionTests.cpp`、`docs/interfaces-octo-pathactions.md` | `pathact` |
 
 | R5 第 5 章校对 | 第 5 章内容的独立校对（设计第 15 节验收第 19 条，原计划中唯一未做的一项）；战斗平衡不在范围 | 共享树只读 | 只新建 `docs/ch05-review.md` | 不构建 |
@@ -310,7 +310,7 @@ A1 / U / P / C5F / W / B1 六路在半途被掐断。额度于 09-26 04:00 PT �
 - **B2 战斗平衡**交付（副本 1086/1086 全绿）：共用的「那只手」`tests/BattleHand.h`（第 4 章 189 格扫描全胜、背包一维三列逐字相同）；暗道恢复「砍不动就下毒」；攻防「最少几瓶」围歼最贵、上限恰为设计的 8；第 5 章十场全在斩杀线内、意图玩家一格不 game_over；`killable_by`（欧阳飞天只能被「金」要命）、吴剑鸣总被擒、巡庄迷倒；四场切磋编成与新角色建好；六份交接存档与两份手测存档重生成（存档 v7）。
 - **战斗合回共享树**（协调者，09-26）：`scratchpad/coord/merge_copy.py` 以改造前快照为基三方合并 180 个文件——144 取副本、12 新增、4 自动合并（Types.h / DataLoader.cpp / flags.json / ch05_quests.json）、2 删除；手解 5 处：`ch05_main.json`、`ch05-design.md` 取副本（副本是「同步点 + B2」的超集），`octopath-overhaul.md` 取共享树，`validate.py` / `validate_selftest.py` 取并集。**门禁撞号**：两边都叫「规则 24」——破势与蓄劲占 24、25，路径行动改叫 **26**。**类别名统一成中文**：路径行动加载器改用 `core::categoryFromName`，数据、门禁、单测、契约同步；四场切磋去掉 `pending`。门禁 0 错 0 警。
 
-- **合回后全量构建**（协调者槽 `octo`，09-27 00:58）：修掉一处合并副作用（路径行动 selftest 的探针编成还是战棋格式，被规则 24 拦下）后，四道门禁全过，**1276/1276**，零警告。副本已归档到 `H:\Work\Kys\_archive\fanren-battle-merged-20260926`，此后一律在共享树上干。
+- **合回后全量构建**（协调者槽 `octo`，09-27 00:58）：修掉一处合并副作用（路径行动 selftest 的探针编成还是战棋格式，被规则 24 拦下）后，四道门禁全过，**1276/1276**，零警告。副本已归档到 `H:\Work\Kys\_archive\fanren-battle-merged-20260926`（该归档 2026-09-29 已删除），此后一律在共享树上干。
 
 ### 第三批（已派，09-27 01:00）
 

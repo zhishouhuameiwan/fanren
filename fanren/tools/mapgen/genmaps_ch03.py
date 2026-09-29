@@ -165,16 +165,6 @@ def map_props(map_id, bgm, outdoor=True):
     ]
 
 
-def battle_anchor(name, x, y, w, h, terrain, ally_zone, enemy_zone):
-    """战斗地形锚点（map_spec 4.7）。引擎目前不消费它，校验器查三个必填属性。
-
-    摆它是为了让战斗场景取地形与初始站位时有据可依，而不是让战斗数据里
-    再抄一遍坐标 —— 抄两遍的东西迟早会对不上。
-    """
-    return obj(name, "battle_anchor", x, y, w, h,
-               terrain=terrain, ally_zone=ally_zone, enemy_zone=enemy_zone)
-
-
 def encounter(name, x, y, w, h, table_id, steps_min, steps_max, require_flag=None):
     """野外遭遇区（map_spec 4.5；docs/interfaces-octo-encounters.md 第 3 节）。
 
@@ -488,8 +478,6 @@ def make_andao():
         # ---- 节点 8 下半：暗道一战（石室北口，下来必踩） ----
         trigger("trigger_andao_zhan", 13, 17, "ch03/andao_zhan.lua", "enter", True, w=2,
                 set_flag="ch03.andao_zhan"),
-        battle_anchor("battle_anchor_andao", 8, 17, 17, 8, "cave",
-                      ally_zone="12,22,5,2", enemy_zone="12,18,5,2"),
 
         facility("facility_cunji", 9, 23, "save"),
 
@@ -512,8 +500,8 @@ def make_andao():
 #
 #   · 夹道西口横着 trigger_elang（enter + once），走出夹道必踩 —— 第一场仗
 #     是本章的开场，不能让玩家绕过去；
-#   · 坡上零散树与岩，正是教学要教的「地形」；battle_anchor 的两处初始区
-#     都避开它们（我方在东南、敌方在西北，隔着半片坡对起来）。
+#   · 坡上零散树与岩，是战棋时代教学要教的「地形」；横版战斗不取地图上的
+#     站位，当年框这片坡的 battle_anchor 已于 2026-09-29 删除。
 #
 # 北面崖根一道石缝是暗道的南口（ch03.andao_zhan 之后才认得出来）；
 # 南面林子里一条山口是章末离谷的去处 —— 它不通向任何地图，是条死路，
@@ -568,8 +556,6 @@ def make_guwai():
         # ---- 节点 1：谷外遇狼（战棋教学一；出夹道必踩） ----
         trigger("trigger_elang", 23, 14, "ch03/elang.lua", "enter", True, h=2,
                 set_flag="ch03.elang_done"),
-        battle_anchor("battle_anchor_elang", 8, 16, 14, 10, "field",
-                      ally_zone="17,23,4,2", enemy_zone="10,17,4,2"),
 
         # ---- 节点 12：离谷（山口尽头） ----
         trigger("trigger_ligu", 19, 26, "ch03/ligu.lua", "interact", True, w=2,

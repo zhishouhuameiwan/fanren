@@ -89,20 +89,6 @@ TEST(InkGoldTheme, TheTokensAreTheConstructionDrawingsValues) {
     expectColor(theme.azure, 0x5B, 0x8F, 0xD6, 255, "azure");
 }
 
-TEST(InkGoldTheme, TheContractFieldsWearTheSameColoursAsTheirTokens) {
-    // 契约里按用途命名的五个旧字段（BattleScene 等还在用）必须就是那几个 token，
-    // 否则同一屏上会出现两套金色。
-    const fanren::ui::Theme theme;
-    const auto same = [](const Color& a, const Color& b) {
-        return a.r == b.r && a.g == b.g && a.b == b.b && a.a == b.a;
-    };
-    EXPECT_TRUE(same(theme.panelFill, theme.ink));
-    EXPECT_TRUE(same(theme.panelEdge, theme.gold));
-    EXPECT_TRUE(same(theme.text, theme.paper));
-    EXPECT_TRUE(same(theme.textDim, theme.paperDim));
-    EXPECT_TRUE(same(theme.highlight, theme.goldBright));
-}
-
 TEST(InkGoldTheme, TheSkinChangedButTheLayoutMetricsDidNot) {
     // 换皮不换摆位：各面板能显示几行、对话框不出屏，全建在这四个数上（ListLayoutTests）。
     const fanren::ui::Theme theme;

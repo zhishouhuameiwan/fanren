@@ -12,9 +12,10 @@ rem   1. first argument           build.bat myslot  -> build-myslot\
 rem   2. FANREN_BUILD_SLOT        set once per shell
 rem   3. CLAUDE_CODE_SESSION_ID   first 8 chars -- an agent session isolates
 rem                               itself with no slot to claim. The older
-rem                               build_a..d.bat scheme is unused (its four
-rem                               directories went cold within hours) precisely
-rem                               because it made a human pick a letter.
+rem                               build_a..d.bat scheme (deleted in the
+rem                               2026-09-29 cleanup) died because it made a
+rem                               human pick a letter: its four directories
+rem                               went cold within hours.
 rem   4. nothing                  build\ -- unchanged default for humans
 rem
 rem Deliberately no setlocal: exporting those two variables IS this script's job.

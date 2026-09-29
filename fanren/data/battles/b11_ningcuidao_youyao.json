@@ -2,7 +2,6 @@
   "id": "b11_ningcuidao_youyao",
   "name": "凝翠岛诱妖",
   "chapter": 11,
-  "legacy_id": "B_SEA_2",
   "terrain": "sea",
   "can_escape": true,
   "defeat_is_fatal": true,

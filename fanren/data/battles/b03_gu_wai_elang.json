@@ -2,7 +2,6 @@
   "id": "b03_gu_wai_elang",
   "name": "谷外恶狼",
   "chapter": 3,
-  "legacy_id": "B_WOLF",
   "terrain": "field",
   "can_escape": true,
   "defeat_is_fatal": true,

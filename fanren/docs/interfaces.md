@@ -319,7 +319,7 @@ int unitIndexAt(Point cell) const;           // 无单位返回 -1
 | 敌方逃跑 | 本期不支持（`BattlePhase::Escaped` 只有一个落点） | P2 需要时再扩 phase |
 | 护盾档位 | 用 `rules::tierOf()` 而非境界编号算 | 境界编号不连续（筑基 21、结丹 31），按编号算会让结丹凭空多出一截护盾 |
 
-战斗规则要点（从已归档的 `_archive/fanren-kys/src/BattleScene.cpp` 迁移，但必须与绘制解耦）：
+战斗规则要点（从最早原型 fanren-kys 的 `src/BattleScene.cpp` 迁移，但必须与绘制解耦；那份归档 `_archive/fanren-kys/` 已于 2026-09-29 删除）：
 行动序按身法、五行相克系数、境界压制（用 `rules::suppressionFactor`）、护体罡气、眩晕、逃跑。
 
 ---

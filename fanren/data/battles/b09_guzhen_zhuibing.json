@@ -2,7 +2,6 @@
   "id": "b09_guzhen_zhuibing",
   "name": "古传送阵洞窟追兵",
   "chapter": 9,
-  "legacy_id": "B_TRANSFER_GUARD",
   "terrain": "cave",
   "can_escape": true,
   "defeat_is_fatal": true,

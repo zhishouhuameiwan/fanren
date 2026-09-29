@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 9,
+  "nextobjectid": 8,
   "tilesets": [
     {
       "firstgid": 1,
@@ -285,34 +285,6 @@
         },
         {
           "id": 6,
-          "name": "battle_anchor_elang",
-          "type": "battle_anchor",
-          "x": 256,
-          "y": 512,
-          "width": 448,
-          "height": 320,
-          "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "terrain",
-              "type": "string",
-              "value": "field"
-            },
-            {
-              "name": "ally_zone",
-              "type": "string",
-              "value": "17,23,4,2"
-            },
-            {
-              "name": "enemy_zone",
-              "type": "string",
-              "value": "10,17,4,2"
-            }
-          ]
-        },
-        {
-          "id": 7,
           "name": "trigger_ligu",
           "type": "trigger",
           "x": 608,
@@ -345,7 +317,7 @@
           ]
         },
         {
-          "id": 8,
+          "id": 7,
           "name": "encounter_huangpo",
           "type": "encounter",
           "x": 32,

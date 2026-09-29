@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 10,
+  "nextobjectid": 8,
   "tilesets": [
     {
       "firstgid": 1,
@@ -219,34 +219,6 @@
         },
         {
           "id": 4,
-          "name": "battle_anchor_qiecuo",
-          "type": "battle_anchor",
-          "x": 576,
-          "y": 128,
-          "width": 384,
-          "height": 256,
-          "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "terrain",
-              "type": "string",
-              "value": "battlefield"
-            },
-            {
-              "name": "ally_zone",
-              "type": "string",
-              "value": "20,9,3,2"
-            },
-            {
-              "name": "enemy_zone",
-              "type": "string",
-              "value": "25,5,3,2"
-            }
-          ]
-        },
-        {
-          "id": 5,
           "name": "trigger_kaizhan",
           "type": "trigger",
           "x": 256,
@@ -284,7 +256,7 @@
           ]
         },
         {
-          "id": 6,
+          "id": 5,
           "name": "trigger_gongfang",
           "type": "trigger",
           "x": 288,
@@ -322,35 +294,7 @@
           ]
         },
         {
-          "id": 7,
-          "name": "battle_anchor_gongfang",
-          "type": "battle_anchor",
-          "x": 128,
-          "y": 448,
-          "width": 1280,
-          "height": 704,
-          "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "terrain",
-              "type": "string",
-              "value": "battlefield"
-            },
-            {
-              "name": "ally_zone",
-              "type": "string",
-              "value": "6,22,4,4"
-            },
-            {
-              "name": "enemy_zone",
-              "type": "string",
-              "value": "36,22,4,4"
-            }
-          ]
-        },
-        {
-          "id": 8,
+          "id": 6,
           "name": "trigger_zhanlipin",
           "type": "trigger",
           "x": 1152,
@@ -388,7 +332,7 @@
           ]
         },
         {
-          "id": 9,
+          "id": 7,
           "name": "facility_cunji",
           "type": "facility",
           "x": 96,

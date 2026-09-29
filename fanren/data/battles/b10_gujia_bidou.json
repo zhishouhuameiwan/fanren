@@ -2,7 +2,6 @@
   "id": "b10_gujia_bidou",
   "name": "代顾家比斗",
   "chapter": 10,
-  "legacy_id": "B_CHEN",
   "terrain": "field",
   "can_escape": true,
   "defeat_is_fatal": false,

@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 9,
+  "nextobjectid": 8,
   "tilesets": [
     {
       "firstgid": 1,
@@ -280,34 +280,6 @@
         },
         {
           "id": 6,
-          "name": "battle_anchor_jia",
-          "type": "battle_anchor",
-          "x": 256,
-          "y": 576,
-          "width": 768,
-          "height": 320,
-          "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "terrain",
-              "type": "string",
-              "value": "field"
-            },
-            {
-              "name": "ally_zone",
-              "type": "string",
-              "value": "18,25,4,2"
-            },
-            {
-              "name": "enemy_zone",
-              "type": "string",
-              "value": "18,19,4,2"
-            }
-          ]
-        },
-        {
-          "id": 7,
           "name": "facility_yaoshi",
           "type": "facility",
           "x": 384,
@@ -330,7 +302,7 @@
           ]
         },
         {
-          "id": 8,
+          "id": 7,
           "name": "npc_zhen_min_yaofan",
           "type": "npc",
           "x": 448,

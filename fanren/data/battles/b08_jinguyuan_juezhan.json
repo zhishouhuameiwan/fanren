@@ -2,7 +2,6 @@
   "id": "b08_jinguyuan_juezhan",
   "name": "金鼓原决战",
   "chapter": 8,
-  "legacy_id": "B_WAR_BOSS",
   "terrain": "battlefield",
   "can_escape": false,
   "defeat_is_fatal": true,

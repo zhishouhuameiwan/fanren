@@ -2,7 +2,6 @@
   "id": "b12_neidian_duoding",
   "name": "内殿夺鼎混战",
   "chapter": 12,
-  "legacy_id": "B_XT_BOSS",
   "terrain": "secret",
   "can_escape": false,
   "defeat_is_fatal": true,

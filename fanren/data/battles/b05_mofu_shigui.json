@@ -2,7 +2,6 @@
   "id": "b05_mofu_shigui",
   "name": "墨府地窖尸傀",
   "chapter": 5,
-  "legacy_id": "B_MO_PUPPET",
   "terrain": "indoor",
   "can_escape": false,
   "defeat_is_fatal": true,

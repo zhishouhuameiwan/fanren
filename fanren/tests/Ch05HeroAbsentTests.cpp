@@ -83,7 +83,7 @@ fanren::core::Result<fanren::core::BattleSetup> loadProbe(const std::string& her
     const fs::path file = tmp.path() / "probe.json";
     std::ofstream out(file, std::ios::binary);
     out << R"({"id":"b_probe","name":"探针","chapter":5,"terrain":"field",)"
-        << R"("width":12,"height":10,"can_escape":false,"defeat_is_fatal":false,)"
+        << R"("can_escape":false,"defeat_is_fatal":false,)"
         << heroAbsentField << R"("units":)" << unitsJson
         << R"(,"rewards":{"cultivation":0,"spirit_stones":0,"drops":[]}})";
     out.close();
@@ -91,7 +91,7 @@ fanren::core::Result<fanren::core::BattleSetup> loadProbe(const std::string& her
 }
 
 const std::string kAllyAndFoe =
-    R"([{"role_id":"qu_hun","x":2,"y":4,"faction":"ally"},{"role_id":"wild_wolf","x":9,"y":4}])";
+    R"([{"role_id":"qu_hun","faction":"ally"},{"role_id":"wild_wolf"}])";
 
 TEST(Ch05HeroAbsentLoading, TheSwitchIsOffUnlessWritten) {
     const auto loaded = loadProbe("", kAllyAndFoe);
@@ -121,12 +121,12 @@ TEST(Ch05HeroAbsentLoading, ASwitchThatIsNotABooleanIsRefused) {
 
 TEST(Ch05HeroAbsentLoading, ASwitchedOnFightWithNoAllyIsRefusedAtLoadTime) {
     const auto loaded = loadProbe(R"("hero_absent":true,)",
-                                  R"([{"role_id":"wild_wolf","x":9,"y":4},{"role_id":"wild_wolf","x":9,"y":5}])");
+                                  R"([{"role_id":"wild_wolf"},{"role_id":"wild_wolf"}])");
     EXPECT_FALSE(loaded.ok) << "开了开关却一个友军也没有：那是一场只有敌人的仗";
     if (!loaded.ok) EXPECT_NE(loaded.error.find("ally"), std::string::npos) << loaded.error;
 
     // 对照：同样的敌人、开关关着（韩立在场），照常读得进。
-    const auto withHero = loadProbe("", R"([{"role_id":"wild_wolf","x":9,"y":4}])");
+    const auto withHero = loadProbe("", R"([{"role_id":"wild_wolf"}])");
     EXPECT_TRUE(withHero.ok) << withHero.error;
 }
 
@@ -134,13 +134,13 @@ TEST(Ch05HeroAbsentLoading, AlliesThatOnlyArriveInALaterWaveDoNotCount) {
     // 友军全排在第 1 波：开场场上我方无人，setup 那一次 refreshPhase 当场判负。
     const auto loaded = loadProbe(
         R"("hero_absent":true,)",
-        R"([{"role_id":"wild_wolf","x":9,"y":4},{"role_id":"qu_hun","x":2,"y":4,"faction":"ally","wave":1}])");
+        R"([{"role_id":"wild_wolf"},{"role_id":"qu_hun","faction":"ally","wave":1}])");
     EXPECT_FALSE(loaded.ok) << "友军全在后几波，开场即判负";
     // 对照：友军挪到第 0 波就读得进。
     const auto fixed = loadProbe(
         R"("hero_absent":true,)",
-        R"([{"role_id":"wild_wolf","x":9,"y":4,"wave":1},{"role_id":"wild_wolf","x":9,"y":5},)"
-        R"({"role_id":"qu_hun","x":2,"y":4,"faction":"ally"}])");
+        R"([{"role_id":"wild_wolf","wave":1},{"role_id":"wild_wolf"},)"
+        R"({"role_id":"qu_hun","faction":"ally"}])");
     EXPECT_TRUE(fixed.ok) << fixed.error;
 }
 
@@ -196,9 +196,9 @@ std::string role(const std::string& id, const std::string& name, int hp, int att
 std::string battle(const std::string& id, bool heroAbsent, bool canEscape, const std::string& units,
                    int cultivation, int money) {
     return "{\"id\":\"" + id + "\",\"name\":\"夹具\",\"chapter\":5,\"terrain\":\"field\"," +
-           "\"width\":12,\"height\":9,\"can_escape\":" + (canEscape ? "true" : "false") +
+           "\"can_escape\":" + (canEscape ? "true" : "false") +
            ",\"defeat_is_fatal\":false," + (heroAbsent ? "\"hero_absent\":true," : "") +
-           "\"player_spawn\":{\"x\":2,\"y\":4},\"units\":" + units +
+           "\"units\":" + units +
            ",\"rewards\":{\"cultivation\":" + std::to_string(cultivation) +
            ",\"spirit_stones\":" + std::to_string(money) + ",\"drops\":[]}}";
 }
@@ -225,9 +225,9 @@ protected:
 
         const fs::path battles = root / "data" / "battles";
         const std::string twoStrongVsTwoWeak =
-            R"([{"role_id":"t05_strong_ally","x":2,"y":3,"faction":"ally"},)"
-            R"({"role_id":"t05_strong_ally","x":2,"y":5,"faction":"ally"},)"
-            R"({"role_id":"t05_weak_foe","x":4,"y":3},{"role_id":"t05_weak_foe","x":4,"y":5}])";
+            R"([{"role_id":"t05_strong_ally","faction":"ally"},)"
+            R"({"role_id":"t05_strong_ally","faction":"ally"},)"
+            R"({"role_id":"t05_weak_foe"},{"role_id":"t05_weak_foe"}])";
         writeFile(battles / "t05_absent_win.json",
                   battle("t05_absent_win", true, false, twoStrongVsTwoWeak, 7, 3));
         // 对照组：同一份编成，开关关着。
@@ -235,13 +235,13 @@ protected:
                   battle("t05_present_twin", false, false, twoStrongVsTwoWeak, 7, 3));
         writeFile(battles / "t05_absent_lose.json",
                   battle("t05_absent_lose", true, false,
-                         R"([{"role_id":"t05_weak_ally","x":2,"y":4,"faction":"ally"},)"
-                         R"({"role_id":"t05_strong_foe","x":4,"y":4}])",
+                         R"([{"role_id":"t05_weak_ally","faction":"ally"},)"
+                         R"({"role_id":"t05_strong_foe"}])",
                          7, 3));
         writeFile(battles / "t05_absent_flee.json",
                   battle("t05_absent_flee", true, true,
-                         R"([{"role_id":"t05_tough_ally","x":2,"y":4,"faction":"ally"},)"
-                         R"({"role_id":"t05_tough_foe","x":9,"y":4}])",
+                         R"([{"role_id":"t05_tough_ally","faction":"ally"},)"
+                         R"({"role_id":"t05_tough_foe"}])",
                          7, 3));
     }
     static void TearDownTestSuite() {

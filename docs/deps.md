@@ -2,12 +2,14 @@
 
 状态：本文档基于 `H:\Work\Kys\probe\` 探针工程的**真实构建与运行结果**编写（2026-09-20，Windows，MSVC v145 / VS "18" 2026，Ninja）。凡标注"验证通过"的条目均已实际跑通；未验证的条目会明确写出原因，不做未经验证的断言。
 
+> 2026-09-29：`probe/` 探针工程与 `_archive/fanren-sdl3/` 均已删除，下文提到它们的路径只是当时的记录。现行的依赖获取以 `fanren/bootstrap.py` 为准：`vendor/` 里缺哪个包就下载哪个，一律按 SHA256 校验，不再从别的目录复用。
+
 ## 一、依赖矩阵
 
 | 库 | 版本 | 获取方式 | URL | SHA256 | 验证状态 |
 |---|---|---|---|---|---|
-| SDL3 | 3.4.16 | 预编译 VC 包（bootstrap.py，复用自 fanren-sdl3/vendor） | https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-devel-3.4.16-VC.zip | `1a784cb2a5c64d56fe7a62090fe9d242d9865f235e4ea9678f1a6ba4e693e7de` | 验证通过 |
-| SDL3_ttf | 3.2.2 | 预编译 VC 包（bootstrap.py，复用自 fanren-sdl3/vendor） | https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.2.2/SDL3_ttf-devel-3.2.2-VC.zip | `67805c5babfc49ca0c56882dc9b8cabbcdd1e6f9edde10ddac91ddb38f3afb8c` | 验证通过 |
+| SDL3 | 3.4.16 | 预编译 VC 包（bootstrap.py 下载；P0 时复用自 fanren-sdl3/vendor，该目录已删） | https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-devel-3.4.16-VC.zip | `1a784cb2a5c64d56fe7a62090fe9d242d9865f235e4ea9678f1a6ba4e693e7de` | 验证通过 |
+| SDL3_ttf | 3.2.2 | 预编译 VC 包（bootstrap.py 下载；P0 时复用自 fanren-sdl3/vendor，该目录已删） | https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.2.2/SDL3_ttf-devel-3.2.2-VC.zip | `67805c5babfc49ca0c56882dc9b8cabbcdd1e6f9edde10ddac91ddb38f3afb8c` | 验证通过 |
 | SDL3_image | 3.4.6 | 预编译 VC 包（bootstrap.py 新下载） | https://github.com/libsdl-org/SDL_image/releases/download/release-3.4.6/SDL3_image-devel-3.4.6-VC.zip | `03c6b313623edadf707a7c187e2036a5be5f12e693025c0697833379970bb4c0` | 验证通过 |
 | SDL3_mixer | 3.2.4 | 预编译 VC 包（bootstrap.py 新下载） | https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.2.4/SDL3_mixer-devel-3.2.4-VC.zip | `f4263ed5082fb7018059d64952017534e26821e9e878ce6b8c924b77cb17c4fb` | 验证通过 |
 | Lua | 5.4.9（5.4 系列最终版，官方声明"不再有后续 5.4 发布"） | 官方源码 tar.gz（bootstrap.py 下载，本地编译为静态库） | https://www.lua.org/ftp/lua-5.4.9.tar.gz | `2335b6c582a52654f94612bf10d2f4672805d05329aa6568b1d8cd9e5c6fb8e6` | 验证通过 |
@@ -34,9 +36,9 @@ sol2 在 GitHub 上只有 `v3.3.0`（2022-06-25）被标记为正式 Release；�
 
 ### 2.1 预编译包（SDL3 / SDL3_ttf / SDL3_image / SDL3_mixer）
 
-- 通过 `probe/bootstrap.py` 下载官方 `*-devel-*-VC.zip`，下载后立即计算 SHA256 并与脚本里写死的值比对，不一致则 `RuntimeError` 中止。
+- 通过 `bootstrap.py`（P0 时在 `probe/`，现为 `fanren/bootstrap.py`）下载官方 `*-devel-*-VC.zip`，下载后立即计算 SHA256 并与脚本里写死的值比对，不一致则 `RuntimeError` 中止。
 - 解压时对每个 zip entry 做路径穿越检查（`target.is_relative_to(vendor)`），防止恶意 zip 条目写到 vendor 目录之外（zip-slip）。
-- SDL3 / SDL3_ttf 两个包版本与 `fanren-sdl3` 现有工程完全一致，`bootstrap.py` 会优先从 `..\fanren-sdl3\vendor\` 复制过来，避免重复下载（并且两边校验值也已核对一致）。
+- SDL3 / SDL3_ttf 两个包版本与当时的 `fanren-sdl3` 工程完全一致，P0 的 `bootstrap.py` 曾优先从 `..\fanren-sdl3\vendor\` 复制过来，避免重复下载（两边校验值也已核对一致）。2026-09-29 该目录随 `_archive/` 删除，复用逻辑一并去掉，现在缺包一律下载后校验。
 - **锁定手段**：把具体版本号写进目录名（如 `vendor/SDL3-3.4.16`）+ CMakeLists 里 `find_package(SDL3 3.4.16 CONFIG REQUIRED)` 做双重锁定——升级版本必须同时改文件名、SHA256 和 CMake 里的版本号，任何一处漏改都会在 configure 阶段直接报错，不会静默用错版本。
 
 ### 2.2 源码型依赖（Lua / sol2 / nlohmann-json）
@@ -81,7 +83,7 @@ CMake 用 `add_subdirectory(... EXCLUDE_FROM_ALL)` 接入。`gtest_force_shared_
 
 ## 四、探针工程验证结果
 
-探针位置：`H:\Work\Kys\probe\`（`bootstrap.py` / `CMakeLists.txt` / `src\main.cpp` / `build.bat`）。
+探针位置：`H:\Work\Kys\probe\`（`bootstrap.py` / `CMakeLists.txt` / `src\main.cpp` / `build.bat`）——2026-09-29 已删除，本节是当时的验证记录。
 
 逐库验证状态：
 

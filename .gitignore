@@ -1,9 +1,6 @@
 # 本仓库只收录三处：fanren/（游戏工程）、docs/（设计文档）、tools/novel/（原著检索脚本）。
 # 工作区里其余目录一律不入库，用白名单写法，新冒出来的顶层目录默认也不入库：
 #   novel/     原著全文——版权所限，永不入库（docs/lore/README.md 第 1 节）
-#   kys-cpp/   参考用的另一个开源项目（自带 git）
-#   _archive/  旧版本快照
-#   probe/     P0 探针工程
 /*
 !/.gitignore
 !/.gitattributes

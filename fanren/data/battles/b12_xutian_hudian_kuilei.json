@@ -2,7 +2,6 @@
   "id": "b12_xutian_hudian_kuilei",
   "name": "虚天殿·护殿傀儡",
   "chapter": 12,
-  "legacy_id": "B_XT_GUARD",
   "terrain": "secret",
   "can_escape": false,
   "defeat_is_fatal": true,

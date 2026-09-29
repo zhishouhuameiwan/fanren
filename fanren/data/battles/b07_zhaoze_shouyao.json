@@ -2,7 +2,6 @@
   "id": "b07_zhaoze_shouyao",
   "name": "地下沼泽守药妖兽",
   "chapter": 7,
-  "legacy_id": "B_BLOOD_2",
   "terrain": "secret",
   "can_escape": true,
   "defeat_is_fatal": true,

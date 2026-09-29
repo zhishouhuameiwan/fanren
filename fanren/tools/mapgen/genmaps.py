@@ -146,7 +146,7 @@ def obj(name, otype, x, y, w=1, h=1, **props):
              "role_id", "script", "wander", "mode", "once", "kind", "ref_id", "slots",
              "require_flag", "deny_text_key", "guard_flag", "set_flag",
              "visible_flag", "hidden_flag",
-             "table_id", "steps_min", "steps_max", "terrain", "ally_zone", "enemy_zone"]
+             "table_id", "steps_min", "steps_max"]
     keys = [k for k in order if k in props] + [k for k in props if k not in order]
     return {
         "id": 0,  # 写盘前统一重编号

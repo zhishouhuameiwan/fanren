@@ -1713,8 +1713,10 @@ def selftest_q_encounters(case: Case, base: Path) -> None:
     expect("遭遇区指向不存在的表 → 报", with_zone("ch03_guwai", dict(zone, table_id="encounter_nope")),
            "没有这张表")
     expect("第 2 章的图上放遭遇区 → 报", with_zone("ch02_yaopu", zone), "不放野外遭遇")
-    expect("遭遇区挂上一张引用剧情战的旧表 → 报",
-           with_zone("ch03_guwai", dict(zone, table_id="encounter_village_wilds")), "要以 be 打头")
+    # 早年那三张引用剧情战的旧表 2026-09-29 已删：改拿谷外那张挂在图上的现行表，就地换进一场剧情战。
+    expect("地图用着的遭遇表里混进一场剧情战 → 报",
+           mutated_json("data/encounters/ch03_guwai.json",
+                        lambda t: t["entries"][0].__setitem__("battleId", "b03_gu_wai_elang")), "要以 be 打头")
 
     patch_script(work, "scripts/ch05/yeru.lua", 'bgm("bgm_night")', 'bgm("bgm_nope")')
     expect("脚本 bgm 点了一首不存在的曲子 → 报", rule_errors(), "bgm 点的曲子不存在")

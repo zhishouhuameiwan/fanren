@@ -20,9 +20,7 @@
 
 namespace fanren::ui {
 
-// 「墨金」色板的原值（施工图 1.6 节那张表）。Theme 的缺省颜色全部出自这里：
-// 契约里那五个按用途命名的旧字段（panelFill…highlight）与新的按颜色命名的 token
-// 取的是同一个常量，缺省值不可能分家。
+// 「墨金」色板的原值（施工图 1.6 节那张表）。Theme 的缺省颜色全部出自这里。
 namespace palette {
 inline constexpr engine::Color kInk{14, 17, 25, 219};          // #0E1119 α .86 面板底（渐变上端）
 inline constexpr engine::Color kInkLow{14, 17, 25, 184};       // 同色 α .72：渐变下端
@@ -55,15 +53,9 @@ inline constexpr engine::Color kChargeBandBottom{24, 6, 6, 230};    // 同上（
 // 配色与间距集中在这里：将来换皮、做高对比度模式只改一处。
 // 控件实现里不许再出现字面量颜色，否则这个集中点就形同虚设。
 struct Theme {
-    // ---- 契约字段（interfaces-p2.md 第 4 节），按用途命名 ----
-    // 缺省值已换成墨金：它们分别就是下面的 ink / gold / paper / paperDim / goldBright。
-    // 留着是因为契约与未改造的调用方（BattleScene 等）按这几个名字取色；
-    // **新代码一律用下面的 token**，那几处改造时顺手换掉，届时这五个字段可以删。
-    engine::Color panelFill = palette::kInk;
-    engine::Color panelEdge = palette::kGold;
-    engine::Color text = palette::kPaper;
-    engine::Color textDim = palette::kPaperDim;
-    engine::Color highlight = palette::kGoldBright;
+    // ---- 契约字段（interfaces-p2.md 第 4 节）----
+    // 契约里按用途命名的五个配色别名（panelFill / panelEdge / text / textDim / highlight）
+    // 调用方已全部改用下面的墨金 token，2026-09-29 清理时删掉；取色一律用 token。
     int padding = 24;
     int lineSpacing = 8;
 

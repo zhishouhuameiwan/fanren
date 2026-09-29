@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 11,
+  "nextobjectid": 10,
   "tilesets": [
     {
       "firstgid": 1,
@@ -308,34 +308,6 @@
         },
         {
           "id": 7,
-          "name": "battle_anchor_andao",
-          "type": "battle_anchor",
-          "x": 256,
-          "y": 544,
-          "width": 544,
-          "height": 256,
-          "rotation": 0,
-          "visible": true,
-          "properties": [
-            {
-              "name": "terrain",
-              "type": "string",
-              "value": "cave"
-            },
-            {
-              "name": "ally_zone",
-              "type": "string",
-              "value": "12,22,5,2"
-            },
-            {
-              "name": "enemy_zone",
-              "type": "string",
-              "value": "12,18,5,2"
-            }
-          ]
-        },
-        {
-          "id": 8,
           "name": "facility_cunji",
           "type": "facility",
           "x": 288,
@@ -353,7 +325,7 @@
           ]
         },
         {
-          "id": 9,
+          "id": 8,
           "name": "trigger_quhun",
           "type": "trigger",
           "x": 320,
@@ -386,7 +358,7 @@
           ]
         },
         {
-          "id": 10,
+          "id": 9,
           "name": "trigger_tiezhe",
           "type": "trigger",
           "x": 608,

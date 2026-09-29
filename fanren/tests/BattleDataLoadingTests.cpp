@@ -220,15 +220,4 @@ TEST(BattleDataLoading, TheBackdropIsOptionalButMustBeAString) {
     EXPECT_NE(refused.error.find("backdrop"), std::string::npos) << refused.error;
 }
 
-TEST(BattleDataLoading, GridFieldsLeftInABattleAreNotReadAtAll) {
-    // 横版没有格子：宽高、player_spawn、单位坐标加载器一概不读。它们残留在数据里由门禁报错
-    //（tools/validate.py 规则 24），加载器这一侧只要不因此读不进来——协调者合并别路交来的
-    // 老格式编成时，第一道拦住它的应当是那条说得清的门禁，而不是一个莫名其妙的加载失败。
-    TempDir tmp{"fanren_break_battle"};
-    const auto loaded = loadBattleJson(
-        tmp, R"("width":12,"height":9,"player_spawn":{"x":2,"y":4})");
-    ASSERT_TRUE(loaded.ok) << loaded.error;
-    EXPECT_EQ(loaded.value.units.size(), 1u);
-}
-
 }  // namespace

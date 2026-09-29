@@ -28,8 +28,8 @@
 | `floatCinnabar` / `floatDim` / `floatJade` / `floatGuard` | `#E86048` / `#C4BEB0` / `#8CE8AC` / `#96C8FA` | 战斗飘字：蓄势 / 遁走、脱身 / 毒解 / 守势 |
 | `chargeBandTop` / `chargeBandBottom` | `#340C0A` α .9 / `#180606` α .9 | 首领蓄势预告横幅的底（上 / 下） |
 
-- 契约里按用途命名的旧五个（`panelFill/panelEdge/text/textDim/highlight`）**保留**，值就是 `ink/gold/paper/paperDim/goldBright`，
-  给还没改造的调用方（`BattleScene` 等）用。**新代码一律用 token**；BV 改造战斗画面时顺手换掉，届时可删旧字段。
+- 契约里按用途命名的旧五个（`panelFill/panelEdge/text/textDim/highlight`，值就是 `ink/gold/paper/paperDim/goldBright`）
+  调用方已全部改用 token，**2026-09-29 清理时已删**（连同只断言它们的 `InkGoldTheme.TheContractFieldsWearTheSameColoursAsTheirTokens`）。取色一律用 token。
 - 摆位几何一个数没动（`padding 24 / lineSpacing 8 / bodyFontSize 22 / titleFontSize 24`）：各面板可显示几行、对话框不出屏
   （`ListLayoutTests`）照旧成立。
 - 战斗那几色（`breakRed` 起的九个，2026-09-26 追加在末尾）是终审 LOW-4 从 `BattleHud` / `BattleScene` 收上来的字面量，

@@ -2,7 +2,6 @@
   "id": "b07_zhongxinqu_duoyao",
   "name": "禁地中心区夺药",
   "chapter": 7,
-  "legacy_id": "B_BLOOD_BOSS",
   "terrain": "secret",
   "can_escape": false,
   "defeat_is_fatal": true,

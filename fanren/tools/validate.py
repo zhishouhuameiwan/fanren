@@ -42,7 +42,6 @@ OBJECT_REQUIRED_PROPS = {
     "trigger": ["script", "mode", "once"],
     "encounter": ["table_id", "steps_min", "steps_max"],
     "facility": ["kind"],
-    "battle_anchor": ["terrain", "ally_zone", "enemy_zone"],
 }
 
 FLAG_PROP_SUFFIX = "_flag"
@@ -2552,8 +2551,8 @@ def check_encounters(maps: list[ParsedMap], report: Report) -> None:
     编成（地图上真用着的表里的）：输了不死、许逃、只有敌方、没有不许当野怪的角色、奖励少、
     比同章剧情战（不以 be 打头、不是识海）里最轻的那一场还轻。
 
-    没被任何一张图用上的表（早年的 mountain_road / secret_realm / village_wilds）只查形状：
-    它们引用的是剧情战，哪天有人把它们挂上图，编成那一截就会当场报出来。"""
+    没被任何一张图用上的表只查形状：它若引用剧情战，哪天有人把它挂上图，编成那一截就会当场报出来。
+    （早年那三张 mountain_road / secret_realm / village_wilds 正是这样的表，2026-09-29 清理时已删。）"""
     battles: dict[str, dict] = {}
     for path in sorted((ROOT / "data" / "battles").rglob("*.json")):
         payload = read_json(path, report)
