@@ -1,0 +1,11 @@
+{
+  "id": "story_shengxianling",
+  "name": "升仙令",
+  "descKey": "item.desc.story_shengxianling",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "黄枫谷发出的升仙令（ch141）：七派奖给有大功的修仙家族之物，持令上门等同升仙会的胜者，给筑基丹与入门资格；认令不认人，可转让。就是第 4 章那块黑牌子（material_heipai）——节点 10b 对上《青溪笔录》的图，scripts/ch06/bilu.lua 收走牌子、换成本物。来历韩立不知道（ch141「对秦家之事一无所知」），游戏不演，只记在这里给后人：秦叶岭秦家世传此令，叶家要夺，秦家最后一个男丁金光上人卷了令牌与剑符逃走十几年，后来围攻七玄门时死在韩立手里。"
+}

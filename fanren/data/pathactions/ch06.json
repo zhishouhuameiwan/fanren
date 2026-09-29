@@ -1,0 +1,346 @@
+{
+  "id": "pathactions_ch06",
+  "name": "第 6 章路径行动",
+  "chapter": 6,
+  "note": "原著 ch126-151。打探八条、求购一条、切磋两条（施工图 16.2）。能说话的：山脚的老农与万小山；谷里的卖符少女、丹砂摊主；小楼里的苦桑、胡萍姑、黑木、吴九指；黄枫谷的王师叔、于执事、外门弟子。ch06.path.* 十一条 done_flag 等本文件落地后由协调者登记（门禁规则 26 不许登记了没人置的路径旗标）。章内先后：升仙令、灵石按施工图 12.2——本文件里只有求购那一条（ch06.lingshi 之后挂出）提灵石；没有一条提升仙令；少女那一条不带「燕」字。",
+  "entries": [
+    {
+      "id": "cunmin_dating",
+      "kind": "inquire",
+      "map": "ch06_tainan_cun",
+      "npc": "npc_laonong",
+      "when": [
+        {
+          "flag": "ch06.chudu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.rugu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.cunmin_dating",
+      "text_key": "ch06.path.cunmin_dating.text",
+      "origin": "原著 ch126",
+      "note": "怪坡的传闻：早年进去只是转迷，后来要困两三天（ch126）。进谷即收起。"
+    },
+    {
+      "id": "wan_dating",
+      "kind": "inquire",
+      "map": "ch06_tainan_cun",
+      "npc": "npc_wan_xiaoshan",
+      "when": [
+        {
+          "flag": "ch06.wan_met",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.rugu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.wan_dating",
+      "text_key": "ch06.path.wan_dating.text",
+      "origin": "原著 ch126、ch129",
+      "note": "七姐九哥最唠叨（ch129）；天眼术一望与自己相差无几（ch126）。万小山 hidden_flag=ch06.rugu，施工图写 until 另含 ch06.qingyan——他在这张图上只站到 ch06.rugu（跟韩立进了谷），until 按在场旗标收。"
+    },
+    {
+      "id": "dansha_qiugou",
+      "kind": "purchase",
+      "map": "ch06_tainan_gu",
+      "npc": "npc_dansha_tanzhu",
+      "when": [
+        {
+          "flag": "ch06.lingshi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.chugu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.dansha_qiugou",
+      "text_key": "ch06.path.dansha_qiugou.text",
+      "item_id": "material_dansha",
+      "count": 3,
+      "price": 2,
+      "deal_key": "ch06.path.dansha_qiugou.deal",
+      "poor_key": "ch06.path.dansha_qiugou.poor",
+      "origin": "原著 ch138；改编",
+      "note": "丹砂 3 份 2 块灵石。他到节点 12 之前一块灵石也没有——条目挂着，poor_key 说没有灵石，这是设计：让玩家看见自己的穷（施工图 16.2）。卖了养精丹换出灵石的人买得起；出了谷就收起。"
+    },
+    {
+      "id": "shaonv_dating",
+      "kind": "inquire",
+      "map": "ch06_tainan_gu",
+      "npc": "npc_maifu_shaonv",
+      "when": [
+        {
+          "flag": "ch06.jinzhubi",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch06.qianyao",
+          "op": "==",
+          "value": 0
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.chugu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.shaonv_dating",
+      "text_key": "ch06.path.shaonv_dating.text",
+      "give": [
+        {
+          "item_id": "pill_jinchuang_yao",
+          "count": 1
+        }
+      ],
+      "origin": "原著 ch137、ch179；改编",
+      "note": "她兄长要上灵兽山那座擂台（ch179 她后来入了灵兽山）。给金疮药 1（施工图 16.2：她摊上「回春符」的替身——回春丹那一类是五百块的丹，不对）。文案不带「燕」字（12.2）。欠着她账（ch06.qianyao > 0）时不挂出来：这句「换得太便宜」和白送的药，欠账的人不该听到（复验整改 16.5 MEDIUM-N1 ③；还清之后照常挂出，还账在她的 NPC 脚本 shaonv.lua 里）。"
+    },
+    {
+      "id": "kusang_dating",
+      "kind": "inquire",
+      "map": "ch06_sanxiu_lou",
+      "npc": "npc_kusang",
+      "when": [
+        {
+          "flag": "ch06.zhifu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.chugu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.kusang_dating",
+      "text_key": "ch06.path.kusang_dating.text",
+      "origin": "原著 ch138",
+      "note": "符术与符箓的分别再讲一遍（短版，苦桑 ch138）。9a 之后挂出。"
+    },
+    {
+      "id": "hu_dating",
+      "kind": "inquire",
+      "map": "ch06_sanxiu_lou",
+      "npc": "npc_hu_pinggu",
+      "when": [
+        {
+          "flag": "ch06.yishi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.chugu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.hu_dating",
+      "text_key": "ch06.path.hu_dating.text",
+      "origin": "原著 ch134-135；改编",
+      "note": "上届擂台她亲眼见的一幕（细节本作自拟，不照原著）。"
+    },
+    {
+      "id": "heimu_dating",
+      "kind": "inquire",
+      "map": "ch06_sanxiu_lou",
+      "npc": "npc_hei_mu",
+      "when": [
+        {
+          "flag": "ch06.yishi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.chugu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.heimu_dating",
+      "text_key": "ch06.path.heimu_dating.text",
+      "origin": "原著 ch135",
+      "note": "修仙家族拿丹药硬堆境界、留到四十岁前一鸣惊人（ch135 青纹说的，这里换黑木的口吻）。"
+    },
+    {
+      "id": "wujiuzhi_qiecuo",
+      "kind": "challenge",
+      "map": "ch06_sanxiu_lou",
+      "npc": "npc_wu_jiuzhi",
+      "when": [
+        {
+          "flag": "ch06.yishi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.chugu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.wujiuzhi_qiecuo",
+      "text_key": "ch06.path.wujiuzhi_qiecuo.text",
+      "battle": "b06_qiecuo_wujiuzhi",
+      "win_key": "ch06.path.wujiuzhi_qiecuo.win",
+      "lose_key": "ch06.path.wujiuzhi_qiecuo.lose",
+      "reward": {
+        "cultivation": 30
+      },
+      "origin": "改编（钩子 ch136）",
+      "note": "他想跟韩立「多切磋一下」（ch136）。编成 b06_qiecuo_wujiuzhi，赢给修为 30（施工图 16.2）。吴九指 visible_flag=ch06.yishi，when 与之相同。"
+    },
+    {
+      "id": "wang_dating",
+      "kind": "inquire",
+      "map": "ch06_huangfenggu",
+      "npc": "npc_wang_shishu",
+      "when": [
+        {
+          "flag": "ch06.wufeng",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.wang_dating",
+      "text_key": "ch06.path.wang_dating.text",
+      "reveal": [
+        {
+          "role": "wu_feng",
+          "category": "火"
+        }
+      ],
+      "origin": "原著 ch149；改编",
+      "note": "玄坤山：功法到十层可以搬过去（ch149）。另揭吴风的火类破绽：改编，王师叔带过他、知道他的短处。王师叔 visible_flag 改 ch06.wufeng（校对整改 16.4 LOW-7：14-16b 他全程陪着韩立，送回石屋群之后才站到大殿前），when 随之改成 ch06.wufeng；这句破绽因此落在战斗③之后，文案按事后回话写。"
+    },
+    {
+      "id": "yu_dating",
+      "kind": "inquire",
+      "map": "ch06_huangfenggu",
+      "npc": "npc_yu_zhishi",
+      "when": [
+        {
+          "flag": "ch06.zawu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.yu_dating",
+      "text_key": "ch06.path.yu_dating.text",
+      "origin": "原著 ch150；改编",
+      "note": "前几任管园弟子怎么赔的灵石（ch150 于执事说过「都被罚了不少的灵石」，数目本作自拟）。"
+    },
+    {
+      "id": "waimen_qiecuo",
+      "kind": "challenge",
+      "map": "ch06_huangfenggu",
+      "npc": "npc_waimen_dizi",
+      "when": [
+        {
+          "flag": "ch06.chuwudai",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch06.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch06.path.waimen_qiecuo",
+      "text_key": "ch06.path.waimen_qiecuo.text",
+      "battle": "b06_huangfenggu_qiecuo",
+      "win_key": "ch06.path.waimen_qiecuo.win",
+      "lose_key": "ch06.path.waimen_qiecuo.lose",
+      "reward": {
+        "cultivation": 30
+      },
+      "origin": "改编",
+      "note": "石屋群的两个外门弟子（占位编成 b06_huangfenggu_qiecuo 重填，施工图 8.2）。赢给修为 30。外门弟子 visible_flag=ch06.chuwudai，when 与之相同。"
+    }
+  ]
+}

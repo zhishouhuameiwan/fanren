@@ -1,0 +1,48 @@
+{
+  "id": "q06_dingshen",
+  "name": "一张定神符",
+  "chapter": 6,
+  "kind": "side",
+  "title_key": "ch06.quest.dingshen.title",
+  "summary_key": "ch06.quest.dingshen.summary",
+  "accept": [
+    {
+      "flag": "ch06.dingshen_qiu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1_hua",
+      "text_key": "ch06.quest.dingshen.s1",
+      "done": [
+        {
+          "item": "talisman_dingshen_fu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch06_sanxiu_lou",
+      "target_object": "facility_zhifu"
+    }
+  ],
+  "complete": [
+    {
+      "item": "talisman_dingshen_fu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail": [
+    {
+      "flag": "ch06.chugu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch06.quest.dingshen.fail",
+  "rewards": [],
+  "origin": "原著 ch138；完成为改编",
+  "note": "支线 Z1（docs/ch06-design.md 第 6 节）。接：节点 9a 末尾苦桑那句「花点小钱买几张定神符备用」（scripts/ch06/zhifu.lua 置 ch06.dingshen_qiu）。步骤：在制符桌（facility_zhifu，grade 2，recipe_dingshen_fu，熟练度从 0 起成功率两成上下）画出一张定神符；谓词只看背包里有没有一张（施工图的字面量 ≥ 1）。坊市也挂着定神符（2 块）——苦桑劝的本就是买几张，买来的一样算，不另设门槛。过期：ch06.chugu 置位（出了谷，桌子留在楼里，荒丘没有回谷的门）；了结压过过期。回报不进 rewards：E2（符箓进战斗）本章不做，定神符只是一张能画、能卖的符（施工图 16.1 第 9 条）。"
+}

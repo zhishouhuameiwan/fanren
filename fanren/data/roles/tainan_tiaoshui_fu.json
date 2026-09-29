@@ -1,0 +1,14 @@
+{
+  "id": "tainan_tiaoshui_fu",
+  "name": "挑水的妇人",
+  "realm": "Mortal",
+  "maxHp": 22,
+  "maxMp": 0,
+  "attack": 3,
+  "defence": 2,
+  "speed": 3,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "太南山脚小村的村妇，路人（改编）。一人一个 role（规则 30）。不参与战斗。"
+}

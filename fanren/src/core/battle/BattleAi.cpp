@@ -72,6 +72,7 @@ Action BattleState::enemyDecision(int actorIndex) const {
         int bestDamage = -1;
         // magics_ 是 std::map，按 id 有序遍历；配合「严格大于」，同分时取 id 小的。
         for (const auto& entry : magics_) {
+            if (!offensiveMagic(entry.second)) continue;   // 看破这类不伤人的法术 AI 不用
             Action cast = makeAction(ActionKind::Cast, actorIndex, target);
             cast.magicId = entry.first;
             if (!isLegal(cast)) continue;
@@ -152,6 +153,9 @@ Action BattleState::allyDecision(int actorIndex) const {
             if (isLegal(attack)) options.push_back(attack);
         }
         for (const auto& entry : magics_) {
+            // 天眼术（看破）不用：我方 AI 按「打谁、打多重」挑，不伤人的一手不在候选里
+            //（契约 docs/interfaces-p3-ch06.md 1.3）。
+            if (!offensiveMagic(entry.second)) continue;
             Action cast = makeAction(ActionKind::Cast, actorIndex, target);
             cast.magicId = entry.first;
             if (isLegal(cast)) options.push_back(cast);

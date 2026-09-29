@@ -69,6 +69,12 @@ bool BattleState::checkLegal(const Action& action, std::string* why) const {
 
 bool BattleState::checkBoost(const Action& a, const Unit& u, std::string* why) const {
     if (a.boost == 0) return true;
+    // 看破（天眼术）不吃蓄劲：蓄了也只当没蓄——不拦、不扣（applyReveal 不花劲），
+    // 与界面上「蓄了劲再防御」一样按 0 算（契约 docs/interfaces-p3-ch06.md 1.3 / 1.6）。
+    if (a.kind == ActionKind::Cast) {
+        const Magic* magic = findMagic(a.magicId);
+        if (magic != nullptr && magic->effect != MagicEffect::None) return true;
+    }
     if (a.boost < 0) return deny(why, "蓄劲不能是负数");
     if (a.kind != ActionKind::Attack && a.kind != ActionKind::Cast) {
         return deny(why, "只有攻击与法术蓄得了劲");
@@ -119,8 +125,11 @@ bool BattleState::checkCast(const Action& a, const Unit& u, std::string* why) co
     }
     // 不伤人的法术（御风决、护身罡）挡在这里。从前挡它的是「castRange 0 够不着任何人」，
     // 菜单上那句「超出施法距离」对一门辅助法术是误导；格子没了，理由就得说实话。
-    if (!offensiveMagic(*magic)) return deny(why, "【" + magic->name + "】不是伤人的法术");
+    // 放行的判据是 castableMagic：带看破效果的天眼术不伤人，却施展得了（契约 interfaces-p3-ch06 1.3）。
+    if (!castableMagic(*magic)) return deny(why, "【" + magic->name + "】不是伤人的法术");
     if (u.mp < magic->needMp) return deny(why, "法力不足，施展不了【" + magic->name + "】");
+    // 看破照的是整个场子，不挑目标：targetIndex 不看。
+    if (magic->effect != MagicEffect::None) return true;
     return checkEnemyTarget(a.targetIndex, u, why);
 }
 
@@ -359,6 +368,7 @@ std::string BattleState::applyAttack(const Action& a) {
 
 std::string BattleState::applyCast(const Action& a) {
     const Magic magic = *findMagic(a.magicId);   // 合法性已确认；取拷贝，免得与成员别名
+    if (magic.effect == MagicEffect::Reveal) return applyReveal(a, magic);
     Unit& caster = unitRef(a.actorIndex);
     caster.mp -= magic.needMp;
     spendBoost(a.actorIndex, a.boost);
@@ -401,6 +411,39 @@ std::string BattleState::applyCast(const Action& a) {
         }
     }
     caster.charging = false;
+    return text;
+}
+
+std::string BattleState::applyReveal(const Action& a, const Magic& magic) {
+    // 契约 docs/interfaces-p3-ch06.md 1.3：扣法力；本场每一个站着的敌人破绽全部揭开——与「打中破绽
+    // 揭开」是同一份 Unit::revealed，同 id 的一起揭开，收场时照旧并进 GameState::knownWeaknesses
+    //（BattleScene::finish）。不是一击：不判破绽、不削架势、不打断蓄势、没有伤害数字；劲不扣。
+    Unit& caster = unitRef(a.actorIndex);
+    caster.mp -= magic.needMp;
+    const bool casterAlly = caster.ally;
+    const std::string head = caster.name + " 施展【" + magic.name + "】";
+    BattleEvent act{BattleEventKind::Act, a.actorIndex, -1, static_cast<int>(ActionKind::Cast)};
+    act.hits = 1;
+    act.text = head;
+    emit(std::move(act));
+
+    std::string text = head;
+    bool any = false;
+    for (std::size_t i = 0; i < units_.size(); ++i) {
+        const Unit& target = units_[i];
+        if (!target.alive() || target.ally == casterAlly) continue;
+        const int fresh = target.weaknesses & ~target.revealed;
+        for (Unit& same : units_) {
+            if (same.id == target.id && same.ally == target.ally) same.revealed |= same.weaknesses;
+        }
+        BattleEvent reveal{BattleEventKind::Reveal, a.actorIndex, static_cast<int>(i), target.revealed};
+        reveal.revealed = fresh;
+        emit(std::move(reveal));
+        if (target.weaknesses == 0) continue;
+        text += (any ? "；" : "，") + target.name + " 的破绽「" + categoryNames(target.weaknesses) + "」尽收眼底";
+        any = true;
+    }
+    if (!any) text += "，场上没有看得出的破绽";
     return text;
 }
 

@@ -76,6 +76,11 @@ struct CultivationLexicon {
     // 玩家会对着一个永远按不动的按钮一直打坐下去。
     const char* pushAtStoryCap;     // 到了上限时「下一层 / 冲关」那一行的置灰理由
     const char* atStoryCap;         // 到了上限还硬按时的那句反馈
+
+    // 灵根一行（契约 docs/interfaces-p3-ch06.md 第 2 节）。追加在末尾，照 G-14 那次按位置初始化。
+    // 凡人表两样都是空串：「灵根」是凡人篇禁词，那一行在凡人阶段根本不画。
+    const char* spiritRootLabel;    // 「灵根　」
+    const char* spiritRootValue;    // 「四属性缺金·伪灵根」
 };
 
 [[nodiscard]] const CultivationLexicon& cultivationLexicon(PanelStage stage);
@@ -164,6 +169,10 @@ public:
     // 而那一个选项正是「四年苦修按一次按钮就过去了」的来源。
     [[nodiscard]] static const std::vector<MeditateOption>& meditateOptions(PanelStage stage);
     [[nodiscard]] static std::vector<ui::ListItem> buildMainItems(const core::GameState& state);
+
+    // 状态栏「资质」下面那一行灵根：修仙阶段**且** ch06.linggen 已置才有，否则空串（不画这一行）。
+    // renderStatus 画的就是它，测试问的也是它。
+    [[nodiscard]] static std::string spiritRootLine(const core::GameState& state);
 
     // 把 days 天打坐的收益兑现进 state.cultivation，零头留在余数账上。
     // 余数账的算法与「长短打坐等价」的保证见 .cpp 顶部的长注释。

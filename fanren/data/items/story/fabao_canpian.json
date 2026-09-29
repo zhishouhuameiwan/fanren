@@ -1,0 +1,11 @@
+{
+  "id": "story_fabao_canpian",
+  "name": "法宝残片",
+  "descKey": "item.desc.story_fabao_canpian",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "一小块半透明、边缘像被狗啃过的「破布」，时不时闪一下白光（ch139）：罩住的东西连形带灵气都不露，外头的灵气却照样进得去。节点 10a 用飞行符从一个十层的黑汉手里换下；节点 18b 盖在埋进药田的小瓶上（ch151）。"
+}

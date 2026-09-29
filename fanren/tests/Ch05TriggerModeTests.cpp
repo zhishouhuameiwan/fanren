@@ -331,7 +331,12 @@ TEST_F(Ch05TriggerMode, TheThreeGatesAreTheOnesSectionFourDrawsAndThereIsNoFourt
     int gated = 0;
     for (const char* mapId : kChapterMaps) {
         for (const MapObject& object : objectsOn(mapId)) {
-            if (object.type == "portal" && !object.property("require_flag").empty()) ++gated;
+            // 只数进第 5 章的图的闸门：南城东门（portal_to_tainan_cun，往第 6 章的太南山脚）
+            // 归 tools/mapgen/genmaps_ch06.py 所有，不是这一节说的「第四道」。
+            if (object.type == "portal" && !object.property("require_flag").empty() &&
+                object.property("target_map").rfind("ch05_", 0) == 0) {
+                ++gated;
+            }
         }
     }
     EXPECT_EQ(gated, 2) << "施工图第 4 节：不要再加第四道指向南城或墨府的闸门";

@@ -27,6 +27,7 @@
 // 生成：
 //   ch04-start.sav   第 3 章章末交过来的那一份（炼气三层，站在韩家村）
 //   ch04-siege.sav   节点 6 开战之前（炼气八层、两门法术、峰上炼下的药，站在演武场）
+//   ch06-start.sav   第 5 章章末交过来的那一份（tests/fixtures/ch05-end-first.sav，炼气八层，站在南城东门里）
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -89,6 +90,21 @@ bool chapterThreeEnding(const std::string& assets, GameState& out) {
     if (!handedOver) {
         std::fprintf(stderr, "读不进第 3 章的交接存档 %s：%s\n", fixture.c_str(),
                      handedOver.error.c_str());
+        return false;
+    }
+    out = handedOver.value;
+    return true;
+}
+
+// 第 5 章章末交到第 6 章手里的那一份：第 5 章第一侧通关测试写出的交接存档，原样读进来
+//（位置由 main 摆到南城东门里）。与 tests/Ch06AcceptanceTests.cpp 的 startFromChapterFiveEnding() 读的是同一份；
+// 那边一个字段也不改，这里只改位置——第 5 章在墨府收场，第 6 章的入口是南城东门（docs/ch06-design.md 第 4 节），
+// 墨府到南城那道门不设闸，走过去只改位置。
+bool chapterFiveEnding(const std::string& assets, GameState& out) {
+    const std::string fixture = assets + "/tests/fixtures/ch05-end-first.sav";
+    auto handedOver = fanren::io::loadGame(fixture);
+    if (!handedOver) {
+        std::fprintf(stderr, "读不进第 5 章的交接存档 %s：%s\n", fixture.c_str(), handedOver.error.c_str());
         return false;
     }
     out = handedOver.value;
@@ -174,7 +190,23 @@ int main(int argc, char** argv) {
         return 1;
     }
 
+    // 第 6 章章首：第 5 章的交接存档，摆在南城东门（portal_to_tainan_cun）旁边一格、面朝东——往东一步出城。
+    auto nancheng = fanren::io::loadTileMap(assets + "/maps/ch05_nancheng.tmj");
+    if (!nancheng) {
+        std::fprintf(stderr, "载入南城失败：%s\n", nancheng.error.c_str());
+        return 1;
+    }
+    GameState chapterSix;
+    if (!chapterFiveEnding(assets, chapterSix)) return 1;
+    chapterSix.mapId = nancheng.value.id;
+    if (!placeBeside(nancheng.value, "portal_to_tainan_cun", chapterSix.position)) {
+        std::fprintf(stderr, "南城上找不到 portal_to_tainan_cun，或它四周没有能站的格子\n");
+        return 1;
+    }
+    chapterSix.facing = 1;
+
     if (!write(start, out, "ch04-start.sav")) return 1;
     if (!write(siege, out, "ch04-siege.sav")) return 1;
+    if (!write(chapterSix, out, "ch06-start.sav")) return 1;
     return 0;
 }

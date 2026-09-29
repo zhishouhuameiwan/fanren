@@ -827,10 +827,14 @@ def build_all():
     韩家村先过第 4 章那一次修补再过本章这一次：单跑本脚本时读的是 maps/ 里那张
     已经带着第 4 章车道口的图，与 genmaps.py 那边的产出一致。
     """
+    # 第 6 章在南城东墙开了一道门（往太南山脚），归 genmaps_ch06.py 所有（它的 patch_nancheng）。
+    # 不在这里补回去，单跑本脚本就会把第 6 章整章从游戏里割断——太南山脚只从这一处进得去。
+    import genmaps_ch06  # 延迟导入：模块层导入会与它的 import genmaps_ch05 成环
+
     return {
         "ch05_dukou": make_dukou(),
         "ch05_xicheng": make_xicheng(),
-        "ch05_nancheng": make_nancheng(),
+        "ch05_nancheng": genmaps_ch06.patch_nancheng(make_nancheng()),
         "ch05_kezhan": make_kezhan(),
         "ch05_mofu": make_mofu(),
         "ch05_dubashanzhuang": make_dubashanzhuang(),

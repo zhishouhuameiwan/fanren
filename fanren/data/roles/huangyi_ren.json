@@ -1,0 +1,27 @@
+{
+  "id": "huangyi_ren",
+  "name": "黄衣人",
+  "realm": "QiRefining8",
+  "maxHp": 90,
+  "maxMp": 80,
+  "attack": 13,
+  "defence": 8,
+  "speed": 9,
+  "element": 4,
+  "magics": [
+    "magic_bingjian_shu"
+  ],
+  "toughness": 4,
+  "weaknesses": [
+    "土",
+    "火"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 1.6,
+    "all": true,
+    "text_key": "ch06.battle.huangyi.charge"
+  },
+  "origin": "原著",
+  "note": "山丘袭杀的两人之一（ch142-143）：三十来岁、精瘦、一脸狡诈；冰锥术（数据借冰箭术，文案里说冰锥），青黑葫芦一连喷出七八个黑球（蓄势 charge，all：一口气砸向韩立）。见剑光要命，拍飞行符腾空逃走，被剑光追上透心而过。水属性；破绽土、火（施工图 8.2：土克水，火弹烧得化冰锥）。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

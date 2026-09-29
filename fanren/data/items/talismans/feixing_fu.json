@@ -1,0 +1,11 @@
+{
+  "id": "talisman_feixing_fu",
+  "name": "飞行符",
+  "descKey": "item.desc.talisman_feixing_fu",
+  "kind": "talisman",
+  "grade": 2,
+  "price": 30,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "风属性初级上阶的飞行类灵符（ch131，原著标牌写「飞天符」、正文多作飞行符）：拍在身上能腾空远行，灵气不散可反复使用。标价三十块灵石或等价的固元培本类丹药；第 6 章节点 5b 用五瓶养精丹换下，节点 10a 换了法宝残片。tradeable 假：它是剧情里两次以物易物的筹码，不许卖进坊市（施工图 E9）。本作不给它战斗用途（E2 不做）。"
+}

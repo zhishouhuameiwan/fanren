@@ -1,0 +1,14 @@
+{
+  "id": "zhong_lingdao",
+  "name": "钟灵道",
+  "realm": "FoundationLate",
+  "maxHp": 260,
+  "maxMp": 190,
+  "attack": 44,
+  "defence": 30,
+  "speed": 10,
+  "element": 2,
+  "magics": [],
+  "origin": "原著",
+  "note": "黄枫谷掌门（ch144-147）：一百多岁、筑基后期，三缕长髯的中年模样。衣袖一拂，托住了韩立要拜下去的身子。只在节点 15 里出现，不落地图。不参与战斗。"
+}

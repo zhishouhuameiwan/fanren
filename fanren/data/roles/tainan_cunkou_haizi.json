@@ -1,0 +1,14 @@
+{
+  "id": "tainan_cunkou_haizi",
+  "name": "村口的孩子",
+  "realm": "Mortal",
+  "maxHp": 12,
+  "maxMp": 0,
+  "attack": 2,
+  "defence": 1,
+  "speed": 4,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "太南山脚小村口的孩子，路人（改编）。万小山跟几个村民比划太南谷在哪时，他在旁边看热闹。不参与战斗。"
+}

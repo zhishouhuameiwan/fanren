@@ -1,0 +1,12 @@
+{
+  "id": "magic_tianyan_shu",
+  "name": "天眼术",
+  "descKey": "magic.desc.magic_tianyan_shu",
+  "element": 0,
+  "needMp": 5,
+  "power": 0,
+  "needRealm": "QiRefining1",
+  "effect": "reveal",
+  "origin": "原著",
+  "note": "原著 ch67 录在墨大夫留下的那几页法诀里；ch68、ch88、ch96 施展过；第 4、5 章按拍板没演（第 5 章拍板第 10 条把战斗里的看破整个推到第 6 章）；ch126 第一次真正派上用场，是拿它去看万小山。战斗里是一门 effect reveal 的法术（契约 docs/interfaces-p3-ch06.md 第 1 节）：施展一次，本场所有敌人的破绽全部揭开并记进 knownWeaknesses；不伤人、不削架势、不吃蓄劲，所以 power 写 0（与 effect 同写 power > 0 加载期报错）。"
+}

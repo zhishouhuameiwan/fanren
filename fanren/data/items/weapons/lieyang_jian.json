@@ -1,0 +1,13 @@
+{
+  "id": "weapon_lieyang_jian",
+  "name": "烈阳剑",
+  "descKey": "item.desc.weapon_lieyang_jian",
+  "kind": "artifact",
+  "grade": 2,
+  "price": 60,
+  "tradeable": true,
+  "addAttack": 6,
+  "weapon": "剑",
+  "origin": "原著",
+  "note": "新弟子装备之一（ch148）。揣在身上普攻多一样「剑」（docs/octopath-battle.md 2.2）。节点 16a 林师叔发的，节点 12 那一仗时还没有。"
+}

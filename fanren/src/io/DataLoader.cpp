@@ -345,6 +345,24 @@ core::Result<bool> loadOneMagic(const fs::path& path, std::map<std::string, Magi
         }
     }
 
+    // 不伤人的效果（契约 docs/interfaces-p3-ch06.md 1.2）：只认 "reveal"（天眼术的看破），缺省没有。
+    // 写了别的（含空串、大小写、多一个空格）一律报错，口径同上面的 boost。
+    // 与 power > 0 / poison > 0 同写也报错：一门法术要么伤人要么看破，免得有人给火弹术挂个 reveal
+    // 变成「打一下顺便全看穿」。power 缺省是 10，所以看破的法术得明写 "power": 0。
+    if (j.contains("effect")) {
+        const std::string effect = j["effect"].is_string() ? j["effect"].get<std::string>() : std::string{};
+        if (effect != "reveal") {
+            return core::Result<bool>::failure("法术 \"" + id + "\" 的 effect 只许 \"reveal\": " +
+                                                path.string());
+        }
+        magic.effect = core::MagicEffect::Reveal;
+        if (magic.power > 0 || magic.poison > 0) {
+            return core::Result<bool>::failure("法术 \"" + id +
+                                                "\" 的 effect 不能与 power > 0 或 poison > 0 同写"
+                                                "（一门法术要么伤人要么看破）: " + path.string());
+        }
+    }
+
     firstSeenBy.emplace(id, path);
     magics.emplace(std::move(id), std::move(magic));
     return core::Result<bool>::success(true);

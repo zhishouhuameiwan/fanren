@@ -1,0 +1,42 @@
+{
+  "id": "b06_yejia_xunxin",
+  "name": "叶家寻衅",
+  "chapter": 6,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "qingwen_daoshi",
+      "faction": "ally"
+    },
+    {
+      "role_id": "hei_mu",
+      "faction": "ally"
+    },
+    {
+      "role_id": "xiong_dali",
+      "faction": "ally"
+    },
+    {
+      "role_id": "ye_bao",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "yejia_dizi",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "yejia_dizi",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 60,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch06.battle.yejia_xunxin.intro",
+  "origin": "改编",
+  "note": "第 6 章节点 6（ch06_tainan_gu trigger_ye_xunxin，enter + once），三场必打之一。改编：叶豹第二天带两个族中子弟回摊位区寻草帽青年，青年已收摊，气撒在散修头上；青纹领头拦下，韩立作为团伙一员站在其中（施工图 3.2 节点 6、8.3）。我方韩立 + 友军三人（青纹道士、黑木、熊大力，编成写死；友军原写吴九指——他节点 7 才头一回见面，校对 HIGH-4 换成节点 4 已引见的熊大力，施工图 16.4）；敌方叶豹 + 叶家弟子 ×2。意图：第一次与修仙者交手、第一次有法术打过来；友军强于他，让他看清自己在这群人里只是中等。can_escape 假、defeat_is_fatal 假：输赢都是青颜真人到场叫停（scripts/ch06/xunxin.lua），两条结局都不置分岔旗标。收获修为 60、灵石 0（施工图第 9 节第 4 条：散修间的仗不掉钱）。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

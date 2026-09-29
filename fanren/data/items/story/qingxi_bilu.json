@@ -1,0 +1,11 @@
+{
+  "id": "story_qingxi_bilu",
+  "name": "青溪笔录",
+  "descKey": "item.desc.story_qingxi_bilu",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "越国一位爱四处闲逛的前辈「青溪真人」记下的杂闻（ch141），有些页配着图。圆脸青年为谢解围之恩塞给他。末几页画着七派的七种令牌（节点 10b）。"
+}

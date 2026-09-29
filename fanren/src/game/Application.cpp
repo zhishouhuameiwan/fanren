@@ -666,6 +666,17 @@ void Application::restFor(int days) {
 void Application::openFacility(const core::MapObject& facility) {
     const std::string kind = facility.property("kind");
 
+    // map_spec 4.6 把设施的 require_flag 定成「解锁旗标」，引擎从前一直没判：第 6 章的制符桌
+    // （require ch06.zhifu）在 9a 之前就开得出面板，玩家能先把 9a 要用的符纸丹砂画掉；药田
+    //（require ch06.done）在 18b 之前按下去就地建出了灵田。旗标还是 0 就不开面板、不建灵田，
+    // 只说一句为什么——与闸门拦人同一种提示（WorldScene::tryStep 的 deny_text_key），默不作声
+    // 会让玩家以为按键坏了。只判这一处：走到这里的每一种 kind 都先过这道闸。
+    if (const std::string need = facility.property("require_flag");
+        !need.empty() && state_.flag(need) == 0) {
+        showMessage("ui.facility.locked");
+        return;
+    }
+
     if (kind == "meditate") {
         pushScene(std::make_unique<CultivationScene>());
         return;

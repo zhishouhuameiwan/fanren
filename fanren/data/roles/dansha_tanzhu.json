@@ -1,0 +1,14 @@
+{
+  "id": "dansha_tanzhu",
+  "name": "丹砂摊主",
+  "realm": "QiRefining6",
+  "maxHp": 90,
+  "maxMp": 60,
+  "attack": 11,
+  "defence": 6,
+  "speed": 7,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "摊位区里卖丹砂的路人（ch138「在其他摊点随便买了些丹砂」）。路径行动·求购挂他。不参与战斗。"
+}

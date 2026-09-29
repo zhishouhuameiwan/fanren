@@ -1,0 +1,22 @@
+{
+  "id": "b06_qiecuo_wujiuzhi",
+  "name": "与吴九指切磋",
+  "chapter": 6,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "wu_jiuzhi",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch06.battle.qiecuo_wujiuzhi.intro",
+  "origin": "改编",
+  "note": "路径行动·切磋（data/pathactions/ch06.json 的 wujiuzhi_qiecuo，小楼，节点 7 之后、出谷之前）。他当场被韩立扣住手腕，从此想「多切磋一下」（ch136）。奖励只由条目发（修为 30），编成的必须全 0（门禁规则 26）。"
+}

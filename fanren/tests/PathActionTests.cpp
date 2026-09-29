@@ -891,7 +891,9 @@ TEST(PathActionData, EachKindOpensInTheChapterTheDesignSays) {
 // 这张表的来处由下面的 TheRealmCapTableStillMatchesTheScripts 从脚本里再推一遍。
 const std::map<int, Realm>& realmCapOfChapter() {
     static const std::map<int, Realm> kCap = {{1, Realm::Mortal},      {2, Realm::QiRefining3}, {3, Realm::QiRefining3},
-                                              {4, Realm::QiRefining8}, {5, Realm::QiRefining8}};
+                                              {4, Realm::QiRefining8}, {5, Realm::QiRefining8},
+                                              // 第 6 章：九层（scripts/ch06/kuxiu.lua 节点 9b 的 realm.advance）。
+                                              {6, Realm::QiRefining9}};
     return kCap;
 }
 
@@ -916,7 +918,7 @@ TEST(PathActionData, TheRealmCapTableStillMatchesTheScripts) {
     static const std::regex kRaise(R"re(realm\.(?:cap|advance)\(realm\.QI_REFINING_(\d+)\))re");
     std::map<int, int> raisedIn;
     int scripts = 0;
-    for (int chapter = 1; chapter <= 5; ++chapter) {
+    for (int chapter = 1; chapter <= 6; ++chapter) {
         const fs::path dir = fs::path(assetRoot()) / "scripts" / ("ch0" + std::to_string(chapter));
         ASSERT_TRUE(fs::is_directory(dir)) << dir.string();
         for (const auto& entry : fs::directory_iterator(dir)) {
@@ -935,7 +937,7 @@ TEST(PathActionData, TheRealmCapTableStillMatchesTheScripts) {
     ASSERT_GT(scripts, 20) << "先验：脚本读到了";
     ASSERT_GT(raisedIn[1], 0) << "先验：正则抓得到脚本里抬境界的那一句";
     int reachable = raisedIn[1];
-    for (int chapter = 2; chapter <= 5; ++chapter) {
+    for (int chapter = 2; chapter <= 6; ++chapter) {
         reachable = std::max(reachable, raisedIn[chapter]);
         EXPECT_EQ(fanren::rules::toValue(realmCapOfChapter().at(chapter)), reachable)
             << "第 " << chapter << " 章：脚本抬到炼气 " << reachable << " 层，门槛上限表写的是"
@@ -956,7 +958,12 @@ struct Purse {
 };
 
 TEST(PathActionData, EveryPriceFitsTheLeanestPurseOfItsChapter) {
-    const std::map<int, Purse> purse = {{2, {6, "ch02.duan2_start"}}, {4, {28, ""}}, {5, {87, ""}}};
+    // 第 6 章：0 块——节点 1a 碎银留给了村民，节点 12 搜身之前一块灵石也没有（docs/ch06-design.md 第 9 节）。
+    // 本章那一条求购（丹砂）是**有意**买不起的：条目挂着、poor_key 说没有灵石，让玩家看见自己的穷
+    //（施工图 16.2）。例外只此一条、按 id 点名，别的求购照旧得付得起。
+    const std::map<int, Purse> purse = {{2, {6, "ch02.duan2_start"}}, {4, {28, ""}}, {5, {87, ""}},
+                                        {6, {0, ""}}};
+    const std::set<std::string> kDeliberatelyUnaffordable = {"dansha_qiugou"};
     const RealData& real = realData();
     ASSERT_TRUE(real.ok) << real.error;
     int purchases = 0;
@@ -965,6 +972,10 @@ TEST(PathActionData, EveryPriceFitsTheLeanestPurseOfItsChapter) {
         ++purchases;
         ASSERT_TRUE(purse.count(a.chapter) != 0) << "第 " << a.chapter << " 章还没算过钱袋，先补这张表";
         const Purse& p = purse.at(a.chapter);
+        if (kDeliberatelyUnaffordable.count(a.id) != 0) {
+            EXPECT_GT(a.price, p.silver) << a.id << "：点名为有意买不起，却付得起了——例外表该删这一条";
+            continue;
+        }
         EXPECT_LE(a.price, p.silver) << a.id << " 卖 " << a.price << " 块，本章最省的那条路上手里只有 " << p.silver;
         if (p.afterFlag[0] != '\0') {
             const bool after = std::any_of(a.when.begin(), a.when.end(), [&p](const QuestCondition& c) {

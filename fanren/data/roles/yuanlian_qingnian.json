@@ -1,0 +1,14 @@
+{
+  "id": "yuanlian_qingnian",
+  "name": "圆脸青年",
+  "realm": "QiRefining5",
+  "maxHp": 80,
+  "maxMp": 50,
+  "attack": 10,
+  "defence": 5,
+  "speed": 7,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "憨乎乎的五层散修（ch140-141）：跟着喊价喊到二十，身上其实只有两块灵石；韩立替他解了围，他追上来塞了一本《青溪笔录》。只在节点 10a 里出现，不落地图。不参与战斗。"
+}

@@ -23,8 +23,8 @@ enum class PanelStage {
     Immortal,   // 修仙阶段：第 3 章墨大夫真身揭开之后
 };
 
-// 切换用的剧情旗标，登记在 data/flags.json。第 1–5 章都不置（技术债 G-13，docs/ch05-design.md），
-// 这几章从面板到战斗一律是凡人用词。
+// 切换用的剧情旗标，登记在 data/flags.json。第 1–5 章不置，第 6 章太南谷听完灵根之说时置
+//（scripts/ch06/guaipo.lua；G-13 已按第 6 章拍板收口），第 1–5 章从面板到战斗一律是凡人用词。
 //
 // **触发条件取剧情旗标，不取境界**，理由三条：
 //
@@ -85,6 +85,15 @@ inline constexpr const char* kXiuxianKnownFlag = "story.xiuxian_known";
 
 [[nodiscard]] inline const char* mpWord(PanelStage stage) {
     return stage == PanelStage::Mortal ? "气力" : "法力";
+}
+
+// 背包那一栏的叫法（O1，契约 docs/interfaces-p3-ch06.md 第 4 节）：第 6 章领了储物袋
+//（ch06.chuwudai）之后主菜单那一栏与背包面板标题叫「储物袋」，此前照旧「物品」
+//（与 ui.json 的 ui.menu.items 同词，tests/GameWiringTests.cpp 钉着）。旗标名只写在这一处。
+inline constexpr const char* kChuwudaiFlag = "ch06.chuwudai";
+
+[[nodiscard]] inline const char* bagWord(const core::GameState& state) {
+    return state.flag(kChuwudaiFlag) != 0 ? "储物袋" : "物品";
 }
 
 // 规则层（core/battle）的理由与战报是按修仙说法写死的：「法力不足，施展不了【…】」

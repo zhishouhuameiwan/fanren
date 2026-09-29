@@ -1,0 +1,11 @@
+{
+  "id": "material_dansha",
+  "name": "丹砂",
+  "descKey": "item.desc.material_dansha",
+  "kind": "material",
+  "grade": 0,
+  "price": 4,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "画符用的丹砂（ch136-138）：修仙者用的要拿含灵气的妖兽之血调制。节点 8b 他在别的摊上换了六份，9a 画废十二张用去三份。定价 4：坊市 buyRate 0.5，挂牌恰是施工图第 7 节的 2 块。"
+}

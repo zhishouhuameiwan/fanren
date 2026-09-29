@@ -16,12 +16,12 @@
     }
   ],
   "rewards": {
-    "cultivation": 70,
-    "spirit_stones": 20,
+    "cultivation": 0,
+    "spirit_stones": 0,
     "drops": []
   },
   "intro_key": "ch06.battle.huangfenggu_qiecuo.intro",
   "origin": "原著",
   "rewritten_by_lore": false,
-  "note": "切磋性质，败了不致命（沿用旧原型 LoseEvent=0 的语义，现表达为 defeat_is_fatal=false）。"
+  "note": "切磋性质，败了不致命（沿用旧原型 LoseEvent=0 的语义，现表达为 defeat_is_fatal=false）。\n\n【第 6 章 2026-09-29】重填（施工图 8.2）：路径行动·切磋 waimen_qiecuo（黄枫谷石屋群，节点 16a 之后）。奖励改由条目发（修为 30），编成的 rewards 清零（门禁规则 26：切磋的编成必须全 0）。两个外门弟子的破绽重填为金、火（data/roles/huangfenggu_waimen_dizi.json）。"
 }

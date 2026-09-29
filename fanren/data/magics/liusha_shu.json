@@ -1,0 +1,12 @@
+{
+  "id": "magic_liusha_shu",
+  "name": "流沙术",
+  "descKey": "magic.desc.magic_liusha_shu",
+  "element": 16,
+  "needMp": 12,
+  "power": 14,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "原著",
+  "note": "原著：《基础咒决残本》里的下阶法术之一（ch132），地域性，法力所及之处化土为沙；威力全看施法者法力，他突破第九层后一下子得心应手，能化开一张桌面大的地（ch138-139）。ch143 山丘一仗他双手按地，土甲大汉陷到大腿根——这一下就是战斗②的破势。第 6 章节点 9b（scripts/ch06/kuxiu.lua）magic.learn。五行土（16）：规则 25 的 CHAPTER_MEANS[6] 登「土」由它来（施工图 8.2，协调者登记）。数值 power 14 / needMp 12 / boost power 照施工图 E5；是初值，归平衡路。"
+}

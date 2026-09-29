@@ -1,0 +1,51 @@
+{
+  "id": "ch06_tainan_fangshi",
+  "name": "太南坊市",
+  "nameKey": "ch06.shop.name.tainan_fangshi",
+  "buyRate": 0.5,
+  "sellRate": 0.08,
+  "entries": [
+    {
+      "itemId": "material_fuzhi",
+      "price": 1,
+      "stock": 36,
+      "restockDays": 5,
+      "restockAmount": 12,
+      "maxStock": 36
+    },
+    {
+      "itemId": "material_dansha",
+      "price": 2,
+      "stock": 12,
+      "restockDays": 5,
+      "restockAmount": 4,
+      "maxStock": 12
+    },
+    {
+      "itemId": "talisman_dingshen_fu",
+      "price": 2,
+      "stock": 6,
+      "restockDays": 5,
+      "restockAmount": 2,
+      "maxStock": 6
+    },
+    {
+      "itemId": "talisman_huoqiu_fu",
+      "price": 13,
+      "stock": 3,
+      "restockDays": 10,
+      "restockAmount": 1,
+      "maxStock": 3
+    },
+    {
+      "itemId": "talisman_hushen_fu",
+      "price": 15,
+      "stock": 2,
+      "restockDays": 10,
+      "restockAmount": 1,
+      "maxStock": 2
+    }
+  ],
+  "origin": "改编",
+  "note": "太南谷摊位区里那一处坊市（ch06_tainan_gu 的 facility_fangshi）。只卖符纸、丹砂、现成的符（施工图第 17 节第 15 条：以物易物全是脚本）。sellRate 0.08（施工图 16.1 第 5 条拍板）：养精丹基价 90，收 7 块灵石——正是原著「五瓶换一张三十块的符」的比价。buyRate 0.5 是从已有物品的基价反推的：符纸基价 2（data/items/materials/fuzhi.json，不归本章改），要挂出施工图的「1 块一张」只能取 0.5；于是丹砂、定神符按新定的基价 4 挂出 2 块，与施工图一致；火球符（基价 26）、护身符（基价 30）挂 13、15 块，**与施工图写的 8、6 块不同**——商店没有逐条定价的字段（src/core/rules/Economy.cpp：挂牌 = 基价 × buyRate），要对上施工图只能改那两件已有物品的基价，那是第 2、5 章的数（施工偏差）。卖回：定神符 4×0.08 取整是 0 块，施工图第 6 节「能卖 2 块」做不到（同上）。支线 Z2 的十块灵石要靠卖养精丹、金疮药。"
+}

@@ -702,6 +702,18 @@ void BattleView::onChargeDeclare(int unit) {
     eng_.playSfx("boost_3");
 }
 
+void BattleView::onReveal(int unit, int bits) {
+    if (!validUnit(unit)) return;
+    Actor& a = actors_[static_cast<std::size_t>(unit)];
+    // 复用现有的金光（Glow）与火花，不新画资源（契约 docs/interfaces-p3-ch06.md 1.5）。
+    addEffect(FxSheetId::Glow, bodyCenter(unit), 3.4f, kGoldGlow, false, 0.f, 0.45f);
+    burst(FxSheetId::Spark, bodyCenter(unit), 6, 60.f, 160.f, -120.f, 0.3f, 0.55f, 16.f, kGoldGlow);
+    if (bits != 0) {
+        a.hud.reveal = 0.55f;
+        a.hud.revealBits = bits;
+    }
+}
+
 // ---------------------------------------------------------------------------
 // 位置与外形
 // ---------------------------------------------------------------------------

@@ -1,0 +1,14 @@
+{
+  "id": "shoudian_dizi",
+  "name": "守殿弟子",
+  "realm": "QiRefining10",
+  "maxHp": 150,
+  "maxMp": 100,
+  "attack": 19,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "议事大殿门口守门的黄枫谷弟子（ch147：法力起码有十层以上）。施工图写门口两个；同一张图上两块一样的名牌会撞规则 30，群像白名单在 tools/validate.py 里不归内容路，于是只摆一个（施工偏差）。不参与战斗。"
+}

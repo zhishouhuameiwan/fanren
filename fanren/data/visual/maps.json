@@ -425,6 +425,410 @@
         {"at": [24, 4], "kind": "pavilion", "why": "后园赏月亭（节点 12d）"},
         {"at": [10, 22], "kind": "stump", "why": "林子里一截老树桩（支线 Z2′）"}
       ]
+    },
+    "ch06_tainan_cun": {
+      "theme": "village",
+      "time": "day",
+      "season": "spring",
+      "why": "第 6 章开篇：太南山脚林子里除毒半月、村口遇万小山、怪坡前听灵根之说，都在白天；北头那道坡常年罩着白雾。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.5
+        },
+        {
+          "kind": "petal",
+          "rate": 0.15
+        }
+      ],
+      "backdrop": "mountain_forest",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "structures": [
+        {
+          "rect": [
+            14,
+            1,
+            15,
+            28
+          ],
+          "kind": "rock",
+          "style": "cliff",
+          "why": "林子东缘那道土坡（genmaps_ch06：豁口在 y 20..21）"
+        },
+        {
+          "rect": [
+            16,
+            1,
+            38,
+            5
+          ],
+          "kind": "rock",
+          "style": "cliff",
+          "why": "北头的怪坡（常年白雾，界石立在坡脚）"
+        }
+      ],
+      "props": [
+        {
+          "at": [
+            24,
+            5
+          ],
+          "kind": "rock",
+          "why": "怪坡坡脚的界石（节点 2 在这儿放通音符）"
+        },
+        {
+          "at": [
+            27,
+            24
+          ],
+          "kind": "well",
+          "why": "村中的井台"
+        }
+      ],
+      "trees": [
+        {
+          "at": [
+            3,
+            17
+          ],
+          "species": "locust",
+          "why": "出生点旁那棵巨树（1a 在它底下醒来）"
+        }
+      ]
+    },
+    "ch06_tainan_gu": {
+      "theme": "valley",
+      "time": "dusk",
+      "season": "spring",
+      "why": "太南谷：他逛摊时天色已昏，白石灯盏一盏盏亮起来（施工图第 4 节）；三面靠山、奇花异草。",
+      "particles": [
+        {
+          "kind": "firefly",
+          "rate": 0.35
+        },
+        {
+          "kind": "mist",
+          "rate": 0.2
+        }
+      ],
+      "backdrop": "herb_valley",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "structures": [
+        {"rect": [16, 3, 31, 8], "kind": "built", "roof": "jade", "wall": "sect", "why": "谷里正中那座宫殿式楼阁（主办者议事之处），不是山崖"}
+      ],
+      "props": [
+        {
+          "at": [
+            5,
+            12
+          ],
+          "kind": "stall_row",
+          "why": "「回」字摊位区的外圈摊架（东面开一道口子）"
+        },
+        {
+          "at": [
+            10,
+            17
+          ],
+          "kind": "stall_row",
+          "why": "「回」字摊位区的里圈摊架"
+        },
+        {
+          "at": [
+            22,
+            13
+          ],
+          "kind": "stone_lantern",
+          "why": "大道边的白石灯盏"
+        },
+        {
+          "at": [
+            25,
+            13
+          ],
+          "kind": "stone_lantern",
+          "why": "大道边的白石灯盏"
+        },
+        {
+          "at": [
+            22,
+            23
+          ],
+          "kind": "stone_lantern",
+          "why": "大道边的白石灯盏"
+        },
+        {
+          "at": [
+            25,
+            23
+          ],
+          "kind": "stone_lantern",
+          "why": "大道边的白石灯盏"
+        }
+      ]
+    },
+    "ch06_sanxiu_lou": {
+      "theme": "indoor_wood",
+      "time": "indoor",
+      "season": "spring",
+      "why": "散修团伙借住的小楼：议事、制符、苦修、翻笔录都在屋里，点着灯。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.3
+        }
+      ],
+      "backdrop": "inn_hall",
+      "dof": 0.4,
+      "dof_why": "室内（32×24），取室内的常用值",
+      "props": [
+        {
+          "at": [
+            6,
+            8
+          ],
+          "kind": "gate_doors",
+          "why": "二楼议事屋关着的门（节点 7 推门）"
+        },
+        {
+          "at": [
+            4,
+            3
+          ],
+          "kind": "table",
+          "why": "议事屋里的长案"
+        },
+        {
+          "at": [
+            16,
+            2
+          ],
+          "kind": "desk",
+          "why": "韩立房里的制符桌（9a、制符设施）"
+        },
+        {
+          "at": [
+            21,
+            2
+          ],
+          "kind": "dais",
+          "why": "蒲团所在的矮榻（9b、打坐）"
+        },
+        {
+          "at": [
+            27,
+            2
+          ],
+          "kind": "bed",
+          "why": "床（10b 躺着翻青溪笔录）"
+        },
+        {
+          "at": [
+            7,
+            16
+          ],
+          "kind": "table",
+          "why": "一楼大厅的八仙桌"
+        },
+        {
+          "at": [
+            20,
+            14
+          ],
+          "kind": "table",
+          "why": "一楼另一张方桌"
+        },
+        {
+          "at": [
+            2,
+            13
+          ],
+          "kind": "desk",
+          "why": "苦桑念经的供案"
+        }
+      ]
+    },
+    "ch06_shanqiu": {
+      "theme": "wild",
+      "time": "day",
+      "season": "spring",
+      "why": "出谷后御风决奔出百余里，天亮后的荒丘凹地；袭杀在白天。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.3
+        },
+        {
+          "kind": "leaf",
+          "rate": 0.1
+        }
+      ],
+      "backdrop": "wild_manor",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "structures": [
+        {
+          "rect": [
+            17,
+            10,
+            24,
+            18
+          ],
+          "kind": "rock",
+          "style": "cliff",
+          "why": "凹地四面的土埂（只在南边留口子）"
+        }
+      ]
+    },
+    "ch06_huangfenggu": {
+      "theme": "sect",
+      "time": "day",
+      "season": "summer",
+      "why": "黄枫谷外门：测灵根、掌门殿、领装备、传功阁、百机堂都在白天；太南会散后又过了半月有余。",
+      "particles": [
+        {
+          "kind": "leaf",
+          "rate": 0.25
+        },
+        {
+          "kind": "dust",
+          "rate": 0.15
+        }
+      ],
+      "backdrop": "sect_courtyard",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "zones": [
+        {
+          "rect": [
+            3,
+            23,
+            13,
+            33
+          ],
+          "ground": "wood_floor",
+          "why": "迎宾楼里头（房间与厅），不是院子"
+        },
+        {
+          "rect": [
+            2,
+            3,
+            12,
+            16
+          ],
+          "ground": "wood_floor",
+          "why": "百机堂的外堂与内殿"
+        }
+      ],
+      "props": [
+        {
+          "at": [
+            4,
+            23
+          ],
+          "kind": "bed",
+          "why": "迎宾楼房里的床（14 叶师叔来时他躺着出神）"
+        },
+        {
+          "at": [
+            10,
+            24
+          ],
+          "kind": "table",
+          "why": "迎宾楼房里的小案"
+        },
+        {
+          "at": [
+            23,
+            8
+          ],
+          "kind": "gate_doors",
+          "why": "议事大殿的殿门（15）"
+        },
+        {
+          "at": [
+            38,
+            9
+          ],
+          "kind": "desk",
+          "why": "传功阁前的案（16b）"
+        },
+        {
+          "at": [
+            38,
+            28
+          ],
+          "kind": "table",
+          "why": "林师弟屋前的案（16a 领装备）"
+        },
+        {
+          "at": [
+            4,
+            12
+          ],
+          "kind": "counter",
+          "why": "百机堂的柜台（17a）"
+        },
+        {
+          "at": [
+            4,
+            3
+          ],
+          "kind": "bookshelf",
+          "why": "内殿的卷宗架（17b）"
+        },
+        {
+          "at": [
+            8,
+            3
+          ],
+          "kind": "bookshelf",
+          "why": "内殿另一排架子"
+        }
+      ]
+    },
+    "ch06_baiyaoyuan": {
+      "theme": "valley",
+      "time": "day",
+      "season": "summer",
+      "why": "百药园：两座山丘之间的小盆地，方田沟槽、药香；认药在白天（埋瓶那一夜由旁白交代）。",
+      "particles": [
+        {
+          "kind": "petal",
+          "rate": 0.3
+        },
+        {
+          "kind": "dust",
+          "rate": 0.15
+        }
+      ],
+      "backdrop": "herb_valley",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "zones": [
+        {
+          "rect": [
+            22,
+            3,
+            26,
+            6
+          ],
+          "ground": "wood_floor",
+          "why": "他那间茅屋里头"
+        }
+      ],
+      "props": [
+        {
+          "at": [
+            23,
+            4
+          ],
+          "kind": "dais",
+          "why": "茅屋里的蒲团（打坐）"
+        }
+      ]
     }
   }
 }

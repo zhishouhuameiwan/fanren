@@ -1,0 +1,14 @@
+{
+  "id": "tainan_sanxiu_beijian",
+  "name": "背剑的散修",
+  "realm": "QiRefining7",
+  "maxHp": 95,
+  "maxMp": 70,
+  "attack": 13,
+  "defence": 7,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "太南谷广场上赴会的散修，背一口剑（ch129）。路人。不参与战斗。"
+}

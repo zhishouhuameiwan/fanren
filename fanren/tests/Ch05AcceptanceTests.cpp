@@ -282,7 +282,9 @@ TEST_F(Ch05Acceptance, No9_NoTianyanAndTheSwordTalismanIsLentForOneFightOnly) {
     int forgets = 0;
     std::string learnedIn;
     std::string forgottenIn;
-    for (const auto& [path, source] : allScripts_) {
+    // 只数第 5 章：第 6 章节点 9b（scripts/ch06/kuxiu.lua）起祭剑符常驻，那是另一章的事
+    //（docs/ch06-design.md 3.2 节点 9、10.1 E5）。
+    for (const auto& [path, source] : chapterScripts_) {
         const std::string code = codeOnly(source);
         const int l = countOf(code, "magic.learn(\"magic_ji_jianfu\")");
         const int f = countOf(code, "magic.forget(\"magic_ji_jianfu\")");

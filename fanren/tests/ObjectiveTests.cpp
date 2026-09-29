@@ -595,6 +595,9 @@ constexpr ScriptTransfer kScriptTransfers[] = {
     {"ch05.jianmianli", "scripts/ch05/jianmian.lua", "ch05_mofu"},             // 见面礼之后落在府里
     {"ch05.chuzheng", "scripts/ch05/zhuwu.lua", "ch05_dubashanzhuang"},        // 骑马十日到山庄外
     {"ch05.cisha", "scripts/ch05/shangyue.lua", "ch05_mofu"},                  // 得手，骑马回墨府
+    {"ch06.rugu", "scripts/ch06/guaipo.lua", "ch06_tainan_gu"},                // 通音符开阵，雾道进谷
+    {"ch06.chugu", "scripts/ch06/sanhui.lua", "ch06_shanqiu"},                 // 出谷，御风百余里到荒丘
+    {"ch06.xisha", "scripts/ch06/xisha.lua", "ch06_huangfenggu"},              // 天雾台之后乘船入谷
 };
 
 // 门的钥匙里不在目标链上的：哪个脚本置它、紧跟在链上哪一步之后到手。

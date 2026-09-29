@@ -376,6 +376,7 @@ TEST_F(Ch04PlaqueHasNoName, NoOneElseInThisChapterSaysThatNameOutLoud) {
 const std::vector<std::string>& scriptsAllowedToTouchThePlaque() {
     static const std::vector<std::string> kAllowed = {
         "ch04/zhanlipin.lua",  // 第 4 章节点 10，他从灰里翻出它的那一处
+        "ch06/bilu.lua",       // 第 6 章节点 10b，《青溪笔录》识破它是黄枫谷的升仙令（收走牌子、给出令牌）
     };
     return kAllowed;
 }

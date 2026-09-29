@@ -12,7 +12,8 @@
 // 世界层不再重画。音效：开 ui_open、合 ui_close、移动 ui_cursor、确认 ui_confirm、
 // 退一级 ui_cancel；缺文件时引擎静默。
 //
-// 用词走 Wording：第 1–5 章 story.xiuxian_known 不置，钱叫「碎银」、境界说「口诀第几层」、
+// 用词走 Wording：第 1–5 章 story.xiuxian_known 不置，第 6 章太南谷听完灵根之说时置
+//（scripts/ch06/guaipo.lua；G-13 已按第 6 章拍板收口）。不置时钱叫「碎银」、境界说「口诀第几层」、
 // 法力叫「气力」、「法术」一栏叫「法门」。面板上能出现的固有字全部由 menuStrings 列出，
 // tests/UiStyleTests.cpp 拿禁词表扫它。
 #include <memory>
@@ -44,6 +45,10 @@ public:
 
     // 左栏七项的字。法术那一栏按阶段换说法。
     [[nodiscard]] static std::string pageLabel(const core::GameData& data, PanelStage stage,
+                                               Page page);
+    // 画在屏上的那一份（左栏与右栏页眉都取它）：同上，另外物品那一栏按 ch06.chuwudai
+    // 换成「储物袋」（Wording 的 bagWord，契约 docs/interfaces-p3-ch06.md 第 4 节）。
+    [[nodiscard]] static std::string pageLabel(const core::GameData& data, const core::GameState& state,
                                                Page page);
 
     // 物品页的行：背包里除了钱（钱在左下角另写）以外的每一堆，灵草带年份。

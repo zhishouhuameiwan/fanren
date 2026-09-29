@@ -609,7 +609,10 @@ std::vector<ui::ListItem> BattleScene::buildMagicItems(const core::GameData& dat
         if (const std::string cats = core::categoryNames(core::magicCategories(*magic)); !cats.empty()) {
             detail += " · " + cats;
         }
-        detail += magic->boost == core::MagicBoost::Hits ? " · 蓄劲连发" : " · 蓄劲加威";
+        // 看破（天眼术）不吃蓄劲，不写「蓄劲加威」骗人。
+        if (magic->effect == core::MagicEffect::None) {
+            detail += magic->boost == core::MagicBoost::Hits ? " · 蓄劲连发" : " · 蓄劲加威";
+        }
         items.push_back(row(magic->name, detail, refuseOnAnyone(state, battle, probe, /*wantAlly=*/false)));
     }
     if (magicIds.empty()) items.push_back(row("（无）", {}, emptyMagicReason(wordingStage(state), battle, actorIndex)));
@@ -834,6 +837,15 @@ bool BattleScene::menuChoose(Application& app, int index) {
             }
             shape_.kind = menu_ == BattleMenuMode::Magic ? ActionKind::Cast : ActionKind::Item;
             shape_.magicId = menuIds_[static_cast<std::size_t>(index)];
+            // 看破照的是整个场子，不挑目标：选中就施展（契约 docs/interfaces-p3-ch06.md 1.5）。
+            // 蓄劲按 0 发——它不吃劲，与防御同一个口径。
+            if (const core::Magic* magic = app.data().findMagic(shape_.magicId);
+                menu_ == BattleMenuMode::Magic && magic != nullptr && magic->effect != core::MagicEffect::None) {
+                shape_.actorIndex = battle_.currentActor();
+                shape_.targetIndex = -1;
+                shape_.boost = 0;
+                return issueFromMenu(app, shape_);
+            }
             enterTarget(app);
             return true;
         case BattleMenuMode::Target:
@@ -1138,6 +1150,18 @@ double BattleScene::playEvent(Application& app, const BattleEvent& e) {
             return 0.9;
         case BattleEventKind::End:
             return 0.5;
+        case BattleEventKind::Reveal:
+            // 看破：这个敌人（与同 id 的）破绽一格格全亮，用的是「打中揭开」的同一套画法。
+            if (validUnit(battle_, e.target)) {
+                const std::string& id = units[static_cast<std::size_t>(e.target)].id;
+                for (std::size_t i = 0; i < units.size() && i < shown_.size(); ++i) {
+                    if (units[i].id == id && units[i].ally == units[static_cast<std::size_t>(e.target)].ally) {
+                        shown_[i].revealed |= e.value & units[i].weaknesses;
+                    }
+                }
+            }
+            view.onReveal(e.target, e.value);
+            return 0.25;
     }
     return 0.1;
 }

@@ -915,11 +915,15 @@ def check():
     import genmaps_ch03
     import genmaps_ch04
     import genmaps_ch05
+    import genmaps_ch06
 
-    for chapter in (genmaps_ch02, genmaps_ch03, genmaps_ch04, genmaps_ch05):
+    for chapter in (genmaps_ch02, genmaps_ch03, genmaps_ch04, genmaps_ch05, genmaps_ch06):
         for map_id, payload in chapter.build_all().items():
             # 神手谷三边都产出：以本文件的为准（那是整张重建 + 两层补丁，更严）。
             built.setdefault(map_id, payload)
+    # 第 6 章在南城补了一道东门（往太南山脚），归 genmaps_ch06.py 所有：南城本身由第 5 章的
+    # 生成器整张重建，这里在它那一份上再补一次，与第 1 章韩家村那几处补丁同一个做法。
+    built["ch05_nancheng"] = genmaps_ch06.patch_nancheng(built["ch05_nancheng"])
     return check_maps(built)
 
 

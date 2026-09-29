@@ -1,0 +1,14 @@
+{
+  "id": "honglian_sanren",
+  "name": "红莲散人",
+  "realm": "QiRefining7",
+  "maxHp": 95,
+  "maxMp": 80,
+  "attack": 12,
+  "defence": 7,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "飞莲洞的少女（ch130）：相貌普通，寡言；问过「十一层的人为什么还要上擂台」（ch135）。不参与战斗。"
+}

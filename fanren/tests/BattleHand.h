@@ -52,6 +52,9 @@ struct HandPolicy {
     std::vector<std::string> poisons{kHandShixinPoison};
     bool feedCompanion = false;
     bool fleeWhenSpent = false;
+    // 这一场捂着不用的法术（第 6 章复验 N-L5：吴风切磋里剑符「能不露就不露」，通关那只手照这个意思不放）。
+    // 缺省空：前几章的手一样也不捂。
+    std::vector<std::string> withheldMagics;
 };
 
 class BattleHand {
@@ -382,6 +385,10 @@ private:
             for (const std::string& id : me.magics) {
                 const core::Magic* m = b.findMagic(id);
                 if (m == nullptr || (m->power <= 0 && m->poison <= 0)) continue;
+                if (std::find(policy_.withheldMagics.begin(), policy_.withheldMagics.end(), id) !=
+                    policy_.withheldMagics.end()) {
+                    continue;
+                }
                 Action cast = make(ActionKind::Cast, actor, target);
                 cast.magicId = id;
                 add(cast, true);

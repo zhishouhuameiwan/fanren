@@ -1,0 +1,14 @@
+{
+  "id": "caomao_qingnian",
+  "name": "草帽青年",
+  "realm": "QiRefining9",
+  "maxHp": 130,
+  "maxMp": 90,
+  "attack": 17,
+  "defence": 9,
+  "speed": 9,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "飞行符的摊主（ch131-132）：戴草帽的精悍青年，在第九层顶上卡了好久；飞行符标价三十块灵石或等价的固元培本类丹药。嫌叶豹出价低，当众顶了回去。换完飞行符原著再无下文——本作换完就收摊（hidden_flag ch06.feixingfu）。不参与战斗。"
+}

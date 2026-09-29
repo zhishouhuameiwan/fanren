@@ -1,0 +1,11 @@
+{
+  "id": "story_jinfa_fu",
+  "name": "禁法符",
+  "descKey": "item.desc.story_jinfa_fu",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "青纹道士给的那道符（ch130）：黄符上银光闪闪，贴在小楼外那层青光上就开出一个圆孔（ch132）。第 6 章节点 4 入伙时 give；小楼的门 require_flag 用的是 ch06.ruhuo，符本身只是凭据。"
+}

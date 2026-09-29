@@ -1,0 +1,48 @@
+{
+  "id": "q06_zhang",
+  "name": "太南谷的账",
+  "chapter": 6,
+  "kind": "side",
+  "title_key": "ch06.quest.zhang.title",
+  "summary_key": "ch06.quest.zhang.summary",
+  "accept": [
+    {
+      "flag": "ch06.jinzhubi",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1_cuan",
+      "text_key": "ch06.quest.zhang.s1",
+      "done": [
+        {
+          "item": "material_lingshi",
+          "op": ">=",
+          "value": 10
+        }
+      ],
+      "target_map": "ch06_tainan_gu",
+      "target_object": "facility_fangshi"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch06.zhang_done",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail": [
+    {
+      "flag": "ch06.chugu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch06.quest.zhang.fail",
+  "rewards": [],
+  "origin": "改编（ch131「半块灵石也没有」→ ch143「发了一大笔横财」，中间原著没写）",
+  "note": "支线 Z2（docs/ch06-design.md 第 6 节）。接：节点 8b 换完金竺笔之后（接取谓词 ch06.jinzhubi；scripts/ch06/shaonv.lua 置它）。原在 5a 末尾接——那时任务目标直指坊市，最顺手的是卖两瓶养精丹，8b 的七瓶就凑不齐（校对 HIGH-3，施工图 16.4），现在 8b 药不够也能补差、欠账，接取仍挪到 8b 之后，免得任务本身劝人卖掉以物易物的通货。步骤：出谷之前身上有 ≥ 10 块灵石（施工图的字面量）——坊市 sellRate 0.08，符纸、丹砂、定神符卖回都是 0，钱从卖药（清毒散 4、金疮药 2、养精丹 7）与路径行动来。了结看 ch06.zhang_done：节点 11 出谷前数一遍（scripts/ch06/sanhui.lua，先置它、再置 ch06.chugu）。不直接拿「灵石 ≥ 10 且 ch06.chugu == 0」当了结谓词：任务状态每次按谓词现算（src/core/rules/Quest.h），那样写出谷之后必然判成过期，连当时攒够了的人也一样；记号旗标把「出谷那一刻」钉住。过期：ch06.chugu 置位时没攒够（了结压过过期）。回报不是物品：节点 12 搜身时多一句（scripts/ch06/xisha.lua）。"
+}

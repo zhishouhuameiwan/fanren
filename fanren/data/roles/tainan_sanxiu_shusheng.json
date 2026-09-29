@@ -1,0 +1,14 @@
+{
+  "id": "tainan_sanxiu_shusheng",
+  "name": "摇扇的书生",
+  "realm": "QiRefining6",
+  "maxHp": 88,
+  "maxMp": 70,
+  "attack": 11,
+  "defence": 6,
+  "speed": 7,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "太南谷广场上赴会的年轻修仙者，书生打扮（ch129：各人的打扮五花八门）。路人。不参与战斗。"
+}

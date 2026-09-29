@@ -1,0 +1,12 @@
+{
+  "id": "magic_bingdong_shu",
+  "name": "冰冻术",
+  "descKey": "magic.desc.magic_bingdong_shu",
+  "element": 4,
+  "needMp": 10,
+  "power": 12,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "原著",
+  "note": "原著：与流沙术同出一本咒书（ch132），地域性，让有水的地方凝结成冰；突破第九层后能凝一张桌面大（ch139）。第 6 章节点 9b（scripts/ch06/kuxiu.lua）magic.learn。五行水（4）。数值 power 12 / needMp 10 / boost power 照施工图 E5；是初值，归平衡路。"
+}

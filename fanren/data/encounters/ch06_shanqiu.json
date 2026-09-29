@@ -1,0 +1,20 @@
+{
+  "id": "encounter_ch06_shanqiu",
+  "name": "百里荒丘",
+  "dailyCap": 2,
+  "entries": [
+    {
+      "battleId": "be05_linzi_langqun",
+      "weight": 3,
+      "minRealm": "QiRefining5",
+      "maxRealm": "QiRefining10"
+    },
+    {
+      "battleId": "be05_linzi_yezhu",
+      "weight": 2,
+      "minRealm": "QiRefining5",
+      "maxRealm": "QiRefining10"
+    }
+  ],
+  "note": "第 6 章百里荒丘东北那片坡（ch06_shanqiu 的 encounter_dongpo，require_flag ch06.chugu）。条目复用第 5 章庄外林子的狼群与野猪（岚州荒野，都说得通；施工图 8.4）。只有野兽，不放修仙者。太南谷、黄枫谷、百药园是人群与门派禁地，不放遭遇。"
+}

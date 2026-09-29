@@ -1,0 +1,21 @@
+{
+  "id": "yejia_dizi",
+  "name": "叶家弟子",
+  "realm": "QiRefining7",
+  "maxHp": 90,
+  "maxMp": 70,
+  "attack": 13,
+  "defence": 7,
+  "speed": 8,
+  "element": 2,
+  "magics": [
+    "magic_bingjian_shu"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "剑",
+    "金"
+  ],
+  "origin": "改编",
+  "note": "战斗①里叶豹带来的两个族中子弟（改编，施工图第 5 节）。只在战斗里出现。破绽：金是施工图原写（木怕金）；另加一样「剑」——祭剑符（金）要到节点 9b 才常驻，战斗①那一刻韩立手里的金还没有，打得到他们的是软剑与友军黑木的剑（施工偏差，已记进施工图第 18 节）。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "hei_han",
+  "name": "黑汉",
+  "realm": "QiRefining10",
+  "maxHp": 150,
+  "maxMp": 100,
+  "attack": 19,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "拿法宝残片换回风钵的人（ch139-141）：二十七八，皮肤黝黑、手脚粗大像个农夫，却是十层；灵石前几天花光了。只在节点 10a 里出现，不落地图。不参与战斗。"
+}

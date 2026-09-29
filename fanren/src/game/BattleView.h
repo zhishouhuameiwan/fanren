@@ -88,6 +88,8 @@ public:
     void onFled(int unit);
     void onWaveIn(int wave);
     void onChargeDeclare(int unit);
+    // 看破（天眼术）照到这个敌人：金光一闪，bits 那几格破绽图标一起亮（与「打中揭开」同一套画法）。
+    void onReveal(int unit, int bits);
     // 这一手演完了：冲出去的人退回原位、施法的收势、这一手的气焰散掉。
     void endAction();
     // 头顶飘一句（「蓄劲 ×2」「中毒」）。

@@ -198,6 +198,10 @@ enum class BattleEventKind {
     WaveIn,           // value = 进场的是第几波（0 起算）
     ChargeDeclare,    // actor 宣告蓄势；text = 预告句的文案 key
     End,              // 战斗结束；value = BattlePhase
+    // actor 施展看破（天眼术，Magic::effect == Reveal）揭开 target 的破绽。追加在末尾。
+    // 本场每一个站着的敌人各一条，紧跟在那一手的 Act 之后；revealed = 这一下新揭开的，
+    // value = 揭开之后它的全部已揭开（= 它的全部破绽）。不是一击：没有 Hit，不伤人、不削架势。
+    Reveal,
 };
 
 struct BattleEvent {
@@ -328,6 +332,9 @@ private:
 
     std::string applyAttack(const Action& a);
     std::string applyCast(const Action& a);
+    // 看破（Magic::effect == Reveal）：扣法力，本场每一个站着的敌人破绽全部揭开。
+    // 不算一次攻击——不判破绽、不削架势、不打断蓄势、不扣劲（蓄了也只当没蓄）。
+    std::string applyReveal(const Action& a, const Magic& magic);
     std::string applyItem(const Action& a);
     std::string applyDefend(const Action& a);
     std::string applyEscape(const Action& a);

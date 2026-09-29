@@ -110,6 +110,24 @@ TEST_F(GameWiring, TheBattleCallsMagicAndItsPoolWhatTheMainMenuCallsThem) {
     EXPECT_STREQ(fanren::game::mpWord(PanelStage::Mortal), "气力");
 }
 
+// 背包那一栏领了储物袋之后叫「储物袋」（O1，契约 docs/interfaces-p3-ch06.md 第 4 节）。问的是主菜单
+// 左栏与右栏页眉真正取字的那个函数（MenuScene::pageLabel 的 GameState 版）；没领时它与 ui.json 的
+// ui.menu.items 同词——Wording 与 ui.json 两处出处，这里钉住它们对得上。
+TEST_F(GameWiring, TheBagIsCalledTheStorageBagOnceHeHasOne) {
+    ASSERT_EQ(app_.state().flag(fanren::game::kChuwudaiFlag), 0);
+    const PanelStage stage = fanren::game::wordingStage(app_.state());
+    EXPECT_EQ(MenuScene::pageLabel(app_.data(), app_.state(), MenuScene::Page::Items), "物品");
+    EXPECT_EQ(MenuScene::pageLabel(app_.data(), app_.state(), MenuScene::Page::Items),
+              MenuScene::pageLabel(app_.data(), stage, MenuScene::Page::Items))
+        << "没领储物袋时与 ui.menu.items 同词";
+
+    app_.state().setFlag(fanren::game::kChuwudaiFlag);
+    EXPECT_EQ(MenuScene::pageLabel(app_.data(), app_.state(), MenuScene::Page::Items), "储物袋");
+    // 别的栏不跟着变。
+    EXPECT_EQ(MenuScene::pageLabel(app_.data(), app_.state(), MenuScene::Page::Magic),
+              MenuScene::pageLabel(app_.data(), stage, MenuScene::Page::Magic));
+}
+
 TEST(StageWords, RetellsTheRulesLayersSentencesInTheMortalsWords) {
     using fanren::game::stageWords;
     EXPECT_EQ(stageWords(PanelStage::Mortal, "法力不足，施展不了【火弹术】"), "气力不足，施展不了【火弹术】");

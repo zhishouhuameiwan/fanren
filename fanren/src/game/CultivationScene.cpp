@@ -49,6 +49,10 @@ constexpr int kPanelY = 60;
 constexpr int kPanelW = 1040;
 constexpr int kPanelH = 600;
 
+// 灵根测定的旗标（第 6 章太南谷测过灵根时置；契约 docs/interfaces-p3-ch06.md 第 2 节）。
+// 旗标名只写在这一处。
+constexpr const char* kSpiritRootFlag = "ch06.linggen";
+
 // 左侧状态栏占的比例。列表要留得下「尚差 1234 点修为」这种长理由。
 constexpr int kStatusPercent = 55;
 
@@ -194,6 +198,8 @@ constexpr CultivationLexicon kMortalLexicon{
     /*pushAtStoryCap*/       "卡在这一层了，火候再足也推不上去",
     /*atStoryCap*/           "口诀默到这一层就接不下去了，火候攒得再足也推不过去。"
                              "不是运气差——是还没到时候。",
+    /*spiritRootLabel*/      "",
+    /*spiritRootValue*/      "",
 };
 
 constexpr CultivationLexicon kImmortalLexicon{
@@ -235,6 +241,8 @@ constexpr CultivationLexicon kImmortalLexicon{
     /*pushAtStoryCap*/       "卡在瓶颈上，修为再足也冲不过去",
     /*atStoryCap*/           "卡在瓶颈上了。修为攒得再多也冲不过这一关——"
                              "不是运气差，是时机未到。",
+    /*spiritRootLabel*/      "灵根　",
+    /*spiritRootValue*/      "四属性缺金·伪灵根",
 };
 
 // 凡人阶段的层数名。不从 rules::nameOf 里截字符串：那是按字节切 UTF-8，
@@ -277,7 +285,8 @@ std::vector<std::string> cultivationPanelStrings(PanelStage stage) {
         words.dailyPracticeSuffix, words.notReady,           words.breakSuccessPrefix,
         words.breakSuccessMiddle, words.breakSuccessSuffix,  words.breakFailPrefix,
         words.breakFailSuffix,    words.backlashPrefix,      words.backlashSuffix,
-        words.pushAtStoryCap,     words.atStoryCap,
+        words.pushAtStoryCap,     words.atStoryCap,         words.spiritRootLabel,
+        words.spiritRootValue,
     };
 
     // 境界名也是面板上的字。全境界都列进来——漏了哪一档，那一档就是没人看着
@@ -346,6 +355,14 @@ const std::vector<MeditateOption>& CultivationScene::meditateOptions(PanelStage 
         {"闭关一年", rules::kDaysPerYear},
     };
     return stage == PanelStage::Mortal ? kMortalOptions : kImmortalOptions;
+}
+
+std::string CultivationScene::spiritRootLine(const core::GameState& state) {
+    // 两道闸缺一不可：凡人阶段「灵根」是禁词；进了修仙界而还没测过（第 6 章前半段）也不说。
+    // 「资质」那一行不动：aptitude 是修炼速度的输入，与灵根是两件事（Cultivation.cpp 的注释）。
+    if (wordingStage(state) != PanelStage::Immortal || state.flag(kSpiritRootFlag) == 0) return {};
+    const CultivationLexicon& words = cultivationLexicon(PanelStage::Immortal);
+    return std::string(words.spiritRootLabel) + words.spiritRootValue;
 }
 
 std::vector<ui::ListItem> CultivationScene::buildMainItems(const core::GameState& state) {
@@ -635,6 +652,7 @@ void CultivationScene::renderStatus(Application& app, const engine::Rect& area) 
     };
     line(std::string(words.realmLabel) + realmText(stage, state.realm));
     line(std::string(words.aptitudeLabel) + std::to_string(state.aptitude));
+    if (const std::string root = spiritRootLine(state); !root.empty()) line(root);
     line(std::string(words.dateLabel) + "第 " + std::to_string(calendar.year()) + " 年 " +
          std::to_string(calendar.monthOfYear()) + " 月 " +
          std::to_string(calendar.dayOfMonth()) + " 日");

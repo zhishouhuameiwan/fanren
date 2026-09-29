@@ -1,0 +1,14 @@
+{
+  "id": "tainan_sanxiu_shaonian",
+  "name": "赴会的少年",
+  "realm": "QiRefining5",
+  "maxHp": 80,
+  "maxMp": 50,
+  "attack": 10,
+  "defence": 5,
+  "speed": 7,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "太南谷广场上赴会的年轻修仙者（ch129：与会者全是十几二十几岁）。一人一个 role（规则 30）。不参与战斗。"
+}

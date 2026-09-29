@@ -98,6 +98,12 @@ struct Item {
 //   Hits ：连发 1+N 发，每发单独算伤害、单独判破绽——「弹」这一类用它。
 enum class MagicBoost { Power, Hits };
 
+// 法术不伤人的效果（契约 docs/interfaces-p3-ch06.md 第 1 节）。
+//   None  ：没有（现有全部法术）；
+//   Reveal：天眼术「看破」——施展一次，本场所有敌人的破绽全部揭开。不伤人、不削架势、不吃蓄劲。
+// 与 power > 0 / poison > 0 互斥（加载器报错）：一门法术要么伤人，要么看破。
+enum class MagicEffect { None, Reveal };
+
 struct Magic {
     std::string id;
     std::string name;
@@ -115,6 +121,9 @@ struct Magic {
 
     // 蓄劲的方式（数据字段 "boost": "hits" | "power"，缺省 power）。追加在末尾。
     MagicBoost boost = MagicBoost::Power;
+
+    // 不伤人的效果（数据字段 "effect": "reveal"，缺省没有）。追加在末尾。
+    MagicEffect effect = MagicEffect::None;
 };
 
 // 法术这一击是什么类别：它的五行；带毒的再加一个「毒」（docs/octopath-battle.md 2.2）。
@@ -133,6 +142,13 @@ struct Magic {
 // 格子没了，挡它的就得是一条说得出口的规则：它本来就不是伤人的法术。
 [[nodiscard]] inline bool offensiveMagic(const Magic& magic) {
     return magic.power > 0 || magic.poison > 0;
+}
+
+// 这门法术在战斗里能不能施展：伤人的，或者带一样不伤人的效果（天眼术的看破）。
+// 菜单「能不能点」问它；凡是「伤害 / 下毒」的分支照旧问 offensiveMagic。
+// 护身罡、御风决（power 0、没有 effect）两样都不是，照旧点不动（契约 docs/interfaces-p3-ch06.md 1.3）。
+[[nodiscard]] inline bool castableMagic(const Magic& magic) {
+    return offensiveMagic(magic) || magic.effect != MagicEffect::None;
 }
 
 // 队伍成员（P3 第 3 章增补，契约第 1.1 节）。

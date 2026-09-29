@@ -101,6 +101,12 @@ std::string MenuScene::pageLabel(const core::GameData& data, PanelStage stage, P
     return data.lookupText(pageKey(page, stage));
 }
 
+std::string MenuScene::pageLabel(const core::GameData& data, const core::GameState& state, Page page) {
+    // 物品那一栏领了储物袋之后改叫「储物袋」（O1，Wording 的 bagWord；未领时它与 ui.menu.items 同词）。
+    if (page == Page::Items) return bagWord(state);
+    return pageLabel(data, wordingStage(state), page);
+}
+
 std::vector<std::string> MenuScene::menuStrings(const core::GameData& data, PanelStage stage) {
     std::vector<std::string> out;
     for (int i = 0; i < kPageCount; ++i) out.push_back(pageLabel(data, stage, static_cast<Page>(i)));
@@ -142,11 +148,10 @@ void MenuScene::onEnter(Application& app) {
     fx_ = std::make_unique<engine::PostFx>(app.engine());
     backdropReady_ = false;
 
-    const PanelStage stage = wordingStage(app.state());
     std::vector<ui::ListItem> commands;
     for (int i = 0; i < kPageCount; ++i) {
         ui::ListItem row;
-        row.label = pageLabel(app.data(), stage, static_cast<Page>(i));
+        row.label = pageLabel(app.data(), app.state(), static_cast<Page>(i));
         commands.push_back(std::move(row));
     }
     commands_.reset();
@@ -426,9 +431,8 @@ void MenuScene::drawInfo(Application& app) const {
 void MenuScene::drawPage(Application& app) const {
     engine::Engine& e = app.engine();
     const ui::Theme& theme = app.theme();
-    const PanelStage stage = wordingStage(app.state());
     const Page current = page();
-    const std::string title = pageLabel(app.data(), stage, current);
+    const std::string title = pageLabel(app.data(), app.state(), current);
     ui::drawPanel(e, kPagePanel, current == Page::Back ? std::string{} : title, theme);
     const engine::Rect area = ui::panelContentArea(kPagePanel, title, theme);
 

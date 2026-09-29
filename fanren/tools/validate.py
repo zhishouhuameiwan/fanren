@@ -2196,6 +2196,10 @@ CHAPTER_MEANS = {
     5: [("拳", "hand", "", ""),
         # 第 5 章不新增常驻法术（施工图 1.1 第 9 条之后那一行），火弹术从第 4 章带过来。
         ("火", "learn", "magic_huodan_shu", "ch04")],
+    # 第 6 章整章只有拳与火：祭剑符（金）与流沙术（土）要到节点 9b 苦修（scripts/ch06/kuxiu.lua）才学会，
+    # 而节点 6 的叶家寻衅在那之前——登成整章必有，规则 25 就会对那一仗放水。9b 之后的几场按场登在下面。
+    6: [("拳", "hand", "", ""),
+        ("火", "learn", "magic_huodan_shu", "ch04")],
 }
 # 某一场仗额外必有的：蚀心散在节点 7 备毒时由 scripts/ch03/beidu.lua 给出（两包起），
 # 暗道那一仗是节点 8。谷外遇狼（节点 1）那会儿还没有，所以不进第 3 章的通表。
@@ -2206,8 +2210,17 @@ CHAPTER_MEANS = {
 BATTLE_EXTRA_MEANS = {
     "b03_andao_shishou": [("毒", "give", "pill_shixin_san", "ch03")],
     "b05_ouyang_feitian": [("金", "learn", "magic_ji_jianfu", "ch05")],
+    # 第 6 章节点 9b 之后的三场（docs/ch06-design.md 8.2）：9b 起祭剑符常驻、流沙术学会，
+    # 袭杀在节点 12、吴风切磋在节点 16b、外门切磋的路径行动 when 要 ch06.chuwudai（16a）——都在 9b 之后。
+    # 吴九指那一场切磋的 when 是 ch06.yishi（节点 7），打得在 9b 之前，所以不登。
+    "b06_shanqiu_xisha": [("金", "learn", "magic_ji_jianfu", "ch06"),
+                          ("土", "learn", "magic_liusha_shu", "ch06")],
+    "b06_wufeng_qiecuo": [("金", "learn", "magic_ji_jianfu", "ch06"),
+                          ("土", "learn", "magic_liusha_shu", "ch06")],
+    "b06_huangfenggu_qiecuo": [("金", "learn", "magic_ji_jianfu", "ch06"),
+                               ("土", "learn", "magic_liusha_shu", "ch06")],
 }
-MEANS_LAST_CHAPTER = 5
+MEANS_LAST_CHAPTER = 6
 
 
 def check_category_list(where, payload, field, allowed, report) -> list[str]:
@@ -2369,7 +2382,7 @@ def check_battle_break_data(report) -> None:
     """规则 24（形状，全仓）与规则 25（第 1–5 章：每个敌人至少一样破绽打得到）。
 
     24：角色的 weapons / weaknesses / toughness / actions / charge 写了就得写对；法术的 boost
-        只许 hits / power；兵器的 weapon 只许兵刃五类；格子时代的遗留字段（战场宽高、
+        只许 hits / power，effect 只许 reveal 且不与 power / poison 同写；兵器的 weapon 只许兵刃五类；格子时代的遗留字段（战场宽高、
         player_spawn、单位坐标、castRange、useRange）一律报错；上场的敌人（识海除外）
         必须有架势与破绽。
     25：第 1–5 章每一场仗（识海除外）的每一个敌人，破绽里至少有一样是那一场我方**必有**
@@ -2388,6 +2401,18 @@ def check_battle_break_data(report) -> None:
                 report.error(where, f"{field_name} 已作废：横版战斗没有距离，删掉这一项")
         if "boost" in payload and payload["boost"] not in ("hits", "power"):
             report.error(where, f"boost 只许 \"hits\" 或 \"power\"，实际是 {payload['boost']!r}")
+        # effect（契约 docs/interfaces-p3-ch06.md 第 1、5 节）：写了就得是 "reveal"（天眼术的看破），
+        # 且不许与 power > 0 / poison > 0 同写——一门法术要么伤人要么看破。加载器（DataLoader.cpp）
+        # 查同一条；power 缺省是 10，所以看破的法术得明写 "power": 0。
+        if "effect" in payload:
+            if payload["effect"] != "reveal":
+                report.error(where, f"effect 只许 \"reveal\"，实际是 {payload['effect']!r}")
+            else:
+                power = payload.get("power", 10)
+                poison = payload.get("poison", 0)
+                if (isinstance(power, int) and power > 0) or (isinstance(poison, int) and poison > 0):
+                    report.error(where, f"effect 不能与 power > 0 或 poison > 0 同写（power {power!r}，"
+                                        f"poison {poison!r}）：一门法术要么伤人要么看破")
 
     for path in sorted((ROOT / "data" / "items").rglob("*.json")):
         payload = read_json(path, report)

@@ -1,0 +1,11 @@
+{
+  "id": "story_chuwudai",
+  "name": "储物袋",
+  "descKey": "item.desc.story_chuwudai",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "十倍储物袋（ch148），黑色布袋：袋口对准东西、注入灵力就收进去。三忌：容量与缩小的倍数有限；不放活物；低阶的不认主。原著这是他**第一个**储物袋，不是「扩容」（施工图 1.2）；本作不造容量系统（16.1 第 7 条）。"
+}

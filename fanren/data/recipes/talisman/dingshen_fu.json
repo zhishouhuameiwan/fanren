@@ -1,0 +1,19 @@
+{
+  "id": "recipe_dingshen_fu",
+  "name": "定神符方",
+  "kind": "talisman",
+  "productId": "talisman_dingshen_fu",
+  "productCount": 1,
+  "difficulty": 40,
+  "requiredProficiency": 0,
+  "inputs": [
+    {
+      "itemId": "material_fuzhi",
+      "count": 1
+    },
+    {
+      "itemId": "material_dansha",
+      "count": 1
+    }
+  ]
+}

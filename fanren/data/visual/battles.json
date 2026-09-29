@@ -155,6 +155,31 @@
       "backdrop": "wild_manor",
       "map": "ch05_dubashanzhuang",
       "why": "野外遭遇：庄外林子的野猪，同上"
+    },
+    "b06_yejia_xunxin": {
+      "backdrop": "herb_valley",
+      "map": "ch06_tainan_gu",
+      "why": "太南谷摊位区叶家寻衅（施工图 8.2：谷，herb_valley）。谷图烘的是黄昏，药谷背景没有暮色版，取它"
+    },
+    "b06_shanqiu_xisha": {
+      "backdrop": "wild_manor",
+      "map": "ch06_shanqiu",
+      "why": "百里荒丘凹地袭杀（施工图 8.2：wild_manor）。荒丘是白天，这张背景是夜里的庄外野地——施工图点名用它，照写"
+    },
+    "b06_wufeng_qiecuo": {
+      "backdrop": "sect_courtyard",
+      "map": "ch06_huangfenggu",
+      "why": "黄枫谷传功阁切磋（施工图 8.2：sect_courtyard）"
+    },
+    "b06_qiecuo_wujiuzhi": {
+      "backdrop": "inn_hall",
+      "map": "ch06_sanxiu_lou",
+      "why": "路径行动·切磋，散修小楼里（施工图 8.2：可选两场各随所在图）"
+    },
+    "b06_huangfenggu_qiecuo": {
+      "backdrop": "sect_courtyard",
+      "map": "ch06_huangfenggu",
+      "why": "路径行动·切磋，黄枫谷石屋群（施工图 8.2：可选两场各随所在图）"
     }
   }
 }

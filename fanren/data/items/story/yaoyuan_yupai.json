@@ -1,0 +1,11 @@
+{
+  "id": "story_yaoyuan_yupai",
+  "name": "百药园玉牌",
+  "descKey": "item.desc.story_yaoyuan_yupai",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "百机堂发的玉牌（ch150）：接下青石岭百药园这份杂务的凭据，对着园外的禁制一照就有绿芒透进去。节点 17b 得。"
+}

@@ -112,9 +112,9 @@ constexpr OffChainFlag kOffChainFlags[] = {
     {"ch03.mo_siwang", "ch03.shihai_done", "ch03.yuzitong_chujue", "scripts/ch03/chujue.lua"},
 };
 
-// 目标链至少要覆盖到的章：少了一章，那一章的 NPC 就没被考到。
+// 目标链至少要覆盖到的章：少了一章，那一章的 NPC 就没被考到。第 6 章目标链 2026-09-29 落地（data/objectives/ch06.json）。
 constexpr int kFirstChapter = 1;
-constexpr int kLastChapter = 5;
+constexpr int kLastChapter = 6;
 
 // 与 tests/WorldViewTests.cpp 同一个找法。
 std::string repoRoot() {
@@ -885,8 +885,8 @@ protected:
     std::vector<Objective> chain_;
 };
 
-// 第 3、4、5 章的终局各两侧（tests/ChapterFixture.h）。少于这个数，说明目录找错了或存档丢了。
-constexpr std::size_t kMinHandoverSaves = 6;
+// 第 3、4、5、6 章的终局各两侧（tests/ChapterFixture.h）。少于这个数，说明目录找错了或存档丢了。
+constexpr std::size_t kMinHandoverSaves = 8;
 
 TEST_F(NpcPresenceShipped, EveryOffChainFlagIsSetWhereTheTableSays) {
     for (const OffChainFlag& extra : kOffChainFlags) {
@@ -1037,6 +1037,18 @@ TEST_F(NpcPresenceShipped, TheManualCheckpointsCarryTheHandoverFlags) {
         EXPECT_EQ(siege.value.flag(flag), value)
             << "saves/ch04-siege.sav 丢了或改了交接存档里的 " << flag << "：它该在章首那份之上只多不少，重跑 tools/mksave";
     }
+
+    // 第 6 章章首 saves/ch06-start.sav（2026-09-29）：第 5 章第一侧的交接存档只改了位置，旗标一字不差。
+    auto chapterFive = fanren::io::loadGame((root / "tests" / "fixtures" / "ch05-end-first.sav").string());
+    ASSERT_TRUE(chapterFive.ok) << chapterFive.error;
+    ASSERT_EQ(chapterFive.value.flag("ch05.done"), 1) << "先验：第 5 章交接存档是第 5 章的终局";
+    auto chapterSix = fanren::io::loadGame((root / "saves" / "ch06-start.sav").string());
+    ASSERT_TRUE(chapterSix.ok) << chapterSix.error;
+    EXPECT_EQ(chapterSix.value.flags, chapterFive.value.flags)
+        << "saves/ch06-start.sav 的旗标与 tests/fixtures/ch05-end-first.sav 对不上：重生成交接存档之后要重跑 "
+           "tools/mksave（build-<槽>\\mksave.exe . saves）";
+    EXPECT_EQ(chapterSix.value.bag.size(), chapterFive.value.bag.size()) << "saves/ch06-start.sav 的背包与交接存档对不上";
+    EXPECT_EQ(chapterSix.value.day, chapterFive.value.day) << "saves/ch06-start.sav 的日子与交接存档对不上";
 }
 
 }  // namespace

@@ -1,0 +1,14 @@
+{
+  "id": "tainan_laonong",
+  "name": "借住的老农",
+  "realm": "Mortal",
+  "maxHp": 30,
+  "maxMp": 0,
+  "attack": 5,
+  "defence": 3,
+  "speed": 3,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "太南山脚小村里韩立借住的那户人家（ch126「借住的村民家」）：老农。怪坡的事是他讲的。节点 1a 韩立把包里的碎银留给了他家（改编）。不参与战斗。"
+}

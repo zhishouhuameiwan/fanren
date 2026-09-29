@@ -1,0 +1,327 @@
+{
+ "map": "ch06_sanxiu_lou",
+ "tile": 16,
+ "width": 32,
+ "height": 24,
+ "theme": "indoor_wood",
+ "time": "indoor",
+ "season": "spring",
+ "ambient": [
+  132,
+  116,
+  98
+ ],
+ "dof": 0.4,
+ "bloom": 0.5,
+ "vignette": 0.45,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 26.5,
+   "y": 21.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  },
+  {
+   "x": 17.0,
+   "y": 2.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 22.0,
+   "y": 2.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 7.0,
+   "y": 3.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 3.0,
+   "y": 13.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 21.0,
+   "y": 14.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 8.0,
+   "y": 16.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 5.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 10.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 15.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 20.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 25.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 30.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 1.5,
+   "y": 8.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 11.5,
+   "y": 8.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 16.5,
+   "y": 8.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 21.5,
+   "y": 8.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 26.5,
+   "y": 8.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 4.5,
+   "y": 12.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 9.5,
+   "y": 12.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 14.5,
+   "y": 12.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 19.5,
+   "y": 12.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 24.5,
+   "y": 12.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "inn_hall"
+}

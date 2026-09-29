@@ -1,0 +1,11 @@
+{
+  "id": "material_qixingcao_zhongzi",
+  "name": "七星草种子",
+  "descKey": "item.desc.material_qixingcao_zhongzi",
+  "kind": "material",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "一小袋七星草的种子，袋口扎着红绳（ch137）：十年以上的七星草是制符纸的上好原料。节点 8b 二选一「要」才给，留给第 7 章的灵田（施工图 16.1 第 6 条）。tradeable 假：它是给下一章的伏笔，不许一进坊市就卖掉。"
+}

@@ -1,0 +1,22 @@
+{
+  "id": "b06_wufeng_qiecuo",
+  "name": "传功阁切磋",
+  "chapter": 6,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "wu_feng",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 60,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch06.battle.wufeng_qiecuo.intro",
+  "origin": "改编",
+  "note": "第 6 章节点 16b（ch06_huangfenggu trigger_wufeng，interact + once），三场必打之三。改编，钩子是吴风自己那句「共同切磋领悟」（ch149）。量一量门派弟子与散修的差距；赢输只改 ch06.wufeng = 1 / 2 与吴风的一句话，没有别的后果。can_escape 假、defeat_is_fatal 假。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

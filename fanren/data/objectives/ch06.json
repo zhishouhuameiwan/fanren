@@ -1,0 +1,189 @@
+{
+  "id": "objectives_ch06",
+  "name": "第 6 章目标链",
+  "chapter": 6,
+  "steps": [
+    {
+      "id": "n01_chudu",
+      "text_key": "objective.ch06.n01_chudu",
+      "done_flag": "ch06.chudu",
+      "target_map": "ch06_tainan_cun",
+      "target_object": "trigger_chudu"
+    },
+    {
+      "id": "n02_cunkou",
+      "text_key": "objective.ch06.n02_cunkou",
+      "done_flag": "ch06.wan_met",
+      "target_map": "ch06_tainan_cun",
+      "target_object": "trigger_cunkou"
+    },
+    {
+      "id": "n03_guaipo",
+      "text_key": "objective.ch06.n03_guaipo",
+      "done_flag": "ch06.rugu",
+      "target_map": "ch06_tainan_cun",
+      "target_object": "trigger_guaipo"
+    },
+    {
+      "id": "n04_qingyan",
+      "text_key": "objective.ch06.n04_qingyan",
+      "done_flag": "ch06.qingyan",
+      "target_map": "ch06_tainan_gu",
+      "target_object": "trigger_qingyan"
+    },
+    {
+      "id": "n05_ruhuo",
+      "text_key": "objective.ch06.n05_ruhuo",
+      "done_flag": "ch06.ruhuo",
+      "target_map": "ch06_tainan_gu",
+      "target_object": "trigger_ruhuo"
+    },
+    {
+      "id": "n06_lingshi",
+      "text_key": "objective.ch06.n06_lingshi",
+      "done_flag": "ch06.lingshi",
+      "target_map": "ch06_tainan_gu",
+      "target_object": "trigger_lingshi"
+    },
+    {
+      "id": "n07_feixingfu",
+      "text_key": "objective.ch06.n07_feixingfu",
+      "done_flag": "ch06.feixingfu",
+      "target_map": "ch06_tainan_gu",
+      "target_object": "npc_caomao_qingnian"
+    },
+    {
+      "id": "n08_xunxin",
+      "text_key": "objective.ch06.n08_xunxin",
+      "done_flag": "ch06.xunxin",
+      "target_map": "ch06_tainan_gu",
+      "target_object": "trigger_ye_xunxin"
+    },
+    {
+      "id": "n09_yishi",
+      "text_key": "objective.ch06.n09_yishi",
+      "done_flag": "ch06.yishi",
+      "target_map": "ch06_sanxiu_lou",
+      "target_object": "trigger_yishi"
+    },
+    {
+      "id": "n10_shuangshou",
+      "text_key": "objective.ch06.n10_shuangshou",
+      "done_flag": "ch06.shuangshou",
+      "target_map": "ch06_tainan_gu",
+      "target_object": "trigger_shuangshou"
+    },
+    {
+      "id": "n11_jinzhubi",
+      "text_key": "objective.ch06.n11_jinzhubi",
+      "done_flag": "ch06.jinzhubi",
+      "target_map": "ch06_tainan_gu",
+      "target_object": "npc_maifu_shaonv"
+    },
+    {
+      "id": "n12_zhifu",
+      "text_key": "objective.ch06.n12_zhifu",
+      "done_flag": "ch06.zhifu",
+      "target_map": "ch06_sanxiu_lou",
+      "target_object": "trigger_zhifu"
+    },
+    {
+      "id": "n13_kuxiu",
+      "text_key": "objective.ch06.n13_kuxiu",
+      "done_flag": "ch06.jiuceng",
+      "target_map": "ch06_sanxiu_lou",
+      "target_object": "trigger_kuxiu"
+    },
+    {
+      "id": "n14_canpian",
+      "text_key": "objective.ch06.n14_canpian",
+      "done_flag": "ch06.canpian",
+      "target_map": "ch06_tainan_gu",
+      "target_object": "trigger_canpian"
+    },
+    {
+      "id": "n15_bilu",
+      "text_key": "objective.ch06.n15_bilu",
+      "done_flag": "ch06.shengxianling",
+      "target_map": "ch06_sanxiu_lou",
+      "target_object": "trigger_bilu"
+    },
+    {
+      "id": "n16_sanhui",
+      "text_key": "objective.ch06.n16_sanhui",
+      "done_flag": "ch06.chugu",
+      "target_map": "ch06_tainan_gu",
+      "target_object": "trigger_sanhui"
+    },
+    {
+      "id": "n17_xisha",
+      "text_key": "objective.ch06.n17_xisha",
+      "done_flag": "ch06.xisha",
+      "target_map": "ch06_shanqiu",
+      "target_object": "trigger_xisha"
+    },
+    {
+      "id": "n18_linggen",
+      "text_key": "objective.ch06.n18_linggen",
+      "done_flag": "ch06.linggen",
+      "target_map": "ch06_huangfenggu",
+      "target_object": "trigger_ce_linggen"
+    },
+    {
+      "id": "n19_rangdan",
+      "text_key": "objective.ch06.n19_rangdan",
+      "done_flag": "ch06.rangdan",
+      "target_map": "ch06_huangfenggu",
+      "target_object": "trigger_ye_maidan"
+    },
+    {
+      "id": "n20_dadian",
+      "text_key": "objective.ch06.n20_dadian",
+      "done_flag": "ch06.rumen",
+      "target_map": "ch06_huangfenggu",
+      "target_object": "trigger_dadian"
+    },
+    {
+      "id": "n21_lingqu",
+      "text_key": "objective.ch06.n21_lingqu",
+      "done_flag": "ch06.chuwudai",
+      "target_map": "ch06_huangfenggu",
+      "target_object": "trigger_lin_lingqu"
+    },
+    {
+      "id": "n22_wufeng",
+      "text_key": "objective.ch06.n22_wufeng",
+      "done_flag": "ch06.wufeng",
+      "target_map": "ch06_huangfenggu",
+      "target_object": "trigger_wufeng"
+    },
+    {
+      "id": "n23_zawu",
+      "text_key": "objective.ch06.n23_zawu",
+      "done_flag": "ch06.zawu",
+      "target_map": "ch06_huangfenggu",
+      "target_object": "trigger_zawu"
+    },
+    {
+      "id": "n24_juanzong",
+      "text_key": "objective.ch06.n24_juanzong",
+      "done_flag": "ch06.huinuo",
+      "target_map": "ch06_huangfenggu",
+      "target_object": "trigger_juanzong"
+    },
+    {
+      "id": "n25_renyao",
+      "text_key": "objective.ch06.n25_renyao",
+      "done_flag": "ch06.renyao",
+      "target_map": "ch06_baiyaoyuan",
+      "target_object": "trigger_jinzhi"
+    },
+    {
+      "id": "n26_maiping",
+      "text_key": "objective.ch06.n26_maiping",
+      "done_flag": "ch06.done",
+      "target_map": "ch06_baiyaoyuan",
+      "target_object": "trigger_maiping"
+    }
+  ]
+}

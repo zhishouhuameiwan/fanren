@@ -1,0 +1,26 @@
+{
+  "id": "b06_shanqiu_xisha",
+  "name": "山丘袭杀",
+  "chapter": 6,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "huangyi_ren",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "tujia_dahan",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 150,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch06.battle.shanqiu_xisha.intro",
+  "origin": "原著",
+  "note": "第 6 章节点 12（ch06_shanqiu trigger_xisha，enter + once），三场必打之二，全章唯一的生死仗（ch142-143）。由占位编成 b06_shengxianling_jiesha 改写而来（施工图 8.2）；那份占位与引用它的 selftest 探针已在集成时由协调者一起处理掉（占位删除、探针挪到 b07_lu_shixiong；校对 LOW-10 改这一句）。黄衣人（八层，水，冰锥多段，葫芦黑球每 3 回合全体）+ 土甲大汉（九层，土，killable_by 金，黑索每 3 回合重击 ×2.0）。设计的核心是顺序：流沙术破大汉的势（土），趁他倒地祭剑符（金）要命；黄衣人怕土、怕火。天眼术开场一用，两人的破绽全亮。can_escape 假、defeat_is_fatal 真：原著这一仗输了就是死。灵石 0：五十块是脚本搜身给的（施工图第 9 节第 4 条），编成奖励再给一遍，结算卡与旁白就说了两遍。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

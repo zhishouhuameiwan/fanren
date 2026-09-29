@@ -954,6 +954,17 @@ def load_objectives(work: Path, chapter: str) -> dict:
     return json.loads((work / "data" / "objectives" / (chapter + ".json")).read_text("utf-8"))
 
 
+def register_probe_flag(work: Path, name: str) -> None:
+    """在副本的 flags.json 里登记一个自检专用、全仓没人置的旗标（「登记了却没人置」那几条探针用）。
+
+    从前借的是 story.xiuxian_known：它登记着、全仓一处也没置过。第 6 章节点 2（scripts/ch06/guaipo.lua）
+    起它有人置了，全仓再没有这样现成的旗标，探针只好自带一个。"""
+    path = work / "data" / "flags.json"
+    flags = json.loads(path.read_text(encoding="utf-8"))
+    flags[name] = "自检探针：登记了，全仓没人置"
+    path.write_text(json.dumps(flags, ensure_ascii=False, indent=2) + chr(10), "utf-8")
+
+
 def save_objectives(work: Path, chapter: str, payload: dict) -> None:
     (work / "data" / "objectives" / (chapter + ".json")).write_text(
         json.dumps(payload, ensure_ascii=False, indent=2), "utf-8")
@@ -978,13 +989,13 @@ def selftest_l_objectives(case: Case, base: Path) -> None:
     case.check("target_object 指向不存在的对象 → 报错",
                any("没有名为" in e for e in errors), chr(10).join(errors[:2]))
 
-    # 完成旗标没有任何脚本会置。story.xiuxian_known 正是这样一个：它在
-    # data/flags.json 里登记着，全仓却一处也没有置过（技术债里记着这笔账）。
+    # 完成旗标没有任何脚本会置：副本里自登记一个没人置的旗标（register_probe_flag）。
     work = make_full_workdir(base / "l2")
+    register_probe_flag(work, "selftest.dengji_wuren_zhi")
     payload = load_objectives(work, "ch01")
-    payload["steps"][0]["done_flag"] = "story.xiuxian_known"
+    payload["steps"][0]["done_flag"] = "selftest.dengji_wuren_zhi"
     save_objectives(work, "ch01", payload)
-    errors = [e for e in run_validate_full(work) if "story.xiuxian_known" in e]
+    errors = [e for e in run_validate_full(work) if "selftest.dengji_wuren_zhi" in e]
     case.check("done_flag 没有任何脚本会置 → 报错（这一步永远完不成）",
                any("没有任何脚本会置它" in e for e in errors), chr(10).join(errors[:2]))
 
@@ -1066,6 +1077,7 @@ def selftest_m_quests(case: Case, base: Path) -> None:
     print("M. 任务：形状、成对、谓词三种写法、旗标有人置、引用存在、一章一条主线")
 
     work = make_full_workdir(base / "m")
+    register_probe_flag(work, "selftest.dengji_wuren_zhi")
 
     def errors_for(payload, file_stem: str = QUEST_PROBE_ID) -> list[str]:
         write_quest(work, payload, file_stem)
@@ -1124,9 +1136,9 @@ def selftest_m_quests(case: Case, base: Path) -> None:
     expect("value 写成 true → 报", complete_cond(lambda c: c.__setitem__("value", True)), "value 必须是整数")
     expect("旗标没登记 → 报", complete_cond(lambda c: c.__setitem__("flag", "ch99.bu_cun_zai")),
            "旗标未在 data/flags.json 登记")
-    # story.xiuxian_known 登记着、全仓却一处也没有置过（L2 用的也是它）。
+    # 副本里自登记、全仓没人置的那一个（L2 用的也是它）。
     expect("旗标登记了却没有任何脚本会置 → 报",
-           complete_cond(lambda c: c.__setitem__("flag", "story.xiuxian_known")), "没有任何脚本会置它")
+           complete_cond(lambda c: c.__setitem__("flag", "selftest.dengji_wuren_zhi")), "没有任何脚本会置它")
     expect("谓词里的物品不存在 → 报",
            first_step(lambda s: s["done"][0].__setitem__("item", "pill_bu_cun_zai")), "物品 id 不存在")
     expect("奖励的物品不存在 → 报",
@@ -1218,7 +1230,7 @@ PATH_NEGATIVES = [
     (23, "inquire", "谓词旗标没登记",
      lambda e: e["when"].append({"flag": "ch99.bu_cun_zai", "op": ">=", "value": 1}), "旗标未在 data/flags.json 登记"),
     (24, "inquire", "谓词旗标登记了却没人置",
-     lambda e: e["when"].append({"flag": "story.xiuxian_known", "op": ">=", "value": 1}), "没有任何脚本会置它"),
+     lambda e: e["when"].append({"flag": "selftest.dengji_wuren_zhi", "op": ">=", "value": 1}), "没有任何脚本会置它"),
     (25, "inquire", "谓词 op 写成 >", lambda e: e["when"][0].__setitem__("op", ">"), "op 只认"),
     (26, "inquire", "破绽类别是表外的词", lambda e: e["reveal"][0].__setitem__("category", "laser"), "不是十种攻击类别"),
     (27, "inquire", "揭破绽的角色不上阵", lambda e: e["reveal"][0].__setitem__("role", "han_mu"), "不在任何一场编成里"),
@@ -1353,7 +1365,7 @@ def selftest_p_path_actions(case: Case, base: Path) -> None:
             match[0][3](probe)
         broken.append(probe)
     write_path_probe(work, broken, ["ch04.path.selftest_zhi", "ch04.path.selftest_nobody",
-                                    "ch04.path.selftest_orphan"])
+                                    "ch04.path.selftest_orphan", "selftest.dengji_wuren_zhi"])
     patch_script(work, "scripts/ch04/feiyu.lua", "talk(", 'flag.set("ch04.path.selftest_script")' + chr(10) + "talk(")
     # 章节公理的前提（validate.check_path_axiom_premise）：第 4 章的脚本置第 5 章的旗标、公共脚本置带章号的旗标。
     patch_script(work, "scripts/ch04/feiyu.lua", "talk(", 'flag.set("ch05.kaipian")' + chr(10) + "talk(")
@@ -1400,7 +1412,7 @@ def selftest_p_path_actions(case: Case, base: Path) -> None:
 # 每一条报错都至少命中其中一个——新加报错时对一遍：第一版漏了「weaknesses」，于是
 # 「类别名拼错」「写了两遍」那两条报是报了，却被这张表筛掉，自检当场红了两条。
 BREAK_RULE_WORDS = ("破绽", "架势", "已作废", "手段", "weaknesses", "weapons", "charge", "boost",
-                    "weapon", "actions", "toughness", "killable_by")
+                    "weapon", "actions", "toughness", "killable_by", "effect")
 
 
 def selftest_n_battle_break(case: Case, base: Path) -> None:
@@ -1472,6 +1484,12 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
            lambda p: p.__setitem__("boost", "hit"), "boost 只许")
     expect("法术还写着 castRange → 报", "data/magics/huodan_shu.json",
            lambda p: p.__setitem__("castRange", 4), "castRange 已作废")
+    # effect（天眼术的看破，契约 docs/interfaces-p3-ch06.md 第 5 节）：拼错与「伤人又看破」各一条。
+    # 探针落在火弹术上而不是天眼术：天眼术的数据归第 6 章，这两条问的是规则本身。
+    expect("法术 effect 写成大写 Reveal → 报", "data/magics/huodan_shu.json",
+           lambda p: p.__setitem__("effect", "Reveal"), "effect 只许")
+    expect("伤人的法术挂 effect reveal → 报", "data/magics/huodan_shu.json",
+           lambda p: p.__setitem__("effect", "reveal"), "effect 不能与 power")
     expect("兵器给的类别写成五行 → 报", "data/items/weapons/yudai_duanjian.json",
            lambda p: p.__setitem__("weapon", "火"), "weapon 只许兵刃类别")
     expect("物品还写着 useRange → 报", "data/items/pills/shixin_san.json",
@@ -1497,8 +1515,8 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
     # 韩立不在场的那一仗，手段只有编成里友军的兵刃：第 5 章的通表里有火，这里却不算。
     expect("夺帮那一夜的头目只怕火与刀 → 报（我方只有拳）", "data/roles/sipingbang_toumu.json",
            lambda p: p.__setitem__("weaknesses", ["火", "刀"]), "没有一样是这一场", "b05_duobang")
-    expect_quiet("第 6 章的敌人不在规则 25 的范围 → 不报", "data/roles/jiexiu.json",
-                 lambda p: p.__setitem__("weaknesses", ["木"]), "b06_shengxianling_jiesha")
+    expect_quiet("第 7 章的敌人不在规则 25 的范围 → 不报", "data/roles/lu_shixiong.json",
+                 lambda p: p.__setitem__("weaknesses", ["木"]), "b07_lu_shixiong")
     expect("编成落在没登记手段的章 → 报", "data/battles/b03_gu_wai_elang.json",
            lambda p: p.__setitem__("chapter", 2), "没有登记我方必有手段")
 

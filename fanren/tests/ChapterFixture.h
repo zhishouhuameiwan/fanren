@@ -92,6 +92,25 @@ inline constexpr const char* kChapterFiveEndingFirst = "ch05-end-first.sav";
 inline constexpr const char* kChapterFiveEndingSecond = "ch05-end-second.sav";
 inline constexpr const char* kWriteChapterFiveFixturesEnv = "FANREN_WRITE_CH05_FIXTURES";
 
+// ---- 第 6 章 → 第 7 章（测试路，docs/ch06-design.md 验收第 2 条）----
+//
+// 两侧照 tests/Ch06AcceptanceTests.cpp 两条通关用例的实际走法：
+//   first  —— Ch06Walkthrough.FirstSideWalksTheWholeChapterAndEveryGateHoldsThenOpens
+//             （从 ch05-end-first 起步，每一处二选一取第一项；认药一次认对、竹简直指百药园；
+//             坊市卖一瓶清毒散、买一张定神符——支线 Z1 了结、Z2 过期）；
+//   second —— Ch06Walkthrough.SecondSideTakesEveryOtherChoice
+//             （从 ch05-end-second 起步，每一处取第二项；认药与竹简把四个选项挨个点过去；
+//             坊市卖三瓶清毒散攒够十块——Z2 了结、Z1 过期）。
+// 两条都不在起点上手摆任何字段（第 5 章终局原样读入）。
+//
+// 重新生成（第 6 章的剧情真的改了，终局本就该变的时候）：
+//   set FANREN_WRITE_CH06_FIXTURES=1
+//   build-<槽>\fanren_tests.exe --gtest_filter=Ch06Walkthrough.FirstSideWalksTheWholeChapterAndEveryGateHoldsThenOpens:Ch06Walkthrough.SecondSideTakesEveryOtherChoice
+// 生成之后**先跑一遍不带这个变量的全套**。
+inline constexpr const char* kChapterSixEndingFirst = "ch06-end-first.sav";
+inline constexpr const char* kChapterSixEndingSecond = "ch06-end-second.sav";
+inline constexpr const char* kWriteChapterSixFixturesEnv = "FANREN_WRITE_CH06_FIXTURES";
+
 inline std::filesystem::path chapterFixturePath(const std::string& assetRoot,
                                                 const std::string& fileName) {
     return std::filesystem::path(assetRoot) / "tests" / "fixtures" / fileName;

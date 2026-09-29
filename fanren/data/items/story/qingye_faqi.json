@@ -1,0 +1,11 @@
+{
+  "id": "story_qingye_faqi",
+  "name": "青叶法器",
+  "descKey": "item.desc.story_qingye_faqi",
+  "kind": "story",
+  "grade": 0,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "黄枫谷弟子人手一只的飞行法器（ch148-149）：好上手，比骏马快那么一点。节点 16a 林师叔发的。"
+}
