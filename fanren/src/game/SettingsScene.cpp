@@ -13,7 +13,8 @@ namespace fanren::game {
 namespace {
 
 // 摆位。面板居中；一行 = 列表行高（字号 + 行距，与各面板同一个数）。
-constexpr engine::Rect kPanel{330, 64, 620, 592};
+// 「手柄震动」一行加进来时（docs/gamepad.md 第 8 节）高 592 → 622、仍上下居中，说明行与按键提示的间距不变。
+constexpr engine::Rect kPanel{330, 49, 620, 622};
 constexpr int kTopGap = 6;          // 标题带之下、第一个分组之上
 constexpr int kIndent = 20;         // 行名比分组名缩进这么多
 constexpr int kValueLeft = 300;     // 值那一栏从面板左边起多远
@@ -50,6 +51,7 @@ constexpr std::array<RowText, SettingsScene::kRowCount> kRowText{{
     {"ui.settings.effects", "ui.settings.desc.effects"},
     {"ui.settings.screen_shake", "ui.settings.desc.screen_shake"},
     {"ui.settings.text_speed", "ui.settings.desc.text_speed"},
+    {"ui.settings.pad_rumble", "ui.settings.desc.pad_rumble"},
     {"ui.settings.keys", "ui.settings.desc.keys"},
     {"ui.settings.restore", "ui.settings.desc.restore"},
 }};
@@ -63,7 +65,7 @@ struct Group {
 constexpr std::array<Group, 3> kGroups{{
     {"ui.settings.group.sound", SettingsScene::kBgmVolume, 2},
     {"ui.settings.group.display", SettingsScene::kFullscreen, 5},
-    {"ui.settings.group.play", SettingsScene::kTextSpeed, 2},
+    {"ui.settings.group.play", SettingsScene::kTextSpeed, 3},
 }};
 
 // 各档的叫法。
@@ -74,10 +76,10 @@ constexpr const char* kValueKeys[] = {
     "ui.settings.value.normal", "ui.settings.value.fast",       "ui.settings.value.instant",
 };
 
-// 固有字里其余几条：标题、说明行的几种话、按键提示。
+// 固有字里其余几条：标题、说明行的几种话、按键提示（键盘版与手柄版，docs/gamepad.md 第 6 节）。
 constexpr const char* kOtherKeys[] = {
     "ui.settings.title",           "ui.settings.restored", "ui.settings.save_failed",
-    "ui.settings.save_failed.again", "ui.settings.hint",
+    "ui.settings.save_failed.again", "ui.settings.hint",   "ui.settings.hint.pad",
 };
 
 const char* textSpeedKey(io::TextSpeed speed) {
@@ -118,6 +120,7 @@ std::string SettingsScene::valueText(const core::GameData& data, const io::Setti
                                                                               : "ui.settings.value.lite");
         case kScreenShake: return data.lookupText(onOffKey(settings.screenShake));
         case kTextSpeed: return data.lookupText(textSpeedKey(settings.textSpeed));
+        case kPadRumble: return data.lookupText(onOffKey(settings.padRumble));
         default: return {};
     }
 }
@@ -167,6 +170,9 @@ io::Settings SettingsScene::adjusted(const io::Settings& settings, int row, int 
             next.textSpeed = static_cast<io::TextSpeed>(index);
             break;
         }
+        case kPadRumble:
+            next.padRumble = step < 0;   // 开 / 关
+            break;
         default:
             break;   // 按键设置、恢复默认：不吃左右键
     }

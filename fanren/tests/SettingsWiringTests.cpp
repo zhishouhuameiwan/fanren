@@ -38,10 +38,11 @@ using fanren::io::Settings;
 using fanren::io::TextSpeed;
 
 // 行的下标即契约第 1 节的 # 次序（「按键设置」一期不可选时也占着第 8 行，二期接通时没挪别的行）。
+// docs/gamepad.md 第 8 节在「文字速度」之后插了「手柄震动」：第 8 行是它，「按键设置」「恢复默认」各往后挪一行（新真值）。
 static_assert(SettingsScene::kBgmVolume == 0 && SettingsScene::kSfxVolume == 1 && SettingsScene::kFullscreen == 2 &&
               SettingsScene::kScale == 3 && SettingsScene::kVSync == 4 && SettingsScene::kEffects == 5 &&
-              SettingsScene::kScreenShake == 6 && SettingsScene::kTextSpeed == 7 && SettingsScene::kKeys == 8 &&
-              SettingsScene::kRestore == 9 && SettingsScene::kRowCount == 10);
+              SettingsScene::kScreenShake == 6 && SettingsScene::kTextSpeed == 7 && SettingsScene::kPadRumble == 8 &&
+              SettingsScene::kKeys == 9 && SettingsScene::kRestore == 10 && SettingsScene::kRowCount == 11);
 // 标题画面：新的旅程 0 / 继续旅程 1 / 设置 2 / 离开 3（契约 5.1）。
 static_assert(fanren::game::TitleScene::kNewJourney == 0 && fanren::game::TitleScene::kContinue == 1 &&
               fanren::game::TitleScene::kSettings == 2 && fanren::game::TitleScene::kQuit == 3);
@@ -240,7 +241,10 @@ TEST_F(SettingsWiring, TheKeysRowOpensTheKeyPanelAndRestoreBringsEveryDefaultBac
     EXPECT_EQ(app_.settings().textSpeed, TextSpeed::Fast);
     EXPECT_EQ(DialogueScene::revealRate(app_), std::optional<double>(120.0)) << "对话框用的速率跟着变";
 
-    // 「按键设置」（第 8 行）可选了：确认 → 栈顶是改键面板；Esc 收回来，设置面板还在原处。
+    // 「按键设置」（第 9 行；docs/gamepad.md 第 8 节在它前面插了「手柄震动」，从「文字速度」下去要两格）可选了：
+    // 确认 → 栈顶是改键面板；Esc 收回来，设置面板还在原处。
+    press(SDL_SCANCODE_DOWN);
+    ASSERT_EQ(panel->selection(), SettingsScene::kPadRumble);
     press(SDL_SCANCODE_DOWN);
     ASSERT_EQ(panel->selection(), SettingsScene::kKeys);
     press(SDL_SCANCODE_RETURN);

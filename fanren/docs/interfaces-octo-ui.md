@@ -56,6 +56,8 @@
 
 - 底部墨金框；说话人是框上沿左侧一块**独立名签**（`nameTagArea`，旁白不画）；右上沿一块小牌写「Tab 回看　长按 Ctrl 快进」
   （2026-09-27 起是文案 `ui.dialogue.keys`，键名跟着键位走，见 `docs/settings.md` 第 6 节；默认键位下逐字不变）。
+  最后一下按的是手柄时换成手柄版「Y 回看　长按 RT 快进」（`ui.dialogue.keys.pad`，2026-09-28，`docs/gamepad.md` 第 6 节）；
+  画面上各处按键提示（标题、主菜单、对白、路径行动、两块设置面板、战斗）都这样跟着设备走，出口只有 `Application::text()` 一个。
 - 正文逐字（60 字/秒不变）；读完、没有选项时右下角一个缓慢起伏的「▼」。
 - 选项：正文与选项之间一道暗金线，选中行同 `ListView`。**脚本的 `choice{}` 不带问句**，框里现在留着刚说完的那一句（连名签，直接全显）。
 - 回看面板（Tab）同一套 `drawPanel`。
@@ -91,14 +93,16 @@
 - 左栏七项：状态 · 物品 · 法术 · 记事 · 存盘 · 设置 · 返回（「法术」凡人阶段叫「法门」，见下；「设置」2026-09-27 插在存盘与返回之间）；
   左下：盘缠 / 日期 / 所在。右栏随光标预览；
   物品、法术按确认进右栏列表看说明；记事直接压 `BoardScene`；存盘走 `Application::quickSave()`（与 F5 同一条路），成败都说一句；
-  设置页右栏写一句说明 + 当前八项的摘要，确认压系统设置面板 `SettingsScene`（与标题画面共用；菜单照「记事」的做法只画模糊底图，
-  面板一收再成为顶层）。设置面板与改键面板见 `docs/settings.md` 第 5 节。
+  设置页右栏写一句说明 + 当前九项的摘要（2026-09-28 多了「手柄震动」，`docs/gamepad.md` 第 8 节），确认压系统设置面板 `SettingsScene`
+  （与标题画面共用；菜单照「记事」的做法只画模糊底图，面板一收再成为顶层）。设置面板与改键面板见 `docs/settings.md` 第 5 节。
 - 状态页：韩立 + 在队同伴，小像取 `assets/art/sprites/index.json`（`io::loadSpriteIndex` 读、`game::sheetForRole` 挑，
   与世界画面同一张表、同一条规则：`roles` + `role_variants`，
   变体判据是**章节表里那一章的 `done_flag`**——韩立 `max_chapter: 2` → `ch02.done` 未置时用少年版），×4 画；没有精灵时画一方刻着姓的「印章」。
   气血 / 气力条、境界（`realmText`，第 1–5 章说「口诀　第几层」）、攻防（`realmAttack/realmDefence`，与战斗同源）、速度（`data/roles/hanli.json`）。
 - 用词走 Wording：`menuStrings(stage)` 列出菜单上全部固有字，`MenuWording` 用例拿禁词表扫。钱（背包里的 `material_lingshi`）不进物品页。
 - 键：Tab 在哪一级都合上；Esc 退一级（左栏时合上）。音效：`ui_open / ui_close / ui_cursor / ui_confirm / ui_cancel`（另：存盘成功 `save`、不可用 `ui_error`）。
+  手柄（`docs/gamepad.md` 第 2 节）：Y、≡ 与 Tab 同是「菜单」，B 与 Esc 同是「取消」；右下角那行提示按过手柄之后是「Y 关闭　B 返回」
+  （`ui.menu.keys.pad`）。按住这几个键不再连发（第 5 节），菜单不会一开一合地闪。
 - 底图：打开那一帧拍 `PostFx::snapshot()`，之后只画 `blurredSnapshot()`（`opaque()` 随之为真，世界层不再重画）。
 - 菜单与标题画面开着的时间记进 `playSecondsSystem`，不计入玩法时长（方案 2.2 的防刷口径）。
 
@@ -111,6 +115,7 @@
   继续旅程（`saves/quick.sav` 在才可选；`continueJourney` 失败如实写在菜单下，不静默新开局）/
   设置（压系统设置面板 `SettingsScene`，面板开着时标题背景的漂移停住，见 `docs/settings.md` 5.2）/ 离开。BGM `bgm_title`。
 - `--load <档>`（不带 `--map`）与「继续旅程」走同一个 `Application::continueJourney`。
+- 按键提示 `ui.title.keys`「↑↓ 选择　Enter 确认」；按过手柄之后是「↑↓ 选择　A 确认」（`ui.title.keys.pad`，`docs/gamepad.md` 第 6 节）。
 
 ## 8. 给协调者落地的补丁：`WorldScene::update` 接主菜单
 

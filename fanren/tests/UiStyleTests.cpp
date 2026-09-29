@@ -482,15 +482,22 @@ TEST(SettingsWording, ThePanelAndBothEntrancesPassTheForbiddenWordScan) {
     using fanren::game::TitleScene;
 
     const std::vector<std::string> panel = SettingsScene::settingsStrings(data);
-    // 10 行 × (名字 + 说明) + 3 个分组 + 12 个档位的叫法 + 标题、恢复默认、两句写盘失败、按键提示。
-    ASSERT_GE(panel.size(), 40u) << "用词表缩水了，这条扫描就扫了个寂寞";
-    // 改键面板（二期）：10 个动作名 + 14 句结果 + 标题、表头四栏、恢复默认键位、空格位、抓键提示、两句说明、按键提示。
+    // 11 行 × (名字 + 说明) + 3 个分组 + 12 个档位的叫法 + 标题、恢复默认、两句写盘失败、按键提示（键盘版与手柄版）。
+    ASSERT_GE(panel.size(), 43u) << "用词表缩水了，这条扫描就扫了个寂寞";
+    // 改键面板（二期）：10 个动作名 + 14 句结果 + 标题、表头五栏（docs/gamepad.md 第 7 节加了「手柄」）、恢复默认键位、空格位、
+    // 抓键提示、两句说明、按键提示，再加最后四条的手柄版。
     const std::vector<std::string> keyPanel = fanren::game::KeyConfigScene::keyConfigStrings(data);
-    ASSERT_GE(keyPanel.size(), 35u) << "改键面板的用词表缩水了";
+    ASSERT_GE(keyPanel.size(), 40u) << "改键面板的用词表缩水了";
     std::vector<std::string> all = panel;
     for (const std::string& text : keyPanel) all.push_back(text);
     for (const std::string& text : TitleScene::menuStrings(data)) all.push_back(text);
     for (const std::string& text : MenuScene::menuStrings(data, PanelStage::Mortal)) all.push_back(text);
+    // 手柄模式下换上的全部 .pad 文案（docs/gamepad.md 第 6 节那 11 条；id 写死在这里，不从被测的表里推）。
+    for (const char* id : {"ui.title.keys.pad", "ui.menu.keys.pad", "ui.dialogue.keys.pad", "ui.path.keys.pad",
+                           "ui.settings.hint.pad", "ui.keys.hint.pad", "ui.keys.capture.pad", "ui.keys.desc.pad",
+                           "ui.keys.desc.restore.pad", "ui.battle.hint.menu.pad", "ui.battle.hint.watch.pad"}) {
+        all.push_back(data.lookupText(id));
+    }
     for (const std::string& text : all) {
         EXPECT_FALSE(text.empty()) << "有一条固有字查出来是空的";
         EXPECT_TRUE(firstForbidden(text).empty()) << "出现了「" << firstForbidden(text) << "」：" << text;
@@ -499,12 +506,17 @@ TEST(SettingsWording, ThePanelAndBothEntrancesPassTheForbiddenWordScan) {
     // 两处入口的字：标题画面第 3 项、主菜单「存盘」与「返回」之间那一项。
     EXPECT_EQ(data.lookupText("ui.title.settings"), "设置");
     EXPECT_EQ(MenuScene::pageLabel(data, PanelStage::Mortal, MenuScene::Page::Settings), "设置");
-    // 契约第 1 节的行名，逐字抄（面板的行序即这张表的 # 次序）。
-    const char* const kRowNames[] = {"音乐音量", "音效音量", "显示模式", "画面缩放", "垂直同步",
-                                     "画面特效", "战斗震屏", "文字速度", "按键设置", "恢复默认"};
+    // 契约第 1 节的行名，逐字抄（面板的行序即这张表的 # 次序）。docs/gamepad.md 第 8 节在「文字速度」之后插了
+    // 「手柄震动」（新真值：11 行，行号照那一节写死的次序）。
+    const std::vector<std::string> kRowNames{"音乐音量", "音效音量", "显示模式", "画面缩放", "垂直同步", "画面特效",
+                                             "战斗震屏", "文字速度", "手柄震动", "按键设置", "恢复默认"};
+    ASSERT_EQ(kRowNames.size(), static_cast<std::size_t>(SettingsScene::kRowCount));
     for (int row = 0; row < SettingsScene::kRowCount; ++row) {
-        EXPECT_EQ(SettingsScene::rowLabel(data, row), kRowNames[row]) << "第 " << row << " 行";
+        EXPECT_EQ(SettingsScene::rowLabel(data, row), kRowNames[static_cast<std::size_t>(row)]) << "第 " << row << " 行";
     }
+    // 新行的说明与列头（docs/gamepad.md 第 7、8 节原文）。
+    EXPECT_EQ(data.lookupText("ui.settings.desc.pad_rumble"), "破势、挨重击时手柄震一下。用键盘时不震。");
+    EXPECT_EQ(data.lookupText("ui.keys.col.gamepad"), "手柄");
 }
 
 TEST(MenuItems, TheMoneyIsNotListedAsAnItemAndHerbsCarryTheirAge) {

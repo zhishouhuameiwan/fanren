@@ -15,12 +15,14 @@ using Key = engine::Engine::Key;
 using KeyChange = engine::Engine::KeyChange;
 
 // 摆位。面板居中；一行 = 列表行高（字号 + 行距，与各面板同一个数）。
-constexpr engine::Rect kPanel{220, 70, 840, 580};
+// 最右加了一列只读的「手柄」（docs/gamepad.md 第 7 节）：面板从 840 宽加到 980、仍居中，原有各列离面板左边的距离不变。
+constexpr engine::Rect kPanel{150, 70, 980, 580};
 constexpr int kTopGap = 6;
 constexpr int kIndent = 20;          // 动作名比面板内边距再缩进这么多（与设置面板的行名同一处起笔）
 constexpr int kFixedX = 190;         // 「固定」那一栏从面板左边起多远
 constexpr std::array<int, 2> kSlotCenter{510, 690};   // 两格自定义键位的中线（从面板左边起）
 constexpr int kSlotHalfWidth = 75;
+constexpr int kPadX = 800;           // 「手柄」那一栏从面板左边起多远（最宽的「十字↑ / 摇杆↑」18 号字 126 像素）
 constexpr int kSmallFontSize = 18;
 constexpr int kNoteFontSize = 18;
 constexpr int kHintFontSize = 16;
@@ -44,9 +46,14 @@ constexpr const char* kResultKeys[] = {
 };
 constexpr const char* kOtherKeys[] = {
     "ui.keys.title",   "ui.keys.col.action", "ui.keys.col.fixed", "ui.keys.col.slot1", "ui.keys.col.slot2",
-    "ui.keys.restore", "ui.keys.empty",      "ui.keys.capture",   "ui.keys.desc",      "ui.keys.desc.restore",
-    "ui.keys.hint",
+    "ui.keys.col.gamepad", "ui.keys.restore",    "ui.keys.empty",     "ui.keys.capture",   "ui.keys.desc",
+    "ui.keys.desc.restore", "ui.keys.hint",
+    // 最后按的是手柄时换上的那几条（docs/gamepad.md 第 6 节）。
+    "ui.keys.capture.pad", "ui.keys.desc.pad", "ui.keys.desc.restore.pad", "ui.keys.hint.pad",
 };
+
+// 手柄那一列的分隔（第 7 节：多个手柄键用「 / 」隔开）。
+constexpr std::string_view kPadSeparator = " / ";
 
 [[nodiscard]] bool rejected(KeyChange change) {
     return change == KeyChange::RejectedFixed || change == KeyChange::RejectedReserved ||
@@ -90,6 +97,15 @@ std::map<std::string, io::KeySlots> keySettingsOf(const engine::Engine::KeyTable
 
 std::string KeyConfigScene::actionName(const core::GameData& data, Key key) {
     return data.lookupText(std::string("ui.keys.") + engine::Engine::keyId(key));
+}
+
+std::string KeyConfigScene::padKeysText(Key key) {
+    std::string text;
+    for (const engine::Engine::PadButton button : engine::Engine::padButtons(key)) {
+        if (!text.empty()) text += kPadSeparator;
+        text += engine::Engine::padLabel(button);
+    }
+    return text;
 }
 
 std::vector<std::string> KeyConfigScene::keyConfigStrings(const core::GameData& data) {
@@ -241,6 +257,7 @@ void KeyConfigScene::render(Application& app) {
         const int w = e.measureText(head, kSmallFontSize).x;
         e.drawText(head, kPanel.x + kSlotCenter[s] - w / 2, headerY, kSmallFontSize, theme.gold, theme.bodyStyle);
     }
+    e.drawText(app.text("ui.keys.col.gamepad"), kPanel.x + kPadX, headerY, kSmallFontSize, theme.gold, theme.bodyStyle);
     y += rowH;
     for (int r = 0; r < kActionRows; ++r) {
         drawActionRow(app, r, y);
@@ -282,6 +299,9 @@ void KeyConfigScene::drawActionRow(Application& app, int row, int y) const {
     }
     if (fixed.empty()) fixed = app.text("ui.keys.empty");
     e.drawText(fixed, kPanel.x + kFixedX, y + (theme.bodyFontSize - kSmallFontSize) / 2 + 1, kSmallFontSize,
+               theme.paperDim, theme.bodyStyle);
+    // 手柄：只读，画法同「固定」那一列（灰，光标选不到；docs/gamepad.md 第 7 节）。手柄键位固定，这里改的只是键盘。
+    e.drawText(padKeysText(key), kPanel.x + kPadX, y + (theme.bodyFontSize - kSmallFontSize) / 2 + 1, kSmallFontSize,
                theme.paperDim, theme.bodyStyle);
 
     const engine::Engine::KeySlots slots = keyTableOf(app.settings())[static_cast<std::size_t>(row)];

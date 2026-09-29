@@ -38,6 +38,7 @@ std::string readText(const fs::path& path) {
 }
 
 // 与改造前行为一一对应的那组默认值（契约第 1 节表格的「默认」一列），逐项写死。
+// 手柄震动是有意的例外（docs/gamepad.md 第 8 节）：改造前根本不认手柄，没有「以前」可对，缺省开。
 void expectFactoryDefaults(const Settings& s) {
     EXPECT_EQ(s.bgmVolume, 10);
     EXPECT_EQ(s.sfxVolume, 10);
@@ -47,6 +48,7 @@ void expectFactoryDefaults(const Settings& s) {
     EXPECT_EQ(s.effects, EffectsLevel::Full);
     EXPECT_TRUE(s.screenShake);
     EXPECT_EQ(s.textSpeed, TextSpeed::Normal);
+    EXPECT_TRUE(s.padRumble);
     EXPECT_TRUE(s.keys.empty());
 }
 
@@ -61,6 +63,7 @@ Settings everythingChanged() {
     s.effects = EffectsLevel::Lite;
     s.screenShake = false;
     s.textSpeed = TextSpeed::Instant;
+    s.padRumble = false;
     s.keys = {{"up", {26, 0}}, {"confirm", {29, 44}}, {"action", {8, 20}}};
     return s;
 }
@@ -139,20 +142,56 @@ TEST(SettingsFile, TheFileNamesEveryFieldWithTheContractsWords) {
     const std::string text = readText(path);
     for (const char* piece : {"\"version\": 1", "\"bgm_volume\": 3", "\"sfx_volume\": 7", "\"fullscreen\": true",
                               "\"scale\": \"fit\"", "\"vsync\": false", "\"effects\": \"lite\"",
-                              "\"screen_shake\": false", "\"text_speed\": \"instant\"", "\"keys\""}) {
+                              "\"screen_shake\": false", "\"text_speed\": \"instant\"", "\"pad_rumble\": false",
+                              "\"keys\""}) {
         EXPECT_NE(text.find(piece), std::string::npos) << "写出来的文件里没有 " << piece << "\n" << text;
     }
     // version 写在最前：人打开文件第一眼看到的是它。
     EXPECT_LT(text.find("\"version\""), text.find("\"bgm_volume\""));
+    // pad_rumble 排在 text_speed 后面（docs/gamepad.md 第 8 节的样例）。
+    EXPECT_LT(text.find("\"text_speed\""), text.find("\"pad_rumble\""));
 
     // 默认值那一份也写全部字段。
     ASSERT_TRUE(fanren::io::saveSettings(Settings{}, path.string()).ok);
     const std::string plain = readText(path);
     for (const char* piece : {"\"bgm_volume\": 10", "\"fullscreen\": false", "\"scale\": \"integer\"",
                               "\"vsync\": true", "\"effects\": \"full\"", "\"screen_shake\": true",
-                              "\"text_speed\": \"normal\"", "\"keys\": {}"}) {
+                              "\"text_speed\": \"normal\"", "\"pad_rumble\": true", "\"keys\": {}"}) {
         EXPECT_NE(plain.find(piece), std::string::npos) << piece << "\n" << plain;
     }
+}
+
+// 手柄震动（docs/gamepad.md 第 8 节）：缺字段 → 开；写什么读回什么；类型不对 → 默认 + 一句警告，别的字段照读；
+// version 仍是 1。
+TEST(SettingsFile, PadRumbleDefaultsOnRoundTripsAndAWrongTypeFallsBackWithAWarning) {
+    const SettingsRead missing = fanren::io::parseSettings(R"({"version": 1, "bgm_volume": 4})");
+    EXPECT_TRUE(missing.settings.padRumble) << "缺字段：默认开";
+    EXPECT_TRUE(missing.warnings.empty());
+
+    const SettingsRead off = fanren::io::parseSettings(R"({"version": 1, "pad_rumble": false})");
+    EXPECT_FALSE(off.settings.padRumble);
+    EXPECT_TRUE(off.warnings.empty());
+
+    for (const char* wrong : {R"({"pad_rumble": "off", "sfx_volume": 3})", R"({"pad_rumble": 0, "sfx_volume": 3})"}) {
+        const SettingsRead read = fanren::io::parseSettings(wrong);
+        EXPECT_TRUE(read.error.empty()) << wrong;
+        EXPECT_TRUE(read.settings.padRumble) << "类型不对：默认（开）：" << wrong;
+        ASSERT_EQ(read.warnings.size(), 1u) << wrong;
+        EXPECT_NE(read.warnings.front().find("pad_rumble"), std::string::npos) << read.warnings.front();
+        EXPECT_EQ(read.settings.sfxVolume, 3) << "别的字段照读：" << wrong;
+    }
+
+    const fanren::test::TempDir dir("fanren_settings_rumble");
+    const fs::path path = dir.path() / "settings.json";
+    Settings quiet;
+    quiet.padRumble = false;
+    ASSERT_TRUE(fanren::io::saveSettings(quiet, path.string()).ok);
+    const SettingsRead back = fanren::io::loadSettings(path.string());
+    EXPECT_TRUE(back.error.empty()) << back.error;
+    EXPECT_TRUE(back.warnings.empty());
+    EXPECT_FALSE(back.settings.padRumble);
+    EXPECT_EQ(back.settings, quiet);
+    EXPECT_NE(readText(path).find("\"version\": 1"), std::string::npos) << "version 仍是 1";
 }
 
 TEST(SettingsFile, BrokenJsonFallsBackToTheDefaultsAndSaysWhy) {

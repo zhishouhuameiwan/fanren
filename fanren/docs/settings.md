@@ -18,11 +18,14 @@
 | 5 | 画面特效 | `effects` | 完整 `full` / 精简 `lite` | 完整 | 精简 = 关辉光、关景深（见 4.3） |
 | 6 | 战斗震屏 | `screen_shake` | 开 / 关 | 开 | BattleView 触发震屏的那一处 |
 | 7 | 文字速度 | `text_speed` | 慢 `slow` 30 / 标准 `normal` 60 / 快 `fast` 120 / 瞬显 `instant`（字/秒） | 标准 | DialogueScene 的逐字速度 |
-| 8 | 按键设置 | `keys` | 见第 6 节 | 见第 6 节 | 二期 |
-| 9 | 恢复默认 | — | — | — | 全部（含键位）回到默认 |
+| 8 | 手柄震动 | `pad_rumble` | 开 / 关 | 开（有意的例外，见下） | `Engine::rumble` 那一道闸（`docs/gamepad.md` 第 8 节） |
+| 9 | 按键设置 | `keys` | 见第 6 节 | 见第 6 节 | 二期 |
+| 10 | 恢复默认 | — | — | — | 全部（含键位、手柄震动）回到默认 |
 
 - 音量档位 → 线性增益：`gain = (level / 10)²`。0 = 静音，10 = 1.0（改造前的混音响度，`docs/audio.md` 的响度口径不动）。平方曲线是听感上「每档差不多一样大」的近似。纯函数，单测钉住 0→0、10→1、单调。
 - **默认值一律等于改造前的行为**：不开设置面板的玩家，画面、声音、手感与今天逐像素 / 逐采样相同。
+  唯一的例外是 #8 手柄震动（2026-09-28 加，`docs/gamepad.md` 第 8 节）：改造前根本不认手柄，没有「以前」可对，缺省开；
+  键盘玩家永远感觉不到它（最后一下按的不是手柄就不震）。它插在「文字速度」之后，「按键设置」「恢复默认」各往后挪了一行。
 
 ## 2. 存盘
 
@@ -40,9 +43,12 @@
   "effects": "full",
   "screen_shake": true,
   "text_speed": "normal",
+  "pad_rumble": true,
   "keys": { "up": [26, 0], "confirm": [29, 44], "action": [8, 20] }
 }
 ```
+
+- `pad_rumble`（2026-09-28，`docs/gamepad.md` 第 8 节）：缺字段 → 开；类型不对 → 开 + 警告（与别的布尔字段同一个写法）；`version` 仍是 1。
 
 - `keys`：动作 id（第 6 节）→ 两格自定义键位的 **SDL 扫描码数值**，0 = 空格位。**存数不存名**：`SDL_GetScancodeName` 的名字按 SDL 文档跨平台不稳定、还有重名（RETURN 与 RETURN2 都叫 "Return"），不能拿来做双向映射；扫描码数值就是 USB HID usage，稳定。缺省某个动作 = 那个动作用默认。
 - **读盘宽松、写盘完整**：
@@ -100,7 +106,13 @@ core::Result<bool> saveSettings();
 - `core::Result<bool> setCustomKeys(const KeyTable&)`：整张表一起设，校验不过**不改**、返回原因。
 - 改一格的规则（第 6 节）做成**不碰 SDL 事件的纯函数**，单测直接喂表。
 - 抓键：`beginKeyCapture()`；抓键期间下一次物理按下（非重复）**不映射成任何逻辑键**，由 `takeCapturedKey()` 取走。
+  手柄（`docs/gamepad.md` 第 7 节）：抓键时手柄 B = 作罢（`takeCapturedKey()` 交出 `kEscapeCode`），别的手柄键不理、抓键继续。
 - `static std::string keyLabel(ScanCode)`：显示名（第 6 节）。
+- **连发只给方向键**（2026-09-28，`docs/gamepad.md` 第 5 节）：上下左右按住 250ms 后每 60ms 再出一次 `keyPressed`；确认、取消、菜单、
+  快进、存盘、路径行动一次物理按下只出一次，按住不连发（`keyDown` 不变，快进靠它）。从前十个键一视同仁地连发，按住 Tab / Esc
+  主菜单每 60ms 开合一次、按住 F5 每 60ms 存一次盘。改在「记一次刚按下」的那一处（`Engine::Impl::press`，键盘与手柄共用）。
+- 手柄（Xbox 优先）的键位、摇杆、热插拔、提示跟设备走、震动见 `docs/gamepad.md`；键盘与手柄换算成同一套 10 个逻辑键，
+  场景代码不分设备。
 
 ## 5. 界面
 
@@ -123,6 +135,7 @@ core::Result<bool> saveSettings();
 │   战斗震屏     〈 开 〉        │
 │ 游玩                         │
 │   文字速度     〈 标准 〉      │
+│   手柄震动     〈 开 〉        │
 │   按键设置     ›              │
 │ ───────────────────────────  │
 │   恢复默认                    │
@@ -130,15 +143,22 @@ core::Result<bool> saveSettings();
 │ ↑↓ 选择　←→ 调整　Esc 返回    │
 └──────────────────────────────┘
 ```
-- 行的次序即第 1 节的 # 次序（测试按下标驱动）。墨金主题，照 `docs/interfaces-octo-ui.md` 的面板画法；先压一层半透明墨色，底下（标题画面或主菜单模糊底图）就退成背景。
+- 行的次序即第 1 节的 # 次序（测试按下标驱动）：`0 音乐音量 · 1 音效音量 · 2 显示模式 · 3 画面缩放 · 4 垂直同步 · 5 画面特效 ·
+  6 战斗震屏 · 7 文字速度 · 8 手柄震动 · 9 按键设置 · 10 恢复默认`（`SettingsScene::kPadRumble = 8 / kKeys = 9 / kRestore = 10 /
+  kRowCount = 11`；「手柄震动」2026-09-28 插进来，面板高 592 → 622、仍上下居中）。
+  墨金主题，照 `docs/interfaces-octo-ui.md` 的面板画法；先压一层半透明墨色，底下（标题画面或主菜单模糊底图）就退成背景。
+- 最后一下按的是手柄时，最下面那行提示换成手柄版「↑↓ 选择　←→ 调整　B 返回」（第 6 节 `.pad` 提示）。
 - ←→ 调值，**立刻生效**（`app.setSettings`）；移动光标 `ui_cursor`，调值 `ui_cursor`，调音效音量时在新增益下响一声 `ui_confirm` 试听；音乐音量直接听正在放的曲子（标题画面放着 `bgm_title`）。
 - 确认：「按键设置」→ 压改键面板；「恢复默认」→ 全部回默认，说明行写「已恢复默认」。
 - Esc / X / 菜单键 → 关面板；有改动就 `saveSettings()`，**失败时留在面板上把原因写在说明行**，再按一次才关（这一局照样按改过的跑）。
 - 已知取舍：只有栈顶场景会 update，从标题画面进来时标题背景的漂移会停住；压着的那层墨色让它读起来像「退成背景」，不另做。
 
 ### 5.3 改键面板 `KeyConfigScene`（二期）
-- 十行动作（第 6 节的次序）+ 最后一行「恢复默认键位」。三列：固定（灰，不可改）/ 键位一 / 键位二。
+- 十行动作（第 6 节的次序）+ 最后一行「恢复默认键位」。四列：固定（灰，不可改）/ 键位一 / 键位二 / **手柄**（灰、只读、光标选不到，
+  2026-09-28 加：手柄键位固定，`docs/gamepad.md` 第 7 节）。手柄列每行写那个动作的手柄键显示名，多个用「 / 」隔开
+  （`十字↑ / 摇杆↑` …… `A`、`B`、`Y / ≡`、`RT / RB`、`⧉`、`X`），「恢复默认键位」那一行空着。面板 840 → 980 宽、仍居中，原有各列离面板左边的距离不变。
 - ↑↓ 选动作，←→ 选格，确认 → 说明行变成「按下新键（Esc 作罢，Backspace 清空）」，引擎进抓键；抓到后按第 6 节的规则落格，结果（成功 / 挪过来 / 拒绝的原因）写在说明行。
+  用手柄进的抓键，说明行是手柄版「在键盘上按下新键（B 作罢）」；抓键时手柄 B = 作罢，别的手柄键不理——只拿手柄的玩家按 A 进了「按下新键」也出得来。
 - 立刻生效（`app.setSettings`），关面板时随设置一起写盘。
 
 ### 5.4 文案
@@ -185,6 +205,14 @@ core::Result<bool> saveSettings();
   - `ui.battle.hint.watch`：`按住 {key.skip} 加速`
   - `DialogueScene.cpp` 里写死的 `"Tab 回看　长按 Ctrl 快进"` → 新文案 `ui.dialogue.keys`：`{key.menu} 回看　长按 {key.skip} 快进`
   - 只含固定键（↑↓、Enter、回车、Esc）的提示不动。
+- **提示也跟着设备走**（2026-09-28，`docs/gamepad.md` 第 6 节，那边是这一条的契约）：最后一下按的是手柄、且文案表里有
+  `<id>.pad`，`Application::text()` 就取那一条；手柄版里的占位是 `{pad.<id>}`，展开成那个动作第一个手柄键的显示名
+  （手柄键位固定：确认 `A`、取消 `B`、菜单 `Y`、快进 `RT`……）。有 `.pad` 版的是这 11 条：`ui.title.keys`、`ui.menu.keys`、
+  `ui.dialogue.keys`、`ui.path.keys`、`ui.settings.hint`、`ui.keys.hint`、`ui.keys.capture`、`ui.keys.desc`、`ui.keys.desc.restore`、
+  `ui.battle.hint.menu`、`ui.battle.hint.watch`（全文与默认展开见 `docs/gamepad.md` 第 6 节那张表）。**键盘模式下不取 `.pad`**：
+  展开结果与从前逐字节相同（`SettingsWiring.DefaultKeyPromptsAreByteForByteTheOldText` 一字没改照样绿）。
+  `.pad` 里只许有 `{pad.*}`、不许有 `{key.*}`；`{pad.` 只许出现在那 11 条的 `.pad` 版里，每条 `.pad` 都有键盘版本体——
+  `KeyPrompts.PadPlaceholdersOnlyLiveInTheElevenPadPrompts` 扫 `data/text/**` 钉着（与上面那条 `{key.` 的白名单同一个做法）。
 
 ## 7. 测试（最低清单；照上一轮教训，**至少一条走玩家碰得到的真实入口**）
 

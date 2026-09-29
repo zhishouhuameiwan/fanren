@@ -3,11 +3,12 @@
 //
 //   声音　音乐音量 / 音效音量（0–10，一格一档）
 //   画面　显示模式 / 画面缩放 / 垂直同步 / 画面特效 / 战斗震屏
-//   游玩　文字速度 / 按键设置（确认 → 压改键面板 KeyConfigScene，这边让开、一笔不画）
+//   游玩　文字速度 / 手柄震动 / 按键设置（确认 → 压改键面板 KeyConfigScene，这边让开、一笔不画）
 //   ────　恢复默认
 //   下面一行写光标那一行的说明，最下面一行写按键。
 //
-// 行的下标即契约第 1 节的 # 次序（kBgmVolume … kRestore），测试按下标驱动。
+// 行的下标即契约第 1 节的 # 次序（kBgmVolume … kRestore），测试按下标驱动。「手柄震动」是 docs/gamepad.md 第 8 节
+// 插在「文字速度」之后的一行，它后面的两行各往后挪一个下标。
 // ←→ 调值**立刻生效**（Application::setSettings）。Esc / X / 菜单键关面板：有改动（含改键面板里改的键位）才写盘；
 // 写失败时留在面板上，把原因写在说明行，再按一次才关（这一局照样按改过的跑）。
 //
@@ -34,9 +35,10 @@ public:
     static constexpr int kEffects = 5;
     static constexpr int kScreenShake = 6;
     static constexpr int kTextSpeed = 7;
-    static constexpr int kKeys = 8;
-    static constexpr int kRestore = 9;
-    static constexpr int kRowCount = 10;
+    static constexpr int kPadRumble = 8;
+    static constexpr int kKeys = 9;
+    static constexpr int kRestore = 10;
+    static constexpr int kRowCount = 11;
 
     // 面板上可能出现的全部固有字：标题、分组、行名、各档的叫法、说明、提示、成败的话。
     // 与 render 取的是同一批 key，tests/UiStyleTests.cpp 拿禁词表扫它。
@@ -50,7 +52,7 @@ public:
 
     // 第 row 行往 dir（-1 = ←，+1 = →）调一格之后的设置。纯函数，测试直接喂。一律有方向、到头就停：
     //   音量、文字速度一格一档，不回绕（从「瞬显」再按 → 不该跳回「慢」）；
-    //   两档的（显示模式、缩放、垂直同步、特效、震屏）← 取契约第 1 节表里写在前面的那一档，→ 取后面那一档——
+    //   两档的（显示模式、缩放、垂直同步、特效、震屏、手柄震动）← 取契约第 1 节表里写在前面的那一档，→ 取后面那一档——
     //   不做「按一下翻一下」：左右键带自动重复，按住会让全屏与窗口每秒来回切十几次（有光敏风险）；
     //   按键设置、恢复默认不吃左右键，原样返回。
     [[nodiscard]] static io::Settings adjusted(const io::Settings& settings, int row, int dir);

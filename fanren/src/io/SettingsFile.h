@@ -48,6 +48,7 @@ inline constexpr std::array<std::string_view, 10> kKeyActionIds{
 using KeySlots = std::array<int, 2>;
 
 // 缺省值一律等于改造前的行为（契约第 1 节）：不开设置面板的玩家，画面、声音、手感与改造前相同。
+// 唯一的例外是手柄震动（docs/gamepad.md 第 8 节）：改造前根本不认手柄，没有「以前」可对，缺省开；键盘玩家永远感觉不到它。
 struct Settings {
     int bgmVolume = kVolumeLevels;
     int sfxVolume = kVolumeLevels;
@@ -57,6 +58,7 @@ struct Settings {
     EffectsLevel effects = EffectsLevel::Full;
     bool screenShake = true;
     TextSpeed textSpeed = TextSpeed::Normal;
+    bool padRumble = true;   // 文件里的键 pad_rumble
     // 动作 id → 两格键位。没列出的动作用默认键位；空表 = 全部默认。一期只存、只往返，不推给引擎。
     std::map<std::string, KeySlots> keys;
 

@@ -30,8 +30,9 @@ constexpr engine::Rect kInfoPanel{48, 540, 300, 132};
 constexpr engine::Rect kPagePanel{372, 48, 860, 624};
 constexpr int kPageCount = 7;
 
-// 「设置」页的摘要列哪几行（系统设置面板的行下标）：有值的那八项，按键设置、恢复默认不列。
-constexpr int kSettingsSummaryRows = SettingsScene::kTextSpeed + 1;
+// 「设置」页的摘要列哪几行（系统设置面板的行下标）：有值的那九项（含手柄震动，docs/gamepad.md 第 8 节），
+// 按键设置、恢复默认不列。
+constexpr int kSettingsSummaryRows = SettingsScene::kPadRumble + 1;
 
 // 右栏列表页下方留给说明的那一截。
 constexpr int kDescriptionH = 150;

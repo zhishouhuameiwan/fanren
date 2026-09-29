@@ -7,6 +7,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <cstddef>
 #include <functional>
 #include <string_view>
@@ -25,7 +26,7 @@ namespace {
 
 constexpr std::size_t kKeyCount = static_cast<std::size_t>(Engine::Key::Count);
 
-// 首次触发后停 250ms 再开始重复，之后每 60ms 一次。
+// 首次触发后停 250ms 再开始重复，之后每 60ms 一次。只有上下左右连发（docs/gamepad.md 第 5 节，见 Impl::press）。
 // 这两个值决定了菜单长按的手感：延迟短了会「手一抖跳两格」，间隔长了翻长列表磨人。
 constexpr std::uint64_t kKeyRepeatDelayMs = 250;
 constexpr std::uint64_t kKeyRepeatIntervalMs = 60;
@@ -114,6 +115,87 @@ constexpr std::array<SDL_Scancode, 7> kReservedKeys{
 constexpr std::array<const char*, kKeyCount> kKeyIds{
     "up", "down", "left", "right", "confirm", "cancel", "menu", "skip", "save", "action",
 };
+
+// 手柄键位（docs/gamepad.md 第 2 节，固定、不可改）：按位置认键，叫法用 Xbox 的。每个动作的手柄键按显示优先的次序排
+// （提示文案 {pad.<id>} 取那个动作的第一个）。一个手柄键只属于一个动作；LB、LT 不配动作，不在表里。
+constexpr std::size_t kPadButtonCount = static_cast<std::size_t>(Engine::PadButton::Count);
+
+struct PadKey {
+    Engine::PadButton button;
+    Engine::Key key;
+};
+
+constexpr std::array<PadKey, 16> kPadKeys{{
+    {Engine::PadButton::DpadUp, Engine::Key::Up},       {Engine::PadButton::StickUp, Engine::Key::Up},
+    {Engine::PadButton::DpadDown, Engine::Key::Down},   {Engine::PadButton::StickDown, Engine::Key::Down},
+    {Engine::PadButton::DpadLeft, Engine::Key::Left},   {Engine::PadButton::StickLeft, Engine::Key::Left},
+    {Engine::PadButton::DpadRight, Engine::Key::Right}, {Engine::PadButton::StickRight, Engine::Key::Right},
+    {Engine::PadButton::A, Engine::Key::Confirm},       {Engine::PadButton::B, Engine::Key::Cancel},
+    {Engine::PadButton::Y, Engine::Key::Menu},          {Engine::PadButton::Start, Engine::Key::Menu},
+    {Engine::PadButton::RT, Engine::Key::Skip},         {Engine::PadButton::RB, Engine::Key::Skip},
+    {Engine::PadButton::Back, Engine::Key::Save},       {Engine::PadButton::X, Engine::Key::Action},
+}};
+
+// 左摇杆数字化后的四向与它们对应的方向键。
+constexpr std::array<PadKey, 4> kStickWays{{
+    {Engine::PadButton::StickUp, Engine::Key::Up},
+    {Engine::PadButton::StickDown, Engine::Key::Down},
+    {Engine::PadButton::StickLeft, Engine::Key::Left},
+    {Engine::PadButton::StickRight, Engine::Key::Right},
+}};
+
+// 摇杆、扳机的阈值（docs/gamepad.md 第 3 节）。按住时放宽一截（迟滞），推在边上的手指一抖不会一按一松。
+constexpr float kStickPressRadius = 0.5f;
+constexpr float kStickHoldRadius = 0.35f;
+constexpr float kStickHoldCos = 0.57357644f;   // cos 55°：按住某个方向时，偏离那条轴不超过 55°（对角线再过去 10°）就不换
+constexpr float kTriggerPressValue = 0.5f;
+constexpr float kTriggerHoldValue = 0.3f;
+constexpr int kMaxRumbleMs = 1000;
+
+// 这个手柄键配的是哪个动作（LB、LT = 没配）。
+[[nodiscard]] std::optional<Engine::Key> padKeyOf(Engine::PadButton button) {
+    for (const PadKey& p : kPadKeys) {
+        if (p.button == button) return p.key;
+    }
+    return std::nullopt;
+}
+
+// SDL 的手柄键 → PadButton。Xbox 键（Windows 的 Game Bar 要用它）、摇杆按下、分享键、背键、触摸板一律不认。
+[[nodiscard]] std::optional<Engine::PadButton> padButtonOf(Uint8 button) {
+    switch (button) {
+        case SDL_GAMEPAD_BUTTON_SOUTH: return Engine::PadButton::A;
+        case SDL_GAMEPAD_BUTTON_EAST: return Engine::PadButton::B;
+        case SDL_GAMEPAD_BUTTON_WEST: return Engine::PadButton::X;
+        case SDL_GAMEPAD_BUTTON_NORTH: return Engine::PadButton::Y;
+        case SDL_GAMEPAD_BUTTON_BACK: return Engine::PadButton::Back;
+        case SDL_GAMEPAD_BUTTON_START: return Engine::PadButton::Start;
+        case SDL_GAMEPAD_BUTTON_LEFT_SHOULDER: return Engine::PadButton::LB;
+        case SDL_GAMEPAD_BUTTON_RIGHT_SHOULDER: return Engine::PadButton::RB;
+        case SDL_GAMEPAD_BUTTON_DPAD_UP: return Engine::PadButton::DpadUp;
+        case SDL_GAMEPAD_BUTTON_DPAD_DOWN: return Engine::PadButton::DpadDown;
+        case SDL_GAMEPAD_BUTTON_DPAD_LEFT: return Engine::PadButton::DpadLeft;
+        case SDL_GAMEPAD_BUTTON_DPAD_RIGHT: return Engine::PadButton::DpadRight;
+        default: return std::nullopt;
+    }
+}
+
+// 轴值归一（第 3 节）：摇杆 v / 32767 夹到 [-1, 1]（-32768 → -1），扳机 v / 32767 夹到 [0, 1]。
+[[nodiscard]] float stickValue(Sint16 value) {
+    return std::clamp(static_cast<float>(value) / 32767.f, -1.f, 1.f);
+}
+[[nodiscard]] float triggerValue(Sint16 value) {
+    return std::clamp(static_cast<float>(value) / 32767.f, 0.f, 1.f);
+}
+
+[[nodiscard]] constexpr bool isDirection(Engine::Key key) noexcept {
+    return key == Engine::Key::Up || key == Engine::Key::Down || key == Engine::Key::Left || key == Engine::Key::Right;
+}
+
+// 震动强度：夹到 [0, 1]（NaN 当 0）再换成 SDL 的 0…0xFFFF。
+[[nodiscard]] Uint16 rumbleStrength(float value) {
+    const float unit = !(value > 0.f) ? 0.f : std::min(value, 1.f);
+    return static_cast<Uint16>(std::lround(unit * 65535.f));
+}
 
 [[nodiscard]] bool validCode(ScanCode code) noexcept {
     return code > 0 && code < kScanCodeLimit;
@@ -343,6 +425,21 @@ struct Engine::Impl {
     bool capturing = false;
     std::optional<ScanCode> captured;
 
+    // 手柄（docs/gamepad.md 第 4 节）：每个手柄一份状态，按 SDL 的实例 id 记。句柄为空 = 不是这里打开的
+    // （测试用 SDL_PushEvent 塞的事件，which 不在表里时现建）：不算「接着的手柄」，也不能震。
+    struct PadState {
+        SDL_Gamepad* handle = nullptr;
+        std::array<bool, kPadButtonCount> down{};   // 18 个 PadButton 各自按没按（摇杆四向、扳机由第 3 节的纯函数写进来）
+        float stickX = 0.f;                          // 左摇杆两轴的最新值（归一到 [-1, 1]，y 向下为正）
+        float stickY = 0.f;
+        bool stickFresh = false;                     // 摇杆有新值还没判方向（等这份报告收齐，见 settleStick）
+    };
+    std::unordered_map<SDL_JoystickID, PadState> pads;
+    // 最后一下配了动作的按下来自哪种设备（第 6 节，提示文案跟着它走）；是手柄时记下是哪一个（震动找它）。
+    InputDevice lastDevice = InputDevice::Keyboard;
+    SDL_JoystickID lastPad = 0;
+    bool rumbleOn = true;   // 手柄震动开关（第 8 节，缺省开）
+
     std::uint64_t lastFrameNs = 0;
     std::uint64_t frameIndex = 0;
     double delta = 0.0;
@@ -370,6 +467,7 @@ struct Engine::Impl {
     EffectsLevel effects = EffectsLevel::Full;
     std::uint64_t lastPresentNs = 0;  // 上一帧 present 完的时刻，关垂直同步时补睡用
 
+    // 逻辑键「按住」= 键盘上它的键按住，或任一手柄上它的任一手柄键按住（docs/gamepad.md 第 4 节）。
     [[nodiscard]] bool keyHeld(Key key) const {
         for (const FixedKey& f : kFixedKeys) {
             if (f.key == key && scancodeDown[static_cast<std::size_t>(f.scancode)]) {
@@ -381,25 +479,139 @@ struct Engine::Impl {
                 return true;
             }
         }
+        for (const auto& entry : pads) {
+            for (const PadKey& p : kPadKeys) {
+                if (p.key == key && entry.second.down[static_cast<std::size_t>(p.button)]) return true;
+            }
+        }
         return false;
     }
 
-    // 物理键 sc 刚按下：它是哪几个动作的键（固定或自定义），那几个动作本帧算「刚按下」，重复计时从头起。
+    // 记一次「刚按下」——键盘的一个物理键、手柄的一个手柄键从没按到按下，都走这一处（docs/gamepad.md 第 5、6 节的单点）：
+    //   · 本帧算「刚按下」。**只有方向键设重复计时**（按住 250ms 后每 60ms 再出一次）：确认、取消、菜单、快进、存盘、
+    //     路径行动一次物理按下只出一次——否则按住 Tab / Esc 时，世界层见「刚按下」开主菜单、主菜单见「刚按下」合上，
+    //     菜单每 60ms 开合一次；按住 F5 每 60ms 存一次盘。
+    //   · 设备跟着这一下走（手柄还记下是哪一个，震动找它）。
+    void press(Key key, InputDevice from, SDL_JoystickID pad) {
+        const auto k = static_cast<std::size_t>(key);
+        pressed[k] = true;
+        repeatAtMs[k] = isDirection(key) ? SDL_GetTicks() + kKeyRepeatDelayMs : 0;
+        lastDevice = from;
+        if (from == InputDevice::Gamepad) lastPad = pad;
+    }
+
+    // 物理键 sc 刚按下：它是哪几个动作的键（固定或自定义），那几个动作各记一次「刚按下」。没配动作的键（Alt、Win、
+    // 媒体键……）什么也不记，设备也不切。
     void pressScancode(ScanCode sc) {
-        const auto press = [this](Key key) {
-            const auto k = static_cast<std::size_t>(key);
-            pressed[k] = true;
-            repeatAtMs[k] = SDL_GetTicks() + kKeyRepeatDelayMs;
-        };
         for (const FixedKey& f : kFixedKeys) {
-            if (f.scancode == sc) press(f.key);
+            if (f.scancode == sc) press(f.key, InputDevice::Keyboard, 0);
         }
         for (std::size_t k = 0; k < kKeyCount; ++k) {
             for (const ScanCode code : customKeys[k]) {
                 // 0 是空格位，不是一个键：不设这道闸，扫描码 0 会与表里所有空格位一起命中。
-                if (validCode(code) && code == sc) press(static_cast<Key>(k));
+                if (validCode(code) && code == sc) press(static_cast<Key>(k), InputDevice::Keyboard, 0);
             }
         }
+    }
+
+    // ---- 手柄（docs/gamepad.md 第 4、7 节）----
+
+    // 某个手柄的一个 PadButton 变成 down。从没按到按下才算一次按下：同一个值重复来（SDL 补发轴初值时就这样）不算。
+    void setPadButton(SDL_JoystickID which, PadState& pad, PadButton button, bool down) {
+        bool& slot = pad.down[static_cast<std::size_t>(button)];
+        if (slot == down) return;
+        slot = down;
+        if (!down) return;
+        if (capturing) {
+            // 抓键（等玩家在键盘上按新键）：手柄 B = 作罢，交出 Esc 的扫描码，改键面板照「作罢」那条路走——
+            // 不然只拿手柄的玩家按 A 进了「按下新键」就出不来。别的手柄键一律不理、抓键继续；按下的物理状态上面照记了
+            // （松开时对得上），只是不出逻辑键。
+            if (button == PadButton::B) {
+                capturing = false;
+                captured = kEscapeCode;
+                lastDevice = InputDevice::Gamepad;
+                lastPad = which;
+            }
+            return;
+        }
+        if (const std::optional<Key> key = padKeyOf(button)) press(*key, InputDevice::Gamepad, which);
+    }
+
+    // 左摇杆的最新两轴 → 四向（第 3 节的纯函数）。先松开旧方向、再按下新方向：换向不经中心时两件事在同一个事件里发生。
+    void updateStick(SDL_JoystickID which, PadState& pad) {
+        std::optional<Key> held;
+        for (const PadKey& way : kStickWays) {
+            if (pad.down[static_cast<std::size_t>(way.button)]) held = way.key;
+        }
+        const std::optional<Key> now = Engine::stickDirection(pad.stickX, pad.stickY, held);
+        for (const PadKey& way : kStickWays) {
+            if (way.key != now) setPadButton(which, pad, way.button, false);
+        }
+        for (const PadKey& way : kStickWays) {
+            if (way.key == now) setPadButton(which, pad, way.button, true);
+        }
+    }
+
+    // 摇杆按「一份完整的报告」判方向，不按单个轴事件判（docs/gamepad.md 第 4 节，整改轮 HIGH-1）：SDL 一份报告里先发 LEFTX、
+    // 再发 LEFTY、最后发 GAMEPAD_UPDATE_COMPLETE；逐个轴事件判的话，两个事件之间是「新 X + 旧 Y」的半截状态——斜推后松手，
+    // X 先归零那一刻是 (0, 0.5)，偏离右轴 90°，凭空判出一次「下」。所以轴事件只存值、记下「有新值」，由 settleStick 判：
+    // 报告末尾的 UPDATE_COMPLETE 一次，一帧的事件处理完之后还有新值没判的再一次（SDL_PushEvent 塞的事件没有报告末尾的标记）。
+    void padAxis(SDL_JoystickID which, Uint8 axis, Sint16 value) {
+        switch (axis) {
+            case SDL_GAMEPAD_AXIS_LEFTX:
+            case SDL_GAMEPAD_AXIS_LEFTY: {
+                PadState& pad = pads[which];   // 不在表里（SDL_PushEvent 塞的）：现建一份，句柄为空
+                (axis == SDL_GAMEPAD_AXIS_LEFTX ? pad.stickX : pad.stickY) = stickValue(value);
+                pad.stickFresh = true;
+                break;
+            }
+            case SDL_GAMEPAD_AXIS_LEFT_TRIGGER:
+            case SDL_GAMEPAD_AXIS_RIGHT_TRIGGER: {
+                // 扳机是单轴：没有半截状态，收到就判。
+                PadState& pad = pads[which];
+                const PadButton trigger = axis == SDL_GAMEPAD_AXIS_LEFT_TRIGGER ? PadButton::LT : PadButton::RT;
+                const bool wasDown = pad.down[static_cast<std::size_t>(trigger)];
+                setPadButton(which, pad, trigger, Engine::triggerDown(triggerValue(value), wasDown));
+                break;
+            }
+            default:
+                break;   // 右摇杆、越界的轴：不配动作，也不建状态
+        }
+    }
+
+    // 这个手柄的摇杆有新值没判：按第 3 节判一次，清掉标记。UPDATE_COMPLETE 与一帧收尾走的都是它。
+    void settleStick(SDL_JoystickID which, PadState& pad) {
+        if (!pad.stickFresh) return;
+        pad.stickFresh = false;
+        updateStick(which, pad);
+    }
+
+    // 已经插着的手柄在子系统启动时 SDL 会补发 ADDED（第 0 节探针实测），所以只在这里开，不另外枚举。
+    void openPad(SDL_JoystickID which) {
+        const auto it = pads.find(which);
+        if (it != pads.end() && it->second.handle != nullptr) return;   // 同一个手柄的 ADDED 又来一次：不开第二次
+        SDL_Gamepad* handle = SDL_OpenGamepad(which);
+        if (handle == nullptr) {
+            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "打开手柄失败（实例 %u），跳过：%s", static_cast<unsigned>(which),
+                        sdlError().c_str());
+            return;
+        }
+        pads[which].handle = handle;
+    }
+
+    // 拔掉：关句柄、删掉那个手柄的状态（它按着的一切随之松开）。拔掉的是最后一个手柄、且眼下的设备是手柄 → 回到键盘。
+    void closePad(SDL_JoystickID which) {
+        const auto it = pads.find(which);
+        if (it != pads.end()) {
+            if (it->second.handle != nullptr) SDL_CloseGamepad(it->second.handle);
+            pads.erase(it);
+        }
+        if (lastDevice == InputDevice::Gamepad && openPadCount() == 0) lastDevice = InputDevice::Keyboard;
+    }
+
+    [[nodiscard]] int openPadCount() const {
+        return static_cast<int>(std::count_if(pads.begin(), pads.end(),
+                                              [](const auto& entry) { return entry.second.handle != nullptr; }));
     }
 
     // Alt+Enter（主键盘与小键盘的 Enter 都认）。Alt 以事件自带的修饰键状态为准：SDL 按键盘的真实状态填它，
@@ -782,6 +994,13 @@ core::Result<bool> Engine::init(const std::string& title, bool headless) {
             SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "MIX_Init 失败，将静音运行：%s",
                         sdlError().c_str());
         }
+
+        // 手柄（docs/gamepad.md 第 4 节）：起不来只打一行警告、照样启动，与音频同一个口径。已经插着的手柄，子系统一开
+        // SDL 就补发 GAMEPAD_ADDED，由 pollEvents 打开，这里不另外枚举（两处都开会把同一个手柄开两次）。
+        // 无头不开：几百条无头测试与 --headless 机器人因此不受开发机上插着的手柄影响。
+        if (!SDL_InitSubSystem(SDL_INIT_GAMEPAD)) {
+            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "手柄子系统起不来，只能用键盘：%s", sdlError().c_str());
+        }
     }
 
     impl_->lastFrameNs = SDL_GetTicksNS();
@@ -859,6 +1078,14 @@ void Engine::shutdown() {
         impl_->window = nullptr;
     }
 
+    // 手柄：句柄在 SDL_Quit 之前关，状态清空，设备回到键盘（docs/gamepad.md 第 9 节）。
+    for (auto& entry : impl_->pads) {
+        if (entry.second.handle != nullptr) SDL_CloseGamepad(entry.second.handle);
+    }
+    impl_->pads.clear();
+    impl_->lastDevice = InputDevice::Keyboard;
+    impl_->lastPad = 0;
+
     if (impl_->initialised || hadFonts) {
         TTF_Quit();
         SDL_Quit();
@@ -920,6 +1147,7 @@ void Engine::pollEvents() {
                     }
                     impl_->capturing = false;
                     impl_->captured = static_cast<ScanCode>(sc);
+                    impl_->lastDevice = InputDevice::Keyboard;   // 被抓走的那一下键盘键：设备是键盘（docs/gamepad.md 第 6 节）
                     break;
                 }
                 impl_->scancodeDown[sc] = true;
@@ -933,10 +1161,36 @@ void Engine::pollEvents() {
                 }
                 break;
             }
+            // 手柄（docs/gamepad.md 第 4 节）。不看是谁开的手柄子系统：测试自己开、或用 SDL_PushEvent 塞，走的都是这一段。
+            case SDL_EVENT_GAMEPAD_ADDED:
+                impl_->openPad(event.gdevice.which);
+                break;
+            case SDL_EVENT_GAMEPAD_REMOVED:
+                impl_->closePad(event.gdevice.which);
+                break;
+            case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+            case SDL_EVENT_GAMEPAD_BUTTON_UP:
+                if (const std::optional<PadButton> button = padButtonOf(event.gbutton.button)) {
+                    impl_->setPadButton(event.gbutton.which, impl_->pads[event.gbutton.which], *button,
+                                        event.type == SDL_EVENT_GAMEPAD_BUTTON_DOWN);
+                }
+                break;
+            case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+                impl_->padAxis(event.gaxis.which, event.gaxis.axis, event.gaxis.value);
+                break;
+            case SDL_EVENT_GAMEPAD_UPDATE_COMPLETE:
+                // 一份报告收齐了：摇杆这才按完整的两轴判方向（见 Impl::padAxis）。
+                if (const auto pad = impl_->pads.find(event.gdevice.which); pad != impl_->pads.end()) {
+                    impl_->settleStick(pad->first, pad->second);
+                }
+                break;
             default:
                 break;
         }
     }
+    // 一帧的事件处理完：还有新值没判的摇杆再判一次（SDL_PushEvent 塞的事件没有报告末尾的 UPDATE_COMPLETE）。
+    // 排在抓键那道闸之前：抓键期间摇杆的物理状态照记，只是不出逻辑键。
+    for (auto& entry : impl_->pads) impl_->settleStick(entry.first, entry.second);
 
     // 抓键期间不出任何逻辑键，连按住的键的自动重复也不出（重复计时清零：抓完之后要再按一下才算）。
     if (impl_->capturing) {
@@ -1650,6 +1904,88 @@ std::string Engine::keyLabel(ScanCode code) {
     const char* name = validCode(code) ? SDL_GetScancodeName(static_cast<SDL_Scancode>(code)) : nullptr;
     if (name != nullptr && name[0] != '\0') return name;
     return "键#" + std::to_string(code);
+}
+
+// ---------------------------------------------------------------------------
+// 手柄（docs/gamepad.md）
+// ---------------------------------------------------------------------------
+
+std::vector<Engine::PadButton> Engine::padButtons(Key key) {
+    std::vector<PadButton> buttons;
+    for (const PadKey& p : kPadKeys) {
+        if (p.key == key) buttons.push_back(p.button);
+    }
+    return buttons;
+}
+
+std::string Engine::padLabel(PadButton button) {
+    switch (button) {
+        case PadButton::A: return "A";
+        case PadButton::B: return "B";
+        case PadButton::X: return "X";
+        case PadButton::Y: return "Y";
+        case PadButton::Back: return "⧉";
+        case PadButton::Start: return "≡";
+        case PadButton::LB: return "LB";
+        case PadButton::RB: return "RB";
+        case PadButton::LT: return "LT";
+        case PadButton::RT: return "RT";
+        case PadButton::DpadUp: return "十字↑";
+        case PadButton::DpadDown: return "十字↓";
+        case PadButton::DpadLeft: return "十字←";
+        case PadButton::DpadRight: return "十字→";
+        case PadButton::StickUp: return "摇杆↑";
+        case PadButton::StickDown: return "摇杆↓";
+        case PadButton::StickLeft: return "摇杆←";
+        case PadButton::StickRight: return "摇杆→";
+        case PadButton::Count: break;
+    }
+    return {};
+}
+
+std::optional<Engine::Key> Engine::stickDirection(float x, float y, std::optional<Key> held) {
+    if (held && !isDirection(*held)) held.reset();
+    const float length = std::sqrt(x * x + y * y);
+    const float r = std::min(length, 1.f);   // r 大于 1 当 1
+    if (held) {
+        // 原方向继续按住：偏离那条轴不超过 55°（偏角的余弦 = 与那条轴的单位向量的点积 / 模长），且 r ≥ 0.35（迟滞）。
+        const float along = *held == Key::Right ? x : *held == Key::Left ? -x : *held == Key::Down ? y : -y;
+        if (along >= kStickHoldCos * length && r >= kStickHoldRadius) return held;
+    }
+    // 从零推起，或偏出 55° 换向（换向算一次新的推，整改轮）：一律要 r ≥ 0.5；0.35 的迟滞只给原方向。NaN 也落在「不到位」。
+    if (!(r >= kStickPressRadius)) return std::nullopt;
+    // 最近的轴；恰在对角线取左右（与世界层「左右优先」同口径）。y 向下为正。
+    if (std::fabs(x) >= std::fabs(y)) return x > 0.f ? Key::Right : Key::Left;
+    return y > 0.f ? Key::Down : Key::Up;
+}
+
+bool Engine::triggerDown(float value, bool wasDown) {
+    return value >= (wasDown ? kTriggerHoldValue : kTriggerPressValue);
+}
+
+Engine::InputDevice Engine::lastInputDevice() const {
+    return impl_->lastDevice;
+}
+
+int Engine::gamepadCount() const {
+    return impl_->openPadCount();
+}
+
+void Engine::setRumbleEnabled(bool on) {
+    impl_->rumbleOn = on;
+}
+
+bool Engine::rumbleEnabled() const {
+    return impl_->rumbleOn;
+}
+
+void Engine::rumble(float low, float high, int durationMs) {
+    if (!impl_->rumbleOn || impl_->lastDevice != InputDevice::Gamepad) return;
+    const auto it = impl_->pads.find(impl_->lastPad);
+    if (it == impl_->pads.end() || it->second.handle == nullptr) return;
+    // 返回值有意不看：不带马达的手柄是正常情况，每一击都打一行「不支持震动」只是刷屏。
+    static_cast<void>(SDL_RumbleGamepad(it->second.handle, rumbleStrength(low), rumbleStrength(high),
+                                        static_cast<Uint32>(std::clamp(durationMs, 0, kMaxRumbleMs))));
 }
 
 void Engine::playBgm(const std::string& id) {

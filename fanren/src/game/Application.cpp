@@ -105,6 +105,26 @@ bool pathActionHook(Application& app, const core::MapObject& npc) {
     return app.openPathActions(npc.name);
 }
 
+// 把文案里每一处 {<前缀><动作 id>}（前缀 "{key." 或 "{pad."）换成 label(那个动作)。认不出的 id 原样留着：画面上一眼看得出。
+template <typename Label>
+[[nodiscard]] std::string expandActionPlaceholders(std::string line, std::string_view open, const Label& label) {
+    std::size_t from = 0;
+    while ((from = line.find(open, from)) != std::string::npos) {
+        const std::size_t close = line.find('}', from + open.size());
+        if (close == std::string::npos) break;
+        const std::optional<engine::Engine::Key> action =
+            engine::Engine::keyFromId(std::string_view(line).substr(from + open.size(), close - from - open.size()));
+        if (!action) {
+            from = close + 1;
+            continue;
+        }
+        const std::string text = label(*action);
+        line.replace(from, close + 1 - from, text);
+        from += text.size();
+    }
+    return line;
+}
+
 }  // namespace
 
 int bottleChargeDays(rules::Realm realm) noexcept {
@@ -418,6 +438,7 @@ void Application::applySettings() {
     e.setVSync(settings_.vsync);
     e.setEffectsLevel(settings_.effects == io::EffectsLevel::Lite ? engine::EffectsLevel::Lite
                                                                   : engine::EffectsLevel::Full);
+    e.setRumbleEnabled(settings_.padRumble);   // 手柄震动（docs/gamepad.md 第 8 节）
     // 键位（docs/settings.md 第 6 节）：默认表上叠 keys 里列出的动作，整张交给引擎校验。不过就整张回默认——
     // 只回滚一个动作会造出别的冲突，整张回滚的结果才可预期。
     auto keys = e.setCustomKeys(keyTableOf(settings_));
@@ -429,31 +450,27 @@ void Application::applySettings() {
 }
 
 std::string Application::text(const std::string& key) const {
-    std::string line = data_.lookupText(key);
-    static constexpr std::string_view kOpen = "{key.";
-    std::size_t from = 0;
-    while ((from = line.find(kOpen, from)) != std::string::npos) {
-        const std::size_t close = line.find('}', from + kOpen.size());
-        if (close == std::string::npos) break;
-        const std::optional<engine::Engine::Key> action =
-            engine::Engine::keyFromId(std::string_view(line).substr(from + kOpen.size(), close - from - kOpen.size()));
-        if (!action) {
-            from = close + 1;   // 认不出的占位原样留着：画面上一眼看得出
-            continue;
-        }
-        // 那个动作眼下第一个自定义键；没有自定义键就取第一个固定键（不变式保证两样至少有一样）。
+    // 提示跟设备走（docs/gamepad.md 第 6 节）：最后一下按的是手柄、且文案表里有 key + ".pad"，就取那一条。
+    // 键盘模式下不取 .pad：展开结果与改造前逐字节相同。
+    const bool pad = engine_ && engine_->lastInputDevice() == engine::Engine::InputDevice::Gamepad;
+    const auto padText = pad ? data_.text.find(key + ".pad") : data_.text.end();
+    std::string line = padText != data_.text.end() ? padText->second : data_.lookupText(key);
+    // {key.<id>}：那个动作眼下第一个自定义键；没有自定义键就取第一个固定键（不变式保证两样至少有一样）。
+    line = expandActionPlaceholders(std::move(line), "{key.", [this](engine::Engine::Key action) {
         const engine::Engine::KeySlots slots =
-            engine_ ? engine_->customKeys(*action) : engine::Engine::defaultCustomKeys(*action);
+            engine_ ? engine_->customKeys(action) : engine::Engine::defaultCustomKeys(action);
         engine::ScanCode code = slots[0] != 0 ? slots[0] : slots[1];
         if (code == 0) {
-            const std::vector<engine::ScanCode> fixed = engine::Engine::fixedKeys(*action);
+            const std::vector<engine::ScanCode> fixed = engine::Engine::fixedKeys(action);
             if (!fixed.empty()) code = fixed.front();
         }
-        const std::string label = engine::Engine::keyLabel(code);
-        line.replace(from, close + 1 - from, label);
-        from += label.size();
-    }
-    return line;
+        return engine::Engine::keyLabel(code);
+    });
+    // {pad.<id>}：那个动作第一个手柄键的显示名（手柄键位固定，docs/gamepad.md 第 2 节那张表的第一个）。
+    return expandActionPlaceholders(std::move(line), "{pad.", [](engine::Engine::Key action) {
+        const std::vector<engine::Engine::PadButton> buttons = engine::Engine::padButtons(action);
+        return buttons.empty() ? std::string{} : engine::Engine::padLabel(buttons.front());
+    });
 }
 
 core::Result<bool> Application::enableSettingsFile(const std::string& path) {

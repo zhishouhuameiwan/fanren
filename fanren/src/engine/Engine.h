@@ -234,9 +234,13 @@ public:
     // Save、Action 都追加在 Count 之前：keyPressed 的数组按 Count 定长，插在中间不影响。
     // Action 是八方旅人式的「路径行动」键（E / Q，施工图 1.5 节）。
     // Alt+Enter（主键盘与小键盘的 Enter）是切全屏，整个吞掉：不算 Confirm，按住也不自动重复出 Confirm。
+    // 键盘与手柄（docs/gamepad.md）换算成同一套逻辑键：按住 = 键盘按住或任一手柄上它的任一手柄键按住。
     enum class Key { Up, Down, Left, Right, Confirm, Cancel, Menu, Skip, Save, Action, Count };
     bool keyDown(Key key) const;      // 当前是否按住
-    bool keyPressed(Key key) const;   // 本帧是否刚按下（带重复节流）
+    // 本帧是否刚按下。只有上下左右连发：按住 250ms 后每 60ms 再出一次（翻长列表、调数值）；
+    // 确认、取消、菜单、快进、存盘、路径行动一次物理按下只出一次，按住不连发（docs/gamepad.md 第 5 节：
+    // 否则按住 Tab / Esc 时主菜单每 60ms 开合一次）。要「按住」的语义（快进）问 keyDown。
+    bool keyPressed(Key key) const;
 
     // ---- 键位（docs/settings.md 4.4、第 6 节）----
     //
@@ -308,6 +312,36 @@ public:
     // Esc、Tab 照写；方向 → ↑↓←→；左 Ctrl → Ctrl、右 Ctrl → 右Ctrl；左 Shift → Shift、右 Shift → 右Shift；
     // 小键盘数字 → 小键盘0…；其余用 SDL_GetScancodeName，空名 → 键#<数值>。
     [[nodiscard]] static std::string keyLabel(ScanCode code);
+
+    // ---- 手柄（docs/gamepad.md）----
+    // 按位置命名（Xbox 的叫法）：A 下、B 右、X 左、Y 上。Stick* 是左摇杆数字化后的四向，LT / RT 是扳机数字化后的按下。
+    // 手柄键位固定、不可改（第 2 节）；LB、LT 不配任何动作。非无头时 init 打开手柄子系统（起不来只打一行警告、照样启动），
+    // 热插拔跟着 SDL 的 ADDED / REMOVED 走；pollEvents 处理手柄事件不看是谁开的子系统（测试自己开、或用 SDL_PushEvent 塞）。
+    enum class PadButton {
+        A, B, X, Y, Back, Start, LB, RB, LT, RT,
+        DpadUp, DpadDown, DpadLeft, DpadRight,
+        StickUp, StickDown, StickLeft, StickRight,
+        Count
+    };
+    enum class InputDevice { Keyboard, Gamepad };
+
+    [[nodiscard]] static std::vector<PadButton> padButtons(Key key);   // 第 2 节那张表，按显示优先次序
+    [[nodiscard]] static std::string padLabel(PadButton button);       // 第 2 节「显示名」
+    // 左摇杆 → 四向（第 3 节）。x、y 是归一到 [-1, 1] 的轴值，y 向下为正；held 是这根摇杆眼下按着的方向。
+    // 推到位：没按住时 r ≥ 0.5；方向取最近的轴（恰在对角线取左右）。按住时偏离原方向不超过 55°、且 r ≥ 0.35 就保持；
+    // 偏出 55° 换向算一次新的推，新方向同样要 r ≥ 0.5，不够就当松开。引擎按一份完整的报告（两轴收齐）调它，不按单个轴事件。
+    [[nodiscard]] static std::optional<Key> stickDirection(float x, float y, std::optional<Key> held);
+    // 扳机（第 3 节）：value 归一到 [0, 1]。没按住时 ≥ 0.5 算按下，按住时 ≥ 0.3 仍按住。
+    [[nodiscard]] static bool triggerDown(float value, bool wasDown);
+    // 最后一下配给了动作的按下来自键盘还是手柄（第 6 节，缺省键盘）。提示文案跟着它换 .pad 版本。
+    [[nodiscard]] InputDevice lastInputDevice() const;
+    [[nodiscard]] int gamepadCount() const;                            // 眼下开着的手柄数（句柄非空的）
+    // 手柄震动（第 8 节）。开关无头也存值（读回的就是存进去的），缺省开。
+    void setRumbleEnabled(bool on);
+    [[nodiscard]] bool rumbleEnabled() const;
+    // 唯一的闸：开关开着、眼下的设备是手柄、最后按键的那个手柄还接着才震；否则什么也不做。
+    // 强度夹到 [0, 1]，时长夹到 [0, 1000] 毫秒。
+    void rumble(float low, float high, int durationMs);
 
     // ---- 音频 ----
     void playBgm(const std::string& id);

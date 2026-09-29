@@ -424,6 +424,34 @@ TEST_F(HeadlessKeys, WhileCapturingNoLogicalKeyFiresAndTheNextPressIsTaken) {
     EXPECT_TRUE(tap(SDL_SCANCODE_Z, Key::Confirm));
 }
 
+// docs/gamepad.md 第 5 节：只有方向键连发之后，上面那条拿确认键验「抓键期间按住的键不自动重复」失去了判别力——
+// 确认键本来就不连发，抓键不拦连发它也照样过。换一个本来就连发的方向键，这条判据才还在。
+TEST_F(HeadlessKeys, WhileCapturingAHeldArrowDoesNotRepeatEither) {
+    // [先验] 不抓键时同样按住 ↓ 300ms，确实连发：下面那个「不连发」才判得出东西。
+    pushKey(SDL_SCANCODE_DOWN, true);
+    engine.pollEvents();
+    ASSERT_TRUE(engine.keyPressed(Key::Down));
+    SDL_Delay(300);
+    engine.pollEvents();
+    ASSERT_TRUE(engine.keyPressed(Key::Down)) << "先验：不抓键时按住 ↓ 过了 250ms 就连发";
+    pushKey(SDL_SCANCODE_DOWN, false);
+    engine.pollEvents();
+
+    // 按住 ↓ 开始抓键：从这一刻起不出 Down，按住 300ms 也不连发。
+    pushKey(SDL_SCANCODE_DOWN, true);
+    engine.pollEvents();
+    ASSERT_TRUE(engine.keyPressed(Key::Down));
+    engine.beginKeyCapture();
+    EXPECT_FALSE(engine.keyPressed(Key::Down)) << "本帧已经记下的「刚按下」作废";
+    SDL_Delay(300);
+    engine.pollEvents();
+    EXPECT_FALSE(engine.keyPressed(Key::Down)) << "抓键期间按住的方向键不连发";
+    pushKey(SDL_SCANCODE_DOWN, false);
+    engine.pollEvents();
+    EXPECT_FALSE(engine.takeCapturedKey().has_value()) << "松开不算按下";
+    engine.cancelKeyCapture();
+}
+
 TEST_F(HeadlessKeys, AltEnterStillTogglesFullscreenWhileCapturingAndIsNotTaken) {
     engine.beginKeyCapture();
     // 真键盘上是先到一下左 Alt 的按下，再到 Enter：那一下 Alt 不许被抓走（抓走了就是「留作他用」、抓键结束）。
@@ -555,6 +583,68 @@ TEST(KeyPrompts, PlaceholdersOnlyLiveInTheFourPromptsThatGoThroughText) {
     }
     EXPECT_EQ(viaBytes, viaData);
     EXPECT_GE(viaData, 6u) << "先验：四条提示里一共有六处占位";
+}
+
+// docs/gamepad.md 第 6 节：手柄版提示的占位 {pad.<id>} 同样只由 Application::text() 展开，所以只许出现在那 11 条提示的
+// .pad 版里；每条 .pad 都得有键盘版本体（text() 是在本体的 id 后面加 ".pad" 去找的）；.pad 里只许有 {pad.*}、
+// 不许有 {key.*}；id 认得、括号闭合。白名单写字面量，不从被测的东西推。
+// 第 7 节的规矩一并钉住：**文案 id 一律不许以 .pad 结尾，除非它就是那 11 条之一的手柄版**——扫全部文案 id，
+// 以 .pad 结尾的集合必须恰是白名单（整改轮：改键面板列头从前叫 ui.keys.col.pad，撞了这个后缀，已改名 ui.keys.col.gamepad）。
+TEST(KeyPrompts, PadPlaceholdersOnlyLiveInTheElevenPadPrompts) {
+    namespace fs = std::filesystem;
+    fs::path root = ".";
+    for (const char* candidate : {".", "..", "../..", "../../.."}) {
+        if (fs::exists(fs::path(candidate) / "data" / "text" / "ch01_main.json")) {
+            root = candidate;
+            break;
+        }
+    }
+    const auto loaded = fanren::io::loadGameData((root / "data").string());
+    ASSERT_TRUE(loaded.ok) << loaded.error;
+    const std::set<std::string> allowed{
+        "ui.title.keys.pad",   "ui.menu.keys.pad",   "ui.dialogue.keys.pad", "ui.path.keys.pad",
+        "ui.settings.hint.pad", "ui.keys.hint.pad",  "ui.keys.capture.pad",  "ui.keys.desc.pad",
+        "ui.keys.desc.restore.pad", "ui.battle.hint.menu.pad", "ui.battle.hint.watch.pad",
+    };
+    constexpr std::string_view kOpen = "{pad.";
+    constexpr std::string_view kPadSuffix = ".pad";
+    std::set<std::string> carriers;
+    std::set<std::string> padIds;
+    std::size_t viaData = 0;
+    for (const auto& [key, line] : loaded.value.text) {
+        if (key.size() > kPadSuffix.size() && std::string_view(key).substr(key.size() - kPadSuffix.size()) == kPadSuffix) {
+            padIds.insert(key);
+            EXPECT_TRUE(allowed.count(key) != 0) << key << " 以 .pad 结尾，却不是那 11 条提示之一的手柄版（第 7 节的规矩）";
+            EXPECT_TRUE(loaded.value.text.count(key.substr(0, key.size() - kPadSuffix.size())) != 0)
+                << key << " 没有键盘版本体";
+            EXPECT_EQ(line.find("{key."), std::string::npos) << key << "：.pad 里不许有 {key.*}：" << line;
+        }
+        for (std::size_t at = line.find(kOpen); at != std::string::npos; at = line.find(kOpen, at + 1)) {
+            ++viaData;
+            carriers.insert(key);
+            const std::size_t close = line.find('}', at);
+            ASSERT_NE(close, std::string::npos) << key << "：占位没有闭合：" << line;
+            const std::string id = line.substr(at + kOpen.size(), close - at - kOpen.size());
+            EXPECT_TRUE(Engine::keyFromId(id).has_value()) << key << "：认不出的动作「" << id << "」";
+            EXPECT_EQ(id.find('{'), std::string::npos) << key << "：占位里又套了一个括号：" << line;
+        }
+        EXPECT_TRUE(allowed.count(key) != 0 || line.find(kOpen) == std::string::npos)
+            << key << " 带了 {pad.，可它不是那 11 条提示的 .pad 版：" << line;
+    }
+    EXPECT_EQ(carriers, allowed) << "11 条 .pad 都带占位";
+    EXPECT_EQ(padIds, allowed) << "文案表里以 .pad 结尾的 id 恰是那 11 条";
+    EXPECT_EQ(loaded.value.text.count("ui.keys.col.gamepad"), 1u) << "改键面板的列头在改过的名字上（第 7 节）";
+
+    // 读盘那一层没漏掉哪个文件：直接数 data/text/** 的原始字节里有几处 {pad.，与上面数到的对上。
+    std::size_t viaBytes = 0;
+    for (const auto& entry : fs::recursive_directory_iterator(root / "data" / "text")) {
+        if (!entry.is_regular_file() || entry.path().extension() != ".json") continue;
+        std::ifstream in(entry.path(), std::ios::binary);
+        const std::string bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        for (std::size_t at = bytes.find(kOpen); at != std::string::npos; at = bytes.find(kOpen, at + 1)) ++viaBytes;
+    }
+    EXPECT_EQ(viaBytes, viaData);
+    EXPECT_EQ(viaData, 18u) << "先验：11 条 .pad 里一共有 18 处占位（数法见 docs/gamepad.md 第 6 节那张表）";
 }
 
 // 复查 N1：抓键中按 Alt+F4 想退出——Alt 放过之后，同一下 SDL 还发 F4 的按下（带 Alt 修饰）。从前 F4 被抓走、配进当前格，

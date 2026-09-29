@@ -51,6 +51,17 @@ constexpr float kWhiteFlash = 0.16f;
 constexpr float kBreakText = 0.95f;       // 戏里秒
 constexpr float kBreakRing = 0.4f;
 
+// ---- 手柄震动（docs/gamepad.md 第 8 节）----
+// 只在两处震：破势（谁被破都算），我方挨了敌人的重击（一下掉气血上限的四分之一以上，或被这一下打倒）。
+// 不跟震屏一起震：震屏每一击都有（3–5 像素），手柄每一击都震就成了噪音。与「战斗震屏」开关互不相干——
+// 震不震只看 Engine::rumble 那一道闸（开关、设备是不是手柄）。
+constexpr float kBreakRumbleLow = 0.8f;
+constexpr float kBreakRumbleHigh = 0.6f;
+constexpr int kBreakRumbleMs = 280;
+constexpr float kHeavyHitRumbleLow = 0.5f;
+constexpr float kHeavyHitRumbleHigh = 0.35f;
+constexpr int kHeavyHitRumbleMs = 180;
+
 // ---- 颜色 ----
 constexpr Color kWhite{255, 255, 255, 255};
 constexpr Color kNumber{246, 240, 226, 255};
@@ -589,6 +600,11 @@ void BattleView::onHit(const BattleEvent& e, bool alreadyBroken, int previousTou
     eng_.playSfx(look.hitSfx);
     if (e.weakness) eng_.playSfx("hit_weak");
     startShake(e.weakness ? 5.f : 3.f, e.weakness ? 0.16f : 0.12f);
+    // 我方挨了敌人的重击：这一下 ≥ 气血上限的四分之一，或这一下把人打倒。
+    const Unit& victim = units[t];
+    if (fromEnemy && victim.ally && (e.value * 4 >= victim.maxHp || e.hp == 0)) {
+        eng_.rumble(kHeavyHitRumbleLow, kHeavyHitRumbleHigh, kHeavyHitRumbleMs);
+    }
 }
 
 void BattleView::onBreak(int unit) {
@@ -612,6 +628,7 @@ void BattleView::onBreak(int unit) {
     a.flash = kHitFlash;
     a.hud.shieldHit = 0.5f;
     eng_.playSfx("break");
+    eng_.rumble(kBreakRumbleLow, kBreakRumbleHigh, kBreakRumbleMs);
 }
 
 void BattleView::onRecover(int unit) {
