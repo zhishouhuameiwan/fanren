@@ -1,0 +1,22 @@
+{
+  "id": "b09_dong_xuaner",
+  "name": "林缘破罩",
+  "chapter": 9,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "dong_xuaner_hehuan",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch09.battle.dong_xuaner.intro",
+  "origin": "改编：原著 ch361 的冲过拦截",
+  "note": "必经；全部在跌落前。初值待真实Application与BattleHand验证；没有C8终档时不作胜负结论。"
+}

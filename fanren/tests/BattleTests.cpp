@@ -1214,6 +1214,7 @@ GameState minimalState() {
     s.mapId = "ch03_guwai";
     s.position = fanren::core::Point{3, 4};
     s.realm = Realm::QiRefining3;
+    s.realmCap = s.realm;  // v9 的合法保存夹具：上限不能低于当前境界。
     s.hp = s.maxHp = 60;
     s.mp = s.maxMp = 30;
     s.chapter = 3;
@@ -1237,7 +1238,7 @@ TEST(BattleKnowledge, TheSaveKeepsThemByNameAndBringsThemBack) {
     EXPECT_NE(text.find("\"knownWeaknesses\""), std::string::npos);
     EXPECT_NE(text.find("拳"), std::string::npos);
     // 设计原文：破绽让存档升到 v7；此后野外遭遇的计数器又推到 v8（docs/interfaces-octo-encounters.md 第 7 节）。
-    EXPECT_NE(text.find("\"save_version\": 8"), std::string::npos) << "设计原文：存档升到 v8";
+    EXPECT_NE(text.find("\"save_version\": 9"), std::string::npos) << "第 9 章 E2：当前存档为 v9";
     const auto after = fanren::io::loadGame(path.string());
     std::error_code ec;
     fs::remove(path, ec);

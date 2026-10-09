@@ -1134,6 +1134,159 @@
         "sub": "qingbu"
       },
       "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "linghu_laozu": {
+      "base": "arch_cultivator_m",
+      "name": "linghu_laozu",
+      "colors": {
+        "main": "xiang",
+        "sub": "hei"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "huang_shishu": {
+      "base": "arch_cultivator_m",
+      "name": "huang_shishu",
+      "colors": {
+        "main": "songlv",
+        "sub": "bai"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "hongfen_kulou_nv": {
+      "base": "arch_demonic_f",
+      "name": "hongfen_kulou_nv",
+      "colors": {
+        "main": "yanzhi",
+        "sub": "hei"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "hongfen_kulou_nan": {
+      "base": "arch_demonic_m",
+      "name": "hongfen_kulou_nan",
+      "colors": {
+        "main": "cang",
+        "sub": "he"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "modao_guitou": {
+      "base": "arch_demonic_m",
+      "name": "modao_guitou",
+      "colors": {
+        "main": "xuan",
+        "sub": "qingbu"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "fujia_laozhe": {
+      "base": "arch_elder_m",
+      "name": "fujia_laozhe",
+      "colors": {
+        "main": "huilv",
+        "sub": "hei"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "fujia_qingnian": {
+      "base": "arch_disciple",
+      "name": "fujia_qingnian",
+      "colors": {
+        "main": "qingbu",
+        "sub": "bai"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "lan_furen": {
+      "base": "arch_noblewoman",
+      "name": "lan_furen",
+      "colors": {
+        "main": "ouhe",
+        "sub": "qianhui"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "xiu_er": {
+      "base": "arch_maid",
+      "name": "xiu_er",
+      "colors": {
+        "main": "tianqing",
+        "sub": "xingbai"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "ding_laozhe": {
+      "base": "arch_elder_m",
+      "name": "ding_laozhe",
+      "colors": {
+        "main": "huibu",
+        "sub": "songlv"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "baichi_sanxiu_a": {
+      "base": "arch_cultivator_m",
+      "name": "baichi_sanxiu_a",
+      "colors": {
+        "main": "zangqing",
+        "sub": "he"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "baichi_sanxiu_b": {
+      "base": "arch_cultivator_m",
+      "name": "baichi_sanxiu_b",
+      "colors": {
+        "main": "ma",
+        "sub": "songlv"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "baichi_sanxiu_c": {
+      "base": "arch_cultivator_m",
+      "name": "baichi_sanxiu_c",
+      "colors": {
+        "main": "cang",
+        "sub": "xiang"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "tianxing_shouwei": {
+      "base": "arch_disciple",
+      "name": "tianxing_shouwei",
+      "colors": {
+        "main": "qingbu",
+        "sub": "qianhui"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "mengmian_nvzi": {
+      "base": "arch_cultivator_f",
+      "name": "mengmian_nvzi",
+      "colors": {
+        "main": "bai",
+        "sub": "ouhe"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "nangong_ping": {
+      "base": "arch_cultivator_f",
+      "name": "nangong_ping",
+      "colors": {
+        "main": "bai",
+        "sub": "ouhe"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "dong_xuaner_hehuan": {
+      "base": "arch_demonic_f",
+      "name": "dong_xuaner_hehuan",
+      "colors": {
+        "main": "zhehong",
+        "sub": "hei"
+      },
+      "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
     }
   },
   "roles": {
@@ -1344,6 +1497,23 @@
     "gongmen_shiwei": "gongmen_shiwei",
     "ma_shizhi": "ma_shizhi",
     "wusemen_menzhu": "wusemen_menzhu",
-    "yulingzong_canhun": "qu_hun"
+    "yulingzong_canhun": "qu_hun",
+    "linghu_laozu": "linghu_laozu",
+    "huang_shishu": "huang_shishu",
+    "hongfen_kulou_nv": "hongfen_kulou_nv",
+    "hongfen_kulou_nan": "hongfen_kulou_nan",
+    "modao_guitou": "modao_guitou",
+    "fujia_laozhe": "fujia_laozhe",
+    "fujia_qingnian": "fujia_qingnian",
+    "lan_furen": "lan_furen",
+    "xiu_er": "xiu_er",
+    "ding_laozhe": "ding_laozhe",
+    "baichi_sanxiu_a": "baichi_sanxiu_a",
+    "baichi_sanxiu_b": "baichi_sanxiu_b",
+    "baichi_sanxiu_c": "baichi_sanxiu_c",
+    "tianxing_shouwei": "tianxing_shouwei",
+    "mengmian_nvzi": "mengmian_nvzi",
+    "nangong_ping": "nangong_ping",
+    "dong_xuaner_hehuan": "dong_xuaner_hehuan"
   }
 }

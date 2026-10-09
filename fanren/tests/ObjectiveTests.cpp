@@ -587,6 +587,8 @@ struct ScriptTransfer {
     const char* doneFlag;  // 目标链上那一步的 done_flag
     const char* script;    // 置它、并 teleport 的脚本，相对仓库根
     const char* toMap;     // teleport 的目标图
+    const char* reusableObject = ""; // A non-objective transfer must instead match this guarded, repeatable map hook.
+    const char* hostMap = "";
 };
 
 constexpr ScriptTransfer kScriptTransfers[] = {
@@ -631,6 +633,23 @@ constexpr ScriptTransfer kScriptTransfers[] = {
     {"ch08.lifu", "scripts/ch08/pianyuan.lua", "ch08_jiayuan_shanlin"},
     {"ch08.yaolang", "scripts/ch08/shandong.lua", "ch08_jiayuan_shanlin"},
     {"ch08.shalang", "scripts/ch08/yindong.lua", "ch08_dongfu"},
+    // Chapter 9 design 3.1: fifteen objective exits and one repeatable tunnel retreat.
+    {"ch09.zhongsheng", "scripts/ch09/zhongsheng.lua", "ch06_huangfenggu"},
+    {"ch09.laozu", "scripts/ch09/laozu.lua", "ch08_dongfu"},
+    {"ch09.fengfu", "scripts/ch09/fengfu.lua", "ch09_huangshan"},
+    {"ch09.tuwei", "scripts/ch09/fuji.lua", "ch09_huangshan"},
+    {"ch09.tiaoxi", "scripts/ch09/tiaoxi.lua", "ch09_yuanwu"},
+    {"ch09.fujia", "scripts/ch09/feixu.lua", "ch09_wumingshan"},
+    {"ch09.chengnuo", "scripts/ch09/zhuwu.lua", "ch08_tianxing_fangshi"},
+    {"ch09.feidao", "scripts/ch09/houyuan_jiu.lua", "ch09_wumingshan"},
+    {"ch09.xiufu", "scripts/ch09/zhuwu_er.lua", "ch09_yuanwu"},
+    {"ch09.qulu", "scripts/ch09/fengjiao.lua", "ch08_tianxing_fangshi"},
+    {"ch09.goucai", "scripts/ch09/goucai.lua", "ch08_lingkuang"},
+    {"ch09.xiuzhen", "scripts/ch09/xiuzhen.lua", "ch09_milin"},
+    {"ch09.jiuren", "scripts/ch09/jiuren.lua", "ch09_milin"},
+    {"ch09.huicheng", "scripts/ch09/huicheng.lua", "ch08_lingkuang"},
+    {"ch09.done", "scripts/ch09/qidong.lua", "ch08_lingkuang"},
+    {"ch09.goucai", "scripts/ch09/suidao_hui.lua", "ch08_lingkuang", "trigger_suidao_hui", "ch08_lingkuang"},
 };
 
 // 门的钥匙里不在目标链上的：哪个脚本置它、紧跟在链上哪一步之后到手。
@@ -762,7 +781,7 @@ std::vector<RouteGap> walkObjectiveChain(Application& app) {
         }
         at = step.targetMap;
         for (const ScriptTransfer& transfer : kScriptTransfers) {
-            if (step.doneFlag == transfer.doneFlag) at = transfer.toMap;
+            if (transfer.reusableObject[0] == '\0' && step.doneFlag == transfer.doneFlag) at = transfer.toMap;
         }
     }
     return gaps;
@@ -827,7 +846,23 @@ std::vector<std::string> tableRowProblems(const std::set<std::string>& doneFlags
         const std::string script = transfer.script;
         const std::string text = scriptText(script);
         requireStep(transfer.doneFlag);
-        if (!hasTopLevel(text, flagSetOf(transfer.doneFlag))) {
+        if (transfer.reusableObject[0] != '\0') {
+            const auto map = fanren::io::loadTileMap((fs::path(assetRoot()) / "maps" / (std::string(transfer.hostMap) + ".tmj")).string());
+            if (!map.ok) {
+                problems.push_back(map.error);
+            } else {
+                int matches = 0;
+                for (const auto& o : map.value.objects) if (o.name == transfer.reusableObject) {
+                    const std::string relative = script.substr(std::string("scripts/").size());
+                    if (o.type == "trigger" && o.property("mode") == "enter" && o.property("once") == "false" &&
+                        o.property("set_flag").empty() && o.property("guard_flag") == transfer.doneFlag &&
+                        o.property("script") == relative) ++matches;
+                }
+                if (matches != 1) problems.push_back(script + " must match one guarded reusable map transfer");
+            }
+            if (liveCodeOf(text).find("flag.set(") != std::string::npos)
+                problems.push_back(script + " reusable transfer must not advance any flag");
+        } else if (!hasTopLevel(text, flagSetOf(transfer.doneFlag))) {
             problems.push_back(script + " 里没有顶格的 " + flagSetOf(transfer.doneFlag));
         }
         if (!hasTopLevel(text, "teleport(\"" + std::string(transfer.toMap) + "\"")) {
@@ -893,7 +928,8 @@ TEST_F(ObjectiveRoute, TheTransferAndDoorKeyTablesMatchTheScripts) {
     const ScriptScan scan = scanStepScripts(doneFlags);
     ASSERT_GT(scan.scanned, 50u) << "先验：真的读到了 scripts/ 下的脚本";
     std::set<std::string> tabledTransfers;
-    for (const ScriptTransfer& transfer : kScriptTransfers) tabledTransfers.insert(transfer.script);
+    for (const ScriptTransfer& transfer : kScriptTransfers)
+        if (transfer.reusableObject[0] == '\0') tabledTransfers.insert(transfer.script);
     EXPECT_EQ(scan.teleporting, tabledTransfers)
         << "置了目标链 done_flag、又 teleport 的脚本与 kScriptTransfers 对不上：没登的那个，演完人不在目标图上，"
            "下一步的起点就算错了";

@@ -190,7 +190,14 @@ void MenuScene::rebuildLists(Application& app) {
         const core::Magic* magic = app.data().findMagic(id);
         ui::ListItem row;
         row.label = magic != nullptr ? magic->name : id;
-        if (magic != nullptr) row.detail = words.mpLabel + std::to_string(magic->needMp);
+        if (magic != nullptr) {
+            if (stage == PanelStage::Immortal &&
+                rules::toValue(magic->needRealm) > rules::toValue(state.realm)) {
+                row.detail = "境界不足";
+            } else {
+                row.detail = words.mpLabel + std::to_string(magic->needMp);
+            }
+        }
         magicRows.push_back(std::move(row));
     }
     magics_.reset();

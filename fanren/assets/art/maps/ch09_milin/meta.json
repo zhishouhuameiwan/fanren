@@ -1,0 +1,112 @@
+{
+ "map": "ch09_milin",
+ "tile": 16,
+ "width": 48,
+ "height": 40,
+ "theme": "mountain_path",
+ "time": "night",
+ "season": "autumn",
+ "ambient": [
+  84,
+  96,
+  142
+ ],
+ "dof": 0.55,
+ "bloom": 0.6,
+ "vignette": 0.5,
+ "particles": [
+  {
+   "kind": "mist",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 5.5,
+   "y": 33.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "leaf",
+   "x": 20.5,
+   "y": 7.0
+  },
+  {
+   "kind": "leaf",
+   "x": 31.5,
+   "y": 7.0
+  },
+  {
+   "kind": "leaf",
+   "x": 33.5,
+   "y": 7.0
+  },
+  {
+   "kind": "leaf",
+   "x": 7.5,
+   "y": 8.0
+  },
+  {
+   "kind": "leaf",
+   "x": 9.5,
+   "y": 8.0
+  },
+  {
+   "kind": "leaf",
+   "x": 30.5,
+   "y": 16.0
+  },
+  {
+   "kind": "leaf",
+   "x": 12.5,
+   "y": 17.0
+  },
+  {
+   "kind": "leaf",
+   "x": 40.5,
+   "y": 19.0
+  },
+  {
+   "kind": "leaf",
+   "x": 42.5,
+   "y": 19.0
+  },
+  {
+   "kind": "leaf",
+   "x": 12.5,
+   "y": 27.0
+  },
+  {
+   "kind": "leaf",
+   "x": 40.5,
+   "y": 28.0
+  },
+  {
+   "kind": "leaf",
+   "x": 22.5,
+   "y": 30.0
+  },
+  {
+   "kind": "leaf",
+   "x": 29.5,
+   "y": 34.0
+  },
+  {
+   "kind": "leaf",
+   "x": 7.5,
+   "y": 35.0
+  }
+ ],
+ "backdrop": "mountain_forest"
+}

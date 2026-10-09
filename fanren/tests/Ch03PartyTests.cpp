@@ -206,7 +206,8 @@ TEST(Ch03SaveVersion, IsFive) {
     // **再推到 6**：剧情给的境界上限；**再推到 7**：已揭开的破绽（八方旅人化改造，
     // io/SaveFile.h 第 7 条）。6→7 同样是空操作、同样登记。**再推到 8**：野外遭遇的计数器
     //（io/SaveFile.h 第 8 条），7→8 也是空操作。
-    EXPECT_EQ(kSaveVersion, 8);
+    // 第 9 章 E1/E2 的 formerRealm 将当前版本推到 9，8→9 仍登记空迁移。
+    EXPECT_EQ(kSaveVersion, 9);
 }
 
 TEST(Ch03SaveVersion, HandBuiltSaveAtTheCurrentVersionIsAccepted) {

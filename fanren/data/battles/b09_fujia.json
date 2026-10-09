@@ -1,0 +1,26 @@
+{
+  "id": "b09_fujia",
+  "name": "废墟守宅",
+  "chapter": 9,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "fujia_laozhe",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "fujia_qingnian",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch09.battle.fujia.intro",
+  "origin": "原著 ch350",
+  "note": "必经；全部在跌落前。初值待真实Application与BattleHand验证；没有C8终档时不作胜负结论。"
+}

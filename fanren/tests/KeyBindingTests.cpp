@@ -553,7 +553,8 @@ TEST(KeyPrompts, PlaceholdersOnlyLiveInTheFourPromptsThatGoThroughText) {
     }
     const auto loaded = fanren::io::loadGameData((root / "data").string());
     ASSERT_TRUE(loaded.ok) << loaded.error;
-    const std::set<std::string> allowed{"ui.menu.keys", "ui.battle.hint.menu", "ui.battle.hint.watch", "ui.dialogue.keys"};
+    const std::set<std::string> allowed{"ui.menu.keys", "ui.battle.hint.menu", "ui.battle.hint.watch", "ui.dialogue.keys",
+                                        "objective.ch09.n20_huicheng"};
 
     constexpr std::string_view kOpen = "{key.";
     std::set<std::string> carriers;
@@ -605,6 +606,7 @@ TEST(KeyPrompts, PadPlaceholdersOnlyLiveInTheElevenPadPrompts) {
         "ui.title.keys.pad",   "ui.menu.keys.pad",   "ui.dialogue.keys.pad", "ui.path.keys.pad",
         "ui.settings.hint.pad", "ui.keys.hint.pad",  "ui.keys.capture.pad",  "ui.keys.desc.pad",
         "ui.keys.desc.restore.pad", "ui.battle.hint.menu.pad", "ui.battle.hint.watch.pad",
+        "objective.ch09.n20_huicheng.pad",
     };
     constexpr std::string_view kOpen = "{pad.";
     constexpr std::string_view kPadSuffix = ".pad";
@@ -644,7 +646,7 @@ TEST(KeyPrompts, PadPlaceholdersOnlyLiveInTheElevenPadPrompts) {
         for (std::size_t at = bytes.find(kOpen); at != std::string::npos; at = bytes.find(kOpen, at + 1)) ++viaBytes;
     }
     EXPECT_EQ(viaBytes, viaData);
-    EXPECT_EQ(viaData, 18u) << "先验：11 条 .pad 里一共有 18 处占位（数法见 docs/gamepad.md 第 6 节那张表）";
+    EXPECT_EQ(viaData, 19u) << "Original 18 placeholders plus Chapter 9's one real menu prompt";
 }
 
 // 复查 N1：抓键中按 Alt+F4 想退出——Alt 放过之后，同一下 SDL 还发 F4 的按下（带 Alt 修饰）。从前 F4 被抓走、配进当前格，

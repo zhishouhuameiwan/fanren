@@ -1,0 +1,14 @@
+{
+  "id": "lan_furen",
+  "name": "蓝夫人",
+  "realm": "FoundationLate",
+  "maxHp": 60,
+  "maxMp": 30,
+  "attack": 10,
+  "defence": 8,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "星尘阁第五层掌柜；只参与交易演出。"
+}

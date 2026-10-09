@@ -1,0 +1,11 @@
+{
+  "id": "story_xin_zhenqi",
+  "name": "合炼阵具",
+  "descKey": "item.desc.story_xin_zhenqi",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著 ch346-363",
+  "note": "辛如音与齐云霄一起炼出的几套旗盘。"
+}

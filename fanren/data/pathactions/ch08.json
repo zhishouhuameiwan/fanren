@@ -308,6 +308,11 @@
           "flag": "ch08.done",
           "op": ">=",
           "value": 1
+        },
+        {
+          "flag": "ch08.yueding",
+          "op": ">=",
+          "value": 1
         }
       ],
       "done_flag": "ch08.path.qiyunxiao_dating",
@@ -330,6 +335,11 @@
       "until": [
         {
           "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch08.yueding",
           "op": ">=",
           "value": 1
         }

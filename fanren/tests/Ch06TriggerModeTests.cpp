@@ -167,7 +167,8 @@ std::string withoutRepay(const std::string& code) {
 bool patchedInByChapterSeven(const MapObject& object) {
     if (object.name == "portal_to_nancheng" && object.property("target_map") == "ch05_nancheng") return true;
     for (const char* key : {"guard_flag", "set_flag", "require_flag", "visible_flag", "hidden_flag"}) {
-        if (object.property(key).rfind("ch07.", 0) == 0 || object.property(key).rfind("ch08.", 0) == 0) return true;
+        if (object.property(key).rfind("ch07.", 0) == 0 || object.property(key).rfind("ch08.", 0) == 0 ||
+            object.property(key).rfind("ch09.", 0) == 0) return true;
     }
     return false;
 }

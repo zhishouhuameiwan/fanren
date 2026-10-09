@@ -1,0 +1,12 @@
+{
+  "id": "magic_ji_baizhudao",
+  "name": "祭白蛛飞刀",
+  "descKey": "magic.desc.magic_ji_baizhudao",
+  "element": 4,
+  "needMp": 12,
+  "power": 16,
+  "needRealm": "QiRefining1",
+  "boost": "hits",
+  "origin": "原著事实；战斗招式为改编",
+  "note": "成套飞刀；用作水类连发。 数值待真实战斗标定。"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "magic_fujia_shuijian",
+  "name": "水箭",
+  "descKey": "magic.desc.magic_fujia_shuijian",
+  "element": 4,
+  "needMp": 7,
+  "power": 12,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "原著事实；战斗招式为改编",
+  "note": "守宅青年攻击；技能名称为本作改编。 数值待真实战斗标定。"
+}

@@ -86,6 +86,7 @@ TEST_F(QuickSave, WritesWhatIsActuallyOnTheScreenRightNow) {
     s.mapId = "ch04_luorifeng";
     s.position = fanren::core::Point{12, 9};
     s.realm = Realm::QiRefining8;
+    s.realmCap = s.realm;  // 手设境界的保存夹具需满足v9上限约束。
     s.hp = s.maxHp = fanren::rules::realmMaxHp(s.realm);
     s.mp = s.maxMp = fanren::rules::realmMaxMp(s.realm);
     s.setFlag("ch04.huodan_xue");
@@ -114,6 +115,7 @@ TEST_F(QuickSave, WritesWhatIsActuallyOnTheScreenRightNow) {
 // 少了这一条，上面那串相等可能只是因为两边都是缺省值。
 TEST_F(QuickSave, ADifferentRunWritesADifferentSave) {
     state().realm = Realm::QiRefining3;
+    state().realmCap = state().realm;
     auto first = app_.quickSave();
     ASSERT_TRUE(first.ok) << first.error;
     savedPath_ = first.value;
@@ -121,6 +123,7 @@ TEST_F(QuickSave, ADifferentRunWritesADifferentSave) {
     ASSERT_TRUE(a.ok);
 
     state().realm = Realm::QiRefining8;
+    state().realmCap = state().realm;
     auto second = app_.quickSave();
     ASSERT_TRUE(second.ok) << second.error;
     auto b = fanren::io::loadGame(savedPath_);

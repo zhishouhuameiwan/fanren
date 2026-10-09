@@ -156,7 +156,7 @@ realm = {
     --
     -- 原因码：
     --   "no_realm"    不是一个合法的境界编号
-    --   "not_higher"  目标低于当前（跌落是 Realm::demote 的事，第 9 章才用得上）
+    --   "not_higher"  目标低于当前（跌落走 realm.demote）
     --
     -- **凡调请看返回值**，与 take() / party.add() 同一条规矩。真返回 false 说明
     -- 脚本里那个编号写错了，而静默收下的后果是这一章的数值全部对不上账——
@@ -178,6 +178,17 @@ realm = {
     cap = function(value)
         assert(type(value) == "number", "realm.cap() 需要境界编号")
         local result = emit{ kind = "realm_cap", x = value }
+        return result.ok == true, result.code or ""
+    end,
+
+    -- 境界跌落（第 9 章契约第 1 节）。目标是境界编号，与 advance 同一套坐标。
+    -- 上限一并落到目标，气血夹到新上限、法力清零，修为与余数清零；
+    -- 记下跌落前的最高境界。法术、瓶子、队伍、背包一概不动。
+    -- 原因码："no_realm" 编号非法或凡人；"not_lower" 目标高于当前。
+    -- 目标等于当前：什么也不做，返回 true。凡调请看返回值。
+    demote = function(value)
+        assert(type(value) == "number", "realm.demote() 需要境界编号")
+        local result = emit{ kind = "realm_demote", x = value }
         return result.ok == true, result.code or ""
     end,
 

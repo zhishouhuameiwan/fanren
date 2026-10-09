@@ -1292,7 +1292,7 @@ def write_path_probe(work: Path, entries: list, extra_flags: list, file_stem: st
     """把探针写成副本里的第 4 章文件（原文件移走），探针的旗标登记进副本的 flags.json。"""
     actions = work / "data" / "pathactions"
     for old in actions.glob("*.json"):
-        if old.stem in ("ch04", "ch09"):
+        if old.stem in ("ch04", "ch99"):
             old.unlink()
     (actions / (file_stem + ".json")).write_text(json.dumps(
         {"id": top_id, "name": "门禁自检探针", "chapter": 4, "entries": entries},
@@ -1349,6 +1349,232 @@ def path_clean_probes() -> list:
     pending.update({"map": "ch04_getang", "npc": "npc_wang_juechu", "battle": "b04_selftest_pending",
                     "pending": True})
     return probes + [overlap_a, overlap_b, fine_a, fine_b, absent, pending]
+
+
+def selftest_m_path_sources(case: Case, base: Path) -> None:
+    """通过真实 main 验证 Quest 只接收合法、可执行的 PathAction 置旗来源。"""
+    print()
+    print("M2. 任务的路径行动来源：完成旗、附带旗、登记无来源、非法条目、pending")
+    work = make_full_workdir(base / "m_path_sources")
+    inquiry, purchase, challenge, reader = [path_probe(n, kind) for n, kind in
+                                           ((70, "inquire"), (71, "purchase"),
+                                            (72, "challenge"), (73, "inquire"))]
+    for entry in (inquiry, reader):
+        entry.pop("reveal")
+    extra_flag = "ch04.path.selftest_quest_source"
+    inquiry["set_flags"] = [extra_flag]
+    reader["when"].append({"flag": extra_flag, "op": ">=", "value": 1})
+    entries = [inquiry, purchase, challenge, reader]
+    battle_path = work / "data" / "battles" / "b04_selftest_probe.json"
+    battle_path.write_text(json.dumps(path_probe_battle("b04_selftest_probe", False, 0),
+                                     ensure_ascii=False, indent=2), "utf-8")
+    chapter9 = work / "data" / "pathactions" / "ch09.json"
+    chapter9_original = chapter9.read_bytes() if chapter9.exists() else None
+    write_path_probe(work, entries, [extra_flag, "ch04.path.selftest_unproduced"])
+    if chapter9_original is not None:
+        case.check("路径探针保留真实 ch09 文件、字节不变",
+                   chapter9.exists() and chapter9.read_bytes() == chapter9_original)
+    quest = good_quest()
+    quest["accept"][0]["flag"] = inquiry["done_flag"]
+    quest["steps"][0]["done"] = [{"flag": purchase["done_flag"], "op": ">=", "value": 1}]
+    quest["steps"][1]["done"] = [{"flag": challenge["done_flag"], "op": "==", "value": 1}]
+    quest["complete"][0]["flag"] = extra_flag
+    quest["complete"].append({"flag": reader["done_flag"], "op": ">=", "value": 1})
+    quest_path = write_quest(work, quest)
+    action_path = work / "data" / "pathactions" / "ch04.json"
+    flags_path = work / "data" / "flags.json"
+    originals = {path: path.read_bytes() for path in (action_path, flags_path, quest_path)}
+
+    def quest_errors(lines):
+        return [line for line in lines if line.startswith("[error]") and QUEST_PROBE_ID in line]
+
+    clean = run_validate_lines(work)
+    source_errors = [line for line in clean if line.startswith("[error]") and
+                     (QUEST_PROBE_ID in line or "pathactions" in line and "ch04.json" in line)]
+    for name in ("打探 done_flag", "求购 done_flag", "胜利切磋 done_flag", "打探 set_flags"):
+        case.check(name + " → 任务引用不报", not source_errors, chr(10).join(source_errors[:3]))
+    case.check("合法路径旗标前置链 → 任务引用不报", not source_errors,
+               chr(10).join(source_errors[:3]))
+
+    def rejected(name, index, mutate, flag, path_needle="", unregister=False, top_id=False,
+                 prerequisite=None):
+        actions = json.loads(originals[action_path])
+        payload = json.loads(originals[quest_path])
+        if index is not None:
+            mutate(actions["entries"][index])
+        if top_id:
+            actions["id"] = "pathactions_ch05"
+        if prerequisite:
+            actions["entries"][3]["when"].append({"flag": prerequisite, "op": ">=", "value": 1})
+        payload["complete"] = [{"flag": flag, "op": ">=", "value": 1}]
+        action_path.write_text(json.dumps(actions, ensure_ascii=False, indent=2), "utf-8")
+        quest_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), "utf-8")
+        if unregister:
+            flags = json.loads(originals[flags_path])
+            flags.pop(flag)
+            flags_path.write_text(json.dumps(flags, ensure_ascii=False, indent=2), "utf-8")
+        try:
+            lines = run_validate_lines(work)
+            found = quest_errors(lines)
+            quest_needle = "旗标未在 data/flags.json 登记" if unregister else "没有任何脚本会置它"
+            producer_rejected = not path_needle or any(
+                "pathactions" in line and "ch04.json" in line and path_needle in line for line in lines)
+            case.check(name + " → 不算任务来源且保留路径门禁",
+                       any(flag in line and quest_needle in line for line in found) and producer_rejected,
+                       chr(10).join(found[:2]) or "（任务一条也没报）")
+        finally:
+            for path, original in originals.items():
+                path.write_bytes(original)
+
+    rejected("只有登记、没人产生", None, None, "ch04.path.selftest_unproduced")
+    rejected("done_flag 未登记", 0, lambda e: None, inquiry["done_flag"],
+             "旗标未在 data/flags.json 登记", unregister=True)
+    rejected("set_flags 未登记", 0, lambda e: None, extra_flag,
+             "旗标未在 data/flags.json 登记", unregister=True)
+    rejected("条目字段伪造", 0, _set("colour", 1), inquiry["done_flag"], "不认识的字段")
+    rejected("done_flag 与 id 不符", 0, _set("id", "p74_dating"), inquiry["done_flag"], "done_flag 必须是")
+    rejected("地图不存在", 0, _set("map", "ch99_wu"), inquiry["done_flag"], "map 不存在")
+    rejected("NPC 不存在", 0, _set("npc", "npc_bu_cun_zai"), extra_flag, "没有名为")
+    rejected("文案不存在", 0, _set("text_key", "ch99.bu_cun_zai"), extra_flag, "文案 key 不存在")
+    rejected("求购物品不存在", 1, _set("item_id", "pill_bu_cun_zai"), purchase["done_flag"], "物品 id 不存在")
+    rejected("切磋编成不存在", 2, _set("battle", "b04_selftest_pending"), challenge["done_flag"], "编成不存在")
+    rejected("pending 未建战", 2,
+             lambda e: e.update({"pending": True, "battle": "b04_selftest_pending"}),
+             challenge["done_flag"], "尚未建好（pending）")
+    rejected("前置旗只能由 pending 产生", 2,
+             lambda e: e.update({"pending": True, "battle": "b04_selftest_pending"}),
+             reader["done_flag"], "尚未建好（pending）", prerequisite=challenge["done_flag"])
+    rejected("前置旗只能由非法条目产生", 2, _set("battle", "b04_selftest_pending"),
+             reader["done_flag"], "编成不存在", prerequisite=challenge["done_flag"])
+    rejected("前置完成旗依赖自己、没有起点", 3, lambda e: None,
+             reader["done_flag"], prerequisite=reader["done_flag"])
+    rejected("文件顶层 id 非法", None, None, inquiry["done_flag"], "顶层 id 必须是", top_id=True)
+    scripts, actions = work / "scripts", work / "data" / "pathactions"
+    saved_scripts, saved_actions = work / "saved_scripts", work / "saved_pathactions"
+    scripts.rename(saved_scripts)
+    actions.rename(saved_actions)
+    try:
+        found = quest_errors(run_validate_lines(work))
+        case.check("所有来源为空、只有登记 → 仍报无人产生",
+                   any(extra_flag in line and "没有任何脚本会置它" in line for line in found),
+                   chr(10).join(found[:2]) or "（任务一条也没报）")
+    finally:
+        saved_scripts.rename(scripts)
+        saved_actions.rename(actions)
+    restored = run_validate_lines(work)
+    case.check("负例后字节还原、合法任务再验通过",
+               all(path.read_bytes() == original for path, original in originals.items()) and
+               not quest_errors(restored), chr(10).join(quest_errors(restored)[:3]))
+
+
+def selftest_m_path_values(case: Case, base: Path) -> None:
+    """真实 C9 producer/Quest：置 1、when 全成立且 until 全不成立，逐例还原。"""
+    print()
+    print("M3. 路径旗标取值与窗口：真实 C9 反例、脚本变量、多步合法链")
+    work = make_full_workdir(base / "m_path_values")
+    actions_path = work / "data" / "pathactions" / "ch09.json"
+    quest_path = work / "data" / "quests" / "q09_baichi.json"
+    flags_path = work / "data" / "flags.json"
+    script_flag = "ch09.xiufu"
+    script_name = next(name for name, flags in validate.script_flag_sets().items() if script_flag in flags)
+    script_path = work / "scripts" / script_name
+    originals = {path: path.read_bytes() for path in (actions_path, quest_path, flags_path, script_path)}
+    actions = json.loads(originals[actions_path])
+    a, b, c = actions["entries"][2:5]
+    a_flag, b_flag, c_flag = (entry["done_flag"] for entry in (a, b, c))
+    extra_flag = "ch09.path.selftest_window_extra"
+
+    def condition(flag, op=">=", value=1):
+        return {"flag": flag, "op": op, "value": value}
+
+    def trial(name, mutate, reject=False, needle="", script_tail="", extra=False):
+        payload = json.loads(originals[actions_path])
+        quest = json.loads(originals[quest_path])
+        mutate(payload["entries"], quest)
+        actions_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), "utf-8")
+        quest_path.write_text(json.dumps(quest, ensure_ascii=False, indent=2), "utf-8")
+        if extra:
+            flags = json.loads(originals[flags_path])
+            flags[extra_flag] = "自检窗口附带旗"
+            flags_path.write_text(json.dumps(flags, ensure_ascii=False, indent=2), "utf-8")
+        if script_tail:
+            script_path.write_text(originals[script_path].decode("utf-8") + "\n" + script_tail, "utf-8")
+        try:
+            errors = [line for line in run_validate_lines(work) if line.startswith("[error]")]
+            quest_errors = [line for line in errors if "q09_baichi.json" in line]
+            ok = (bool(quest_errors) and any(needle in line for line in errors)) if reject else not errors
+            case.check(name, ok, chr(10).join(errors[:3]) or ("（反例被错误放行）" if reject else ""))
+        finally:
+            for path, original in originals.items():
+                path.write_bytes(original)
+
+    trial("真实 C9 原样内容 → 通过", lambda entries, quest: None)
+    for op in (">=", "=="):
+        trial("路径前置 " + op + " 2 → 拒绝并排除下游来源",
+              lambda entries, quest, op=op: entries[2]["when"].append(condition(b_flag, op, 2)),
+              True, "只会置为 1")
+        trial("任务路径旗 " + op + " 2 → 拒绝",
+              lambda entries, quest, op=op: quest["complete"][0].update({"op": op, "value": 2}),
+              True, "只会置为 1")
+        trial("路径前置 " + op + " 1 → 通过",
+              lambda entries, quest, op=op: entries[2]["when"].append(condition(b_flag, op)))
+        trial("任务路径旗 " + op + " 1 → 通过",
+              lambda entries, quest, op=op: quest["complete"][0].update({"op": op, "value": 1}))
+
+    def closed_window(entries, quest):
+        entries[2]["when"].append(condition(b_flag))
+        entries[2]["until"].append(condition(b_flag))
+
+    trial("when 蕴含 until → 永闭且无完成旗来源", closed_window, True, "窗口永远无法开启")
+    trial("when 前置 ==0 与 >=1 互斥 → 无来源",
+          lambda entries, quest: entries[2]["when"].extend([condition(b_flag, "==", 0), condition(b_flag)]),
+          True, "窗口永远无法开启")
+    trial("路径旗 when>=1 / until==1 → 置 1 后仍永闭",
+          lambda entries, quest: (entries[2]["when"].append(condition(b_flag)),
+                                  entries[2]["until"].append(condition(b_flag, "=="))),
+          True, "窗口永远无法开启")
+
+    def closed_extra(entries, quest):
+        entries[2]["until"].append(condition(script_flag))
+        entries[2]["set_flags"] = [extra_flag]
+        entries[3]["when"].append(condition(extra_flag))
+        quest["complete"].append(condition(extra_flag))
+
+    trial("永闭 producer 的附带旗和后续行动均无来源", closed_extra,
+          True, "窗口永远无法开启", extra=True)
+
+    def union_closed(entries, quest):
+        entries[2]["until"].extend([condition(script_flag, "==", 1),
+                                     condition(script_flag, "==", 2), condition(script_flag, ">=", 3)])
+
+    trial("多条 until 覆盖全部 when 取值 → 无来源", union_closed, True, "窗口永远无法开启")
+    trial("until==0 要求前置路径旗置1 → 合法链通过",
+          lambda entries, quest: entries[2]["until"].append(condition(b_flag, "==", 0)))
+    trial("路径旗 ==0 的合法首次窗口 → 通过",
+          lambda entries, quest: entries[2]["when"].append(condition(b_flag, "==", 0)))
+
+    def chain(entries, quest):
+        entries[2]["when"].append(condition(b_flag, "=="))
+        entries[4]["when"].append(condition(a_flag))
+        quest["complete"] = [condition(c_flag, "==")]
+
+    trial("B→A→C 三步合法来源链及完成==1 → 通过", chain)
+    for value, expression in ((1, "1"), (2, "2"), (2, "selftest_value")):
+        def script_window(entries, quest, value=value):
+            entries[2]["when"] = [condition(script_flag, "==", value)]
+            entries[2]["until"].append(condition(script_flag, ">=", 3))
+        tail = 'local selftest_value = 2\nflag.set("%s", %s)\n' % (script_flag, expression)
+        trial("脚本置旗 %s / when==%d / until>=3 → 通过" % (expression, value),
+              script_window, script_tail=tail)
+
+    def gap_window(entries, quest):
+        entries[2]["until"].extend([condition(script_flag, "==", 1), condition(script_flag, ">=", 3)])
+
+    trial("when>=1 / until==1或>=3，脚本可置2 → 窗口仍可开启", gap_window,
+          script_tail='flag.set("ch09.xiufu", 2)\n')
+    case.check("所有真实 C9 样本逐字节还原、原样再验通过",
+               all(path.read_bytes() == original for path, original in originals.items()) and
+               not [line for line in run_validate_lines(work) if line.startswith("[error]")])
 
 
 def selftest_p_path_actions(case: Case, base: Path) -> None:
@@ -1429,7 +1655,7 @@ def selftest_p_path_actions(case: Case, base: Path) -> None:
     # P2 · 文件层面：各自一趟，探针内容本身是对的。
     fine = [path_probe(10, "inquire")]
     file_cases = [
-        ("文件名不是 chNN（与 chapter 对不上）→ 报", dict(file_stem="ch09"), "一章一个文件", "ch09.json"),
+        ("文件名不是 chNN（与 chapter 对不上）→ 报", dict(file_stem="ch99"), "一章一个文件", "ch99.json"),
         ("顶层 id 不是 pathactions_chNN → 报", dict(top_id="pathactions_ch05"), "顶层 id 必须是", "ch04.json"),
     ]
     work_file = make_full_workdir(base / "p_file")
@@ -1572,8 +1798,8 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
     # 韩立不在场的那一仗，手段只有编成里友军的兵刃：第 5 章的通表里有火，这里却不算。
     expect("夺帮那一夜的头目只怕火与刀 → 报（我方只有拳）", "data/roles/sipingbang_toumu.json",
            lambda p: p.__setitem__("weaknesses", ["火", "刀"]), "没有一样是这一场", "b05_duobang")
-    expect_quiet("第 9 章的敌人不在规则 25 的范围 → 不报", "data/roles/wang_chan.json",
-                 lambda p: p.__setitem__("weaknesses", ["木"]), "b09_guzhen_zhuibing")
+    expect_quiet("第 10 章的敌人不在规则 25 的范围 → 不报", "data/roles/daoyu_husui.json",
+                 lambda p: p.__setitem__("weaknesses", ["木"]), "b10_gujia_bidou")
     expect("编成落在没登记手段的章 → 报", "data/battles/b03_gu_wai_elang.json",
            lambda p: p.__setitem__("chapter", 2), "没有登记我方必有手段")
 
@@ -2190,6 +2416,8 @@ def main() -> int:
         selftest_k_hook_declarations(case, base)
         selftest_l_objectives(case, base)
         selftest_m_quests(case, base)
+        selftest_m_path_sources(case, base)
+        selftest_m_path_values(case, base)
         selftest_p_path_actions(case, base)
         selftest_n_battle_break(case, base)
         selftest_t_recipe_only_flag(case, base)

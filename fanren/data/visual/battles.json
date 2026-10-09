@@ -265,6 +265,21 @@
       "map": "ch08_lingkuang",
       "backdrop": "cliff_top",
       "why": "实际发起地点对应设计8.2。"
+    },
+    "b09_tuwei": {
+      "map": "ch09_huangshan",
+      "backdrop": "cliff_top",
+      "why": "第9章三场必经仗的发起地点。"
+    },
+    "b09_fujia": {
+      "map": "ch09_yuanwu",
+      "backdrop": "mountain_forest",
+      "why": "第9章三场必经仗的发起地点。"
+    },
+    "b09_dong_xuaner": {
+      "map": "ch09_milin",
+      "backdrop": "mountain_forest",
+      "why": "第9章三场必经仗的发起地点。"
     }
   }
 }

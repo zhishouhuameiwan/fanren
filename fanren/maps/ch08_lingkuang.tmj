@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 16,
+  "nextobjectid": 27,
   "tilesets": [
     {
       "firstgid": 1,
@@ -595,6 +595,389 @@
               "name": "kind",
               "type": "string",
               "value": "meditate"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "spawn_ch09_dongku",
+          "type": "spawn",
+          "x": 1248,
+          "y": 1088,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "spawn_ch09_dongku"
+            },
+            {
+              "name": "default",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "up"
+            }
+          ]
+        },
+        {
+          "id": 17,
+          "name": "trigger_zhenwei_jiu_jin",
+          "type": "trigger",
+          "x": 992,
+          "y": 864,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/zhenwei_jin.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.goucai"
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "name": "trigger_zhenwei_jiu_mu",
+          "type": "trigger",
+          "x": 1408,
+          "y": 864,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/zhenwei_mu.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.goucai"
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "name": "trigger_zhenwei_jiu_shui",
+          "type": "trigger",
+          "x": 992,
+          "y": 1152,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/zhenwei_shui.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.goucai"
+            }
+          ]
+        },
+        {
+          "id": 20,
+          "name": "trigger_zhenwei_jiu_huo",
+          "type": "trigger",
+          "x": 1408,
+          "y": 1152,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/zhenwei_huo.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.goucai"
+            }
+          ]
+        },
+        {
+          "id": 21,
+          "name": "trigger_zhenyan_jiu",
+          "type": "trigger",
+          "x": 960,
+          "y": 800,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/zhenyan_jiu.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.goucai"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.buzhen"
+            }
+          ]
+        },
+        {
+          "id": 22,
+          "name": "trigger_xiuzhen",
+          "type": "trigger",
+          "x": 1248,
+          "y": 1056,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/xiuzhen.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.buzhen"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.xiuzhen"
+            }
+          ]
+        },
+        {
+          "id": 23,
+          "name": "trigger_wangong",
+          "type": "trigger",
+          "x": 1312,
+          "y": 1056,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/wangong.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.huicheng"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.wangong"
+            }
+          ]
+        },
+        {
+          "id": 24,
+          "name": "trigger_qidong",
+          "type": "trigger",
+          "x": 1280,
+          "y": 1024,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/qidong.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.wangong"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.done"
+            }
+          ]
+        },
+        {
+          "id": 25,
+          "name": "npc_qu_hun_dongku",
+          "type": "npc",
+          "x": 1344,
+          "y": 1056,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "up"
+            },
+            {
+              "name": "role_id",
+              "type": "string",
+              "value": "qu_hun"
+            },
+            {
+              "name": "wander",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "visible_flag",
+              "type": "string",
+              "value": "ch09.goucai"
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch09.done"
+            }
+          ]
+        },
+        {
+          "id": 26,
+          "name": "trigger_suidao_hui",
+          "type": "trigger",
+          "x": 896,
+          "y": 800,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/suidao_hui.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "enter"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.goucai"
             }
           ]
         }

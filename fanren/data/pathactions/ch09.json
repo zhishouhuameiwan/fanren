@@ -1,0 +1,152 @@
+{
+  "id": "pathactions_ch09",
+  "name": "第9章路径行动",
+  "chapter": 9,
+  "entries": [
+    {
+      "id": "xulao_qipu_dating2",
+      "kind": "inquire",
+      "map": "ch08_tianxing_fangshi",
+      "npc": "npc_xulao_qipu",
+      "realm": 0,
+      "when": [
+        {
+          "flag": "ch09.chengnuo",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch09.goucai",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch09.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch09.path.xulao_qipu_dating2",
+      "text_key": "ch09.path.xulao_qipu_dating2.text",
+      "origin": "原著事实",
+      "note": "打探无阅历门槛。"
+    },
+    {
+      "id": "tianxing_shouwei_dating",
+      "kind": "inquire",
+      "map": "ch08_tianxing_fangshi",
+      "npc": "npc_tianxing_shouwei",
+      "realm": 0,
+      "when": [
+        {
+          "flag": "ch09.fengfu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch09.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch09.path.tianxing_shouwei_dating",
+      "text_key": "ch09.path.tianxing_shouwei_dating.text",
+      "origin": "改编封路",
+      "note": "打探无阅历门槛。"
+    },
+    {
+      "id": "baichi_sanxiu_a_dating",
+      "kind": "inquire",
+      "map": "ch09_yuanwu",
+      "npc": "npc_baichi_sanxiu_a",
+      "realm": 0,
+      "when": [
+        {
+          "flag": "ch09.xiufu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch09.qulu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch09.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch09.path.baichi_sanxiu_a_dating",
+      "text_key": "ch09.path.baichi_sanxiu_a_dating.text",
+      "origin": "原著事实",
+      "note": "打探无阅历门槛。"
+    },
+    {
+      "id": "baichi_sanxiu_b_dating",
+      "kind": "inquire",
+      "map": "ch09_yuanwu",
+      "npc": "npc_baichi_sanxiu_b",
+      "realm": 0,
+      "when": [
+        {
+          "flag": "ch09.xiufu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch09.qulu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch09.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch09.path.baichi_sanxiu_b_dating",
+      "text_key": "ch09.path.baichi_sanxiu_b_dating.text",
+      "origin": "原著事实",
+      "note": "打探无阅历门槛。"
+    },
+    {
+      "id": "baichi_sanxiu_c_dating",
+      "kind": "inquire",
+      "map": "ch09_yuanwu",
+      "npc": "npc_baichi_sanxiu_c",
+      "realm": 0,
+      "when": [
+        {
+          "flag": "ch09.xiufu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch09.qulu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch09.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch09.path.baichi_sanxiu_c_dating",
+      "text_key": "ch09.path.baichi_sanxiu_c_dating.text",
+      "origin": "原著事实",
+      "note": "打探无阅历门槛。"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "fujia_laozhe",
+  "name": "守宅老者",
+  "realm": "FoundationMid",
+  "maxHp": 115,
+  "maxMp": 120,
+  "attack": 30,
+  "defence": 24,
+  "speed": 9,
+  "element": 4,
+  "magics": [
+    "magic_tongqian_yaji"
+  ],
+  "toughness": 6,
+  "weaknesses": [
+    "暗器"
+  ],
+  "actions": 1,
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "守在废墟的同阶修士；名牌不提前揭露家族。铜钱护身，只能暗器破势。 数值为待真实BattleHand标定的施工初值，不是实测。"
+}

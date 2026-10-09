@@ -1,0 +1,12 @@
+{
+  "id": "magic_tongqian_yaji",
+  "name": "铜钱压击",
+  "descKey": "magic.desc.magic_tongqian_yaji",
+  "element": 4,
+  "needMp": 8,
+  "power": 18,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "原著事实；战斗招式为改编",
+  "note": "守宅老者攻击，防御由角色架势与破绽表示。 数值待真实战斗标定。"
+}

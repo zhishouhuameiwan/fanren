@@ -1,0 +1,80 @@
+{
+ "map": "ch09_yuanwu",
+ "tile": 16,
+ "width": 56,
+ "height": 40,
+ "theme": "wild",
+ "time": "day",
+ "season": "autumn",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 7.5,
+   "y": 32.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  },
+  {
+   "x": 42.5,
+   "y": 9.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "leaf",
+   "x": 18.5,
+   "y": 7.0
+  },
+  {
+   "kind": "leaf",
+   "x": 48.5,
+   "y": 7.0
+  },
+  {
+   "kind": "leaf",
+   "x": 5.5,
+   "y": 11.0
+  },
+  {
+   "kind": "leaf",
+   "x": 21.5,
+   "y": 19.0
+  },
+  {
+   "kind": "leaf",
+   "x": 51.5,
+   "y": 21.0
+  }
+ ],
+ "backdrop": "mountain_forest"
+}

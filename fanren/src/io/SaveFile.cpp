@@ -143,6 +143,7 @@ json toJson(const GameState& s) {
 
     // 剧情给的境界上限（save_version 6 起）。存的是境界编号，与 realm 同一套。
     payload["realmCap"] = rules::toValue(s.realmCap);
+    payload["formerRealm"] = rules::toValue(s.formerRealm);
 
     // 已揭开的破绽（save_version 7 起）：role_id → 类别中文名数组（按位序）。
     // 写名字不写位掩码，理由见 SaveFile.h 第 7 条。
@@ -357,6 +358,26 @@ core::Result<GameState> fromJson(const json& p) {
         s.realmCap = legacyRealmCap(s.realm, s.flags);
     }
 
+    if (rules::toValue(s.realmCap) < rules::toValue(s.realm)) {
+        return failState("存档 payload 的境界上限（" + std::to_string(rules::toValue(s.realmCap)) +
+                         "）低于境界（" + std::to_string(rules::toValue(s.realm)) + "）");
+    }
+
+    // v8 及更早缺此项即从没跌过；重修可越过旧境界，不与 realm 比大小。
+    if (p.contains("formerRealm")) {
+        const json& formerValue = p["formerRealm"];
+        if (!formerValue.is_number_integer()) return failState("存档 payload 的 formerRealm 不是整数");
+        // 缩窄前先查范围，避免大整数截断后变成合法编号。
+        if (formerValue < rules::toValue(Realm::Mortal) || formerValue > rules::toValue(Realm::CoreLate)) {
+            return failState("存档 payload 的 formerRealm 编号非法: " + formerValue.dump());
+        }
+        const Realm former = rules::fromValue(formerValue.get<int>());
+        if (!rules::isValid(former)) {
+            return failState("存档 payload 的 formerRealm 编号非法: " + formerValue.dump());
+        }
+        s.formerRealm = former;
+    }
+
     // 已揭开的破绽自 save_version 7 起存在。v6 档读不到它是正常的，保持空表——
     // 旧档 = 全都不知道（6→7 迁移之所以是空操作，见 SaveFile.h）。
     //
@@ -527,6 +548,8 @@ const std::map<int, MigrationFn>& migrations() {
         // 读不到就保持全 0——**旧档 = 从没遇过**，那会儿野外还没有遭遇，所以不补正是对的。
         // 仍然登记，理由与 6→7 一字不差：空操作与「忘了登记」在代码里长得一样。
         {7, [](const json& payload) { return core::Result<json>::success(payload); }},
+        // 8 -> 9：加入 formerRealm，旧档缺省凡人（从没跌过）；空操作仍显式登记。
+        {8, [](const json& payload) { return core::Result<json>::success(payload); }},
     };
     return kTable;
 }

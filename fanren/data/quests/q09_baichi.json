@@ -1,0 +1,84 @@
+{
+  "id": "q09_baichi",
+  "name": "西峰问路",
+  "chapter": 9,
+  "kind": "side",
+  "title_key": "ch09.quest.baichi.title",
+  "summary_key": "ch09.quest.baichi.summary",
+  "accept": [
+    {
+      "flag": "ch09.xiufu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch09.quest.baichi.s1",
+      "done": [
+        {
+          "flag": "ch09.path.baichi_sanxiu_a_dating",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch09_yuanwu",
+      "target_object": "npc_baichi_sanxiu_a"
+    },
+    {
+      "id": "s2",
+      "text_key": "ch09.quest.baichi.s2",
+      "done": [
+        {
+          "flag": "ch09.path.baichi_sanxiu_b_dating",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch09_yuanwu",
+      "target_object": "npc_baichi_sanxiu_b"
+    },
+    {
+      "id": "s3",
+      "text_key": "ch09.quest.baichi.s3",
+      "done": [
+        {
+          "flag": "ch09.path.baichi_sanxiu_c_dating",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch09_yuanwu",
+      "target_object": "npc_baichi_sanxiu_c"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch09.path.baichi_sanxiu_a_dating",
+      "op": ">=",
+      "value": 1
+    },
+    {
+      "flag": "ch09.path.baichi_sanxiu_b_dating",
+      "op": ">=",
+      "value": 1
+    },
+    {
+      "flag": "ch09.path.baichi_sanxiu_c_dating",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail": [
+    {
+      "flag": "ch09.qulu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch09.quest.baichi.fail",
+  "rewards": [],
+  "origin": "原著 ch358；路径行动为改编",
+  "note": "可选；离开白池山过期，完成优先于过期。无新增虚构情报。"
+}

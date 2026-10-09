@@ -818,6 +818,7 @@ TEST(Ch07BottleFloor, ALoadedFoundationSaveGetsSixAndABiggerBottleKeepsItsOwn) {
     for (const auto [written, expected] : {std::pair{3, 6}, std::pair{8, 8}}) {
         GameState before;
         before.realm = Realm::FoundationEarly;
+        before.realmCap = before.realm;  // 仅补合法保存上限，不改容量/滴数判据。
         before.bottle.owned = true;
         before.bottle.capacity = written;
         before.bottle.drops = 3;

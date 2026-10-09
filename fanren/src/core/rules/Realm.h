@@ -71,7 +71,17 @@ enum class RealmTier : std::int32_t {
 
 // 境界跌落。第 9 章「遁走」中主角真元被夺，自筑基中期跌回炼气期，
 // 本函数按大境界逐级回落，下限为炼气一层（不会掉回凡人：修为根基仍在）。
+// 剧情入口按目标境界走，见 checkDemote 与脚本命令 RealmDemote。
 [[nodiscard]] Realm demote(Realm realm, std::int32_t levels) noexcept;
+
+// 剧情跌落的目标判定（第 9 章契约 1.2）；不改变按级数的 demote。
+enum class DemoteCheck : std::int32_t {
+    Ok = 0,
+    AlreadyThere,
+    NotLower,
+    NoRealm,
+};
+[[nodiscard]] DemoteCheck checkDemote(Realm current, Realm target) noexcept;
 
 // a 相对 b 的境界压制系数。跨大境界压制显著，同档内按层数微调。
 // 返回值用于伤害与命中计算，1.0 为势均力敌。
@@ -195,8 +205,8 @@ struct Vitals {
 //
 // 只补不削有两层理由。一是安全：读档时按境界**重算**（而不是取下限）会把日后
 // 丹药、功法、装备给的任何一点上限悄悄抹掉，而这种损失在存档里看不出来、也找
-// 不回来。二是第 9 章的境界跌落（`demote`，真元被夺自筑基中期跌回炼气期）——
-// 掉境界要不要跟着削气血是那一章的设计决定，不该由一条读档时的补齐规则替它定。
+// 不回来。第 9 章定了：跌落路径（RealmDemote）按新境界基准重算上限、法力清零；
+// 读档这一条仍只补不削。
 [[nodiscard]] Vitals liftToFloor(Vitals v, std::int32_t floor) noexcept;
 
 }  // namespace fanren::rules

@@ -1,0 +1,14 @@
+{
+  "id": "linghu_laozu",
+  "name": "令狐老祖",
+  "realm": "CoreLate",
+  "maxHp": 60,
+  "maxMp": 30,
+  "attack": 10,
+  "defence": 8,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "黄枫谷唯一元婴，太上长老。第九章议事殿引见后使用本名牌。仅供对白名牌，不参加战斗；引擎枚举没有元婴档，realm采用现有最高CoreLate，不用于推导人物真实修为。"
+}

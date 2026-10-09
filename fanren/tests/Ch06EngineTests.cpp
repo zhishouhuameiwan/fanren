@@ -393,6 +393,7 @@ TEST_F(Ch06RevealScene, CastingFromTheMenuLightsEveryFoeAndTheSaveRemembersIt) {
     EXPECT_EQ(app_.state().knownWeaknessesOf("tongmen_luchun"), luchun->weaknesses);
 
     // 存档 → 读档 → 同一场再打：开局就是亮的（docs/octopath-battle.md 2.5 那条路）。
+    app_.state().realmCap = app_.state().realm;  // 手设境界的保存夹具需满足v9上限约束。
     const fs::path path = fanren::test::uniqueTempPath("fanren_ch06_reveal", ".json");
     ASSERT_TRUE(fanren::io::saveGame(app_.state(), path.string()).ok);
     auto loaded = fanren::io::loadGame(path.string());

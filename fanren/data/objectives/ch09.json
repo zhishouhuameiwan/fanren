@@ -1,0 +1,161 @@
+{
+  "id": "objectives_ch09",
+  "name": "第9章目标链",
+  "chapter": 9,
+  "steps": [
+    {
+      "id": "n01_zhongsheng",
+      "text_key": "objective.ch09.n01_zhongsheng",
+      "done_flag": "ch09.zhongsheng",
+      "target_map": "ch06_baiyaoyuan",
+      "target_object": "trigger_zhongsheng"
+    },
+    {
+      "id": "n02_laozu",
+      "text_key": "objective.ch09.n02_laozu",
+      "done_flag": "ch09.laozu",
+      "target_map": "ch06_huangfenggu",
+      "target_object": "trigger_laozu"
+    },
+    {
+      "id": "n03_fengfu",
+      "text_key": "objective.ch09.n03_fengfu",
+      "done_flag": "ch09.fengfu",
+      "target_map": "ch08_dongfu",
+      "target_object": "trigger_fengfu"
+    },
+    {
+      "id": "n04_fuji",
+      "text_key": "objective.ch09.n04_fuji",
+      "done_flag": "ch09.tuwei",
+      "target_map": "ch09_huangshan",
+      "target_object": "trigger_fuji"
+    },
+    {
+      "id": "n05_tiaoxi",
+      "text_key": "objective.ch09.n05_tiaoxi",
+      "done_flag": "ch09.tiaoxi",
+      "target_map": "ch09_huangshan",
+      "target_object": "trigger_tiaoxi"
+    },
+    {
+      "id": "n06_feixu",
+      "text_key": "objective.ch09.n06_feixu",
+      "done_flag": "ch09.fujia",
+      "target_map": "ch09_yuanwu",
+      "target_object": "trigger_feixu"
+    },
+    {
+      "id": "n07_zhuwu",
+      "text_key": "objective.ch09.n07_zhuwu",
+      "done_flag": "ch09.chengnuo",
+      "target_map": "ch09_wumingshan",
+      "target_object": "trigger_zhuwu"
+    },
+    {
+      "id": "n08_weituo",
+      "text_key": "objective.ch09.n08_weituo",
+      "done_flag": "ch09.weituo",
+      "target_map": "ch08_tianxing_fangshi",
+      "target_object": "trigger_xulao_jiu"
+    },
+    {
+      "id": "n09_xingchen",
+      "text_key": "objective.ch09.n09_xingchen",
+      "done_flag": "ch09.xingchen",
+      "target_map": "ch08_tianxing_fangshi",
+      "target_object": "trigger_xingchenge"
+    },
+    {
+      "id": "n10_feidao",
+      "text_key": "objective.ch09.n10_feidao",
+      "done_flag": "ch09.feidao",
+      "target_map": "ch08_tianxing_fangshi",
+      "target_object": "trigger_houyuan_jiu"
+    },
+    {
+      "id": "n11_xiufu",
+      "text_key": "objective.ch09.n11_xiufu",
+      "done_flag": "ch09.xiufu",
+      "target_map": "ch09_wumingshan",
+      "target_object": "trigger_zhuwu_er"
+    },
+    {
+      "id": "n12_baichi",
+      "text_key": "objective.ch09.n12_baichi",
+      "done_flag": "ch09.baichi",
+      "target_map": "ch09_yuanwu",
+      "target_object": "trigger_shiting"
+    },
+    {
+      "id": "n13_qulu",
+      "text_key": "objective.ch09.n13_qulu",
+      "done_flag": "ch09.qulu",
+      "target_map": "ch09_yuanwu",
+      "target_object": "trigger_fengjiao"
+    },
+    {
+      "id": "n14_goucai",
+      "text_key": "objective.ch09.n14_goucai",
+      "done_flag": "ch09.goucai",
+      "target_map": "ch08_tianxing_fangshi",
+      "target_object": "trigger_goucai"
+    },
+    {
+      "id": "n15_buzhen",
+      "text_key": "objective.ch09.n15_buzhen",
+      "done_flag": "ch09.buzhen",
+      "target_map": "ch08_lingkuang",
+      "target_object": "trigger_zhenyan_jiu"
+    },
+    {
+      "id": "n16_xiuzhen",
+      "text_key": "objective.ch09.n16_xiuzhen",
+      "done_flag": "ch09.xiuzhen",
+      "target_map": "ch08_lingkuang",
+      "target_object": "trigger_xiuzhen"
+    },
+    {
+      "id": "n17_niyin",
+      "text_key": "objective.ch09.n17_niyin",
+      "done_flag": "ch09.niyin",
+      "target_map": "ch09_milin",
+      "target_object": "trigger_niyin"
+    },
+    {
+      "id": "n18_jiuren",
+      "text_key": "objective.ch09.n18_jiuren",
+      "done_flag": "ch09.jiuren",
+      "target_map": "ch09_milin",
+      "target_object": "trigger_jiuren"
+    },
+    {
+      "id": "n19_shudong",
+      "text_key": "objective.ch09.n19_shudong",
+      "done_flag": "ch09.dieluo",
+      "target_map": "ch09_milin",
+      "target_object": "trigger_shudong"
+    },
+    {
+      "id": "n20_huicheng",
+      "text_key": "objective.ch09.n20_huicheng",
+      "done_flag": "ch09.huicheng",
+      "target_map": "ch09_milin",
+      "target_object": "trigger_huicheng"
+    },
+    {
+      "id": "n21_wangong",
+      "text_key": "objective.ch09.n21_wangong",
+      "done_flag": "ch09.wangong",
+      "target_map": "ch08_lingkuang",
+      "target_object": "trigger_wangong"
+    },
+    {
+      "id": "n22_qidong",
+      "text_key": "objective.ch09.n22_qidong",
+      "done_flag": "ch09.done",
+      "target_map": "ch08_lingkuang",
+      "target_object": "trigger_qidong"
+    }
+  ]
+}

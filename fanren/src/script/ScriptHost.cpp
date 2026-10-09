@@ -4,8 +4,10 @@
 #include <sol/sol.hpp>
 
 #include <cstdio>
+#include <cmath>
 #include <exception>
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <unordered_map>
 #include <utility>
@@ -49,6 +51,7 @@ const std::unordered_map<std::string, CommandKind>& kindTable() {
         {"realm_cap", CommandKind::RealmCap},
         {"play_bgm", CommandKind::PlayBgm},
         {"take_item_aged", CommandKind::TakeItemAged},
+        {"realm_demote", CommandKind::RealmDemote},
     };
     return table;
 }
@@ -160,7 +163,20 @@ bool toCommand(const sol::object& value, Command& out, std::string& error) {
     out.kind = it->second;
     out.a = table.get_or("a", std::string{});
     out.b = table.get_or("b", std::string{});
-    out.x = table.get_or("x", 0);
+    if (out.kind == CommandKind::RealmDemote) {
+        // Only this new command validates before narrowing; -1 follows the existing no_realm result path.
+        out.x = -1;
+        const sol::object target = table["x"];
+        if (target.get_type() == sol::type::number) {
+            const lua_Number number = target.as<lua_Number>();
+            if (std::isfinite(number) && std::trunc(number) == number &&
+                number >= std::numeric_limits<int>::min() && number <= std::numeric_limits<int>::max()) {
+                out.x = static_cast<int>(number);
+            }
+        }
+    } else {
+        out.x = table.get_or("x", 0);
+    }
     out.y = table.get_or("y", 0);
     const sol::optional<sol::table> options = table["options"];
     if (options) {

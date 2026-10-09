@@ -336,6 +336,11 @@
               "name": "visible_flag",
               "type": "string",
               "value": "ch08.jinma"
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch08.yueding"
             }
           ]
         },
@@ -369,6 +374,11 @@
               "name": "visible_flag",
               "type": "string",
               "value": "ch08.jiuren"
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch08.yueding"
             }
           ]
         }

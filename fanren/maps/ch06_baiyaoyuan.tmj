@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 19,
+  "nextobjectid": 20,
   "tilesets": [
     {
       "firstgid": 1,
@@ -729,6 +729,44 @@
               "name": "set_flag",
               "type": "string",
               "value": "ch08.done"
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "name": "trigger_zhongsheng",
+          "type": "trigger",
+          "x": 288,
+          "y": 352,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/zhongsheng.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch08.done"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.zhongsheng"
             }
           ]
         }

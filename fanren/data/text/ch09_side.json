@@ -1,0 +1,22 @@
+{
+  "ch09.path.xulao_qipu_dating2.text": "败讯从越国传进来，谁还肯把宝物留着慢慢等？稀罕东西也拿来换眼下急用的物件，顶阶法器随处可见，坊市才挤成这样。",
+  "ch09.path.tianxing_shouwei_dating.text": "越国已经陷入魔道之手，这里通往越国的路都封了。你是哪家修士也一样，天星宗守的是坊市出入口，不许从南口过去。",
+  "ch09.path.baichi_sanxiu_a_dating.text": "元武各派都在收缩人手，越国的败讯传来后，坊市里也忙着以物易物。宝贝再稀罕，眼下能派上用场的东西才有人急着要。",
+  "ch09.path.baichi_sanxiu_b_dating.text": "北面还隔着十余个小国，可它们早各有依附，分属两边的势力。越过一处国境，不等于走出了这场争斗，北方也没有现成的清静路。",
+  "ch09.path.baichi_sanxiu_c_dating.text": "九国盟为挡慕兰法士而结，两边常年交战。法士修的是灵术，结丹以前不大用法器；往南换个地方，仍须面对另一场仗。",
+  "ch09.quest.baichi.s1": "问元武的近况",
+  "ch09.quest.baichi.s2": "问北边的去路",
+  "ch09.quest.baichi.s3": "问南方的战事",
+  "ch09.quest.baichi.title": "西峰问路",
+  "ch09.quest.baichi.summary": "另到三座亭中询问，听听不同方向的消息。",
+  "ch09.quest.baichi.fail": "已离开西峰，这次打听到此为止。",
+  "ch09.map.huangshan.name": "越国东北·荒山",
+  "ch09.map.yuanwu.name": "元武国·金马城西郊",
+  "ch09.map.wumingshan.name": "无名小山",
+  "ch09.map.milin.name": "越国·灵矿以东密林",
+  "ch09.battle.tuwei.intro": "黑气化出的鬼头绕过防御逼来。先断这道攻势，再从包围里冲出去。",
+  "ch09.battle.tuwei.charge": "鬼头凝聚，驭鬼魔修正蓄起重招。",
+  "ch09.battle.fujia.intro": "铜钱护住了老者的正面。绕开护器，暗器才有落处。",
+  "ch09.battle.dong_xuaner.intro": "火凤巾与魔功撑起红罩。压住它，才能越过董萱儿的拦截。",
+  "ch09.battle.dong_xuaner.charge": "罩内霞光汇聚，重招将至。"
+}

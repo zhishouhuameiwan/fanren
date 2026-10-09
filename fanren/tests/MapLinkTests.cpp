@@ -268,6 +268,24 @@ TEST_F(MapLinkWalk, HoldingTheKeyThroughEveryPortalNeverBouncesBack) {
                 const std::string need = portal.property("require_flag");
                 if (!need.empty()) flags[need] = 1;
 
+                // Chapter 9 design 4 closes this existing Chapter 8 door after the cave is destroyed.
+                // Verify the closure, then retain every portal/direction check at its earlier open phase.
+                if (map.id == "ch08_tianxing_fangshi" && portal.name == "portal_to_dongfu") {
+                    GameState closed;
+                    closed.flags = flags;
+                    closed.setFlag("ch09.fengfu", 1);
+                    const MapObject* guard = nullptr;
+                    for (const auto& o : map.objects) if (o.name == "npc_tianxing_shouwei") guard = &o;
+                    ASSERT_NE(guard, nullptr);
+                    EXPECT_EQ(guard->property("visible_flag"), "ch09.fengfu");
+                    EXPECT_TRUE(WorldScene::npcVisible(closed, *guard));
+                    EXPECT_TRUE(approachesOf(map, portal, closed).empty());
+                    flags["ch09.fengfu"] = 0;
+                    GameState beforeSealing;
+                    beforeSealing.flags = flags;
+                    EXPECT_FALSE(WorldScene::npcVisible(beforeSealing, *guard));
+                }
+
                 GameState probe;
                 probe.flags = flags;
                 const std::vector<Approach> approaches = approachesOf(map, portal, probe);

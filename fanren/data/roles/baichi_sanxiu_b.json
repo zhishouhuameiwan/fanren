@@ -1,0 +1,14 @@
+{
+  "id": "baichi_sanxiu_b",
+  "name": "行脚修士",
+  "realm": "QiRefining7",
+  "maxHp": 60,
+  "maxMp": 30,
+  "attack": 10,
+  "defence": 8,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "白池山另一亭的散修；打探北方形势。"
+}

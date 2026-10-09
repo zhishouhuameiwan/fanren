@@ -1,0 +1,28 @@
+{
+  "id": "modao_guitou",
+  "name": "驭鬼魔修",
+  "realm": "FoundationEarly",
+  "maxHp": 150,
+  "maxMp": 120,
+  "attack": 26,
+  "defence": 18,
+  "speed": 10,
+  "element": 4,
+  "magics": [
+    "magic_guitou_qinxi"
+  ],
+  "toughness": 4,
+  "weaknesses": [
+    "火",
+    "金"
+  ],
+  "actions": 1,
+  "charge": {
+    "every": 2,
+    "mult": 1.8,
+    "all": false,
+    "text_key": "ch09.battle.tuwei.charge"
+  },
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "突围边缘的驭鬼者；鬼头蓄势，火、金破绽。 数值为待真实BattleHand标定的施工初值，不是实测。"
+}

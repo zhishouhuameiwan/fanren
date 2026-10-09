@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 14,
+  "nextobjectid": 19,
   "tilesets": [
     {
       "firstgid": 1,
@@ -524,6 +524,196 @@
               "name": "require_flag",
               "type": "string",
               "value": "ch08.gufang"
+            }
+          ]
+        },
+        {
+          "id": 14,
+          "name": "trigger_xulao_jiu",
+          "type": "trigger",
+          "x": 352,
+          "y": 352,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/xulao_jiu.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.chengnuo"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.weituo"
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "name": "trigger_xingchenge",
+          "type": "trigger",
+          "x": 768,
+          "y": 352,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/xingchenge.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.weituo"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.xingchen"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "trigger_houyuan_jiu",
+          "type": "trigger",
+          "x": 352,
+          "y": 544,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/houyuan_jiu.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.xingchen"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.feidao"
+            }
+          ]
+        },
+        {
+          "id": 17,
+          "name": "trigger_goucai",
+          "type": "trigger",
+          "x": 256,
+          "y": 608,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/goucai.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.qulu"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.goucai"
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "name": "npc_tianxing_shouwei",
+          "type": "npc",
+          "x": 768,
+          "y": 1088,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "up"
+            },
+            {
+              "name": "role_id",
+              "type": "string",
+              "value": "tianxing_shouwei"
+            },
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/shouwei.lua"
+            },
+            {
+              "name": "wander",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "visible_flag",
+              "type": "string",
+              "value": "ch09.fengfu"
             }
           ]
         }

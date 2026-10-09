@@ -213,6 +213,51 @@ inline std::string chapterEightAssetRoot() {
     return ".";
 }
 
+inline constexpr const char* kChapterNineEndingFirst = "ch09-end-first.sav";
+inline constexpr const char* kChapterNineEndingSecond = "ch09-end-second.sav";
+inline constexpr const char* kWriteChapterNineFixturesEnv = "FANREN_WRITE_CH09_FIXTURES";
+
+// Chapter 9 design 3.1 / 3.3 / 3.4; the destination describes the script's exit.
+struct ChapterNineStep {
+    const char* map;
+    const char* object;
+    const char* done;
+    int days;
+    const char* destination;
+    bool enter = false;
+};
+inline constexpr std::array<ChapterNineStep, 22> kChapterNineSteps = {{
+    {"ch06_baiyaoyuan", "trigger_zhongsheng", "ch09.zhongsheng", 0, "ch06_huangfenggu"},
+    {"ch06_huangfenggu", "trigger_laozu", "ch09.laozu", 0, "ch08_dongfu"},
+    {"ch08_dongfu", "trigger_fengfu", "ch09.fengfu", 1, "ch09_huangshan"},
+    {"ch09_huangshan", "trigger_fuji", "ch09.tuwei", 0, "ch09_huangshan"},
+    {"ch09_huangshan", "trigger_tiaoxi", "ch09.tiaoxi", 6, "ch09_yuanwu"},
+    {"ch09_yuanwu", "trigger_feixu", "ch09.fujia", 0, "ch09_wumingshan"},
+    {"ch09_wumingshan", "trigger_zhuwu", "ch09.chengnuo", 1, "ch08_tianxing_fangshi"},
+    {"ch08_tianxing_fangshi", "trigger_xulao_jiu", "ch09.weituo", 0, "ch08_tianxing_fangshi"},
+    {"ch08_tianxing_fangshi", "trigger_xingchenge", "ch09.xingchen", 1, "ch08_tianxing_fangshi"},
+    {"ch08_tianxing_fangshi", "trigger_houyuan_jiu", "ch09.feidao", 21, "ch09_wumingshan"},
+    {"ch09_wumingshan", "trigger_zhuwu_er", "ch09.xiufu", 4, "ch09_yuanwu"},
+    {"ch09_yuanwu", "trigger_shiting", "ch09.baichi", 0, "ch09_yuanwu"},
+    {"ch09_yuanwu", "trigger_fengjiao", "ch09.qulu", 2, "ch08_tianxing_fangshi"},
+    {"ch08_tianxing_fangshi", "trigger_goucai", "ch09.goucai", 5, "ch08_lingkuang"},
+    {"ch08_lingkuang", "trigger_zhenyan_jiu", "ch09.buzhen", 0, "ch08_lingkuang"},
+    {"ch08_lingkuang", "trigger_xiuzhen", "ch09.xiuzhen", 8, "ch09_milin"},
+    {"ch09_milin", "trigger_niyin", "ch09.niyin", 0, "ch09_milin", true},
+    {"ch09_milin", "trigger_jiuren", "ch09.jiuren", 0, "ch09_milin"},
+    {"ch09_milin", "trigger_shudong", "ch09.dieluo", 1, "ch09_milin"},
+    {"ch09_milin", "trigger_huicheng", "ch09.huicheng", 2, "ch08_lingkuang"},
+    {"ch08_lingkuang", "trigger_wangong", "ch09.wangong", 7, "ch08_lingkuang"},
+    {"ch08_lingkuang", "trigger_qidong", "ch09.done", 0, "ch08_lingkuang"},
+}};
+
+inline std::string chapterNineAssetRoot() {
+    for (const char* root : {".", "..", "../..", "../../.."}) {
+        if (std::filesystem::exists(std::filesystem::path(root) / "docs/ch09-design.md")) return root;
+    }
+    return ".";
+}
+
 inline std::filesystem::path chapterFixturePath(const std::string& assetRoot,
                                                 const std::string& fileName) {
     return std::filesystem::path(assetRoot) / "tests" / "fixtures" / fileName;

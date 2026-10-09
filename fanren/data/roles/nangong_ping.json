@@ -1,0 +1,14 @@
+{
+  "id": "nangong_ping",
+  "name": "南宫屏",
+  "realm": "CoreEarly",
+  "maxHp": 60,
+  "maxMp": 30,
+  "attack": 10,
+  "defence": 8,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "自报姓名以后才使用本名牌；不摆地图NPC。"
+}

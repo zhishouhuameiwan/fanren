@@ -1,0 +1,11 @@
+{
+  "id": "story_zhenyuan_danfang",
+  "name": "真元丹方",
+  "descKey": "item.desc.story_zhenyuan_danfang",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著 ch346-363",
+  "note": "适合筑基修士的丹方。药材易寻，年份是关键。"
+}

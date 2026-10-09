@@ -1,0 +1,11 @@
+{
+  "id": "story_xin_yixia",
+  "name": "辛如音手稿",
+  "descKey": "item.desc.story_xin_yixia",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著 ch346-363",
+  "note": "她多年研阵的记录，还有一批阵学书籍。"
+}

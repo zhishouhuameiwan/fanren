@@ -1,0 +1,28 @@
+{
+  "id": "dong_xuaner_hehuan",
+  "name": "董萱儿",
+  "realm": "FoundationMid",
+  "maxHp": 330,
+  "maxMp": 220,
+  "attack": 31,
+  "defence": 22,
+  "speed": 11,
+  "element": 8,
+  "magics": [
+    "magic_huofeng_xiaguang"
+  ],
+  "toughness": 7,
+  "weaknesses": [
+    "水",
+    "金"
+  ],
+  "actions": 1,
+  "charge": {
+    "every": 3,
+    "mult": 1.6,
+    "all": false,
+    "text_key": "ch09.battle.dong_xuaner.charge"
+  },
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "改编战斗：压住红罩获得通路，胜后仍追赶，不意味着杀死。 数值为待真实BattleHand标定的施工初值，不是实测。"
+}

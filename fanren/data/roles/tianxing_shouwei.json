@@ -1,0 +1,14 @@
+{
+  "id": "tianxing_shouwei",
+  "name": "天星宗守卫",
+  "realm": "QiRefining11",
+  "maxHp": 60,
+  "maxMp": 30,
+  "attack": 10,
+  "defence": 8,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "改编：坊市南口封路，阻止封府后返回洞府。"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "magic_huofeng_xiaguang",
+  "name": "红罩霞光",
+  "descKey": "magic.desc.magic_huofeng_xiaguang",
+  "element": 8,
+  "needMp": 12,
+  "power": 22,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "原著事实；战斗招式为改编",
+  "note": "董萱儿魔功与火凤巾；重招由角色蓄势字段规定。 数值待真实战斗标定。"
+}

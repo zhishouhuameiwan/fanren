@@ -1,0 +1,52 @@
+{
+ "map": "ch09_huangshan",
+ "tile": 16,
+ "width": 40,
+ "height": 32,
+ "theme": "cliff",
+ "time": "dusk",
+ "season": "autumn",
+ "ambient": [
+  218,
+  164,
+  132
+ ],
+ "dof": 0.6,
+ "bloom": 0.45,
+ "vignette": 0.4,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 5.5,
+   "y": 5.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "leaf",
+   "x": 4.5,
+   "y": 9.0
+  },
+  {
+   "kind": "leaf",
+   "x": 34.5,
+   "y": 15.0
+  }
+ ],
+ "backdrop": "cliff_top"
+}

@@ -486,6 +486,7 @@ GameState makeSampleState() {
     s.position = Point{20, 20};
     s.facing = 1;
     s.realm = Realm::QiRefining3;
+    s.realmCap = s.realm;  // v9 的合法保存夹具；气血等往返样本保持原值。
     s.cultivation = 555;
     s.hp = 8;
     s.maxHp = 10;

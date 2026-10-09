@@ -115,7 +115,7 @@ constexpr OffChainFlag kOffChainFlags[] = {
 // 目标链至少要覆盖到的章：少了一章，那一章的 NPC 就没被考到。第 6 章目标链 2026-09-29 落地（data/objectives/ch06.json），
 // 第 7 章同日落地（data/objectives/ch07.json）。
 constexpr int kFirstChapter = 1;
-constexpr int kLastChapter = 8;
+constexpr int kLastChapter = 9;
 
 TEST(NpcPresence, ChapterEightDepartureAndArrivalFlagsMatchTheDesign) {
     struct Presence { const char* map; const char* npc; const char* show; const char* hide; };
@@ -128,7 +128,7 @@ TEST(NpcPresence, ChapterEightDepartureAndArrivalFlagsMatchTheDesign) {
         {"ch08_dongfu", "npc_shuangtong_shu", "ch08.dengji", "ch08.lingquan"},
         {"ch08_lingkuang", "npc_yu_xing", "", "ch08.shouzhen"},
         {"ch08_yuejing", "npc_gongmen_shiwei", "", "ch08.qb_yuanbing"},
-        {"ch08_dongfu", "npc_qu_hun", "ch08.huifu", ""},
+        {"ch08_dongfu", "npc_qu_hun", "ch08.huifu", "ch09.fengfu"},
         {"ch05_nancheng", "npc_huyuan_a", "", "ch08.junling"},
         {"ch05_nancheng", "npc_huyuan_b", "", "ch08.junling"},
         {"ch05_nancheng", "npc_huyuan_c", "", "ch08.junling"},

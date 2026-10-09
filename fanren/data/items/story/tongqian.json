@@ -1,0 +1,11 @@
+{
+  "id": "story_tongqian",
+  "name": "铜钱法器",
+  "descKey": "item.desc.story_tongqian",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著 ch346-363",
+  "note": "形似铜钱的护身器物，在废墟一战后留下。"
+}

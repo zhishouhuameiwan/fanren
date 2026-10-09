@@ -1,0 +1,14 @@
+{
+  "id": "hongfen_kulou_nv",
+  "name": "红粉骷髅（女）",
+  "realm": "CoreEarly",
+  "maxHp": 60,
+  "maxMp": 30,
+  "attack": 10,
+  "defence": 8,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "夫妻之一；只参与突围前演出。"
+}

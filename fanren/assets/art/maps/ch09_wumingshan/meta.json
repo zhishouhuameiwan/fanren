@@ -1,0 +1,57 @@
+{
+ "map": "ch09_wumingshan",
+ "tile": 16,
+ "width": 32,
+ "height": 28,
+ "theme": "mountain_path",
+ "time": "day",
+ "season": "autumn",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "mist",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 6.5,
+   "y": 22.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "leaf",
+   "x": 10.5,
+   "y": 6.0
+  },
+  {
+   "kind": "leaf",
+   "x": 20.5,
+   "y": 23.0
+  },
+  {
+   "kind": "leaf",
+   "x": 28.5,
+   "y": 23.0
+  }
+ ],
+ "backdrop": "mountain_forest"
+}

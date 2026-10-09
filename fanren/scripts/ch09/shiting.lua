@@ -1,0 +1,17 @@
+-- @hook ch09_yuanwu trigger_shiting interact once
+-- Facts and participants: docs/ch09-design.md 13.1.
+talk("", "ch09.shiting.place")
+talk("hanli", "ch09.shiting.identity")
+talk("", "ch09.shiting.mistake")
+talk("ding_laozhe", "ch09.shiting.ding")
+talk("ding_laozhe", "ch09.shiting.tail")
+talk("ding_laozhe", "ch09.shiting.bait")
+talk("ding_laozhe", "ch09.shiting.reverse")
+talk("", "ch09.shiting.recognize")
+talk("hanli", "ch09.shiting.answer")
+talk("ding_laozhe", "ch09.shiting.gates")
+talk("ding_laozhe", "ch09.shiting.war")
+talk("", "ch09.shiting.families")
+talk("hanli", "ch09.shiting.delay")
+talk("", "ch09.shiting.still")
+flag.set("ch09.baichi")

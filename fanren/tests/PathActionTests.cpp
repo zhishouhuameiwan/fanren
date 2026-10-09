@@ -896,7 +896,7 @@ const std::map<int, Realm>& realmCapOfChapter() {
                                               {4, Realm::QiRefining8}, {5, Realm::QiRefining8},
                                               // 第 6 章：九层（scripts/ch06/kuxiu.lua 节点 9b 的 realm.advance）。
                                               {6, Realm::QiRefining9},
-                                              {7, Realm::QiRefining11}, {8, Realm::FoundationMid}};
+                                              {7, Realm::QiRefining11}, {8, Realm::FoundationMid}, {9, Realm::FoundationMid}};
     return kCap;
 }
 
@@ -912,6 +912,19 @@ TEST(PathActionData, EveryGateIsWithinWhatHanLiCanReachInThatChapter) {
         if (a.minRealm != Realm::Mortal) ++gated;
     }
     EXPECT_GT(gated, 0) << "先验：至少有一条设了门槛，否则上面那条比较只在凡人对凡人";
+}
+
+TEST(PathActionData, ChapterNineInquiriesRemainAvailableAtTheDemotedRealm) {
+    const RealData& real = realData();
+    ASSERT_TRUE(real.ok) << real.error;
+    int entries = 0;
+    for (const PathAction& a : real.actions) if (a.chapter == 9) {
+        ++entries;
+        EXPECT_EQ(a.kind, PathActionKind::Inquire);
+        EXPECT_EQ(a.minRealm, Realm::Mortal) << a.id << " design 16.3: no realm gates in Chapter 9";
+        EXPECT_LE(fanren::rules::toValue(a.minRealm), fanren::rules::toValue(Realm::QiRefining3));
+    }
+    EXPECT_EQ(entries, 5);
 }
 
 // 门槛上限表的来处：剧情脚本里抬境界的那几句（realm.cap / realm.advance，玩家打坐突破也越不过它）。

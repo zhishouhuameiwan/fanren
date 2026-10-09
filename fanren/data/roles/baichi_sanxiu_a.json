@@ -1,0 +1,14 @@
+{
+  "id": "baichi_sanxiu_a",
+  "name": "问路客",
+  "realm": "QiRefining8",
+  "maxHp": 60,
+  "maxMp": 30,
+  "attack": 10,
+  "defence": 8,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "白池山另一亭的散修；打探元武近况。"
+}

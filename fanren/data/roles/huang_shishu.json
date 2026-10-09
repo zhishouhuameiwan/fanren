@@ -1,0 +1,14 @@
+{
+  "id": "huang_shishu",
+  "name": "黄师叔",
+  "realm": "CoreEarly",
+  "maxHp": 60,
+  "maxMp": 30,
+  "attack": 10,
+  "defence": 8,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著 ch346-363；非战斗条目仅供名牌",
+  "note": "领撤离队伍的结丹修士；独自牵制两名结丹，韩立不与他们交战。"
+}

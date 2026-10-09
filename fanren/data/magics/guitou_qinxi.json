@@ -1,0 +1,12 @@
+{
+  "id": "magic_guitou_qinxi",
+  "name": "鬼头侵袭",
+  "descKey": "magic.desc.magic_guitou_qinxi",
+  "element": 4,
+  "needMp": 10,
+  "power": 20,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "原著事实；战斗招式为改编",
+  "note": "突围魔修的攻击；鬼头重招由角色蓄势字段规定。 数值待真实战斗标定。"
+}

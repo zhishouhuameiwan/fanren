@@ -1,0 +1,11 @@
+{
+  "id": "story_qi_yixia",
+  "name": "齐云霄遗匣",
+  "descKey": "item.desc.story_qi_yixia",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著 ch346-363",
+  "note": "装着《云霄心得》以及他搜集的炼器书册。"
+}

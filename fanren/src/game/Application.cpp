@@ -1264,9 +1264,7 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
             }
 
             const int current = rules::toValue(state_.realm);
-            // **只许升不许降。** 跌落是第 9 章 rules::Realm::demote 的事：那一章
-            // 要决定掉境界跟不跟着削气血、削多少，而这条命令什么也决定不了——
-            // 它只会把编号往回拨，留下一个上限远高于境界基准的主角。
+            // **只许升不许降。** 跌落走 RealmDemote，按目标境界重算上限与修为。
             //
             // 收口选的是「ok 回答的是**这条命令要的那个结果成不成立**」，
             // 与 PartyAdd 逐条对齐：
@@ -1323,6 +1321,37 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
                 std::max(state_.bottle.capacity, rules::bottleCapacityFloor(rules::tierOf(target)));
             // 只在真升上去的这一支响（终审 M-3）：原地不动、往回拨都已在上面返回，不该有动静。
             engine_->playSfx("realm_up");
+            outcome.ok = true;
+            return true;
+        }
+
+        // ---- P3 第 9 章：跌落到目标境界（契约 1.6）----
+        case CommandKind::RealmDemote: {
+            const rules::Realm target = rules::fromValue(command.x);
+            switch (rules::checkDemote(state_.realm, target)) {
+                case rules::DemoteCheck::NoRealm:
+                    outcome.ok = false;
+                    outcome.code = "no_realm";
+                    return true;
+                case rules::DemoteCheck::NotLower:
+                    outcome.ok = false;
+                    outcome.code = "not_lower";
+                    return true;
+                case rules::DemoteCheck::AlreadyThere:
+                    outcome.ok = true;
+                    return true;
+                case rules::DemoteCheck::Ok:
+                    break;
+            }
+            state_.formerRealm = std::max(state_.formerRealm, state_.realm);
+            state_.realm = target;
+            state_.realmCap = target;
+            state_.maxHp = rules::realmMaxHp(target);
+            state_.hp = std::min(state_.hp, state_.maxHp);
+            state_.maxMp = rules::realmMaxMp(target);
+            state_.mp = 0;
+            state_.cultivation = 0;
+            state_.cultivationRemainder = 0;
             outcome.ok = true;
             return true;
         }

@@ -123,6 +123,7 @@ GameState roundTripState() {
     s.position = fanren::core::Point{3, 4};
     s.facing = 1;
     s.realm = Realm::QiRefining3;
+    s.realmCap = s.realm;  // v9 的合法保存夹具；原往返断言不变。
     s.cultivation = 12;
     s.hp = 40;
     s.maxHp = 60;
@@ -220,7 +221,8 @@ TEST(Ch04MagicSave, TheSaveVersionIsFive) {
     // 推到 7（docs/octopath-battle.md 2.5、io/SaveFile.h 第 7 条）。判据照旧写死成当下
     // 那份设计原文的数。再推到 8：野外遭遇的计数器（docs/interfaces-octo-encounters.md、
     // io/SaveFile.h 第 8 条）。
-    EXPECT_EQ(kSaveVersion, 8);
+    // 第 9 章 E1/E2 的 formerRealm 将当前版本推到 9。
+    EXPECT_EQ(kSaveVersion, 9);
 }
 
 TEST(Ch04MagicSave, TheFourToFiveMigrationIsRegistered) {

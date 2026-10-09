@@ -1605,10 +1605,12 @@ def check_quest_condition(where, cond, flags, settable, items, report):
     if has_flag and subject:
         if flags and subject not in flags:
             report.error(where, f"旗标未在 data/flags.json 登记：{subject}")
-        elif settable and subject not in settable:
+        elif subject not in settable:
             # 没人置的旗标：放在 accept 里任务永远接不到，放在 complete 里永远了结不了，
             # 放在 fail 里永远不会过期——三种都不会自己暴露。
             report.error(where, f"旗标 {subject} 没有任何脚本会置它：这条谓词永远不会成立")
+        elif PATH_FLAG_RE.match(subject) and op in (">=", "==") and is_plain_int(value) and value > 1:
+            report.error(where, f"路径行动旗标 {subject} 只会置为 1，无法满足 {op} {value}")
     if has_item and subject and items and subject not in items:
         report.error(where, f"物品 id 不存在：{subject}")
 
@@ -1630,7 +1632,8 @@ def check_quest_condition_list(where, payload, field, required, flags, settable,
     return conds
 
 
-def check_quests(maps: list[ParsedMap], flags: set[str], defined: dict, report: Report) -> None:
+def check_quests(maps: list[ParsedMap], flags: set[str], defined: dict, report: Report,
+                 path_sources: set[str]) -> None:
     """规则 23：任务文件（data/quests/**/*.json）的形状与引用。
 
     任务只是一张「怎么从旗标和背包读出进度」的表（契约 1.1）。它错的方式与目标链一样
@@ -1662,7 +1665,7 @@ def check_quests(maps: list[ParsedMap], flags: set[str], defined: dict, report: 
         return
 
     by_id = {parsed.map_id: parsed for parsed in maps}
-    settable: set[str] = set()
+    settable = set(path_sources)
     for found in script_flag_sets().values():
         settable |= found
     items = defined.get("item", set())
@@ -1880,6 +1883,40 @@ def path_windows_disjoint(a: dict, b: dict) -> bool:
     return any(path_implies(y, u) for y in b["when"] for u in a["until"])
 
 
+def path_window_can_open(record: dict, available: set[str]) -> bool:
+    """单条窗口的整数约束：when 全成立、until 全不成立；路径旗只能由 0 置为 1。"""
+    when, until = record["when"], record["until"]
+    if any(path_contradicts(a, b) for a in when for b in when):
+        return False
+    if any(path_implies(a, b) for a in when for b in until):
+        return False
+    for kind, subject in {(c[0], c[1]) for c in when + until}:
+        low, high, excluded = 0, None, set()
+        if kind == "flag":
+            if subject not in available:
+                high = 0
+            elif PATH_FLAG_RE.match(subject):
+                high = 1
+        for c in when:
+            if c[:2] != (kind, subject):
+                continue
+            low = max(low, c[3])
+            if c[2] == "==":
+                high = c[3] if high is None else min(high, c[3])
+        # until 是 OR；窗口开启须同时满足每条的反面：>=n 变成 <n，==n 排除 n。
+        for c in until:
+            if c[:2] != (kind, subject):
+                continue
+            if c[2] == ">=":
+                high = c[3] - 1 if high is None else min(high, c[3] - 1)
+            else:
+                excluded.add(c[3])
+        if high is not None and (low > high or
+                high - low + 1 <= sum(low <= value <= high for value in excluded)):
+            return False
+    return True
+
+
 def load_battle_payloads(report: Report) -> dict[str, dict]:
     """data/battles 下每场编成：id → 原始 JSON。"""
     battles: dict[str, dict] = {}
@@ -1991,6 +2028,8 @@ def check_path_entry(rel, chapter, entry, ctx, report):
     tag = "ch%02d" % chapter
     if entry.get("done_flag") != f"{tag}.path.{entry_id}":
         report.error(where, f"done_flag 必须是 {tag}.path.{entry_id}")
+    elif entry["done_flag"] not in ctx["flags"]:
+        report.error(where, f"旗标未在 data/flags.json 登记：{entry['done_flag']}")
 
     realm = entry.get("realm", 0)
     if not is_plain_int(realm) or realm not in PATH_REALMS:
@@ -2049,9 +2088,12 @@ def check_path_entry(rel, chapter, entry, ctx, report):
     if not lists["when"] or not lists["until"] or len(lists["when"]) != len(entry.get("when") or []) \
             or len(lists["until"]) != len(entry.get("until") or []):
         return None
-    return {"where": where, "id": entry_id, "chapter": chapter, "kind": kind, "map": entry.get("map"),
+    record = {"where": where, "id": entry_id, "chapter": chapter, "kind": kind, "map": entry.get("map"),
             "npc": entry.get("npc"), "npc_record": npc, "when": lists["when"], "until": lists["until"],
             "battle": entry.get("battle"), "pending": entry.get("pending") is True}
+    if not path_window_can_open(record, ctx["settable"]):
+        report.error(where, "when / until 的窗口永远无法开启：完成旗与附带旗不能提供来源")
+    return record
 
 
 def check_path_presence(record, report) -> None:
@@ -2069,8 +2111,8 @@ def check_path_presence(record, report) -> None:
 
 
 def check_path_actions(maps: list[ParsedMap], flags: set[str], texts: dict[str, str], defined: dict,
-                       report: Report) -> None:
-    """规则 26：路径行动（data/pathactions/chNN.json）的形状、引用与时段。"""
+                       report: Report) -> set[str]:
+    """规则 26：路径行动的形状、引用与时段；返回合法且非 pending 条目的置旗来源。"""
     actions_dir = ROOT / "data" / "pathactions"
     files = sorted(actions_dir.glob("*.json")) if actions_dir.exists() else []
     payloads = []
@@ -2101,8 +2143,10 @@ def check_path_actions(maps: list[ParsedMap], flags: set[str], texts: dict[str, 
            "reveals": []}
 
     records, chapters_seen = [], {}
+    producers = []
     for path, payload in payloads:
         rel = str(path.relative_to(ROOT))
+        file_errors = len(report.errors)
         unknown = sorted(set(payload) - PATH_TOP_FIELDS)
         if unknown:
             report.error(rel, f"有不认识的字段 {'、'.join(unknown)}（只认 id / name / chapter / entries / note）")
@@ -2118,24 +2162,40 @@ def check_path_actions(maps: list[ParsedMap], flags: set[str], texts: dict[str, 
         chapters_seen[chapter] = rel
         if not payload["entries"]:
             report.error(rel, "entries 不许为空")
+        file_valid = len(report.errors) == file_errors
         ids = set()
         for entry in payload["entries"]:
+            entry_errors = len(report.errors)
             record = check_path_entry(rel, chapter, entry, ctx, report)
             if isinstance(entry, dict) and entry.get("id") in ids:
                 report.error(rel, f"条目 id 在本章内重复：{entry.get('id')}")
             ids.add(entry.get("id") if isinstance(entry, dict) else None)
             if record is not None:
+                check_path_presence(record, report)
                 records.append(record)
+                if file_valid and len(report.errors) == entry_errors and not record["pending"]:
+                    producers.append((entry, record))
 
     check_path_cross(records, set_flags, ctx, report)
     check_path_axiom_premise(report)
+    # 只从真实来源起步：pending / 非法条目及无起点的路径旗标环不能间接提供任务来源。
+    sources: set[str] = set()
+    available = set().union(*script_flag_sets().values())
+    while True:
+        previous = set(sources)
+        for entry, record in producers:
+            if path_window_can_open(record, available):
+                sources.add(entry["done_flag"])
+                sources.update(entry.get("set_flags", []))
+        if sources == previous:
+            break
+        available |= sources
+    return sources
 
 
 def check_path_cross(records, set_flags, ctx, report) -> None:
     """跨条目的几条：时段不重叠、落在 NPC 在场的时段里、揭破绽的角色会上阵、登记表里没有孤儿、
     剧情脚本不碰路径行动的旗标。"""
-    for record in records:
-        check_path_presence(record, report)
     for index, a in enumerate(records):
         for b in records[index + 1:]:
             if (a["map"], a["npc"], a["kind"]) != (b["map"], b["npc"], b["kind"]):
@@ -2254,6 +2314,14 @@ CHAPTER_MEANS = {
         ("金", "learn", "magic_ji_jinfu", "ch07"),
         ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
         ("暗器", "give", "weapon_wuming_sixian", "ch07")],
+    # 第 9 章三场战斗均在跌落前（docs/interfaces-p3-ch09.md 6.2），沿用前章常驻手段。
+    9: [("拳", "hand", "", ""),
+        ("火", "learn", "magic_huodan_shu", "ch04"),
+        ("土", "learn", "magic_liusha_shu", "ch06"),
+        ("水", "learn", "magic_bingdong_shu", "ch06"),
+        ("金", "learn", "magic_ji_jinfu", "ch07"),
+        ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
+        ("暗器", "give", "weapon_wuming_sixian", "ch07")],
 }
 # 某一场仗额外必有的：蚀心散在节点 7 备毒时由 scripts/ch03/beidu.lua 给出（两包起），
 # 暗道那一仗是节点 8。谷外遇狼（节点 1）那会儿还没有，所以不进第 3 章的通表。
@@ -2280,7 +2348,7 @@ BATTLE_EXTRA_MEANS = {
        for battle_id in ("b07_yixiantian", "b07_fengyue", "b07_zhongxinqu_duoyao", "b07_zhaoze_shouyao",
                          "be07_huoyan_shu", "be07_tiebi_yuan", "be07_tuishan_shou")},
 }
-MEANS_LAST_CHAPTER = 8
+MEANS_LAST_CHAPTER = 9
 
 
 def check_category_list(where, payload, field, allowed, report) -> list[str]:
@@ -3201,8 +3269,8 @@ def main() -> int:
                 check_scripts(ids, texts, flags, parsed_maps, report, defined)
                 check_data_references(texts, flags, defined, report)
                 check_objectives(parsed_maps, flags, report)
-                check_quests(parsed_maps, flags, defined, report)
-                check_path_actions(parsed_maps, flags, texts, defined, report)
+                path_sources = check_path_actions(parsed_maps, flags, texts, defined, report)
+                check_quests(parsed_maps, flags, defined, report, path_sources)
                 check_battle_break_data(report)
                 check_recipe_only_flag(report)
                 check_encounters(parsed_maps, report)

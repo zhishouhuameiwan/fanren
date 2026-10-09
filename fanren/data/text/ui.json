@@ -158,5 +158,7 @@
   "ui.keys.hint": "↑↓ 选择　←→ 选格　Enter 改键　Esc 返回",
   "ui.keys.hint.pad": "↑↓ 选择　←→ 选格　{pad.confirm} 改键　{pad.cancel} 返回",
   "ui.chapter.08.numeral": "第八章",
-  "ui.chapter.08.title": "魔道入侵"
+  "ui.chapter.08.title": "魔道入侵",
+  "ui.chapter.09.numeral": "第九章",
+  "ui.chapter.09.title": "遁走"
 }

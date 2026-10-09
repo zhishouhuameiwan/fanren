@@ -1988,6 +1988,90 @@
           "why": "原创疏密林带，围绕现有通路摆放。"
         }
       ]
+    },
+    "ch09_huangshan": {
+      "theme": "cliff",
+      "structures": [
+        {"rect": [11, 7, 16, 8], "kind": "rock", "style": "cliff", "why": "山脊碎崖，不作建筑。"},
+        {"rect": [25, 5, 33, 6], "kind": "rock", "style": "cliff", "why": "北缘岩体。"},
+        {"rect": [4, 17, 11, 18], "kind": "rock", "style": "cliff", "why": "山脚岩坎。"},
+        {"rect": [19, 21, 24, 22], "kind": "rock", "style": "cliff", "why": "山脚独立岩块。"}
+      ],
+      "time": "dusk",
+      "season": "autumn",
+      "backdrop": "cliff_top",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.3
+        }
+      ],
+      "why": "第9章原创布局，地理与光线按施工图第4节。"
+    },
+    "ch09_yuanwu": {
+      "theme": "wild",
+      "structures": [
+        {"rect": [10, 25, 19, 30], "kind": "wall", "style": "fortress", "why": "破院残墙保留断口，不生成完整屋顶。"}
+      ],
+      "props": [
+        {"at": [42, 12], "kind": "pavilion", "why": "白池山石亭。"},
+        {"at": [34, 17], "kind": "pavilion", "why": "打探元武消息的亭子。"},
+        {"at": [44, 20], "kind": "pavilion", "why": "打探北方消息的亭子。"},
+        {"at": [48, 14], "kind": "pavilion", "why": "打探南方消息的亭子。"}
+      ],
+      "time": "day",
+      "season": "autumn",
+      "backdrop": "mountain_forest",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.3
+        }
+      ],
+      "why": "第9章原创布局，地理与光线按施工图第4节。"
+    },
+    "ch09_wumingshan": {
+      "theme": "mountain_path",
+      "structures": [
+        {"rect": [13, 6, 18, 9], "kind": "built", "roof": "thatch", "wall": "earth", "why": "竹屋使用朴素茅顶。"},
+        {"rect": [22, 8, 25, 10], "kind": "built", "roof": "thatch", "wall": "earth", "why": "山中附屋与主屋统一。"}
+      ],
+      "time": "day",
+      "season": "autumn",
+      "backdrop": "mountain_forest",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.3
+        }
+      ],
+      "why": "第9章原创布局，地理与光线按施工图第4节。"
+    },
+    "ch09_milin": {
+      "theme": "mountain_path",
+      "trees": [
+        {"at": [37, 10], "species": "locust", "why": "树洞口以粗干老树标出。"}
+      ],
+      "structures": [
+        {"rect": [12, 28, 14, 29], "kind": "rock", "style": "cliff", "why": "林间山石。"},
+        {"rect": [12, 18, 14, 19], "kind": "rock", "style": "cliff", "why": "林间山石。"},
+        {"rect": [25, 24, 27, 25], "kind": "rock", "style": "cliff", "why": "林间山石。"},
+        {"rect": [31, 8, 33, 9], "kind": "rock", "style": "cliff", "why": "树洞一侧岩体。"},
+        {"rect": [40, 20, 42, 21], "kind": "rock", "style": "cliff", "why": "林缘岩体。"},
+        {"rect": [7, 9, 9, 10], "kind": "rock", "style": "cliff", "why": "林缘岩体。"},
+        {"rect": [23, 5, 25, 6], "kind": "rock", "style": "cliff", "why": "北缘岩体。"},
+        {"rect": [36, 31, 38, 32], "kind": "rock", "style": "cliff", "why": "南缘岩体。"}
+      ],
+      "time": "night",
+      "season": "autumn",
+      "backdrop": "mountain_forest",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.3
+        }
+      ],
+      "why": "第9章原创布局，地理与光线按施工图第4节。"
     }
   }
 }

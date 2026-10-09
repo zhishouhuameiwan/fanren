@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 39,
+  "nextobjectid": 40,
   "tilesets": [
     {
       "firstgid": 1,
@@ -1454,6 +1454,44 @@
               "name": "facing",
               "type": "string",
               "value": "right"
+            }
+          ]
+        },
+        {
+          "id": 39,
+          "name": "trigger_laozu",
+          "type": "trigger",
+          "x": 864,
+          "y": 288,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch09/laozu.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch09.zhongsheng"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch09.laozu"
             }
           ]
         }

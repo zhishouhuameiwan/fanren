@@ -149,6 +149,13 @@ std::int32_t cultivationNeeded(Realm realm) noexcept {
     }
 }
 
+DemoteCheck checkDemote(Realm current, Realm target) noexcept {
+    if (!isValid(current) || !isValid(target) || target == Realm::Mortal) return DemoteCheck::NoRealm;
+    if (target == current) return DemoteCheck::AlreadyThere;
+    if (toValue(target) > toValue(current)) return DemoteCheck::NotLower;
+    return DemoteCheck::Ok;
+}
+
 Realm demote(Realm realm, std::int32_t levels) noexcept {
     if (!isValid(realm) || levels <= 0) return realm;
 

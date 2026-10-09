@@ -148,3 +148,12 @@ Remove-Item Env:FANREN_WRITE_CH08_FIXTURES
 first：日期6732，低阶526，中阶20，定颜丹5；second：日期6707，低阶506，中阶19，定颜丹6。
 write switch写入后已取消，逐字段比对和Application继续入口恢复均通过。数据、脚本、策略或起点改变后须重测，
 这些胜利是当前确定种子上的结果；叙事与原著事实复验另由审查方验收。
+
+## 第 9 章交接测试
+
+第 9 章两条正式通关用例从原样 `ch08-end-first.sav` / `ch08-end-second.sav` 起步，使用同一组设计选项。
+三场必打通过后才走真实 `realm.demote`；第三场另从真实战前状态移除两件新法器及所学法术，验证旧手段可胜。
+资源、日期、队伍、`formerRealm`、v9保存往返、封路与继续入口均验收通过后，显式
+`FANREN_WRITE_CH09_FIXTURES=1` 才允许写 `tests/fixtures/ch09-end-{first,second}.sav`。
+默认未设开关时必须真实走完并逐字段对交接档，不能用文件存在代替通关；当前准备阶段不预造终档。
+测试使用独立 `resume9test` 槽，内容与共享门禁串行冻结后才执行完整 `build_logged.bat resume9test`。

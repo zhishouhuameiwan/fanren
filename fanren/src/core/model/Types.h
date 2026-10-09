@@ -525,6 +525,10 @@ struct GameState {
     // 「随存档持久化」——不存的话，读一次档就把今天的上限清零，存读档成了刷怪的门路。
     // 存档因此升到 8；老档读进来是全 0（从没遇过），见 io/SaveFile.h。
     rules::EncounterState encounter;
+
+    // 跌落之前到过的最高境界（第 9 章契约 1.3），凡人表示从没跌过。
+    // RealmDemote 取原值与跌落前境界的较大者；第 10 章重修加速读它。
+    rules::Realm formerRealm = rules::Realm::Mortal;
 };
 
 // ---- 战斗配置（从 data/battles/ 读入，运行期只读）----
