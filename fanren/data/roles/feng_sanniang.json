@@ -1,0 +1,16 @@
+{
+  "id": "feng_sanniang",
+  "name": "冯三娘",
+  "realm": "FoundationLate",
+  "maxHp": 470,
+  "maxMp": 320,
+  "attack": 42,
+  "defence": 30,
+  "speed": 17,
+  "element": 4,
+  "magics": [
+    "magic_ch10_shuiqi"
+  ],
+  "origin": "原著",
+  "note": "第十章独立角色。身份与在场见设计第5节，战斗数值初版待独立平衡。"
+}

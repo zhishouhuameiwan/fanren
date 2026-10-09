@@ -2306,7 +2306,7 @@ CHAPTER_MEANS = {
         ("水", "learn", "magic_bingdong_shu", "ch06"),
         ("土", "learn", "magic_liusha_shu", "ch06"),
         ("金", "learn", "magic_ji_jinfu", "ch07")],
-    # 第 8 章（docs/interfaces-p3-ch08.md 5.2）：shixiong.lua 开篇教青元剑芒，其余来路沿用前章。
+    # main f6e89e0 already-approved Chapter 8 table; Chapter 9 battles precede demotion.
     8: [("拳", "hand", "", ""),
         ("火", "learn", "magic_huodan_shu", "ch04"),
         ("土", "learn", "magic_liusha_shu", "ch06"),
@@ -2314,7 +2314,6 @@ CHAPTER_MEANS = {
         ("金", "learn", "magic_ji_jinfu", "ch07"),
         ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
         ("暗器", "give", "weapon_wuming_sixian", "ch07")],
-    # 第 9 章三场战斗均在跌落前（docs/interfaces-p3-ch09.md 6.2），沿用前章常驻手段。
     9: [("拳", "hand", "", ""),
         ("火", "learn", "magic_huodan_shu", "ch04"),
         ("土", "learn", "magic_liusha_shu", "ch06"),
@@ -2322,6 +2321,14 @@ CHAPTER_MEANS = {
         ("金", "learn", "magic_ji_jinfu", "ch07"),
         ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
         ("暗器", "give", "weapon_wuming_sixian", "ch07")],
+    # Chapter 10 starts at QiRefining3; Qingyuan Jianmang is unavailable after demotion.
+    10: [("拳", "hand", "", ""),
+         ("火", "learn", "magic_huodan_shu", "ch04"),
+         ("土", "learn", "magic_liusha_shu", "ch06"),
+         ("水", "learn", "magic_bingdong_shu", "ch06"),
+         ("金", "learn", "magic_ji_jinfu", "ch07"),
+         ("木", "learn", "magic_ji_qingjiao", "ch07"),
+         ("暗器", "give", "weapon_wuming_sixian", "ch07")],
 }
 # 某一场仗额外必有的：蚀心散在节点 7 备毒时由 scripts/ch03/beidu.lua 给出（两包起），
 # 暗道那一仗是节点 8。谷外遇狼（节点 1）那会儿还没有，所以不进第 3 章的通表。
@@ -2347,8 +2354,18 @@ BATTLE_EXTRA_MEANS = {
                    ("暗器", "give", "weapon_wuming_sixian", "ch07")]
        for battle_id in ("b07_yixiantian", "b07_fengyue", "b07_zhongxinqu_duoyao", "b07_zhaoze_shouyao",
                          "be07_huoyan_shu", "be07_tiebi_yuan", "be07_tuishan_shou")},
+    # Fourth slot is the actual ally role for role_magic/role_weapon sources.
+    "b10_liuliandian_weisha": [("剑", "role_weapon", "剑", "qu_hun_huashen"),
+                               ("火", "role_magic", "magic_xuelian_guangzhu", "qu_hun_huashen"),
+                               ("火", "role_magic", "magic_ch10_chunyang", "yan_daoyou"),
+                               ("水", "role_magic", "magic_ch10_shuiqi", "feng_sanniang"),
+                               ("木", "role_magic", "magic_ch10_mufu", "qing_suanzi")],
+    "b10_zhifadui": [("剑", "role_weapon", "剑", "qu_hun_shadan"),
+                     ("火", "role_magic", "magic_xuelian_guangzhu", "qu_hun_shadan"),
+                     ("火", "role_magic", "magic_xuelian_ziyan", "qu_hun_shadan"),
+                     ("金", "role_magic", "magic_ji_jinjian", "qu_hun_shadan")],
 }
-MEANS_LAST_CHAPTER = 9
+MEANS_LAST_CHAPTER = 10
 
 
 def check_category_list(where, payload, field, allowed, report) -> list[str]:
@@ -2379,7 +2396,9 @@ def load_break_roles(report) -> dict[str, dict]:
         if not isinstance(payload, dict) or not payload.get("id"):
             continue
         where = str(path.relative_to(ROOT))
-        info = {"toughness": 0, "weaknesses": [], "weapons": ["拳"]}
+        info = {"toughness": 0, "weaknesses": [], "weapons": ["拳"],
+                "realm": payload.get("realm", "Mortal"), "magics": payload.get("magics", []),
+                "maxMp": payload.get("maxMp", 0)}
         if "weapons" in payload:
             info["weapons"] = check_category_list(where, payload, "weapons", WEAPON_CATEGORIES, report)
             if isinstance(payload["weapons"], list) and not payload["weapons"]:
@@ -2436,7 +2455,33 @@ def script_sources(chapter_dir: str) -> str:
     return "\n".join(chunks)
 
 
-def check_means_sources(report) -> None:
+def role_means_available(entry: tuple, battle: dict, roles: dict, magics: dict) -> bool:
+    category, kind, source, role_id = entry
+    role = roles.get(role_id)
+    if not isinstance(role, dict) or not any(
+            isinstance(unit, dict) and unit.get("role_id") == role_id and unit.get("faction") == "ally"
+            for unit in battle.get("units", [])):
+        return False
+    if kind == "role_weapon":
+        return source == category and category in WEAPON_CATEGORIES and source in role.get("weapons", ["拳"])
+    magic = magics.get(source)
+    known = role.get("magics", [])
+    if kind != "role_magic" or not isinstance(magic, dict) or not isinstance(known, list) or source not in known:
+        return False
+    power, poison = magic.get("power", 10), magic.get("poison", 0)
+    offensive = (is_plain_int(power) and power > 0) or (is_plain_int(poison) and poison > 0)
+    element = magic.get("element", 0)
+    names = {name for bit, name in ELEMENT_BITS.items() if is_plain_int(element) and element & bit}
+    realm, required = role.get("realm", "Mortal"), magic.get("needRealm", "QiRefining1")
+    # BattleScene starts this ally at role.maxMp; checkCast rejects an unaffordable needMp.
+    cost, capacity = magic.get("needMp", 5), role.get("maxMp", 0)
+    can_pay = is_plain_int(cost) and is_plain_int(capacity) and cost <= capacity
+    return (category in names and offensive and "effect" not in magic and
+            can_pay and realm in REALM_ORDER and required in REALM_ORDER and
+            REALM_ORDER.index(realm) >= REALM_ORDER.index(required))
+
+
+def check_means_sources(report, roles: dict | None = None) -> None:
     """规则 25 的那张表自己得站得住：每一条来路都真的在脚本与数据里。
 
     表是人写的，而人写的表会漂：哪天火弹术挪到第 5 章才教，这张表还写着第 4 章必有火，
@@ -2457,7 +2502,16 @@ def check_means_sources(report) -> None:
     entries = [(f"第 {ch} 章", e) for ch, lst in CHAPTER_MEANS.items() for e in lst]
     entries += [(battle_id, e) for battle_id, lst in BATTLE_EXTRA_MEANS.items() for e in lst]
     where = "tools/validate.py 的我方手段表"
+    if roles is None:
+        roles = load_break_roles(report)
+    battles = load_battle_payloads(report)
     for owner, (category, kind, source, chapter_dir) in entries:
+        if kind in ("role_magic", "role_weapon"):
+            battle = battles.get(owner, {})
+            if not role_means_available((category, kind, source, chapter_dir), battle, roles, magics):
+                report.error(where, f"{owner}：友军 {chapter_dir} 的「{category}」来路 {source}"
+                                    " 不在编成或不可施展，不是我方必有的手段")
+            continue
         if kind == "hand":
             if category != "拳":
                 report.error(where, f"{owner}：空手只能是「拳」，写成了「{category}」")
@@ -2472,6 +2526,10 @@ def check_means_sources(report) -> None:
             names = {name for bit, name in ELEMENT_BITS.items() if isinstance(element, int) and element & bit}
             if category not in names:
                 report.error(where, f"{owner}：{source} 的五行不是「{category}」，它打不出这一类")
+            if owner == "第 10 章":
+                required = magic.get("needRealm", "QiRefining1")
+                if required not in REALM_ORDER or REALM_ORDER.index(required) > REALM_ORDER.index("QiRefining3"):
+                    report.error(where, f"{owner}：{source} 跌落到炼气三层后不可施展，不是整章必有手段")
             if not re.search(r'magic\.learn\s*\(\s*["\']' + re.escape(source) + r'["\']', code):
                 report.error(where, f"{owner}：scripts/{chapter_dir}/ 里没有 magic.learn(\"{source}\")，"
                                     f"「{category}」就不是玩家必有的手段")
@@ -2494,21 +2552,47 @@ def check_means_sources(report) -> None:
             report.error(where, f"{owner}：认不出的来路种类 {kind!r}")
 
 
-def battle_means(battle: dict, roles: dict[str, dict]) -> set[str] | None:
+def battle_means(battle: dict, roles: dict[str, dict], magics: dict | None = None) -> set[str] | None:
     """一场仗我方必有的攻击类别；这一章没登记时返回 None。"""
     allies = [u for u in battle.get("units", []) if isinstance(u, dict) and u.get("faction") == "ally"]
     ally_weapons = set()
     for unit in allies:
         ally_weapons |= set(roles.get(str(unit.get("role_id")), {}).get("weapons", ["拳"]))
     if battle.get("hero_absent") is True:
-        # 韩立不在场：我方就是编成里写死的那几个人，手段只有他们的兵刃。
-        return ally_weapons
+        # Hero-absent spells must belong to the actual allies; never inherit Han Li's chapter table.
+        extras = {entry[0] for entry in BATTLE_EXTRA_MEANS.get(str(battle.get("id")), [])
+                  if role_means_available(entry, battle, roles, magics or {})}
+        return ally_weapons | extras
     chapter = battle.get("chapter")
     if chapter not in CHAPTER_MEANS:
         return None
     means = {category for category, *_ in CHAPTER_MEANS[chapter]}
     means |= {category for category, *_ in BATTLE_EXTRA_MEANS.get(str(battle.get("id")), [])}
     return means | ally_weapons
+
+
+def check_magic_target(where: str, payload: dict, report: Report) -> None:
+    """Chapter 10 E3: optional single/all damage scope, also used by the focused entry."""
+    if "target" not in payload:
+        return
+    target = payload["target"]
+    if not isinstance(target, str) or target not in ("single", "all"):
+        report.error(where, f'target 只许 "single" 或 "all"，实际是 {target!r}')
+        return
+    if target == "all":
+        power, poison = payload.get("power", 10), payload.get("poison", 0)
+        offensive = (is_plain_int(power) and power > 0) or (is_plain_int(poison) and poison > 0)
+        if "effect" in payload or not offensive:
+            report.error(where, 'target "all" 只许用于伤人法术，不与 reveal / stagger 同写')
+
+
+def check_magic_target_data(report: Report) -> None:
+    for path in sorted((ROOT / "data" / "magics").rglob("*.json")):
+        payload = read_json(path, report)
+        if isinstance(payload, dict):
+            check_magic_target(str(path.relative_to(ROOT)), payload, report)
+        elif payload is not None:
+            report.error(str(path.relative_to(ROOT)), "法术必须是对象")
 
 
 def check_battle_break_data(report) -> None:
@@ -2525,11 +2609,15 @@ def check_battle_break_data(report) -> None:
         不知道自己漏了什么。"""
     roles = load_break_roles(report)
 
+    magics = {}
     for path in sorted((ROOT / "data" / "magics").rglob("*.json")):
         payload = read_json(path, report)
         if not isinstance(payload, dict):
             continue
         where = str(path.relative_to(ROOT))
+        if isinstance(payload.get("id"), str):
+            magics[payload["id"]] = payload
+        check_magic_target(where, payload, report)
         for field_name in OBSOLETE_MAGIC_FIELDS:
             if field_name in payload:
                 report.error(where, f"{field_name} 已作废：横版战斗没有距离，删掉这一项")
@@ -2574,7 +2662,7 @@ def check_battle_break_data(report) -> None:
             if potions:
                 report.error(where, f"castMagic 不能与 {'、'.join(potions)} 同写：一件东西要么是药、要么是符")
 
-    check_means_sources(report)
+    check_means_sources(report, roles)
 
     for path in sorted((ROOT / "data" / "battles").rglob("*.json")):
         battle = read_json(path, report)
@@ -2588,7 +2676,7 @@ def check_battle_break_data(report) -> None:
             report.error(where, "backdrop 必须是字符串")
         mind = battle.get("terrain") == MIND_TERRAIN
         chapter = battle.get("chapter")
-        means = battle_means(battle, roles)
+        means = battle_means(battle, roles, magics)
         for index, unit in enumerate(battle.get("units", [])):
             if not isinstance(unit, dict):
                 continue
@@ -3228,10 +3316,19 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="内容校验")
     parser.add_argument("--maps", action="store_true", help="只查地图")
     parser.add_argument("--data", action="store_true", help="只查数据与文案")
+    parser.add_argument("--magic-targets", action="store_true", help="只查 E3 法术 target 形状")
     args = parser.parse_args()
+    if args.magic_targets and (args.maps or args.data):
+        parser.error("--magic-targets 不与 --maps / --data 同用")
     check_all = not (args.maps or args.data)
 
     report = Report()
+    if args.magic_targets:
+        check_magic_target_data(report)
+        for error in report.errors:
+            print(f"[error] {error}")
+        print("MAGIC_TARGETS_OK" if report.ok else "MAGIC_TARGETS_FAIL")
+        return 0 if report.ok else 1
     ids: dict[str, Path] = {}
     texts: dict[str, str] = {}
     flags: set[str] = set()

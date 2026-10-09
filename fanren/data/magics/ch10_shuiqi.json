@@ -1,0 +1,12 @@
+{
+  "id": "magic_ch10_shuiqi",
+  "name": "水旗护阵",
+  "descKey": "magic.desc.magic_ch10_shuiqi",
+  "element": 4,
+  "needMp": 16,
+  "power": 40,
+  "needRealm": "FoundationLate",
+  "boost": "power",
+  "origin": "改编（原著手段的数据化）",
+  "note": "第十章初版战斗规格，未经过独立平衡验收。"
+}

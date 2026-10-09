@@ -1,0 +1,12 @@
+{
+  "id": "magic_ch10_heji",
+  "name": "执法合击",
+  "descKey": "magic.desc.magic_ch10_heji",
+  "element": 4,
+  "needMp": 14,
+  "power": 30,
+  "needRealm": "FoundationEarly",
+  "boost": "power",
+  "origin": "改编（原著手段的数据化）",
+  "note": "第十章初版战斗规格，未经过独立平衡验收。"
+}

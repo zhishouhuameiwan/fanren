@@ -1,0 +1,18 @@
+-- @hook ch10_xiaohuan trigger_zhifadui enter once
+talk("", "ch10.zhifadui.call")
+talk("", "ch10.zhifadui.arrive")
+talk("zhifa_laozhe", "ch10.zhifadui.accuse")
+talk("zhifa_laozhe", "ch10.zhifadui.order")
+talk("hanli", "ch10.zhifadui.ask")
+talk("zhifa_laozhe", "ch10.zhifadui.reply")
+talk("", "ch10.zhifadui.kill")
+talk("hanli", "ch10.zhifadui.qu")
+local won = battle("b10_zhifadui")
+if not won then game_over(); return end
+talk("", "ch10.zhifadui.win")
+talk("", "ch10.zhifadui.escape")
+give("material_lingshi", 80)
+talk("", "ch10.zhifadui.bags")
+talk("", "ch10.zhifadui.last")
+teleport("ch10_xiaohuan", 50, 39)
+flag.set("ch10.done")

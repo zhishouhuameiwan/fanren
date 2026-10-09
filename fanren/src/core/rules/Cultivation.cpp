@@ -54,6 +54,12 @@ constexpr int kInsightDaysWorth = 30;
 
 }  // namespace
 
+bool reclimbing(Realm current, Realm former) noexcept {
+    if (!isValid(current) || !isValid(former)) return false;
+    if (former == Realm::Mortal || current == Realm::Mortal) return false;
+    return toValue(current) < toValue(former);
+}
+
 CultivationGain meditate(Realm realm, int aptitude, int effectiveness, int days,
                          std::uint32_t seed) {
     CultivationGain gain;

@@ -1,0 +1,39 @@
+{
+  "id": "q10_wunian",
+  "name": "五年后的比试",
+  "chapter": 10,
+  "kind": "side",
+  "title_key": "ch10.quest.wunian.title",
+  "summary_key": "ch10.quest.wunian.summary",
+  "accept": [
+    {
+      "flag": "ch10.xuandi",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch10.quest.wunian.s1",
+      "done": [
+        {
+          "flag": "ch10.huashen",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch10_xiaohuan",
+      "target_object": "trigger_dayan"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch10.huashen",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "rewards": [],
+  "origin": "原著"
+}

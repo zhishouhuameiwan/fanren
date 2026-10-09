@@ -217,6 +217,10 @@ inline constexpr const char* kChapterNineEndingFirst = "ch09-end-first.sav";
 inline constexpr const char* kChapterNineEndingSecond = "ch09-end-second.sav";
 inline constexpr const char* kWriteChapterNineFixturesEnv = "FANREN_WRITE_CH09_FIXTURES";
 
+inline constexpr const char* kChapterTenEndingFirst = "ch10-end-first.sav";
+inline constexpr const char* kChapterTenEndingSecond = "ch10-end-second.sav";
+inline constexpr const char* kWriteChapterTenFixturesEnv = "FANREN_WRITE_CH10_FIXTURES";
+
 // Chapter 9 design 3.1 / 3.3 / 3.4; the destination describes the script's exit.
 struct ChapterNineStep {
     const char* map;
@@ -248,7 +252,7 @@ inline constexpr std::array<ChapterNineStep, 22> kChapterNineSteps = {{
     {"ch09_milin", "trigger_shudong", "ch09.dieluo", 1, "ch09_milin"},
     {"ch09_milin", "trigger_huicheng", "ch09.huicheng", 2, "ch08_lingkuang"},
     {"ch08_lingkuang", "trigger_wangong", "ch09.wangong", 7, "ch08_lingkuang"},
-    {"ch08_lingkuang", "trigger_qidong", "ch09.done", 0, "ch08_lingkuang"},
+    {"ch08_lingkuang", "trigger_qidong", "ch09.done", 0, "ch10_gudao"},
 }};
 
 inline std::string chapterNineAssetRoot() {

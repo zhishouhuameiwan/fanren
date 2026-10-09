@@ -112,6 +112,9 @@ enum class MagicBoost { Power, Hits };
 // 与 power > 0 / poison > 0 互斥（加载器报错）：一门法术要么伤人，要么看破或削架势。追加在末尾。
 enum class MagicEffect { None, Reveal, Stagger };
 
+// Ordinary damage spell scope (Chapter 10 contract E3); independent of charged attacks.
+enum class MagicTarget { Single, All };
+
 struct Magic {
     std::string id;
     std::string name;
@@ -135,6 +138,9 @@ struct Magic {
 
     // 削几点架势（数据字段 "stagger"，1–9，缺省 1；只对 effect == Stagger 有意义）。追加在末尾。
     int stagger = 1;
+
+    // Optional JSON "target": "single" | "all". Append to preserve old aggregate initializers.
+    MagicTarget target = MagicTarget::Single;
 };
 
 // 法术这一击是什么类别：它的五行；带毒的再加一个「毒」（docs/octopath-battle.md 2.2）。

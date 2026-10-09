@@ -141,6 +141,10 @@ bool BattleState::checkCast(const Action& a, const Unit& u, std::string* why) co
 
 bool BattleState::checkMagicTarget(const Action& a, const Magic& magic, const Unit& u,
                                    std::string* why) const {
+    if (magic.target == MagicTarget::All &&
+        (magic.effect != MagicEffect::None || !offensiveMagic(magic))) {
+        return deny(why, "全体只许用于伤人的法术");
+    }
     // 看破照的是整个场子，不挑目标：targetIndex 不看。
     if (magic.effect == MagicEffect::Reveal) return true;
     if (!checkEnemyTarget(a.targetIndex, u, why)) return false;
@@ -354,10 +358,10 @@ void BattleState::spendBoost(int actorIndex, int boost) {
     emit(BattleEvent{BattleEventKind::BoostSpent, actorIndex, -1, boost});
 }
 
-std::vector<int> BattleState::strikeTargets(int actorIndex, int targetIndex) const {
+std::vector<int> BattleState::strikeTargets(int actorIndex, int targetIndex, bool allTargets) const {
     const Unit& actor = unitRef(actorIndex);
-    if (!actor.charging || !actor.chargeAll) return {targetIndex};
-    // 重招打全体：对面此刻站着的每一个，按下标序。
+    if (!allTargets && (!actor.charging || !actor.chargeAll)) return {targetIndex};
+    // Charged and ordinary all-target attacks share the same live-opponent filter.
     std::vector<int> all;
     for (std::size_t i = 0; i < units_.size(); ++i) {
         if (units_[i].alive() && units_[i].ally != actor.ally) all.push_back(static_cast<int>(i));
@@ -435,6 +439,7 @@ std::string BattleState::resolveMagic(const Action& a, const Magic& magic, const
     const int power = magic.boost == MagicBoost::Power ? magic.power * (1 + std::max(0, a.boost))
                                                        : magic.power;
     const bool heavy = caster.charging;
+    const bool all = magic.target == MagicTarget::All || (heavy && caster.chargeAll);
 
     std::string head = viaItem != nullptr
                            ? castOpener(caster, magic, viaItem)
@@ -443,7 +448,7 @@ std::string BattleState::resolveMagic(const Action& a, const Magic& magic, const
     if (magic.boost == MagicBoost::Power && a.boost > 0) {
         head += "（蓄劲 " + std::to_string(a.boost) + " 点，威力 ×" + std::to_string(1 + a.boost) + "）";
     }
-    head += (heavy && caster.chargeAll) ? std::string("横扫全场") : "击中 " + unitRef(a.targetIndex).name;
+    head += all ? std::string("横扫全场") : "击中 " + unitRef(a.targetIndex).name;
     BattleEvent act{BattleEventKind::Act, a.actorIndex, a.targetIndex,
                     static_cast<int>(viaItem != nullptr ? ActionKind::Item : ActionKind::Cast)};
     act.category = category;
@@ -453,14 +458,14 @@ std::string BattleState::resolveMagic(const Action& a, const Magic& magic, const
 
     std::string text = head + "，";
     bool first = true;
-    for (const int target : strikeTargets(a.actorIndex, a.targetIndex)) {
+    for (const int target : strikeTargets(a.actorIndex, a.targetIndex, magic.target == MagicTarget::All)) {
         for (int hit = 1; hit <= hits; ++hit) {
             if (!unitRef(target).alive()) break;
             const Unit& t = unitRef(target);
             const int base = magicDamage(power, t.defence, caster.realm, t.realm, magic.element, t.element);
             if (!first) text += "；";
             first = false;
-            if (heavy && caster.chargeAll) text += "波及 " + t.name + "，";
+            if (all) text += "波及 " + t.name + "，";
             text += strike(a.actorIndex, target, base, category, hit, hits);
         }
         // 法术是毒的第二条来源（契约第 2.3 节）。下毒在伤害之后：目标已经倒下时

@@ -1,0 +1,11 @@
+{
+  "id": "story_lvse_yupai",
+  "name": "绿色玉牌",
+  "descKey": "item.desc.story_lvse_yupai",
+  "kind": "story",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "第十章独立物品。实物变化由主线和真元丹配方控制，不出售关键资源。"
+}

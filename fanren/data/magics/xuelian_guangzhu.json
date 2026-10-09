@@ -1,0 +1,12 @@
+{
+  "id": "magic_xuelian_guangzhu",
+  "name": "血色光柱",
+  "descKey": "magic.desc.magic_xuelian_guangzhu",
+  "element": 8,
+  "needMp": 18,
+  "power": 48,
+  "needRealm": "FoundationEarly",
+  "boost": "hits",
+  "origin": "改编（原著手段的数据化）",
+  "note": "第十章初版战斗规格，未经过独立平衡验收。"
+}

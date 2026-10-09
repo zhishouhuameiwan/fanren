@@ -1,0 +1,47 @@
+{
+  "id": "q10_gujia",
+  "name": "顾家旧约",
+  "chapter": 10,
+  "kind": "side",
+  "title_key": "ch10.quest.gujia.title",
+  "summary_key": "ch10.quest.gujia.summary",
+  "accept": [
+    {
+      "flag": "ch10.chudao",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch10.quest.gujia.s1",
+      "done": [
+        {
+          "flag": "ch10.gujia",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch10_kuixing",
+      "target_object": "trigger_gujia"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch10.gujia",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "rewards": [],
+  "origin": "原著",
+  "fail": [
+    {
+      "flag": "ch10.chuhai",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch10.quest.gujia.fail"
+}

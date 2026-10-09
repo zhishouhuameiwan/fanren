@@ -1,0 +1,14 @@
+{
+  "id": "cao_lu",
+  "name": "曹禄",
+  "realm": "FoundationMid",
+  "maxHp": 120,
+  "maxMp": 80,
+  "attack": 10,
+  "defence": 8,
+  "speed": 9,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "第十章独立角色。身份与在场见设计第5节，战斗数值初版待独立平衡。"
+}

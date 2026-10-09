@@ -280,6 +280,26 @@
       "map": "ch09_milin",
       "backdrop": "mountain_forest",
       "why": "第9章三场必经仗的发起地点。"
+    },
+    "b10_gujia_bidou": {
+      "backdrop": "drill_ground",
+      "map": "ch10_kuixing",
+      "why": "批准以现有演武场替代雾中比斗平台"
+    },
+    "b10_liuliandian_weisha": {
+      "backdrop": "dock_river",
+      "map": "ch10_jinhai",
+      "why": "批准用现有水面背景"
+    },
+    "b10_gu_zhanglao": {
+      "backdrop": "cliff_top",
+      "map": "ch10_jinhai",
+      "why": "礁石阵地"
+    },
+    "b10_zhifadui": {
+      "backdrop": "dock_river",
+      "map": "ch10_xiaohuan",
+      "why": "批准用现有水面背景"
     }
   }
 }

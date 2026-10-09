@@ -398,6 +398,21 @@ core::Result<bool> loadOneMagic(const fs::path& path, std::map<std::string, Magi
         magic.stagger = value;
     }
 
+    if (j.contains("target")) {
+        const std::string target = j["target"].is_string() ? j["target"].get<std::string>() : std::string{};
+        if (target == "all") {
+            magic.target = core::MagicTarget::All;
+        } else if (target != "single") {
+            return core::Result<bool>::failure("法术 \"" + id +
+                "\" 的 target 只许 \"single\" 或 \"all\": " + path.string());
+        }
+        if (magic.target == core::MagicTarget::All &&
+            (magic.effect != core::MagicEffect::None || !core::offensiveMagic(magic))) {
+            return core::Result<bool>::failure("法术 \"" + id +
+                "\" 的 target \"all\" 只许用于伤人法术，不与 reveal / stagger 同写: " + path.string());
+        }
+    }
+
     firstSeenBy.emplace(id, path);
     magics.emplace(std::move(id), std::move(magic));
     return core::Result<bool>::success(true);

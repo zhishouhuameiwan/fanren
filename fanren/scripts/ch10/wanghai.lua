@@ -1,0 +1,11 @@
+-- @hook ch10_gudao trigger_wanghai interact once
+talk("", "ch10.wanghai.scan")
+talk("", "ch10.wanghai.island")
+talk("", "ch10.wanghai.herbs")
+talk("", "ch10.wanghai.rest")
+advance_days(1)
+talk("", "ch10.wanghai.direction")
+talk("", "ch10.wanghai.ship")
+talk("", "ch10.wanghai.fish")
+flag.set("ch10.likai")
+teleport("ch10_haichuan", 20, 4)

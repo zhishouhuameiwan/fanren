@@ -87,6 +87,12 @@ struct CultivationLexicon {
     // 凡人阶段实际走不到这一行（灵眼之泉在第 8 章），但禁词扫描两个阶段都扫，空串等于替它关掉一条缝。
     const char* siteBonusPrefix;    // 「此地灵气充沛，修为多得 」
     const char* siteBonusSuffix;    // 「%」
+
+    // Chapter 10 old road; append to preserve positional initialization.
+    const char* reclimbPrefix;
+    const char* reclimbSuffix;
+    const char* pushAtStoryCapReclimb;
+    const char* atStoryCapReclimb;
 };
 
 [[nodiscard]] const CultivationLexicon& cultivationLexicon(PanelStage stage);
@@ -116,9 +122,8 @@ struct MeditateOutcome {
     bool insight = false;
 };
 
-// 打坐效率。功法、灵根将来都要并进这里；眼下只有基准值 100。
-// 入口先具名留好——散在各面板里现算，迟早两处算得不一样。
-// 地点（洞府灵脉）的加成是另一路：由地图设施给，乘在它外面（CultivationScene::bankMeditation 的 sitePercent）。
+// 打坐效率。功法、灵根将来也在这里合成（乘法）；重修是第一个接进来的（第 10 章契约 1.3）。
+// 地点效率是另一路，乘在外面（第 8 章 E1，bankMeditation 的 sitePercent）。
 [[nodiscard]] int meditationEffectiveness(const core::GameState& state);
 
 // 此地的打坐效率（百分比）不写时的值：普通蒲团，与没有这一路时逐字相同。
@@ -128,6 +133,9 @@ inline constexpr int kDefaultSitePercent = 100;
 // 冲关的丹药加成（百分点）。筑基丹之类尚未实现，恒为 0；具名出来是为了
 // 将来接丹药时只有一处可改。
 [[nodiscard]] int breakthroughPillBonus(const core::GameState& state);
+
+// Chapter 10 old-road bonus, in percentage points; kept separate from pills.
+[[nodiscard]] int reclimbBreakthroughBonus(const core::GameState& state);
 
 // ---------------------------------------------------------------------------
 // 日课：让「四年苦修」真的是四年的修行，而不是按几次按钮
@@ -193,6 +201,9 @@ public:
     // 状态栏上「此地加成」那一行：这一处的 sitePercent ≠ 100 才有，否则空串（不画这一行）。
     // renderStatus 画的就是它，测试问的也是它。
     [[nodiscard]] std::string siteBonusLine(const core::GameState& state) const;
+
+    // The old-road status line shared by renderStatus and headless tests; empty after recovery.
+    [[nodiscard]] static std::string reclimbLine(const core::GameState& state);
 
     // 把 days 天打坐的收益兑现进 state.cultivation，零头留在余数账上。
     // 余数账的算法与「长短打坐等价」的保证见 .cpp 顶部的长注释。

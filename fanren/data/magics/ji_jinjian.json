@@ -1,0 +1,12 @@
+{
+  "id": "magic_ji_jinjian",
+  "name": "祭小剑符宝",
+  "descKey": "magic.desc.magic_ji_jinjian",
+  "element": 1,
+  "needMp": 25,
+  "power": 62,
+  "needRealm": "CoreEarly",
+  "boost": "hits",
+  "origin": "改编（原著手段的数据化）",
+  "note": "第十章初版战斗规格，未经过独立平衡验收。"
+}

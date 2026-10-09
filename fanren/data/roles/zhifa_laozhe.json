@@ -1,0 +1,27 @@
+{
+  "id": "zhifa_laozhe",
+  "name": "白发老者",
+  "realm": "FoundationLate",
+  "maxHp": 240,
+  "maxMp": 140,
+  "attack": 36,
+  "defence": 22,
+  "speed": 14,
+  "element": 4,
+  "magics": [
+    "magic_ch10_heji"
+  ],
+  "origin": "原著",
+  "note": "第十章独立角色。身份与在场见设计第5节，战斗数值初版待独立平衡。",
+  "toughness": 4,
+  "weaknesses": [
+    "火",
+    "金"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 1.6,
+    "all": false,
+    "text_key": "ch10.battle.zhifa.charge"
+  }
+}

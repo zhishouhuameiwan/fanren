@@ -56,6 +56,7 @@
 //   · 战斗的 RNG：BattleScene 的种子由编成 id 派生，每一场都是**确定的**——「打得赢」只是这一个种子上的
 //     一次抽样，不是概率上的保证。
 #include <gtest/gtest.h>
+#include "TextKeys.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -2039,15 +2040,13 @@ protected:
     // 所有 key 以 ch06. 开头、或文件名以 ch06 开头的文案（key → 正文）。
     std::map<std::string, std::string> chapterTexts() {
         std::map<std::string, std::string> out;
-        static const std::regex kPair("\"([^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
         for (const auto& entry : fs::directory_iterator(fs::path(root_) / "data" / "text")) {
             if (entry.path().extension() != ".json") continue;
             const std::string file = entry.path().filename().string();
             const std::string body = readFile(entry.path());
             const bool chapterFile = file.rfind("ch06", 0) == 0;
-            for (auto it = std::sregex_iterator(body.begin(), body.end(), kPair); it != std::sregex_iterator(); ++it) {
-                const std::string key = (*it)[1];
-                if (chapterFile || key.rfind("ch06.", 0) == 0) out[key] = (*it)[2];
+            for (const auto& [key,value] : fanren::test::textKeyValues(body)) {
+                if (chapterFile || key.rfind("ch06.", 0) == 0) out[key]=value;
             }
         }
         return out;
@@ -2203,12 +2202,11 @@ TEST_F(Ch06Acceptance, No6_EachGatedWordStaysOutOfTheKeysBeforeItsNode) {
 // 比 10b 早得多；它在 data/text/ui.json 里、key 不以 ch06. 开头，上一条的扫描范围够不着它。
 TEST_F(Ch06Acceptance, No6_TheChapterCardSaysNoShengxianBeforeTheTokenHasAName) {
     const std::string ui = readFile(fs::path(root_) / "data" / "text" / "ui.json");
-    static const std::regex kPair("\"(ui\\.chapter\\.06\\.[^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
     int keys = 0;
-    for (auto it = std::sregex_iterator(ui.begin(), ui.end(), kPair); it != std::sregex_iterator(); ++it) {
+    for (const auto& [key,value] : fanren::test::textKeyValues(ui)) {
+        if (key.rfind("ui.chapter.06.",0)!=0) continue;
         ++keys;
-        const std::string value = (*it)[2];
-        EXPECT_EQ(value.find("升仙"), std::string::npos) << (*it)[1] << "：章节卡在 10b 之前就说了「升仙」：" << value;
+        EXPECT_EQ(value.find("升仙"), std::string::npos) << key << "：章节卡在 10b 之前就说了「升仙」：" << value;
     }
     EXPECT_GE(keys, 2) << "先验：ui.chapter.06.numeral / .title 读得到（施工图 E8）";
     EXPECT_NE(app_.data().lookupText("ui.chapter.06.title"), "ui.chapter.06.title") << "章节卡的章名查不到";
@@ -2425,9 +2423,8 @@ TEST_F(Ch06Acceptance, No18_BranchesMapsAndWordsAreWhereSectionFifteenPutsThem) 
     for (const auto& entry : fs::directory_iterator(fs::path(root_) / "data" / "text")) {
         if (entry.path().filename().string() != "ch06_main.json") continue;
         const std::string body = readFile(entry.path());
-        static const std::regex kPair("\"(ch06\\.[^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
-        for (auto it = std::sregex_iterator(body.begin(), body.end(), kPair); it != std::sregex_iterator(); ++it) {
-            const std::string value = (*it)[2];
+        for (const auto& [key,value] : fanren::test::textKeyValues(body)) {
+            if (key.rfind("ch06.",0)!=0) continue;
             for (std::size_t i = 0; i < value.size();) {
                 const unsigned char c = static_cast<unsigned char>(value[i]);
                 if (c >= 0xE0 && c < 0xF0 && i + 2 < value.size()) {

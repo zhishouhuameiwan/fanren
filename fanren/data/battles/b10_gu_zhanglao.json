@@ -1,0 +1,24 @@
+{
+  "id": "b10_gu_zhanglao",
+  "name": "碧水阵中",
+  "chapter": 10,
+  "terrain": "field",
+  "hero_absent": false,
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "gu_zhanglao",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch10.battle.gu_zhanglao.intro",
+  "origin": "原著（撑阵一场为改编）",
+  "note": "设计8.2初版规格；独立BattleHand及正式ch09-end通关未进行。"
+}

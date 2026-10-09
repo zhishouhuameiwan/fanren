@@ -1,0 +1,14 @@
+{
+  "id": "xiaohuan_zhenzhang",
+  "name": "镇长",
+  "realm": "Mortal",
+  "maxHp": 45,
+  "maxMp": 0,
+  "attack": 10,
+  "defence": 8,
+  "speed": 9,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "第十章独立角色。身份与在场见设计第5节，战斗数值初版待独立平衡。"
+}

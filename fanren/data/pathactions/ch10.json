@@ -1,0 +1,560 @@
+{
+  "id": "pathactions_ch10",
+  "name": "第10章路径行动",
+  "chapter": 10,
+  "note": "四对语言条目及七条后续打探，零阅历门槛。听不懂的条目不给情报效果。",
+  "entries": [
+    {
+      "id": "chuangong_jia_tingbudong_dating",
+      "kind": "inquire",
+      "map": "ch10_haichuan",
+      "npc": "npc_chuangong_jia",
+      "when": [
+        {
+          "flag": "ch10.guyu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yuyan",
+          "op": "==",
+          "value": 0
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.yuyan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.kaoan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.chuangong_jia_tingbudong_dating",
+      "text_key": "ch10.path.chuangong_jia_tingbudong_dating.text",
+      "origin": "改编（按语言状态呈现已批准事实）"
+    },
+    {
+      "id": "chuangong_jia_dating",
+      "kind": "inquire",
+      "map": "ch10_haichuan",
+      "npc": "npc_chuangong_jia",
+      "when": [
+        {
+          "flag": "ch10.guyu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yetan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yuyan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.kaoan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.chuangong_jia_dating",
+      "text_key": "ch10.path.chuangong_jia_dating.text",
+      "origin": "改编（按语言状态呈现已批准事实）"
+    },
+    {
+      "id": "chuangong_yi_tingbudong_dating",
+      "kind": "inquire",
+      "map": "ch10_haichuan",
+      "npc": "npc_chuangong_yi",
+      "when": [
+        {
+          "flag": "ch10.guyu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yuyan",
+          "op": "==",
+          "value": 0
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.yuyan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.kaoan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.chuangong_yi_tingbudong_dating",
+      "text_key": "ch10.path.chuangong_yi_tingbudong_dating.text",
+      "origin": "改编（按语言状态呈现已批准事实）"
+    },
+    {
+      "id": "chuangong_yi_dating",
+      "kind": "inquire",
+      "map": "ch10_haichuan",
+      "npc": "npc_chuangong_yi",
+      "when": [
+        {
+          "flag": "ch10.guyu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yetan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yuyan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.kaoan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.chuangong_yi_dating",
+      "text_key": "ch10.path.chuangong_yi_dating.text",
+      "origin": "改编（按语言状态呈现已批准事实）"
+    },
+    {
+      "id": "gangkou_xiaofan_tingbudong_dating",
+      "kind": "inquire",
+      "map": "ch10_kuixing",
+      "npc": "npc_gangkou_xiaofan",
+      "when": [
+        {
+          "flag": "ch10.kaoan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yuyan",
+          "op": "==",
+          "value": 0
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.yuyan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.xuandi",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.gangkou_xiaofan_tingbudong_dating",
+      "text_key": "ch10.path.gangkou_xiaofan_tingbudong_dating.text",
+      "origin": "改编（按语言状态呈现已批准事实）"
+    },
+    {
+      "id": "gangkou_xiaofan_dating",
+      "kind": "inquire",
+      "map": "ch10_kuixing",
+      "npc": "npc_gangkou_xiaofan",
+      "when": [
+        {
+          "flag": "ch10.kaoan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yuyan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.xuandi",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.gangkou_xiaofan_dating",
+      "text_key": "ch10.path.gangkou_xiaofan_dating.text",
+      "origin": "改编（按语言状态呈现已批准事实）"
+    },
+    {
+      "id": "gujia_zhuangding_tingbudong_dating",
+      "kind": "inquire",
+      "map": "ch10_kuixing",
+      "npc": "npc_gujia_zhuangding",
+      "when": [
+        {
+          "flag": "ch10.dengji",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yuyan",
+          "op": "==",
+          "value": 0
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.yuyan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.xuandi",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.gujia_zhuangding_tingbudong_dating",
+      "text_key": "ch10.path.gujia_zhuangding_tingbudong_dating.text",
+      "origin": "改编（按语言状态呈现已批准事实）"
+    },
+    {
+      "id": "gujia_zhuangding_dating",
+      "kind": "inquire",
+      "map": "ch10_kuixing",
+      "npc": "npc_gujia_zhuangding",
+      "when": [
+        {
+          "flag": "ch10.dengji",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yuyan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.xuandi",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.gujia_zhuangding_dating",
+      "text_key": "ch10.path.gujia_zhuangding_dating.text",
+      "origin": "改编（按语言状态呈现已批准事实）"
+    },
+    {
+      "id": "dongshi_luren_dating",
+      "kind": "inquire",
+      "map": "ch10_kuixing",
+      "npc": "npc_dongshi_luren",
+      "when": [
+        {
+          "flag": "ch10.muwu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.chouqian",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.leitai",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.dongshi_luren_dating",
+      "text_key": "ch10.path.dongshi_luren_dating.text",
+      "origin": "改编",
+      "reveal": [
+        {
+          "role": "daoyu_husui",
+          "category": "火"
+        }
+      ]
+    },
+    {
+      "id": "xiaohuan_zhenmin_dating",
+      "kind": "inquire",
+      "map": "ch10_xiaohuan",
+      "npc": "npc_xiaohuan_zhenmin",
+      "when": [
+        {
+          "flag": "ch10.chuguan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.chudao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.xiaohuan_zhenmin_dating",
+      "text_key": "ch10.path.xiaohuan_zhenmin_dating.text",
+      "origin": "改编"
+    },
+    {
+      "id": "tiandujie_sanxiu_dating",
+      "kind": "inquire",
+      "map": "ch10_tiandujie",
+      "npc": "npc_tiandujie_sanxiu",
+      "when": [
+        {
+          "flag": "ch10.chudao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.path.tiandujie_sanxiu_dating",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.jueding",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.tiandujie_sanxiu_dating",
+      "text_key": "ch10.path.tiandujie_sanxiu_dating.text",
+      "origin": "改编"
+    },
+    {
+      "id": "tiandujie_sanxiu_gujia_dating",
+      "kind": "inquire",
+      "map": "ch10_tiandujie",
+      "npc": "npc_tiandujie_sanxiu",
+      "when": [
+        {
+          "flag": "ch10.chudao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.path.tiandujie_sanxiu_dating",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.gujia",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.chuhai",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.jueding",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.tiandujie_sanxiu_gujia_dating",
+      "text_key": "ch10.path.tiandujie_sanxiu_gujia_dating.text",
+      "origin": "改编"
+    },
+    {
+      "id": "qing_suanzi_dating",
+      "kind": "inquire",
+      "map": "ch10_jinhai",
+      "npc": "npc_qing_suanzi",
+      "when": [
+        {
+          "flag": "ch10.chuhai",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yingli",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.taoli",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.qing_suanzi_dating",
+      "text_key": "ch10.path.qing_suanzi_dating.text",
+      "origin": "改编",
+      "reveal": [
+        {
+          "role": "yingli_shou",
+          "category": "木"
+        }
+      ]
+    },
+    {
+      "id": "feng_sanniang_dating",
+      "kind": "inquire",
+      "map": "ch10_jinhai",
+      "npc": "npc_feng_sanniang",
+      "when": [
+        {
+          "flag": "ch10.chuhai",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.yingli",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.taoli",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.feng_sanniang_dating",
+      "text_key": "ch10.path.feng_sanniang_dating.text",
+      "origin": "改编"
+    },
+    {
+      "id": "haiyuan_sanxiu_dating",
+      "kind": "inquire",
+      "map": "ch10_haiyuandao",
+      "npc": "npc_haiyuan_sanxiu",
+      "when": [
+        {
+          "flag": "ch10.zhangu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch10.shadan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch10.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch10.path.haiyuan_sanxiu_dating",
+      "text_key": "ch10.path.haiyuan_sanxiu_dating.text",
+      "origin": "改编"
+    }
+  ]
+}

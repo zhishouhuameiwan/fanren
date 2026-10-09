@@ -1,0 +1,11 @@
+{
+  "id": "material_xuelingshui",
+  "name": "雪灵水",
+  "descKey": "item.desc.material_xuelingshui",
+  "kind": "material",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "第十章独立物品。实物变化由主线和真元丹配方控制，不出售关键资源。"
+}

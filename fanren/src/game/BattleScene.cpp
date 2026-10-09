@@ -129,7 +129,12 @@ constexpr int kMenuFeedbackH = 72;
 //——它不判破绽，写五行只会让人以为打得中哪一样；别的写它的类别（五行，带毒加「毒」），没有就空着。
 [[nodiscard]] std::string spellEffectLabel(const core::Magic& magic) {
     if (magic.effect == core::MagicEffect::Stagger) return "削架势 " + std::to_string(magic.stagger);
-    return core::categoryNames(core::magicCategories(magic));
+    std::string label = core::categoryNames(core::magicCategories(magic));
+    if (magic.target == core::MagicTarget::All) {
+        if (!label.empty()) label += " · ";
+        label += "敌方全体";
+    }
+    return label;
 }
 
 }  // namespace
@@ -674,6 +679,9 @@ std::vector<ui::ListItem> BattleScene::buildTargetItems(const core::GameState& s
     // 带 castMagic 的符箓按那门法术挑目标（契约 docs/interfaces-p3-ch07.md 2.5）：同施法一样只列敌人。
     const core::Item* item = shape.kind == ActionKind::Item ? battle.findItem(shape.magicId) : nullptr;
     const bool enemiesOnly = shape.kind != ActionKind::Item || (item != nullptr && !item->castMagic.empty());
+    const core::Magic* magic = shape.kind == ActionKind::Cast ? battle.findMagic(shape.magicId)
+                                : item != nullptr ? battle.findMagic(item->castMagic) : nullptr;
+    const bool all = magic != nullptr && magic->target == core::MagicTarget::All;
     for (std::size_t i = 0; i < units.size(); ++i) {
         const Unit& unit = units[i];
         if (!unit.alive()) continue;
@@ -683,6 +691,14 @@ std::vector<ui::ListItem> BattleScene::buildTargetItems(const core::GameState& s
         Action probe = shape;
         probe.targetIndex = static_cast<int>(i);
         targetIndices.push_back(static_cast<int>(i));
+        if (all) {
+            const auto count = std::count_if(units.begin(), units.end(), [&](const Unit& candidate) {
+                return candidate.alive() && candidate.ally != actor.ally;
+            });
+            items.push_back(row("敌方全体", "共 " + std::to_string(count) + " 人",
+                                refusePlayerAction(state, battle, probe)));
+            break;
+        }
         const std::string detail =
             unit.ally ? "气血 " + std::to_string(std::max(0, unit.hp)) + "/" + std::to_string(unit.maxHp)
                       : foeRowDetail(unit);

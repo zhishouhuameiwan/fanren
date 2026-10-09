@@ -1,0 +1,16 @@
+{
+  "id": "yan_daoyou",
+  "name": "严道友",
+  "realm": "FoundationLate",
+  "maxHp": 490,
+  "maxMp": 300,
+  "attack": 45,
+  "defence": 30,
+  "speed": 16,
+  "element": 8,
+  "magics": [
+    "magic_ch10_chunyang"
+  ],
+  "origin": "原著",
+  "note": "第十章独立角色。身份与在场见设计第5节，战斗数值初版待独立平衡。"
+}

@@ -1798,8 +1798,34 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
     # 韩立不在场的那一仗，手段只有编成里友军的兵刃：第 5 章的通表里有火，这里却不算。
     expect("夺帮那一夜的头目只怕火与刀 → 报（我方只有拳）", "data/roles/sipingbang_toumu.json",
            lambda p: p.__setitem__("weaknesses", ["火", "刀"]), "没有一样是这一场", "b05_duobang")
-    expect_quiet("第 10 章的敌人不在规则 25 的范围 → 不报", "data/roles/daoyu_husui.json",
-                 lambda p: p.__setitem__("weaknesses", ["木"]), "b10_gujia_bidou")
+    outside_role = "data/roles/siji_haishou.json"
+    outside_battle = "b11_ningcuidao_youyao"
+    expect_quiet("第 11 章的敌人不在规则 25 的范围 → 不报", outside_role,
+                 lambda p: p.__setitem__("weaknesses", ["木"]), outside_battle)
+    # A missing probe is a failure, not an empty successful filter; the same enemy must fail inside scope.
+    outside_path = work / "data" / "battles" / (outside_battle + ".json")
+    role_path = work / outside_role
+    case.check("第 11 章范围探针文件及角色确实存在", outside_path.is_file() and role_path.is_file())
+    if outside_path.is_file() and role_path.is_file():
+        battle_original, role_original = outside_path.read_bytes(), role_path.read_bytes()
+        probe = json.loads(battle_original)
+        role = json.loads(role_original)
+        case.check("第 11 章范围探针实际引用四级海兽",
+                   probe.get("chapter") == 11 and any(unit.get("role_id") == "siji_haishou" and
+                   unit.get("faction") == "enemy" for unit in probe.get("units", [])))
+        role["weaknesses"] = ["毒"]
+        probe["chapter"] = 10
+        probe["hero_absent"] = False
+        try:
+            role_path.write_text(json.dumps(role, ensure_ascii=False, indent=2), encoding="utf-8")
+            outside_path.write_text(json.dumps(probe, ensure_ascii=False, indent=2), encoding="utf-8")
+            errors = rule_errors()
+            case.check("同一四级海兽移入第10章且只怕毒 → 必报",
+                       any(outside_battle in error and "没有一样是这一场" in error for error in errors),
+                       chr(10).join(errors[:3]) or "（范围阴性未被抓住）")
+        finally:
+            outside_path.write_bytes(battle_original)
+            role_path.write_bytes(role_original)
     expect("编成落在没登记手段的章 → 报", "data/battles/b03_gu_wai_elang.json",
            lambda p: p.__setitem__("chapter", 2), "没有登记我方必有手段")
 
@@ -2397,8 +2423,261 @@ def selftest_s_npc_role_clash(case: Case, base: Path) -> None:
     case.check("同名的两个 role 写成互补旗标 → 不报", not found, chr(10).join(found[:2]))
 
 
+def selftest_ch10_means(case: Case, base: Path) -> None:
+    """Only the Chapter 10 means/source/scope contract, with frozen real inputs and byte restoration."""
+    work = base / "ch10_means"
+    for name in ("scripts", "data/magics", "data/items", "data/roles", "data/battles"):
+        shutil.copytree(ROOT / name, work / name)
+    saved_root = validate.ROOT
+    validate.ROOT = work
+
+    def source_errors() -> list[str]:
+        report = validate.Report()
+        validate.check_means_sources(report)
+        return report.errors
+
+    def inputs() -> tuple[dict, dict]:
+        report = validate.Report()
+        roles = validate.load_break_roles(report)
+        magics = {value["id"]: value for path in (work / "data/magics").glob("*.json")
+                  if isinstance(value := json.loads(path.read_text(encoding="utf-8")), dict)}
+        return roles, magics
+
+    def mutate(relative: str, change, check, name: str) -> None:
+        path = work / relative
+        original = path.read_bytes()
+        value = json.loads(original)
+        change(value)
+        path.write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
+        try:
+            case.check(name, check(), chr(10).join(source_errors()[:2]))
+        finally:
+            path.write_bytes(original)
+        case.check(name + "：还原后来源通过", not source_errors())
+
+    try:
+        expected = [("拳", "hand", "", ""), ("火", "learn", "magic_huodan_shu", "ch04"),
+                    ("土", "learn", "magic_liusha_shu", "ch06"), ("水", "learn", "magic_bingdong_shu", "ch06"),
+                    ("金", "learn", "magic_ji_jinfu", "ch07"), ("木", "learn", "magic_ji_qingjiao", "ch07"),
+                    ("暗器", "give", "weapon_wuming_sixian", "ch07")]
+        case.check("第10章七类手段按跌落后的合同逐项一致", validate.CHAPTER_MEANS.get(10) == expected)
+        case.check("第8/9章批准表已接且末章10", 8 in validate.CHAPTER_MEANS and
+                   9 in validate.CHAPTER_MEANS and validate.MEANS_LAST_CHAPTER == 10)
+        clean = source_errors()
+        case.check("真实来源：learn/give/友军法术/兵刃均无错", not clean, chr(10).join(clean[:3]))
+        for battle_id, categories in (("b10_liuliandian_weisha", {"拳", "剑", "火", "水", "木"}),
+                                      ("b10_zhifadui", {"剑", "火", "金"})):
+            payload = json.loads((work / "data/battles" / (battle_id + ".json")).read_text(encoding="utf-8"))
+            roles, magics = inputs()
+            case.check(battle_id + " 只取真实友军手段，不继承本尊", payload.get("hero_absent") is True and
+                       validate.battle_means(payload, roles, magics) == categories)
+
+        mutate("data/magics/ji_qingjiao.json", lambda p: p.update(needRealm="FoundationEarly"),
+               lambda: any("跌落到炼气三层后不可施展" in e for e in source_errors()),
+               "常驻木提高到筑基 → 必报，不能照抄第9章高境界手段")
+        mutate("data/magics/ch10_mufu.json", lambda p: p.update(element=8),
+               lambda: any("magic_ch10_mufu" in e for e in source_errors()), "友军木法改成火 → 来源必报")
+        mutate("data/roles/qu_hun_huashen.json", lambda p: p.update(magics=[]),
+               lambda: any("magic_xuelian_guangzhu" in e for e in source_errors()), "角色不再声明法术 → 来源必报")
+        mutate("data/roles/qu_hun_shadan.json", lambda p: p.update(weapons=["拳"]),
+               lambda: any("qu_hun_shadan" in e and "「剑」" in e for e in source_errors()), "角色没有剑 → 来源必报")
+        mutate("data/magics/ji_jinjian.json", lambda p: p.update(needRealm="CoreLate"),
+               lambda: any("magic_ji_jinjian" in e for e in source_errors()), "友军法术超出角色境界 → 来源必报")
+        mutate("data/magics/ch10_shuiqi.json", lambda p: p.update(power=0),
+               lambda: any("magic_ch10_shuiqi" in e for e in source_errors()), "不伤人的水法不能当攻击手段")
+
+        def without_qing(p):
+            p["units"] = [u for u in p["units"] if u.get("role_id") != "qing_suanzi"]
+
+        def no_borrowed_wood():
+            payload = json.loads((work / "data/battles/b10_liuliandian_weisha.json").read_text(encoding="utf-8"))
+            roles, magics = inputs()
+            return ("木" not in validate.battle_means(payload, roles, magics) and
+                    any("qing_suanzi" in e for e in source_errors()))
+
+        mutate("data/battles/b10_liuliandian_weisha.json", without_qing, no_borrowed_wood,
+               "青算子不在编成 → 木消失且必报，不借本尊的祭青蛟")
+
+        roles, magics = inputs()
+        future_id = "b11_ningcuidao_youyao"
+        path = work / "data/battles" / (future_id + ".json")
+        future = json.loads(path.read_text(encoding="utf-8"))
+        refs = [(p, json.loads(p.read_text(encoding="utf-8"))) for p in (work / "data/battles").glob("*.json")]
+        referenced = [p.stem for p, payload in refs if any(u.get("role_id") == "siji_haishou" and
+                      u.get("faction") == "enemy" for u in payload.get("units", []))]
+        case.check("outside探针实际是第11章且角色只在指定一场", future.get("chapter") == 11 and referenced == [future_id])
+
+        def scoped(chapter):
+            original_role = (work / "data/roles/siji_haishou.json").read_bytes()
+            original_battle = path.read_bytes()
+            role = json.loads(original_role)
+            role["weaknesses"] = ["毒"]
+            probe = dict(future, chapter=chapter, hero_absent=False)
+            try:
+                (work / "data/roles/siji_haishou.json").write_text(json.dumps(role), encoding="utf-8")
+                path.write_text(json.dumps(probe), encoding="utf-8")
+                report = validate.Report()
+                validate.check_battle_break_data(report)
+                return [e for e in report.errors if future_id in e and "没有一样是这一场" in e]
+            finally:
+                (work / "data/roles/siji_haishou.json").write_bytes(original_role)
+                path.write_bytes(original_battle)
+
+        case.check("第11章只怕毒：范围外确实不报", not scoped(11))
+        case.check("同一四级海兽移入第10章：确实必报", bool(scoped(10)))
+        case.check("所有反例后真实来源再次无错", not source_errors())
+    finally:
+        validate.ROOT = saved_root
+
+
+def selftest_ch10_ally_mp(case: Case, base: Path) -> None:
+    """Real main must not count ally spells that cannot be paid at that ally's full MP."""
+    work = make_full_workdir(base / "ch10_ally_mp")
+    magic_path = work / "data/magics/ch10_mufu.json"
+    role_path = work / "data/roles/qing_suanzi.json"
+    enemy_path = work / "data/roles/yingli_shou.json"
+    battle_path = work / "data/battles/b10_liuliandian_weisha.json"
+    originals = {path: path.read_bytes() for path in (magic_path, role_path, enemy_path)}
+    saved_root, saved_argv = validate.ROOT, sys.argv
+    validate.ROOT = work
+    try:
+        battle = json.loads(battle_path.read_text(encoding="utf-8"))
+        case.check("MP探针是本尊缺席且青算子实际为友军", battle.get("hero_absent") is True and
+                   any(unit.get("role_id") == "qing_suanzi" and unit.get("faction") == "ally"
+                       for unit in battle.get("units", [])))
+        trials = [("实际成本16/满法力340", 16, 340, True),
+                  ("成本恰等于满法力", 340, 340, True),
+                  ("独立HIGH反例100000/340", 100000, 340, False),
+                  ("成本仅超一分", 341, 340, False),
+                  ("零MP不能付正成本", 1, 0, False),
+                  ("缺省needMp5可付", None, 5, True),
+                  ("缺省needMp5超满法力4", None, 4, False),
+                  ("缺省needMp5对零MP", None, 0, False),
+                  ("缺省maxMp0不能付5", 5, None, False),
+                  ("两字段均缺省5/0", None, None, False),
+                  ("免费法术可由零MP施展", 0, 0, True),
+                  ("免费法术可用缺省零MP", 0, None, True)]
+        for name, cost, capacity, payable in trials:
+            magic, role, enemy = (json.loads(originals[path]) for path in (magic_path, role_path, enemy_path))
+            if cost is None:
+                magic.pop("needMp", None)
+            else:
+                magic["needMp"] = cost
+            if capacity is None:
+                role.pop("maxMp", None)
+            else:
+                role["maxMp"] = capacity
+            enemy["weaknesses"] = ["木"]
+            for path, payload in ((magic_path, magic), (role_path, role), (enemy_path, enemy)):
+                path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+            try:
+                report = validate.Report()
+                roles = validate.load_break_roles(report)
+                magics = {payload["id"]: payload for path in (work / "data/magics").glob("*.json")
+                          if isinstance(payload := json.loads(path.read_text(encoding="utf-8")), dict)}
+                means = validate.battle_means(battle, roles, magics)
+                case.check(name + "：木来源可用性", ("木" in means) == payable, str(sorted(means)))
+                sources = validate.Report()
+                validate.check_means_sources(sources, roles)
+                source_errors = [error for error in sources.errors if "magic_ch10_mufu" in error]
+                case.check(name + "：来源拒绝不可支付", (not source_errors) == payable,
+                           chr(10).join(source_errors))
+                output = io.StringIO()
+                sys.argv = ["validate.py"]
+                with contextlib.redirect_stdout(output):
+                    result = validate.main()
+                text = output.getvalue()
+                missing = [line for line in text.splitlines() if "b10_liuliandian_weisha" in line and
+                           "yingli_shou" in line and "没有一样是这一场" in line]
+                case.check(name + "：真实main与木唯一破绽", result == (0 if payable else 1) and
+                           (not missing) == payable and (not source_errors) == payable,
+                           f"MAIN_EXIT={result}\n" + chr(10).join(missing))
+            finally:
+                for path, original in originals.items():
+                    path.write_bytes(original)
+        case.check("全部支付反例后输入逐字节还原",
+                   all(path.read_bytes() == original for path, original in originals.items()))
+    finally:
+        validate.ROOT, sys.argv = saved_root, saved_argv
+
+
+def selftest_magic_targets(case: Case, base: Path) -> None:
+    """Exercise E3 in temporary unit inputs, independent of unfinished chapter content."""
+    work = base / "magic_target_probe"
+    path = work / "data" / "magics" / "probe.json"
+    path.parent.mkdir(parents=True)
+    original = {"id": "probe_magic", "name": "Probe", "power": 12}
+
+    def focused(payload: dict) -> tuple[int, str]:
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        saved_root, saved_argv = validate.ROOT, sys.argv
+        validate.ROOT = work
+        sys.argv = ["validate.py", "--magic-targets"]
+        output = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(output):
+                result = validate.main()
+        finally:
+            validate.ROOT, sys.argv = saved_root, saved_argv
+        return result, output.getvalue()
+
+    for scope in (None, "single", "all"):
+        payload = dict(original)
+        if scope is not None:
+            payload["target"] = scope
+        result, output = focused(payload)
+        case.check(f"E3 valid scope {scope!r}", result == 0 and "MAGIC_TARGETS_OK" in output, output)
+    for scope in (None, True, 1, 1.5, [], {}, "", "ALL", "all ", " single", "friends"):
+        result, _ = focused(dict(original, target="all"))
+        case.check(f"E3 positive control before {scope!r}", result == 0)
+        result, output = focused(dict(original, target=scope))
+        case.check(f"E3 bad target {scope!r}", result == 1 and "target" in output and "probe.json" in output, output)
+    for effect in ("reveal", "stagger", None):
+        payload = dict(original, power=0, target="single")
+        if effect is not None:
+            payload["effect"] = effect
+        result, _ = focused(payload)
+        case.check(f"E3 single effect {effect!r} stays valid", result == 0)
+        payload["target"] = "all"
+        result, output = focused(payload)
+        case.check(f"E3 all effect {effect!r} is refused", result == 1 and "target" in output, output)
+    result, output = focused(dict(original, power=0, poison=2, poisonPower=3, target="all"))
+    case.check("E3 a poison spell can target all", result == 0, output)
+
+    # The normal shape gate must invoke the same check; unrelated means-table errors are outside this probe.
+    for scope, expected in (("single", 0), ("ALL", 1)):
+        path.write_text(json.dumps(dict(original, target=scope)), encoding="utf-8")
+        saved_root = validate.ROOT
+        validate.ROOT = work
+        report = validate.Report()
+        try:
+            validate.check_battle_break_data(report)
+        finally:
+            validate.ROOT = saved_root
+        mine = [error for error in report.errors if "target" in error and "probe.json" in error]
+        case.check(f"E3 normal shape entry sees {scope!r}", len(mine) == expected, "\n".join(mine))
+
+
 def main() -> int:
     case = Case()
+    if sys.argv[1:] == ["--ch10-ally-mp"]:
+        with tempfile.TemporaryDirectory(prefix="fanren_ch10_ally_mp_selftest_") as tmp:
+            selftest_ch10_ally_mp(case, Path(tmp))
+        print("用例 %d 条，未如期抓住 %d 条" % (case.total, case.failed))
+        print("CH10_ALLY_MP_SELFTEST_OK" if not case.failed else "CH10_ALLY_MP_SELFTEST_FAIL")
+        return 0 if not case.failed else 1
+    if sys.argv[1:] == ["--ch10-means"]:
+        with tempfile.TemporaryDirectory(prefix="fanren_ch10_means_selftest_") as tmp:
+            selftest_ch10_means(case, Path(tmp))
+        print("用例 %d 条，未如期抓住 %d 条" % (case.total, case.failed))
+        print("CH10_MEANS_SELFTEST_OK" if not case.failed else "CH10_MEANS_SELFTEST_FAIL")
+        return 0 if not case.failed else 1
+    if sys.argv[1:] == ["--magic-targets"]:
+        with tempfile.TemporaryDirectory(prefix="fanren_magic_target_selftest_") as tmp:
+            selftest_magic_targets(case, Path(tmp))
+        print("用例 %d 条，未如期抓住 %d 条" % (case.total, case.failed))
+        print("MAGIC_TARGET_SELFTEST_OK" if not case.failed else "MAGIC_TARGET_SELFTEST_FAIL")
+        return 0 if not case.failed else 1
     with tempfile.TemporaryDirectory(prefix="fanren_selftest_") as tmp:
         base = Path(tmp)
         selftest_baseline(case, make_workdir(base / "base"))
@@ -2420,8 +2699,11 @@ def main() -> int:
         selftest_m_path_values(case, base)
         selftest_p_path_actions(case, base)
         selftest_n_battle_break(case, base)
+        selftest_ch10_means(case, base)
+        selftest_ch10_ally_mp(case, base)
         selftest_t_recipe_only_flag(case, base)
         selftest_u_meditate_effectiveness(case, base)
+        selftest_magic_targets(case, base)
         selftest_q_encounters(case, base)
         selftest_r_portal_direction(case, base)
         selftest_s_npc_role_clash(case, base)

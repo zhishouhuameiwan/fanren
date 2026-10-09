@@ -34,6 +34,13 @@ assert len(SFX) == len(sfx_ui.SFX) + len(sfx_battle.SFX) + len(sfx_jingle.SFX), 
 # ch09_yuanwu -> bgm_wild
 # ch09_wumingshan -> bgm_mountain_path
 # ch09_milin -> bgm_night
+# ch10_gudao -> bgm_cliff
+# ch10_haichuan -> bgm_river
+# ch10_kuixing -> bgm_town
+# ch10_xiaohuan -> bgm_valley
+# ch10_tiandujie -> bgm_town
+# ch10_jinhai -> bgm_wild
+# ch10_haiyuandao -> bgm_cliff
 MAP_BGM = ("bgm_village", "bgm_town", "bgm_mountain_path", "bgm_cliff", "bgm_qixuanmen", "bgm_valley",
            "bgm_indoor", "bgm_sect", "bgm_cave", "bgm_wild", "bgm_river", "bgm_inn", "bgm_manor", "bgm_night")
 

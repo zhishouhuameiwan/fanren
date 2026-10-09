@@ -96,6 +96,10 @@ constexpr int kActionLeave = 2;
                      static_cast<std::uint32_t>(rules::toValue(state.realm))});
 }
 
+[[nodiscard]] int totalBreakthroughBonus(const core::GameState& state) {
+    return breakthroughPillBonus(state) + reclimbBreakthroughBonus(state);
+}
+
 // 结算一段（累计天数不超过 rules::kMaxMeditateDays）的打坐，返回本段进账的修为。
 // 只改余数账，修为由调用方一次加上——两处都改会让「进账多少」失去唯一来源。
 [[nodiscard]] int settleMeditation(core::GameState& state, int carry, int chunk, int aptitude,
@@ -207,6 +211,10 @@ constexpr CultivationLexicon kMortalLexicon{
     /*spiritRootValue*/      "",
     /*siteBonusPrefix*/      "此处静坐格外见效，火候多得 ",
     /*siteBonusSuffix*/      "%",
+    /*reclimbPrefix*/        "走过的路再走一遍，快了 ",
+    /*reclimbSuffix*/        " 倍",
+    /*pushAtStoryCapReclimb*/ "这条路走过，只是眼下还走不上去",
+    /*atStoryCapReclimb*/     "路是认得的，眼下却走不上去。得等。",
 };
 
 constexpr CultivationLexicon kImmortalLexicon{
@@ -252,6 +260,10 @@ constexpr CultivationLexicon kImmortalLexicon{
     /*spiritRootValue*/      "四属性缺金·伪灵根",
     /*siteBonusPrefix*/      "此地灵气充沛，修为多得 ",
     /*siteBonusSuffix*/      "%",
+    /*reclimbPrefix*/        "旧路重走，修炼快了 ",
+    /*reclimbSuffix*/        " 倍",
+    /*pushAtStoryCapReclimb*/ "这条路走过，眼下还不到往上走的时候",
+    /*atStoryCapReclimb*/     "路是认得的，只是眼下还不到往上走的时候。得等。",
 };
 
 // 凡人阶段的层数名。不从 rules::nameOf 里截字符串：那是按字节切 UTF-8，
@@ -296,6 +308,8 @@ std::vector<std::string> cultivationPanelStrings(PanelStage stage) {
         words.breakFailSuffix,    words.backlashPrefix,      words.backlashSuffix,
         words.pushAtStoryCap,     words.atStoryCap,         words.spiritRootLabel,
         words.spiritRootValue,    words.siteBonusPrefix,    words.siteBonusSuffix,
+        words.reclimbPrefix,      words.reclimbSuffix,      words.pushAtStoryCapReclimb,
+        words.atStoryCapReclimb,
     };
 
     // 境界名也是面板上的字。全境界都列进来——漏了哪一档，那一档就是没人看着
@@ -339,14 +353,20 @@ int settleDailyPractice(core::GameState& state) {
     return gained;
 }
 
-int meditationEffectiveness(const core::GameState&) {
-    // 100 是 rules::meditate 的基准。功法、灵根接进来之前就是它。
-    // 洞府灵脉不并进这里：那是地点给的，乘在外面（bankMeditation 的 sitePercent）。
-    return 100;
+int meditationEffectiveness(const core::GameState& state) {
+    // 功法、灵根将来也在这里合成（乘法）；重修是第一个接进来的（第 10 章契约 1.3）。
+    // 地点效率是另一路，乘在外面（第 8 章 E1，bankMeditation 的 sitePercent）。
+    return rules::reclimbing(state.realm, state.formerRealm)
+               ? rules::kReclimbEffectivenessPercent : 100;
 }
 
 int breakthroughPillBonus(const core::GameState&) {
     return 0;
+}
+
+int reclimbBreakthroughBonus(const core::GameState& state) {
+    return rules::reclimbing(state.realm, state.formerRealm)
+               ? rules::kReclimbBreakthroughBonus : 0;
 }
 
 const std::vector<MeditateOption>& CultivationScene::meditateOptions(PanelStage stage) {
@@ -383,6 +403,13 @@ std::string CultivationScene::siteBonusLine(const core::GameState& state) const 
            words.siteBonusSuffix;
 }
 
+std::string CultivationScene::reclimbLine(const core::GameState& state) {
+    if (!rules::reclimbing(state.realm, state.formerRealm)) return {};
+    const CultivationLexicon& words = cultivationLexicon(wordingStage(state));
+    return std::string(words.reclimbPrefix) +
+           std::to_string(rules::kReclimbEffectivenessPercent / 100) + words.reclimbSuffix;
+}
+
 std::vector<ui::ListItem> CultivationScene::buildMainItems(const core::GameState& state) {
     const CultivationLexicon& words = cultivationLexicon(wordingStage(state));
     std::vector<ui::ListItem> items;
@@ -406,7 +433,8 @@ std::vector<ui::ListItem> CultivationScene::buildMainItems(const core::GameState
         case rules::BreakthroughBlock::StoryCap:
             // 剧情给的上限到了：与「尚差几点」分开说。差的不是点数，说点数就是骗人。
             push.enabled = false;
-            push.disabledReason = words.pushAtStoryCap;
+            push.disabledReason = rules::reclimbing(state.realm, state.formerRealm)
+                                      ? words.pushAtStoryCapReclimb : words.pushAtStoryCap;
             break;
         case rules::BreakthroughBlock::NotEnough:
             push.enabled = false;
@@ -417,7 +445,7 @@ std::vector<ui::ListItem> CultivationScene::buildMainItems(const core::GameState
         case rules::BreakthroughBlock::None:
             push.detail = chanceText(rules::breakthroughChance(state.realm, state.cultivation,
                                                                state.aptitude,
-                                                               breakthroughPillBonus(state)));
+                                                               totalBreakthroughBonus(state)));
             break;
     }
     items.push_back(std::move(push));
@@ -519,12 +547,13 @@ rules::BreakthroughAttempt CultivationScene::breakthrough(Application& app) {
     // **唯一入口**（rules::tryBreakthrough）：本作上限、剧情上限、修为门槛都在那里判，
     // 按不下去就连骰子都不摇、一分不扣。面板不另写一份上限判定（技术债 G-14）。
     attempt = rules::tryBreakthrough(state.realm, state.cultivation, state.realmCap,
-                                     state.aptitude, breakthroughPillBonus(state),
+                                     state.aptitude, totalBreakthroughBonus(state),
                                      breakthroughSeed(state));
     switch (attempt.blocked) {
         case rules::BreakthroughBlock::StoryCap:
-            // 瓶颈与运气差分开说：这一句不许与 notReady / breakFail 同一个意思。
-            feedback_ = words.atStoryCap;
+            // 剧情上限与运气差分开说；重修时不把已走过的路说成瓶颈。
+            feedback_ = rules::reclimbing(state.realm, state.formerRealm)
+                            ? words.atStoryCapReclimb : words.atStoryCap;
             return attempt;
         case rules::BreakthroughBlock::SeriesMax:
         case rules::BreakthroughBlock::NotEnough:
@@ -699,6 +728,7 @@ void CultivationScene::renderStatus(Application& app, const engine::Rect& area) 
     gauge(progress, capped ? 1 : state.cultivation, capped ? 1 : need, theme.gold);
     // 此地的打坐加成（灵眼之泉这类洞府灵脉）：写在修为条下面，玩家才知道「在这儿坐」划算在哪儿。
     if (const std::string site = siteBonusLine(state); !site.empty()) line(site);
+    if (const std::string oldRoad = reclimbLine(state); !oldRoad.empty()) line(oldRoad);
 
     // 炼气期打坐一日不足一点修为，界面上就是「按了没动」。账其实记着，
     // 但不画出来玩家只会当按钮坏了。有零头才显示，免得平时多一行噪音。

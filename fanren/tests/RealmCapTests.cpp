@@ -239,15 +239,17 @@ TEST(RealmCapRule, NothingOutsideTheRulesLayerRollsTheBreakthroughDiceDirectly) 
 TEST(RealmCapWording, TheBottleneckIsNeverSaidTheSameWayAsBadLuck) {
     for (PanelStage stage : {PanelStage::Mortal, PanelStage::Immortal}) {
         const auto& words = fanren::game::cultivationLexicon(stage);
-        const std::string reason = words.pushAtStoryCap;
-        const std::string feedback = words.atStoryCap;
-        ASSERT_FALSE(reason.empty());
-        ASSERT_FALSE(feedback.empty());
-        EXPECT_NE(feedback, words.notReady) << "瓶颈说成了火候未到";
-        EXPECT_EQ(feedback.find(words.breakFailPrefix), std::string::npos) << "瓶颈说成了没冲过去";
-        EXPECT_NE(reason, words.pushCapped) << "剧情上限说成了本作上限";
-        EXPECT_EQ(reason.find(words.pushShortPrefix), std::string::npos)
-            << "瓶颈说成了「尚差几点」";
+        for (const bool reclimb : {false, true}) {
+            const std::string reason = reclimb ? words.pushAtStoryCapReclimb : words.pushAtStoryCap;
+            const std::string feedback = reclimb ? words.atStoryCapReclimb : words.atStoryCap;
+            ASSERT_FALSE(reason.empty());
+            ASSERT_FALSE(feedback.empty());
+            EXPECT_NE(feedback, words.notReady) << "瓶颈说成了火候未到";
+            EXPECT_EQ(feedback.find(words.breakFailPrefix), std::string::npos) << "瓶颈说成了没冲过去";
+            EXPECT_NE(reason, words.pushCapped) << "剧情上限说成了本作上限";
+            EXPECT_EQ(reason.find(words.pushShortPrefix), std::string::npos)
+                << "瓶颈说成了「尚差几点」";
+        }
     }
 }
 
@@ -271,7 +273,9 @@ TEST(RealmCapWording, NeitherLineSaysAWordTheLexiconTableHasNotReleased) {
 
     for (PanelStage stage : {PanelStage::Mortal, PanelStage::Immortal}) {
         const auto& words = fanren::game::cultivationLexicon(stage);
-        for (const std::string text : {std::string(words.pushAtStoryCap), std::string(words.atStoryCap)}) {
+        for (const std::string text : {std::string(words.pushAtStoryCap), std::string(words.atStoryCap),
+                                      std::string(words.pushAtStoryCapReclimb),
+                                      std::string(words.atStoryCapReclimb)}) {
             EXPECT_TRUE(firstHit(text).empty()) << "上限提示里出现了「" << firstHit(text) << "」：" << text;
         }
     }

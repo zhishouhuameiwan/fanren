@@ -1,0 +1,11 @@
+{
+  "id": "pill_zhenyuan_dan",
+  "name": "真元丹",
+  "descKey": "item.desc.pill_zhenyuan_dan",
+  "kind": "pill",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "第十章独立物品。实物变化由主线和真元丹配方控制，不出售关键资源。"
+}

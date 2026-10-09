@@ -1,0 +1,21 @@
+{
+  "id": "qu_hun_shadan",
+  "name": "曲魂（身外化身）",
+  "realm": "CoreEarly",
+  "maxHp": 820,
+  "maxMp": 600,
+  "attack": 86,
+  "defence": 52,
+  "speed": 21,
+  "element": 8,
+  "magics": [
+    "magic_xuelian_guangzhu",
+    "magic_xuelian_ziyan",
+    "magic_ji_jinjian"
+  ],
+  "origin": "原著",
+  "note": "ch386 煞丹成、结丹初期。混元钵、小剑符宝、金骷髅头由本尊交给化身；初版数值待独立BattleHand平衡。",
+  "weapons": [
+    "剑"
+  ]
+}

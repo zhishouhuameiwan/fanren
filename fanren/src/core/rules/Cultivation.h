@@ -28,6 +28,14 @@ inline constexpr int kMaxMeditateDays = 3600;
 // 再高就说明合成公式出了错，夹住比让修为一夜爆表好查。
 inline constexpr int kMaxEffectiveness = 1000;
 
+// Chapter 10 old road: only valid immortal realms strictly below the former realm qualify.
+[[nodiscard]] bool reclimbing(Realm current, Realm former) noexcept;
+
+// Percentage efficiency before the site multiplier, and percentage points added to pillBonus.
+inline constexpr int kReclimbEffectivenessPercent = 800;
+inline constexpr int kReclimbBreakthroughBonus = 100;
+static_assert(kReclimbEffectivenessPercent <= kMaxEffectiveness);
+
 // 打坐若干天。effectiveness 由功法、灵根、洞府灵气等外部因素合成后传入，
 // 100 为基准；rules 层不关心它怎么来的。
 //

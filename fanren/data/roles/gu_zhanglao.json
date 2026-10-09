@@ -1,0 +1,28 @@
+{
+  "id": "gu_zhanglao",
+  "name": "古长老",
+  "realm": "CoreEarly",
+  "maxHp": 420,
+  "maxMp": 420,
+  "attack": 60,
+  "defence": 36,
+  "speed": 13,
+  "element": 16,
+  "magics": [
+    "magic_ch10_yueya"
+  ],
+  "origin": "原著",
+  "note": "结丹初期、元气大伤，在碧水青甲阵内行动压到一次，气血约正常六成。初版数值待平衡。",
+  "toughness": 7,
+  "weaknesses": [
+    "金",
+    "火"
+  ],
+  "actions": 1,
+  "charge": {
+    "every": 3,
+    "mult": 2.2,
+    "all": true,
+    "text_key": "ch10.battle.gu.charge"
+  }
+}

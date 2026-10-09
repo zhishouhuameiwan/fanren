@@ -2072,6 +2072,265 @@
         }
       ],
       "why": "第9章原创布局，地理与光线按施工图第4节。"
+    },
+    "ch10_gudao": {
+      "theme": "cliff",
+      "time": "day",
+      "backdrop": "cliff_top",
+      "why": "第10章设计第4节，沿用批准的现有主题和背景。",
+      "particles": [],
+      "zones": [
+        {
+          "rect": [
+            7,
+            13,
+            17,
+            17
+          ],
+          "ground": "cave_floor",
+          "why": "孤岛石室"
+        },
+        {
+          "rect": [
+            8,
+            8,
+            9,
+            14
+          ],
+          "road": "steps",
+          "why": "出口青石阶"
+        }
+      ],
+      "structures": [
+        {
+          "rect": [
+            3,
+            10,
+            20,
+            18
+          ],
+          "kind": "rock",
+          "style": "cliff",
+          "why": "孤岛石山包住石室和阶道"
+        }
+      ]
+    },
+    "ch10_haichuan": {
+      "theme": "dock",
+      "time": "day",
+      "backdrop": "dock_river",
+      "why": "第10章设计第4节，沿用批准的现有主题和背景。",
+      "particles": [],
+      "zones": [
+        {
+          "rect": [
+            6,
+            3,
+            33,
+            21
+          ],
+          "ground": "plank",
+          "why": "甲板"
+        },
+        {
+          "rect": [
+            8,
+            13,
+            15,
+            19
+          ],
+          "ground": "wood_floor",
+          "why": "舱房"
+        },
+        {
+          "rect": [
+            20,
+            13,
+            31,
+            19
+          ],
+          "ground": "wood_floor",
+          "why": "大厅"
+        }
+      ]
+    },
+    "ch10_kuixing": {
+      "theme": "town",
+      "time": "day",
+      "backdrop": "town_street",
+      "why": "第10章设计第4节，沿用批准的现有主题和背景。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.25
+        }
+      ],
+      "zones": [
+        {
+          "rect": [
+            48,
+            36,
+            57,
+            45
+          ],
+          "ground": "plank",
+          "why": "港口栈桥"
+        },
+        {
+          "rect": [
+            46,
+            31,
+            55,
+            32
+          ],
+          "ground": "tilled",
+          "why": "庄外田地"
+        },
+        {
+          "rect": [
+            13,
+            21,
+            15,
+            23
+          ],
+          "why": "登仙阁山路",
+          "road": "steps"
+        }
+      ]
+    },
+    "ch10_xiaohuan": {
+      "theme": "mountain_path",
+      "time": "day",
+      "backdrop": "mountain_forest",
+      "why": "第10章设计第4节，沿用批准的现有主题和背景。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.5
+        }
+      ],
+      "zones": [
+        {
+          "rect": [
+            8,
+            8,
+            20,
+            19
+          ],
+          "ground": "cave_floor",
+          "why": "封闭真府石室"
+        },
+        {
+          "rect": [
+            9,
+            15,
+            12,
+            17
+          ],
+          "ground": "tilled",
+          "why": "四槽药园"
+        }
+      ],
+      "structures": [
+        {
+          "rect": [
+            5,
+            5,
+            23,
+            22
+          ],
+          "kind": "rock",
+          "style": "cliff",
+          "why": "高峰山体中剖出真洞府"
+        },
+        {
+          "rect": [18, 20, 24, 30],
+          "kind": "rock",
+          "style": "cliff",
+          "why": "假府至真府的地道封在山体内，不留旁通外口"
+        }
+      ],
+      "ambient": [
+        236,
+        239,
+        232
+      ]
+    },
+    "ch10_tiandujie": {
+      "theme": "town",
+      "time": "day",
+      "backdrop": "town_street",
+      "why": "第10章设计第4节，沿用批准的现有主题和背景。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.25
+        }
+      ]
+    },
+    "ch10_jinhai": {
+      "theme": "cliff",
+      "time": "day",
+      "backdrop": "cliff_top",
+      "why": "清晨用已支持的day与偏冷ambient表现；沿用批准cliff_top背景",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.5
+        }
+      ],
+      "ambient": [
+        207,
+        216,
+        227
+      ]
+    },
+    "ch10_haiyuandao": {
+      "theme": "wild",
+      "time": "day",
+      "backdrop": "mountain_forest",
+      "why": "第10章设计第4节，沿用批准的现有主题和背景。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.25
+        }
+      ],
+      "zones": [
+        {
+          "rect": [
+            8,
+            6,
+            19,
+            11
+          ],
+          "ground": "cave_floor",
+          "why": "临时洞府"
+        },
+        {
+          "rect": [
+            9,
+            7,
+            10,
+            9
+          ],
+          "ground": "tilled",
+          "why": "简易药園"
+        }
+      ],
+      "structures": [
+        {
+          "rect": [
+            5,
+            3,
+            22,
+            14
+          ],
+          "kind": "rock",
+          "style": "cliff",
+          "why": "临时洞府荒山石壁"
+        }
+      ]
     }
   }
 }

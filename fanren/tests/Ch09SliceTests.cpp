@@ -100,7 +100,8 @@ TEST_F(Ch09Slice, DirectMiddleStonesLeaveLowStonesUntouchedAndEmptyStockStillHas
         EXPECT_EQ(state().day, day);
         EXPECT_EQ(state().flag("ch09.shizhen"), 2);
         EXPECT_EQ(state().flag("ch09.done"), 1);
-        EXPECT_EQ(state().position, (core::Point{40, 33}));
+        EXPECT_EQ(state().mapId, "ch10_gudao");
+        EXPECT_EQ(state().position, (core::Point{12, 16}));
     }
 }
 TEST_F(Ch09Slice, EveryArrayBitIsIdempotentAndAnIncompleteArrayCannotChargeItsEye) {

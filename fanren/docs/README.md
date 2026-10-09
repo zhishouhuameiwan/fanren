@@ -65,12 +65,14 @@
 | `ch08-design.md` / `interfaces-p3-ch08.md` / `ch08-review.md` / `ch08-reverify.md` | 第 8 章施工、引擎契约、初审与独立整体验收（**4.5，通过**）；真实六战和无重写终档证据见复验末节 |
 | `ch09-design.md` / `interfaces-p3-ch09.md` / `ch09-review.md` | 第9章施工、境界跌落/v9契约、初审与定向复验；真实三战、无新法器和无重写终档、最终整体结论见审查末节 |
 | `ch09-engine-review.md` / `ch09-gate-review.md` | 第9章引擎与共享门禁独立审查，返修后均Approve；旧失败及确定反例保留 |
+| `ch10-design.md` / `interfaces-p3-ch10.md` / `ch10-review.md` | 第10章「落海·小寰岛」施工、重修/全体法术契约与独立整体验收（**4.5，通过**）；真实四战、两窗口、两支9212日与正式终档证据见最终裁决 |
+| `ch10-magic-engine-review.md` / `ch10-gate-review.md` / `ch10-test-review.md` | 第10章全体法术、支付门禁与测试质量独立审查，最终均Approve；F1/M1已关闭，保留旧失败与修后原始证据 |
 
 ### 交接
 
 | 文档 | 内容 |
 | --- | --- |
-| `handoff.md` | **接手先读这一份**（2026-10-09，第1–9章完成）：门禁与构建、章节进度、开新章流程、本轮教训、已知问题 |
+| `handoff.md` | **接手先读这一份**（2026-10-09，第1–10章完成）：门禁与构建、章节进度、开新章流程、本轮教训、已知问题 |
 | `handoff-2026-09-23-ch04.md` | 上一版交接（第 4 章整改之后）。其中开新章流程的来由、最贵的教训、并行边界、环境的坑仍然有效 |
 
 ### 过程记录
@@ -89,7 +91,7 @@
 | 命令 | 通过标志 | 它防的是什么 |
 | --- | --- | --- |
 | `python tools/validate.py` | `VALIDATE_OK` | 地图 / 数据 / 脚本 / 文案不合规（规则 1–20，另有 21 地名 key、22 目标链、23 任务、24–25 破势与蓄劲、26 路径行动、27 野外遭遇、28 脚本 BGM、29 出入口方向守恒（不回弹）、30 同图 NPC 不重名） |
-| `python tools/mapgen/genmaps.py --check` | `MAPGEN_IN_SYNC` | 生成器与 `maps/*.tmj` 漂移，全部 24 张（重跑即静默毁数据） |
+| `python tools/mapgen/genmaps.py --check` | `MAPGEN_IN_SYNC` | 生成器与 `maps/*.tmj` 漂移，当前全部58张（重跑即静默毁数据） |
 | `python tools/validate_selftest.py` | `SELFTEST_OK` | **校验器自己失灵**（负向用例，对应下面第 3 条坑） |
 | `python tools/artgen/artgen.py --check` | `ARTGEN_IN_SYNC` | 美术生成器与 `assets/art/**` 漂移（烘焙地图、精灵、特效、战斗与标题背景，逐像素比，约 11 秒） |
 

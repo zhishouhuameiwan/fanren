@@ -1,31 +1,24 @@
 {
   "id": "b10_gujia_bidou",
-  "name": "代顾家比斗",
+  "name": "顾家比斗",
   "chapter": 10,
   "terrain": "field",
-  "can_escape": true,
+  "hero_absent": false,
+  "can_escape": false,
   "defeat_is_fatal": false,
   "units": [
     {
       "role_id": "daoyu_husui",
-      "faction": "enemy"
-    },
-    {
-      "role_id": "daoyu_husui",
-      "faction": "enemy"
-    },
-    {
-      "role_id": "daoyu_husui",
-      "faction": "enemy"
+      "faction": "enemy",
+      "wave": 0
     }
   ],
   "rewards": {
-    "cultivation": 300,
-    "spirit_stones": 40,
+    "cultivation": 12,
+    "spirit_stones": 0,
     "drops": []
   },
   "intro_key": "ch10.battle.gujia_bidou.intro",
-  "origin": "原著",
-  "rewritten_by_lore": true,
-  "note": "旧原型此位是「劫修拦截」救下乱星海女修陈巧倩，该人物原著查无。改为原著实有的 ch367-370：韩立代顾东主出战对手雇来的岛上护卫，赢下大岛行商资格。原著是十名护卫，战棋盘面缩编为三名。"
+  "origin": "原著（撑阵一场为改编）",
+  "note": "设计8.2初版规格；独立BattleHand及正式ch09-end通关未进行。"
 }

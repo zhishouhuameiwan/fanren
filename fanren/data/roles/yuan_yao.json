@@ -1,0 +1,14 @@
+{
+  "id": "yuan_yao",
+  "name": "元瑶",
+  "realm": "QiRefining11",
+  "maxHp": 120,
+  "maxMp": 80,
+  "attack": 10,
+  "defence": 8,
+  "speed": 9,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "只是一面之缘，不添师门长幼和后续事。"
+}

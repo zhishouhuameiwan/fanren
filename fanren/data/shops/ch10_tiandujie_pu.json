@@ -1,0 +1,50 @@
+{
+  "id": "ch10_tiandujie_pu",
+  "name": "天都街杂货铺",
+  "nameKey": "ch10.shop.name.tiandujie_pu",
+  "buyRate": 0.5,
+  "sellRate": 0.3,
+  "entries": [
+    {
+      "itemId": "material_fuzhi",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 10
+    },
+    {
+      "itemId": "material_dansha",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 10
+    },
+    {
+      "itemId": "pill_juqi_san",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 10
+    },
+    {
+      "itemId": "pill_huiqi_dan",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 10
+    },
+    {
+      "itemId": "pill_yangjing_dan",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 10
+    }
+  ],
+  "note": "沿用收药摊sellRate 0.3。关键物品不交易；不出售妖丹。初版经济待正式起点验账。"
+}

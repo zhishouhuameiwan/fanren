@@ -373,7 +373,8 @@ private:
     // 扣劲并记一笔（Attack / Cast 共用）。
     void spendBoost(int actorIndex, int boost);
     // 这一手打谁：重招且 all 为真时是对面全体，否则就是 action.targetIndex。
-    [[nodiscard]] std::vector<int> strikeTargets(int actorIndex, int targetIndex) const;
+    [[nodiscard]] std::vector<int> strikeTargets(int actorIndex, int targetIndex,
+                                                bool allTargets = false) const;
     // 一击：先按此刻的状态算伤害落下去，再判破绽、揭开、削架势、破势。
     // 返回追加到日志里的半句（不带开头的「，」）。
     std::string strike(int attackerIndex, int targetIndex, int baseDamage, int category, int hit,

@@ -1,0 +1,13 @@
+{
+  "id": "magic_xuelian_ziyan",
+  "name": "紫火",
+  "descKey": "magic.desc.magic_xuelian_ziyan",
+  "element": 8,
+  "needMp": 35,
+  "power": 64,
+  "needRealm": "CoreEarly",
+  "boost": "power",
+  "target": "all",
+  "origin": "改编（原著手段的数据化）",
+  "note": "第十章初版战斗规格，未经过独立平衡验收。target=all已按interface10 E3.1正式字段接入；引擎实现与focused正反验证仍待交付，不代表本章通关。"
+}

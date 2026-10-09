@@ -378,8 +378,8 @@ protected:
             [](int sum, const auto& step) { return sum + step.days; });
         EXPECT_EQ(storyDays, 59);
         EXPECT_EQ(state().day, initial_.day + storyDays);
-        EXPECT_EQ(state().mapId, "ch08_lingkuang");
-        EXPECT_EQ(state().position, (Point{40, 33})); // Design 4: the ancient array's center on the existing cave map.
+        EXPECT_EQ(state().mapId, "ch10_gudao");
+        EXPECT_EQ(state().position, (Point{12, 16})); // Chapter 10 contract: qidong's final, real teleport.
         EXPECT_EQ(state().flag("ch09.done"), 1);
         if (HasFailure()) return false;
         roundTrip(state(), "real chapter 9 ending");

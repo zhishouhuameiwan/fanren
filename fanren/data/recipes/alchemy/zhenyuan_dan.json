@@ -1,0 +1,22 @@
+{
+  "id": "recipe_zhenyuan_dan",
+  "name": "真元丹方",
+  "kind": "alchemy",
+  "productId": "pill_zhenyuan_dan",
+  "productCount": 2,
+  "difficulty": 50,
+  "requiredProficiency": 0,
+  "requireFlag": "ch09.xingchen",
+  "inputs": [
+    {
+      "itemId": "herb_zishen_cao",
+      "count": 1,
+      "minAge": 60
+    },
+    {
+      "itemId": "herb_xuehong_zhi",
+      "count": 1,
+      "minAge": 60
+    }
+  ]
+}

@@ -1,16 +1,19 @@
 {
   "id": "qu_hun_huashen",
   "name": "曲魂（身外化身）",
-  "realm": "FoundationMid",
-  "maxHp": 352,
-  "maxMp": 210,
-  "attack": 39,
-  "defence": 31,
-  "speed": 15,
-  "element": 16,
+  "realm": "FoundationLate",
+  "maxHp": 480,
+  "maxMp": 320,
+  "attack": 44,
+  "defence": 30,
+  "speed": 16,
+  "element": 8,
+  "weapons": [
+    "剑"
+  ],
   "magics": [
-    "magic_hushen_gang"
+    "magic_xuelian_guangzhu"
   ],
   "origin": "原著",
-  "note": "ch373 起被祭炼为身外化身，对外以「曲道友」出面，替本尊挡在前面。与第 3 章入队的 qu_hun 是两个角色：那一个是刚炼成的傲儒，这一个是三百多章之后的事。游戏里目前没有从前者升到后者的路径，写到那一章时补。"
+  "note": "ch374祭炼成化身，ch375筑基后期。银剑、血炼神光作战。空壳qu_hun不动。初版数值待独立BattleHand平衡。"
 }

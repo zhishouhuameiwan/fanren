@@ -1287,6 +1287,201 @@
         "sub": "hei"
       },
       "note": "第9章身份类型化原创外观，未采用原著人物形貌。"
+    },
+    "ch10_huafu_zhongnian": {
+      "base": "arch_townsman",
+      "name": "华服中年人",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_gu_dongzhu": {
+      "base": "arch_townsman",
+      "name": "顾东主",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_gu_dongzhu_lao": {
+      "base": "arch_elder_m",
+      "name": "顾东主",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_gu_kai": {
+      "base": "arch_townsman",
+      "name": "顾铠",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_wang_changqing": {
+      "base": "arch_elder_m",
+      "name": "王长青",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_chuangong_jia": {
+      "base": "arch_townsman",
+      "name": "船工",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_chuangong_yi": {
+      "base": "arch_townsman",
+      "name": "掌舵的",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_gangkou_xiushi": {
+      "base": "arch_elder_m",
+      "name": "港口修士",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_gangkou_xiaofan": {
+      "base": "arch_townsman",
+      "name": "港口小贩",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_gujia_zhuangding": {
+      "base": "arch_townsman",
+      "name": "顾家庄丁",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_baiyi_qingnian": {
+      "base": "arch_cultivator_m",
+      "name": "白衣青年",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_wen_qiang": {
+      "base": "arch_cultivator_m",
+      "name": "文樯",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_leitai_laozhe": {
+      "base": "arch_elder_m",
+      "name": "主持老者",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_leitai_qiceng": {
+      "base": "arch_cultivator_m",
+      "name": "中年修士",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_dongshi_luren": {
+      "base": "arch_townsman",
+      "name": "赶集的人",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_dengxiange_zhishi": {
+      "base": "arch_cultivator_m",
+      "name": "登仙阁执事",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_hei_gui": {
+      "base": "arch_townsman",
+      "name": "黑贵",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_xiaohuan_zhenzhang": {
+      "base": "arch_elder_m",
+      "name": "镇长",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_xiaohuan_zhenmin": {
+      "base": "arch_townsman",
+      "name": "镇上的人",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_yan_li": {
+      "base": "arch_cultivator_f",
+      "name": "妍丽",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_yuan_yao": {
+      "base": "arch_cultivator_f",
+      "name": "元瑶",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_tongxing_nanxiu": {
+      "base": "arch_cultivator_m",
+      "name": "同行的修士",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_baishuilou_huoji": {
+      "base": "arch_townsman",
+      "name": "白水楼伙计",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_cao_lu": {
+      "base": "arch_cultivator_m",
+      "name": "曹禄",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_ouyang_daoyou": {
+      "base": "arch_cultivator_m",
+      "name": "欧阳道友",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_danyaopu_zhanggui": {
+      "base": "arch_cultivator_m",
+      "name": "丹药铺掌柜",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_tiandujie_sanxiu": {
+      "base": "arch_cultivator_m",
+      "name": "街上的散修",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_luo_zheng": {
+      "base": "arch_townsman",
+      "name": "骆正",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_feng_sanniang": {
+      "base": "arch_cultivator_f",
+      "name": "冯三娘",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_mao_daoyou": {
+      "base": "arch_cultivator_m",
+      "name": "毛道友",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_xue_daoyou": {
+      "base": "arch_cultivator_f",
+      "name": "薛道友",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_qing_suanzi": {
+      "base": "arch_cultivator_m",
+      "name": "青算子",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_yan_daoyou": {
+      "base": "arch_cultivator_m",
+      "name": "严道友",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_dou_daoyou": {
+      "base": "arch_cultivator_m",
+      "name": "窦道友",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_miao_zhanglao": {
+      "base": "arch_cultivator_m",
+      "name": "苗长老",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_gu_zhanglao": {
+      "base": "arch_cultivator_m",
+      "name": "古长老",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_zhifa_laozhe": {
+      "base": "arch_elder_m",
+      "name": "白发老者",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_zhifa_xiushi": {
+      "base": "arch_cultivator_m",
+      "name": "执法修士",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
+    },
+    "ch10_haiyuan_sanxiu": {
+      "base": "arch_cultivator_m",
+      "name": "岛上的散修",
+      "note": "仅按本章身份类型化设计，不补原著高危外貌。"
     }
   },
   "roles": {
@@ -1514,6 +1709,127 @@
     "tianxing_shouwei": "tianxing_shouwei",
     "mengmian_nvzi": "mengmian_nvzi",
     "nangong_ping": "nangong_ping",
-    "dong_xuaner_hehuan": "dong_xuaner_hehuan"
+    "dong_xuaner_hehuan": "dong_xuaner_hehuan",
+    "huafu_zhongnian": {
+      "look": "ch10_huafu_zhongnian"
+    },
+    "gu_dongzhu": {
+      "look": "ch10_gu_dongzhu"
+    },
+    "gu_dongzhu_lao": {
+      "look": "ch10_gu_dongzhu_lao"
+    },
+    "gu_kai": {
+      "look": "ch10_gu_kai"
+    },
+    "wang_changqing": {
+      "look": "ch10_wang_changqing"
+    },
+    "chuangong_jia": {
+      "look": "ch10_chuangong_jia"
+    },
+    "chuangong_yi": {
+      "look": "ch10_chuangong_yi"
+    },
+    "gangkou_xiushi": {
+      "look": "ch10_gangkou_xiushi"
+    },
+    "gangkou_xiaofan": {
+      "look": "ch10_gangkou_xiaofan"
+    },
+    "gujia_zhuangding": {
+      "look": "ch10_gujia_zhuangding"
+    },
+    "baiyi_qingnian": {
+      "look": "ch10_baiyi_qingnian"
+    },
+    "wen_qiang": {
+      "look": "ch10_wen_qiang"
+    },
+    "leitai_laozhe": {
+      "look": "ch10_leitai_laozhe"
+    },
+    "leitai_qiceng": {
+      "look": "ch10_leitai_qiceng"
+    },
+    "dongshi_luren": {
+      "look": "ch10_dongshi_luren"
+    },
+    "dengxiange_zhishi": {
+      "look": "ch10_dengxiange_zhishi"
+    },
+    "hei_gui": {
+      "look": "ch10_hei_gui"
+    },
+    "xiaohuan_zhenzhang": {
+      "look": "ch10_xiaohuan_zhenzhang"
+    },
+    "xiaohuan_zhenmin": {
+      "look": "ch10_xiaohuan_zhenmin"
+    },
+    "qu_hun_shadan": {
+      "look": "qu_hun",
+      "note": "同一具躯壳；沿用完整look与walk/battle frame定义，不加裸enemies world覆盖。"
+    },
+    "yan_li": {
+      "look": "ch10_yan_li"
+    },
+    "yuan_yao": {
+      "look": "ch10_yuan_yao"
+    },
+    "tongxing_nanxiu": {
+      "look": "ch10_tongxing_nanxiu"
+    },
+    "baishuilou_huoji": {
+      "look": "ch10_baishuilou_huoji"
+    },
+    "cao_lu": {
+      "look": "ch10_cao_lu"
+    },
+    "ouyang_daoyou": {
+      "look": "ch10_ouyang_daoyou"
+    },
+    "danyaopu_zhanggui": {
+      "look": "ch10_danyaopu_zhanggui"
+    },
+    "tiandujie_sanxiu": {
+      "look": "ch10_tiandujie_sanxiu"
+    },
+    "luo_zheng": {
+      "look": "ch10_luo_zheng"
+    },
+    "feng_sanniang": {
+      "look": "ch10_feng_sanniang"
+    },
+    "mao_daoyou": {
+      "look": "ch10_mao_daoyou"
+    },
+    "xue_daoyou": {
+      "look": "ch10_xue_daoyou"
+    },
+    "qing_suanzi": {
+      "look": "ch10_qing_suanzi"
+    },
+    "yan_daoyou": {
+      "look": "ch10_yan_daoyou"
+    },
+    "dou_daoyou": {
+      "look": "ch10_dou_daoyou"
+    },
+    "miao_zhanglao": {
+      "look": "ch10_miao_zhanglao"
+    },
+    "gu_zhanglao": {
+      "look": "ch10_gu_zhanglao"
+    },
+    "zhifa_laozhe": {
+      "look": "ch10_zhifa_laozhe"
+    },
+    "zhifa_xiushi": {
+      "look": "ch10_zhifa_xiushi"
+    },
+    "haiyuan_sanxiu": {
+      "look": "ch10_haiyuan_sanxiu"
+    }
   }
 }

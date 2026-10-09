@@ -1,0 +1,12 @@
+{
+  "id": "magic_ch10_chunyang",
+  "name": "纯阳真火",
+  "descKey": "magic.desc.magic_ch10_chunyang",
+  "element": 8,
+  "needMp": 18,
+  "power": 48,
+  "needRealm": "FoundationLate",
+  "boost": "power",
+  "origin": "改编（原著手段的数据化）",
+  "note": "第十章初版战斗规格，未经过独立平衡验收。"
+}

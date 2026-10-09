@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <filesystem>
+#include <iomanip>
 #include <fstream>
 #include <initializer_list>
 #include <iostream>
@@ -896,7 +897,8 @@ const std::map<int, Realm>& realmCapOfChapter() {
                                               {4, Realm::QiRefining8}, {5, Realm::QiRefining8},
                                               // 第 6 章：九层（scripts/ch06/kuxiu.lua 节点 9b 的 realm.advance）。
                                               {6, Realm::QiRefining9},
-                                              {7, Realm::QiRefining11}, {8, Realm::FoundationMid}, {9, Realm::FoundationMid}};
+                                              {7, Realm::QiRefining11}, {8, Realm::FoundationMid}, {9, Realm::FoundationMid},
+                                              {10, Realm::FoundationLate}};
     return kCap;
 }
 
@@ -982,9 +984,11 @@ TEST(PathActionData, TheRealmCapTableStillMatchesTheScripts) {
     int literal = 0;
     int named = 0;
     for (int chapter = 1; chapter <= lastChapter; ++chapter) {
-        const fs::path dir = fs::path(assetRoot()) / "scripts" / ("ch0" + std::to_string(chapter));
+        std::ostringstream chapterId;
+        chapterId << "ch" << std::setfill('0') << std::setw(2) << chapter;
+        const fs::path dir = fs::path(assetRoot()) / "scripts" / chapterId.str();
         ASSERT_TRUE(fs::is_directory(dir)) << dir.string();
-        const std::string closing = "flag.set(\"ch0" + std::to_string(chapter) + ".done\")";
+        const std::string closing = "flag.set(\"" + chapterId.str() + ".done\")";
         for (const auto& entry : fs::directory_iterator(dir)) {
             if (entry.path().extension() != ".lua") continue;
             ++scripts;

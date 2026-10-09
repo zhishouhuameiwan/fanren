@@ -15,6 +15,7 @@
 // 每一条都配了「故意写坏 → 确实被抓住」的变异（证据在测试路的回复里），另有几条扫描器自检，
 // 防「扫描器本身没牙」那一类空转（docs/README.md 那张表的第 2、3 行）。
 #include <gtest/gtest.h>
+#include "TextKeys.h"
 
 #include <algorithm>
 #include <deque>
@@ -188,11 +189,8 @@ TEST_F(Ch05Acceptance, No6_NoChapterFiveLineSaysShengxianXianlingOrTianyan) {
         const std::string file = entry.path().filename().string();
         const std::string body = readFile(entry.path());
         const bool chapterFile = file.rfind("ch05", 0) == 0;
-        // 逐个 "key": "value" 取出（文案文件是一层的扁平对象）。
-        static const std::regex kPair("\"([^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
-        for (auto it = std::sregex_iterator(body.begin(), body.end(), kPair); it != std::sregex_iterator(); ++it) {
-            const std::string key = (*it)[1];
-            if (chapterFile || key.rfind("ch05.", 0) == 0) lines.emplace_back(key, (*it)[2]);
+        for (const auto& [key,value] : fanren::test::textKeyValues(body)) {
+            if (chapterFile || key.rfind("ch05.", 0) == 0) lines.emplace_back(key,value);
         }
     }
     ASSERT_GT(lines.size(), 150u) << "先验：施工图验收 6「分母先验 > 150 条」";
@@ -781,9 +779,8 @@ TEST_F(Ch05Acceptance, No18_BranchesMapsAndWordsAreWhereSectionFifteenPutsThem) 
     for (const auto& entry : fs::directory_iterator(fs::path(root_) / "data" / "text")) {
         if (entry.path().filename().string().rfind("ch05", 0) != 0) continue;
         const std::string body = readFile(entry.path());
-        static const std::regex kPair("\"(ch05\\.[^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
-        for (auto it = std::sregex_iterator(body.begin(), body.end(), kPair); it != std::sregex_iterator(); ++it) {
-            const std::string value = (*it)[2];
+        for (const auto& [key,value] : fanren::test::textKeyValues(body)) {
+            if (key.rfind("ch05.",0)!=0) continue;
             for (std::size_t i = 0; i < value.size();) {
                 const unsigned char c = static_cast<unsigned char>(value[i]);
                 if (c >= 0xE0 && c < 0xF0 && i + 2 < value.size()) {

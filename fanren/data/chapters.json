@@ -13,6 +13,7 @@
     {"number": 6, "numeral_key": "ui.chapter.06.numeral", "title_key": "ui.chapter.06.title", "done_flag": "ch06.done"},
     {"number": 7, "numeral_key": "ui.chapter.07.numeral", "title_key": "ui.chapter.07.title", "done_flag": "ch07.done"},
     {"number": 8, "numeral_key": "ui.chapter.08.numeral", "title_key": "ui.chapter.08.title", "done_flag": "ch08.done"},
-    {"number":9,"numeral_key":"ui.chapter.09.numeral","title_key":"ui.chapter.09.title","done_flag":"ch09.done"}
+    {"number":9,"numeral_key":"ui.chapter.09.numeral","title_key":"ui.chapter.09.title","done_flag":"ch09.done"},
+    {"number":10,"numeral_key":"ui.chapter.10.numeral","title_key":"ui.chapter.10.title","done_flag":"ch10.done"}
   ]
 }

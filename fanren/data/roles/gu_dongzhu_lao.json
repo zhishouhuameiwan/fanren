@@ -1,0 +1,14 @@
+{
+  "id": "gu_dongzhu_lao",
+  "name": "顾东主",
+  "realm": "Mortal",
+  "maxHp": 45,
+  "maxMp": 0,
+  "attack": 10,
+  "defence": 8,
+  "speed": 9,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "二十余年后的顾东主，白发，与早期对象以ch10.chudao互补。"
+}

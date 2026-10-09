@@ -1,0 +1,16 @@
+{
+  "id": "qing_suanzi",
+  "name": "青算子",
+  "realm": "FoundationLate",
+  "maxHp": 460,
+  "maxMp": 340,
+  "attack": 42,
+  "defence": 29,
+  "speed": 18,
+  "element": 2,
+  "magics": [
+    "magic_ch10_mufu"
+  ],
+  "origin": "原著",
+  "note": "第十章独立角色。身份与在场见设计第5节，战斗数值初版待独立平衡。"
+}

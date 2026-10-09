@@ -219,6 +219,7 @@ public:
         std::vector<std::string>& itemIds);
 
     // 目标列表。shape 带着 kind、magicId（物品复用该字段）、category 与 boost，
+    // target all spells (including castMagic items) offer one group row anchored to the first live foe.
     // 本函数只填目标。攻击与施法只列敌人；物品两边都列。每个敌人的条目上写着
     // 气血、架势与已知的破绽——挑谁打，看的就是这一行。
     [[nodiscard]] static std::vector<ui::ListItem> buildTargetItems(

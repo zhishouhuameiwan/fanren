@@ -1,0 +1,14 @@
+{
+  "id": "dengxiange_zhishi",
+  "name": "登仙阁执事",
+  "realm": "FoundationLate",
+  "maxHp": 120,
+  "maxMp": 80,
+  "attack": 10,
+  "defence": 8,
+  "speed": 9,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "筑基后期，身体不佳；不使用原著阁内陈设。"
+}

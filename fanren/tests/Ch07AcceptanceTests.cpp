@@ -59,6 +59,7 @@
 //   · 战斗与炼丹的 RNG：种子由编成 id / 方子与日期派生，每一场、每一炉都是**确定的**——「打得赢」「几炉成一炉」
 //     只是这一个种子上的一次抽样，不是概率上的保证。
 #include <gtest/gtest.h>
+#include "TextKeys.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -2424,15 +2425,13 @@ protected:
     // 本章的文案：key 以 ch07. / objective.ch07. 开头的，或者在 ch07*.json 里的（key → 正文）。
     std::map<std::string, std::string> chapterTexts() {
         std::map<std::string, std::string> out;
-        static const std::regex kPair("\"([^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
         for (const auto& entry : fs::directory_iterator(fs::path(root_) / "data" / "text")) {
             if (entry.path().extension() != ".json") continue;
             const std::string file = entry.path().filename().string();
             const std::string body = readFile(entry.path());
             const bool chapterFile = file.rfind("ch07", 0) == 0;
-            for (auto it = std::sregex_iterator(body.begin(), body.end(), kPair); it != std::sregex_iterator(); ++it) {
-                const std::string key = (*it)[1];
-                if (chapterFile || key.rfind("ch07.", 0) == 0 || key.rfind("objective.ch07.", 0) == 0) out[key] = (*it)[2];
+            for (const auto& [key,value] : fanren::test::textKeyValues(body)) {
+                if (chapterFile || key.rfind("ch07.", 0) == 0 || key.rfind("objective.ch07.", 0) == 0) out[key]=value;
             }
         }
         return out;
@@ -2717,10 +2716,9 @@ TEST_F(Ch07Acceptance, No6_TheRolesCarryTheNamesSectionsFiveAndTwelveTwoGive) {
 TEST_F(Ch07Acceptance, No6_TheChapterCardAndTheTwoGatesSeenInChapterSixSayNothingOfChapterSeven) {
     const std::map<std::string, std::string> texts = chapterTexts();
     const std::string ui = readFile(fs::path(root_) / "data" / "text" / "ui.json");
-    static const std::regex kPair("\"(ui\\.chapter\\.07\\.[^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
     std::map<std::string, std::string> early;
-    for (auto it = std::sregex_iterator(ui.begin(), ui.end(), kPair); it != std::sregex_iterator(); ++it) {
-        early[(*it)[1]] = (*it)[2];
+    for (const auto& [key,value] : fanren::test::textKeyValues(ui)) {
+        if (key.rfind("ui.chapter.07.",0)==0) early[key]=value;
     }
     ASSERT_EQ(early.size(), 2u) << "先验：ui.chapter.07.numeral / .title（施工图 E9）";
     EXPECT_EQ(early["ui.chapter.07.numeral"], "第七章") << "E9";
@@ -2937,9 +2935,8 @@ TEST_F(Ch07Acceptance, No22_BranchesMapsNodesAndWordsAreWhereSectionFifteenPutsT
     for (const char* file : {"ch07_main.json", "ch07_jindi.json", "ch07_dihuo.json"}) {
         const std::string body = readFile(fs::path(root_) / "data" / "text" / file);
         ASSERT_FALSE(body.empty()) << file;
-        static const std::regex kPair("\"(ch07\\.[^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"");
-        for (auto it = std::sregex_iterator(body.begin(), body.end(), kPair); it != std::sregex_iterator(); ++it) {
-            const std::string value = (*it)[2];
+        for (const auto& [key,value] : fanren::test::textKeyValues(body)) {
+            if (key.rfind("ch07.",0)!=0) continue;
             for (std::size_t i = 0; i < value.size();) {
                 const unsigned char c = static_cast<unsigned char>(value[i]);
                 if (c >= 0xE0 && c < 0xF0 && i + 2 < value.size()) {

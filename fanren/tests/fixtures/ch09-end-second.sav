@@ -1,5 +1,5 @@
 {
-  "checksum": "f75fcc39a3598b04",
+  "checksum": "6c07fba5f74cbf89",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -933,7 +933,7 @@
       "magic_ji_hongxianzhen",
       "magic_ji_baizhudao"
     ],
-    "mapId": "ch08_lingkuang",
+    "mapId": "ch10_gudao",
     "maxHp": 60,
     "maxMp": 30,
     "mp": 30,
@@ -944,11 +944,11 @@
         "roleId": "kuilei_shou"
       }
     ],
-    "playSecondsGameplay": 514.7833333331938,
+    "playSecondsGameplay": 514.8666666665271,
     "playSecondsSystem": 0.0,
     "position": {
-      "x": 40,
-      "y": 33
+      "x": 12,
+      "y": 16
     },
     "realm": 3,
     "realmCap": 3,

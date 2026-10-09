@@ -648,8 +648,24 @@ constexpr ScriptTransfer kScriptTransfers[] = {
     {"ch09.xiuzhen", "scripts/ch09/xiuzhen.lua", "ch09_milin"},
     {"ch09.jiuren", "scripts/ch09/jiuren.lua", "ch09_milin"},
     {"ch09.huicheng", "scripts/ch09/huicheng.lua", "ch08_lingkuang"},
-    {"ch09.done", "scripts/ch09/qidong.lua", "ch08_lingkuang"},
+    {"ch09.done", "scripts/ch09/qidong.lua", "ch10_gudao"},
     {"ch09.goucai", "scripts/ch09/suidao_hui.lua", "ch08_lingkuang", "trigger_suidao_hui", "ch08_lingkuang"},
+    // Chapter 10 design 3.1: final qidong exit above plus fifteen story transfers.
+    {"ch10.likai", "scripts/ch10/wanghai.lua", "ch10_haichuan"},
+    {"ch10.kaoan", "scripts/ch10/kaoan.lua", "ch10_kuixing"},
+    {"ch10.dengji", "scripts/ch10/dengji.lua", "ch10_kuixing"},
+    {"ch10.muwu", "scripts/ch10/muwu.lua", "ch10_kuixing"},
+    {"ch10.leitai", "scripts/ch10/leitai.lua", "ch10_kuixing"},
+    {"ch10.dengxian", "scripts/ch10/dengxian.lua", "ch10_kuixing"},
+    {"ch10.xuandi", "scripts/ch10/xuandi.lua", "ch10_xiaohuan"},
+    {"ch10.zhenzhang", "scripts/ch10/matou.lua", "ch10_xiaohuan"},
+    {"ch10.chudao", "scripts/ch10/chudao.lua", "ch10_tiandujie"},
+    {"ch10.jueding", "scripts/ch10/kezhan.lua", "ch10_haichuan"},
+    {"ch10.chuhai", "scripts/ch10/chuanting.lua", "ch10_jinhai"},
+    {"ch10.taoli", "scripts/ch10/zhenmen.lua", "ch10_jinhai"},
+    {"ch10.zhangu", "scripts/ch10/ruzhen.lua", "ch10_haiyuandao"},
+    {"ch10.shadan", "scripts/ch10/linshi.lua", "ch10_xiaohuan"},
+    {"ch10.done", "scripts/ch10/zhifadui.lua", "ch10_xiaohuan"},
 };
 
 // 门的钥匙里不在目标链上的：哪个脚本置它、紧跟在链上哪一步之后到手。

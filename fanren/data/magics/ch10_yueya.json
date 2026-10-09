@@ -1,0 +1,12 @@
+{
+  "id": "magic_ch10_yueya",
+  "name": "月牙光刃",
+  "descKey": "magic.desc.magic_ch10_yueya",
+  "element": 16,
+  "needMp": 24,
+  "power": 42,
+  "needRealm": "CoreEarly",
+  "boost": "power",
+  "origin": "改编（原著手段的数据化）",
+  "note": "第十章初版战斗规格，未经过独立平衡验收。全体施法意图尚待共享依赖的真实接口核对，不写引擎不读取的字段。"
+}

@@ -1402,7 +1402,68 @@ CHAPTER8_BEASTS = tuple(_chapter8_beast(*entry) for entry in (
     ("huangyuan_xiyi", "荒原蜥蜴", "jade2"),
 ))
 
-BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN) + CHAPTER8_BEASTS
+def _chapter10_yingli_rows(pose, w=48, h=40):
+    rows = [["."] * w for _ in range(h)]
+    def dot(x, y, code):
+        if 0 <= x < w and 0 <= y < h:
+            rows[y][x] = code
+    def ellipse(cx, cy, rx, ry, code):
+        for y in range(max(0, cy - ry), min(h, cy + ry + 1)):
+            for x in range(max(0, cx - rx), min(w, cx + rx + 1)):
+                if ((x - cx) / rx) ** 2 + ((y - cy) / ry) ** 2 <= 1:
+                    dot(x, y, code)
+    def rect(x0, y0, x1, y1, code):
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                dot(x, y, code)
+    fallen = pose == "down"
+    shift = 2 if pose == "attack" else 0
+    by = 29 if fallen else 24
+    ellipse(21 + shift, by, 14, 4 if fallen else 8, "B")
+    ellipse(22 + shift, by - 1, 12, 2 if fallen else 5, "A")
+    for x in range(3, 12):
+        spread = max(1, (12 - x) // 2)
+        for y in range(by - spread, by + spread + 1):
+            dot(x, y, "C")
+    hy = 27 if fallen else 13
+    ellipse(34 + shift, hy, 8, 5 if fallen else 8, "S")
+    ellipse(35 + shift, hy - 2, 6, 3 if fallen else 5, "Q")
+    dot(35 + shift, hy - 1, "e")
+    dot(39 + shift, hy - 1, "e")
+    rect(37 + shift, hy + 3, 38 + shift, hy + 3, "r")
+    if not fallen:
+        rect(28 + shift, 21, 31 + shift, 24, "S")
+        rect(34 + shift, 22, 37 + shift, 26, "S")
+        rect(26 + shift, 23, 31 + shift, 27, "T")
+        rect(25 + shift, 27, 32 + shift, 28, "t")
+        rect(36 + shift, 27, 41 + shift, 30, "V")
+        if pose == "attack":
+            for x in range(10, 29):
+                dot(x, 31 + (x % 3 == 0), "A")
+    return tuple("".join(row) for row in rows)
+
+
+def _chapter10_yingli():
+    ramps = {
+        "body": [P.c("water0"), P.c("water1"), P.c("water3"), P.mix("water4", "paper", .3)],
+        "skin": [P.c("skin0"), P.c("skin1"), P.c("skin2"), P.c("skin3")],
+        "eyeglow": [P.c("ink0"), P.c("ink1"), P.c("ink2"), P.c("ink3")],
+        "mouth": [P.c("red0"), P.c("red1"), P.c("red2"), P.c("red3")],
+        "treasure": [P.c("gold0"), P.c("gold1"), P.c("gold2"), P.c("gold3")],
+        "other": [P.c("violet0"), P.c("violet1"), P.c("violet2"), P.c("violet3")],
+        "ink": [P.c("ink0"), P.c("ink1"), P.c("ink2"), P.c("ink3")],
+    }
+    codes = {"A": ("body", 3), "B": ("body", 2), "C": ("body", 1),
+             "Q": ("skin", 3), "S": ("skin", 2), "e": ("eyeglow", 1),
+             "r": ("mouth", 2), "T": ("treasure", 2), "t": ("treasure", 1),
+             "V": ("other", 2)}
+    return Beast("yingli_shou", "婴鲤兽", 48, 40, _chapter10_yingli_rows("idle"), _chapter10_yingli_rows("attack"),
+                 _chapter10_yingli_rows("down"), ramps, codes, 35,
+                 "第10章原创战斗外观：婴儿面孔、鱼身、无名宝物；不注册世界NPC。")
+
+
+CHAPTER10_YINGLI = _chapter10_yingli()
+BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN) + CHAPTER8_BEASTS + (CHAPTER10_YINGLI,)
 
 
 def _canvas_from(rows: tuple[str, ...], beast: Beast) -> Canvas:

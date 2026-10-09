@@ -1,0 +1,12 @@
+-- @hook ch10_xiaohuan trigger_dayan interact once
+talk("", "ch10.dayan.first")
+advance_days(1080)
+talk("", "ch10.dayan.visit")
+talk("", "ch10.dayan.duel")
+advance_days(1080)
+talk("", "ch10.dayan.six")
+talk("", "ch10.dayan.memory")
+talk("", "ch10.dayan.refine")
+talk("", "ch10.dayan.hurt")
+advance_days(135)
+flag.set("ch10.huashen")

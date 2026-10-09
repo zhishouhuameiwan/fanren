@@ -1,0 +1,13 @@
+{
+  "id": "magic_ch10_wulang",
+  "name": "雾浪",
+  "descKey": "magic.desc.magic_ch10_wulang",
+  "element": 4,
+  "needMp": 20,
+  "power": 25,
+  "needRealm": "CoreMid",
+  "boost": "power",
+  "target": "all",
+  "origin": "改编（原著手段的数据化）",
+  "note": "第十章初版战斗规格，未经过独立平衡验收。target=all已按interface10 E3.1正式字段接入；引擎实现与focused正反验证仍待交付，不代表本章通关。"
+}

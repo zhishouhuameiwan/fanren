@@ -1,0 +1,58 @@
+{
+  "id": "b10_zhifadui",
+  "name": "海上执法队",
+  "chapter": 10,
+  "terrain": "sea",
+  "hero_absent": true,
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "qu_hun_shadan",
+      "faction": "ally"
+    },
+    {
+      "role_id": "zhifa_xiushi",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "zhifa_xiushi",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "zhifa_xiushi",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "zhifa_xiushi",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "zhifa_laozhe",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "zhifa_xiushi",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "zhifa_xiushi",
+      "faction": "enemy",
+      "wave": 1
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch10.battle.zhifadui.intro",
+  "origin": "原著（撑阵一场为改编）",
+  "note": "设计8.2初版规格；独立BattleHand及正式ch09-end通关未进行。"
+}

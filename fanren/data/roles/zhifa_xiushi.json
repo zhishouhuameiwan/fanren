@@ -1,0 +1,19 @@
+{
+  "id": "zhifa_xiushi",
+  "name": "执法修士",
+  "realm": "FoundationMid",
+  "maxHp": 145,
+  "maxMp": 70,
+  "attack": 25,
+  "defence": 14,
+  "speed": 12,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "第十章独立角色。身份与在场见设计第5节，战斗数值初版待独立平衡。",
+  "toughness": 2,
+  "weaknesses": [
+    "火",
+    "金"
+  ]
+}

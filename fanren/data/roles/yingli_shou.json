@@ -1,0 +1,28 @@
+{
+  "id": "yingli_shou",
+  "name": "婴鲤兽",
+  "realm": "CoreMid",
+  "maxHp": 1350,
+  "maxMp": 600,
+  "attack": 52,
+  "defence": 34,
+  "speed": 14,
+  "element": 4,
+  "magics": [
+    "magic_ch10_wulang"
+  ],
+  "origin": "原著",
+  "note": "六级非人形妖兽的阵中压制态。胜利只表示撑到长老出手；初版数值待平衡。",
+  "toughness": 8,
+  "weaknesses": [
+    "木",
+    "剑"
+  ],
+  "actions": 2,
+  "charge": {
+    "every": 3,
+    "mult": 2,
+    "all": true,
+    "text_key": "ch10.battle.yingli.charge"
+  }
+}

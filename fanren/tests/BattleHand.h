@@ -57,6 +57,13 @@ struct HandPolicy {
     std::vector<std::string> withheldMagics;
 };
 
+struct HandActionUtility {
+    int targets = 0;
+    int damage = 0;
+    int kills = 0;
+    int breaks = 0;
+};
+
 class BattleHand {
 public:
     using Action = core::battle::Action;
@@ -70,6 +77,11 @@ public:
 
     [[nodiscard]] HandPolicy& policy() { return policy_; }
     [[nodiscard]] const HandPolicy& policy() const { return policy_; }
+    [[nodiscard]] HandActionUtility actionUtility(const BattleState& battle, const Action& action) const {
+        if (action.kind != ActionKind::Attack && action.kind != ActionKind::Cast && action.kind != ActionKind::Item) return {};
+        if (!legal(battle, action)) return {};
+        return score(battle, action).utility;
+    }
     // 「这一场一开打就逃」（第 5 章「逃了之后还往下走吗」那一组用）。只管下一场 play。
     void fleeAtOnce(bool on) { fleeAtOnce_ = on; }
 
@@ -239,6 +251,12 @@ private:
         bool knownWeak = false; // 打的是已揭开的破绽
         bool probes = false;    // 打的里头有这个目标身上没试过的类别，而它还有没揭开的破绽
         bool poisons = false;   // 毒药：这一下挂得上毒（它眼下没中毒）
+        HandActionUtility utility;
+        bool targetsAll = false;
+        bool hitsBroken = false;
+        bool knownUnbroken = false;
+        std::vector<int> killedTargets;
+        std::vector<int> brokenTargets;
     };
 
     [[nodiscard]] static const Unit& unitAt(const BattleState& b, int index) {
@@ -260,6 +278,16 @@ private:
     // 玩家那一侧的判据：背包闸在前、规则层 checkLegal 在后（与菜单置灰同一个函数）。
     [[nodiscard]] bool legal(const BattleState& b, const Action& a) const {
         return game::refusePlayerAction(app_->state(), b, a).empty();
+    }
+
+    [[nodiscard]] static const core::Magic* allMagic(const BattleState& battle, const Action& action) {
+        const core::Magic* magic = nullptr;
+        if (action.kind == ActionKind::Cast) magic = battle.findMagic(action.magicId);
+        if (action.kind == ActionKind::Item) {
+            const core::Item* item = battle.findItem(action.magicId);
+            if (item != nullptr && !item->castMagic.empty()) magic = battle.findMagic(item->castMagic);
+        }
+        return magic != nullptr && magic->target == core::MagicTarget::All ? magic : nullptr;
     }
 
     [[nodiscard]] static int attackCost(const Scored& s) {
@@ -327,7 +355,7 @@ private:
     }
 
     // 估一手的后果。凭的是此刻的局面与**已揭开**的破绽；破势之后的那几击按 ×2 估。
-    [[nodiscard]] Scored score(const BattleState& b, const Action& a) const {
+    [[nodiscard]] Scored scoreOne(const BattleState& b, const Action& a) const {
         Scored s;
         s.action = a;
         const Unit& t = unitAt(b, a.targetIndex);
@@ -337,6 +365,15 @@ private:
         bool broken = t.broken();
         int tough = t.toughness;
         if (a.kind == ActionKind::Item) {
+            if (const core::Magic* magic = allMagic(b, a)) {
+                Action cast = a;
+                cast.kind = ActionKind::Cast;
+                cast.magicId = magic->id;
+                cast.boost = 0;
+                Scored projected = scoreOne(b, cast);
+                projected.action = a;
+                return projected;
+            }
             s.poisons = t.poison == 0;
             s.breaks = s.knownWeak && !broken && tough <= 1;
             return s;
@@ -360,12 +397,55 @@ private:
         return s;
     }
 
+    [[nodiscard]] Scored score(const BattleState& battle, const Action& action) const {
+        Scored result = scoreOne(battle, action);
+        result.utility = {1, result.dealt, result.kills ? 1 : 0, result.breaks ? 1 : 0};
+        if (allMagic(battle, action) == nullptr) return result;
+        result.targetsAll = true;
+        result.utility = {};
+        result.kills = result.breaks = result.knownWeak = result.probes = false;
+        const Unit& actor = unitAt(battle, action.actorIndex);
+        for (std::size_t i = 0; i < battle.units().size(); ++i) {
+            const Unit& target = battle.units()[i];
+            if (!target.alive() || target.ally == actor.ally) continue;
+            Action located = action;
+            located.targetIndex = static_cast<int>(i);
+            const Scored one = scoreOne(battle, located);
+            ++result.utility.targets;
+            result.utility.damage += one.dealt;
+            result.utility.kills += one.kills ? 1 : 0;
+            result.utility.breaks += one.breaks ? 1 : 0;
+            result.kills = result.kills || one.kills;
+            result.breaks = result.breaks || one.breaks;
+            result.knownWeak = result.knownWeak || one.knownWeak;
+            result.probes = result.probes || one.probes;
+            result.hitsBroken = result.hitsBroken || target.broken();
+            result.knownUnbroken = result.knownUnbroken || (one.knownWeak && !target.broken());
+            if (one.kills) result.killedTargets.push_back(static_cast<int>(i));
+            if (one.breaks) result.brokenTargets.push_back(static_cast<int>(i));
+        }
+        return result;
+    }
+
+    // Preserve every single-target tie-break; only multi-target casts add whole-action utility.
+    [[nodiscard]] static int allUtilityOrder(const Scored& left, const Scored& right) {
+        if (left.utility.targets <= 1 && right.utility.targets <= 1) return 0;
+        if (left.utility.kills != right.utility.kills) return left.utility.kills > right.utility.kills ? 1 : -1;
+        if (left.utility.breaks != right.utility.breaks) return left.utility.breaks > right.utility.breaks ? 1 : -1;
+        if (left.utility.damage != right.utility.damage) return left.utility.damage > right.utility.damage ? 1 : -1;
+        return 0;
+    }
+
     // 每个站着的敌人 × 每一样兵刃 / 每一门伤人的法术 / 每一样许撒的毒药，劲从 0 蓄到能蓄的最多。
     [[nodiscard]] std::vector<Scored> scoredOptions(const BattleState& b, int actor) const {
         const Unit& me = unitAt(b, actor);
         const int maxBoost = std::min(core::battle::kBoostMax, me.bp);
         std::vector<Scored> out;
+        int firstFoe = -1;
+        for (std::size_t i = 0; i < b.units().size(); ++i)
+            if (b.units()[i].alive() && b.units()[i].ally != me.ally) { firstFoe = static_cast<int>(i); break; }
         const auto add = [&](Action a, bool boostable) {
+            if (allMagic(b, a) != nullptr && a.targetIndex != firstFoe) return;
             for (int boost = 0; boost <= (boostable ? maxBoost : 0); ++boost) {
                 a.boost = boost;
                 if (legal(b, a)) out.push_back(score(b, a));
@@ -438,9 +518,14 @@ private:
                                                 bool Scored::*flag) {
         const Scored* best = nullptr;
         for (const Scored& s : options) {
-            if (!(s.*flag) || (target >= 0 && s.action.targetIndex != target)) continue;
-            if (best == nullptr || s.action.boost < best->action.boost ||
-                (s.action.boost == best->action.boost && attackCost(s) < attackCost(*best))) {
+            if (!(s.*flag)) continue;
+            if (target >= 0 && s.targetsAll) {
+                const auto& affected = flag == &Scored::kills ? s.killedTargets : s.brokenTargets;
+                if (std::find(affected.begin(), affected.end(), target) == affected.end()) continue;
+            } else if (target >= 0 && s.action.targetIndex != target) continue;
+            const int all = best == nullptr ? 0 : allUtilityOrder(s, *best);
+            if (best == nullptr || all > 0 || (all == 0 && (s.action.boost < best->action.boost ||
+                (s.action.boost == best->action.boost && attackCost(s) < attackCost(*best))))) {
                 best = &s;
             }
         }
@@ -462,11 +547,14 @@ private:
         int bestThreat = -1;
         for (const Scored& s : options) {
             if (!(s.*flag)) continue;
-            const int th = threat(b, s.action.targetIndex);
-            if (th > bestThreat) {
-                bestThreat = th;
-                bestTarget = s.action.targetIndex;
-            }
+            const auto inspect = [&](int target) {
+                const int th = threat(b, target);
+                if (th > bestThreat) { bestThreat = th; bestTarget = target; }
+            };
+            if (s.targetsAll) {
+                const auto& affected = flag == &Scored::kills ? s.killedTargets : s.brokenTargets;
+                for (const int target : affected) inspect(target);
+            } else inspect(s.action.targetIndex);
         }
         return bestTarget < 0 ? nullptr : cheapest(options, bestTarget, flag);
     }
@@ -475,10 +563,11 @@ private:
     [[nodiscard]] static const Scored* bestOnBroken(const BattleState& b, const std::vector<Scored>& options) {
         const Scored* best = nullptr;
         for (const Scored& s : options) {
-            if (!unitAt(b, s.action.targetIndex).broken() || s.action.kind == ActionKind::Item) continue;
-            if (best == nullptr || s.action.boost > best->action.boost ||
+            if (!(s.targetsAll ? s.hitsBroken : unitAt(b, s.action.targetIndex).broken()) || s.action.kind == ActionKind::Item) continue;
+            const int all = best == nullptr ? 0 : allUtilityOrder(s, *best);
+            if (best == nullptr || all > 0 || (all == 0 && (s.action.boost > best->action.boost ||
                 (s.action.boost == best->action.boost &&
-                 (s.dealt > best->dealt || (s.dealt == best->dealt && attackCost(s) < attackCost(*best))))) {
+                 (s.dealt > best->dealt || (s.dealt == best->dealt && attackCost(s) < attackCost(*best))))))) {
                 best = &s;
             }
         }
@@ -492,12 +581,14 @@ private:
         const Scored* best = nullptr;
         for (const Scored& s : options) {
             const Unit& t = unitAt(b, s.action.targetIndex);
-            if (!s.knownWeak || t.broken() || (target >= 0 && s.action.targetIndex != target)) continue;
+            if (!s.knownWeak || (s.targetsAll ? !s.knownUnbroken : t.broken()) || (target >= 0 && s.action.targetIndex != target)) continue;
             if (s.action.boost != 0) continue;   // 先挑一手，劲另定
             if (best == nullptr) {
                 best = &s;
                 continue;
             }
+            const int all = allUtilityOrder(s, *best);
+            if (all != 0) { if (all > 0) best = &s; continue; }
             const Unit& bt = unitAt(b, best->action.targetIndex);
             if (t.toughness != bt.toughness) {
                 if (t.toughness < bt.toughness) best = &s;
@@ -554,10 +645,11 @@ private:
         const Scored* best = nullptr;
         for (const Scored& s : options) {
             if (s.action.boost != 0) continue;
-            if (best == nullptr || s.dealt > best->dealt ||
+            const int all = best == nullptr ? 0 : allUtilityOrder(s, *best);
+            if (best == nullptr || all > 0 || (all == 0 && (s.dealt > best->dealt ||
                 (s.dealt == best->dealt && attackCost(s) < attackCost(*best)) ||
                 (s.dealt == best->dealt && attackCost(s) == attackCost(*best) &&
-                 threat(b, s.action.targetIndex) > threat(b, best->action.targetIndex))) {
+                 threat(b, s.action.targetIndex) > threat(b, best->action.targetIndex))))) {
                 best = &s;
             }
         }
@@ -606,6 +698,8 @@ private:
         if (scene.menuMode() != game::BattleMenuMode::Target) return false;
         std::vector<int> indices;
         static_cast<void>(game::BattleScene::buildTargetItems(app_->state(), scene.battle(), a, indices));
+        if (allMagic(scene.battle(), a) != nullptr)
+            return indices.size() == 1 && legal(scene.battle(), a) && scene.menuChoose(*app_, 0);
         const auto found = std::find(indices.begin(), indices.end(), a.targetIndex);
         return found != indices.end() && scene.menuChoose(*app_, static_cast<int>(found - indices.begin()));
     }
