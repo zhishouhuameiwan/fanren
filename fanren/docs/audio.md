@@ -220,6 +220,20 @@ RMS、直流、NaN、接缝（BGM：台阶/折角倍数、掉电平/门槛）或
 
 ## 12. 已知限制
 
+第8章沿用已有曲目，八张新图的属性与登记对应如下，不新增音频文件：
+
+| 地图 | BGM |
+| --- | --- |
+| `ch08_dongfu` | `bgm_mountain_path` |
+| `ch08_tianxing_fangshi` | `bgm_town` |
+| `ch08_yanlingbao` | `bgm_town` |
+| `ch08_lingkuang` | `bgm_cliff` |
+| `ch08_jinguyuan` | `bgm_wild` |
+| `ch08_jinmacheng` | `bgm_town` |
+| `ch08_yuejing` | `bgm_town` |
+| `ch08_jiayuan_shanlin` | `bgm_night` |
+
+
 - 纯合成的乐器是「像」而不是「是」：古筝、琵琶的拨弦最像；笛子、二胡是加法/减法合成，
   胜在音高表现（滑音、揉弦）而非音色逼真。
 - 引擎侧（不归本路改）：`playBgm` 每次进图都从头播放，同一首 BGM 在两张图之间切换也会重头来；没有淡入淡出；

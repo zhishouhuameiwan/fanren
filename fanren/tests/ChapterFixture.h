@@ -34,6 +34,7 @@
 //     而通关测试换一条 BFS 路线它们就变，比进来只会让交接存档因为走位细节而改。
 //     比较前两边都置 0（存档文件里保留真值）。
 #include <algorithm>
+#include <array>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
@@ -130,6 +131,87 @@ inline constexpr const char* kWriteChapterSixFixturesEnv = "FANREN_WRITE_CH06_FI
 inline constexpr const char* kChapterSevenEndingFirst = "ch07-end-first.sav";
 inline constexpr const char* kChapterSevenEndingSecond = "ch07-end-second.sav";
 inline constexpr const char* kWriteChapterSevenFixturesEnv = "FANREN_WRITE_CH07_FIXTURES";
+
+inline constexpr const char* kChapterEightEndingFirst = "ch08-end-first.sav";
+inline constexpr const char* kChapterEightEndingSecond = "ch08-end-second.sav";
+inline constexpr const char* kWriteChapterEightFixturesEnv = "FANREN_WRITE_CH08_FIXTURES";
+
+// Design 3.1 / 3.3 / 3.4, independently fixed here; never inferred from content.
+struct ChapterEightStep {
+    const char* map;
+    const char* object;
+    const char* done;
+    bool enter = false;
+    int days = 0;
+};
+inline constexpr std::array<ChapterEightStep, 59> kChapterEightSteps = {{
+    {"ch06_baiyaoyuan", "trigger_shixiong", "ch08.shixiong"},
+    {"ch06_huangfenggu", "trigger_dengji", "ch08.dengji", false, 1},
+    {"ch08_dongfu", "trigger_shanfeng", "ch08.lingquan", false, 1},
+    {"ch08_dongfu", "trigger_kaifu", "ch08.kaifu", false, 3},
+    {"ch08_dongfu", "trigger_chucang", "ch08.qiannian"},
+    {"ch08_tianxing_fangshi", "trigger_tianxing_ru", "ch08.fangshi", true},
+    {"ch08_tianxing_fangshi", "trigger_xulao", "ch08.xulao"},
+    {"ch08_tianxing_fangshi", "trigger_midian", "ch08.midian"},
+    {"ch08_tianxing_fangshi", "trigger_qiyunxiao", "ch08.qiyunxiao", false, 1},
+    {"ch08_tianxing_fangshi", "trigger_quqi", "ch08.quqi", false, 16},
+    {"ch08_dongfu", "trigger_zhenyan", "ch08.buzhen1"},
+    {"ch08_dongfu", "trigger_shichuang", "ch08.yexi"},
+    {"ch08_dongfu", "trigger_dating", "ch08.gufang", false, 1},
+    {"ch08_dongfu", "trigger_lvbo", "ch08.lvbo", false, 2},
+    {"ch08_dongfu", "trigger_shuan", "ch08.shuye", false, 3},
+    {"ch08_dongfu", "trigger_biguan", "ch08.biguan", false, 1440},
+    {"ch08_dongfu", "trigger_chuanyin", "ch08.hongfu", false, 24},
+    {"ch08_yanlingbao", "trigger_biwuchang", "ch08.biwu", true, 1},
+    {"ch08_yanlingbao", "trigger_caihuan", "ch08.caihuan", false, 1},
+    {"ch08_yanlingbao", "trigger_tianheju", "ch08.tianheju", false, 1},
+    {"ch08_yanlingbao", "trigger_xifeng", "ch08.tuoshen", true, 6},
+    {"ch08_lingkuang", "trigger_yaodong", "ch08.lingkuang", true},
+    {"ch08_lingkuang", "trigger_jingshi", "ch08.kuilei", false, 105},
+    {"ch08_lingkuang", "trigger_zhenbian", "ch08.shouzhen"},
+    {"ch08_lingkuang", "trigger_judong", "ch08.zhanzhu", true, 1},
+    {"ch08_lingkuang", "trigger_chuansongzhen", "ch08.nuoyi", false, 8},
+    {"ch08_dongfu", "trigger_quanyan", "ch08.zhongqi", false, 7},
+    {"ch08_dongfu", "trigger_feifu", "ch08.zhaoji", true},
+    {"ch08_jinguyuan", "trigger_daoying", "ch08.yinian", true, 360},
+    {"ch08_jinguyuan", "trigger_jiaoyisuo", "ch08.qiaoqian"},
+    {"ch08_jinguyuan", "trigger_chuzhen", "ch08.daji", false, 1},
+    {"ch08_jinguyuan", "trigger_lizhu", "ch08.nangong", true, 8},
+    {"ch08_jinmacheng", "trigger_chaguan", "ch08.jinma"},
+    {"ch08_jinmacheng", "trigger_biyun", "ch08.jiuren", true},
+    {"ch08_jinmacheng", "trigger_xin_zhuwu", "ch08.yueding", false, 14},
+    {"ch08_yuejing", "trigger_qinmen", "ch08.qinzhai", false, 1},
+    {"ch08_yuejing", "trigger_yefang", "ch08.fengwu"},
+    {"ch08_yuejing", "trigger_jiulou_yj", "ch08.qb_mengshan", false, 60},
+    {"ch08_yuejing", "trigger_wangfu", "ch08.qb_shouyan"},
+    {"ch08_yuejing", "trigger_qiuling", "ch08.qb_xuezhou", true, 5},
+    {"ch08_yuejing", "trigger_qingyinyuan", "ch08.qb_wumei"},
+    {"ch08_yuejing", "trigger_huangmiao", "ch08.qb_huangmiao", true, 7},
+    {"ch08_yuejing", "trigger_qingbao", "ch08.qb_yuanbing", false, 18},
+    {"ch08_yuejing", "trigger_zhulin_zhenyan", "ch08.buzhen2", false, 1},
+    {"ch08_yuejing", "trigger_huayuan_yj", "ch08.huayuan", true},
+    {"ch08_yuejing", "trigger_chufa", "ch08.jingong"},
+    {"ch08_yuejing", "trigger_lenggong", "ch08.huanggong", true},
+    {"ch08_yuejing", "trigger_zhulinxin", "ch08.yuehuang", true},
+    {"ch08_yuejing", "trigger_shadan", "ch08.junling", false, 6},
+    {"ch05_nancheng", "trigger_xiangjia", "ch08.xiangjia"},
+    {"ch05_nancheng", "trigger_sipingbang", "ch08.sunergou"},
+    {"ch05_mofu", "trigger_pianyuan", "ch08.lifu", true},
+    {"ch08_jiayuan_shanlin", "trigger_luanshi", "ch08.bigong", true},
+    {"ch08_jiayuan_shanlin", "trigger_shandong", "ch08.yaolang", true},
+    {"ch08_jiayuan_shanlin", "trigger_shanding", "ch08.quhun", true},
+    {"ch08_jiayuan_shanlin", "trigger_milin_zhenyan", "ch08.buzhen3"},
+    {"ch08_jiayuan_shanlin", "trigger_yindong", "ch08.shalang", false, 9},
+    {"ch08_dongfu", "trigger_huifu", "ch08.huifu", false, 1},
+    {"ch06_baiyaoyuan", "trigger_jinglong", "ch08.done", true},
+}};
+
+inline std::string chapterEightAssetRoot() {
+    for (const char* root : {".", "..", "../..", "../../.."}) {
+        if (std::filesystem::exists(std::filesystem::path(root) / "docs/ch08-design.md")) return root;
+    }
+    return ".";
+}
 
 inline std::filesystem::path chapterFixturePath(const std::string& assetRoot,
                                                 const std::string& fileName) {

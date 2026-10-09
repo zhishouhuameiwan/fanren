@@ -646,7 +646,495 @@
     "fangshi_zhishi": {"base": "arch_disciple", "name": "执事弟子", "note": "坊市维持秩序的黄枫谷执事弟子：门派弟子原型换黄衫。", "colors": {"main": "huang", "sub": "zangqing", "belt": "zangqing", "wrap": "zangqing"}, "props": ["dao_hip"]},
     "wanbaolou_shicong": {"base": "arch_townsman", "name": "万宝楼伙计", "note": "万宝楼门口迎客的伙计：镇民原型、青布。", "colors": {"main": "qingbu", "sub": "hei", "belt": "hei"}},
     "tian_buli": {"name": "田掌柜", "note": "「瘦长脸的中年人，留着两撇细胡子」（ch07.wanbaolou.boss）：凡人掌柜，方巾长衫。", "gender": "m", "age": "adult", "build": "slim", "skin": "fair", "face": "narrow", "hair": "topknot", "hair_color": "black", "headwear": "scholar_cap", "headwear_colors": ["hei", "hei"], "outfit": "changshan", "colors": {"main": "xiang", "sub": "cha", "belt": "hei"}, "beard": "mustache", "weapon": "none"},
-    "ding_lao": {"name": "丁老", "note": "「花白头发的老人」（ch07.wanbaolou.ding）：凡人鉴定人。", "gender": "m", "age": "elder", "build": "slim", "skin": "fair", "face": "old", "hair": "bun_low", "hair_color": "grey", "outfit": "changshan", "colors": {"main": "huibu", "sub": "hei", "belt": "hei"}, "weapon": "none"}
+    "ding_lao": {"name": "丁老", "note": "「花白头发的老人」（ch07.wanbaolou.ding）：凡人鉴定人。", "gender": "m", "age": "elder", "build": "slim", "skin": "fair", "face": "old", "hair": "bun_low", "hair_color": "grey", "outfit": "changshan", "colors": {"main": "huibu", "sub": "hei", "belt": "hei"}, "weapon": "none"},
+    "qilinge_dizi": {
+      "base": "arch_disciple",
+      "name": "麒麟阁弟子",
+      "colors": {
+        "main": "ma",
+        "sub": "zhehong"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "xulao_qipu": {
+      "base": "arch_merchant",
+      "name": "徐老",
+      "colors": {
+        "main": "songlv",
+        "sub": "tianqing"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "wang_ziling": {
+      "base": "arch_merchant",
+      "name": "王子陵",
+      "colors": {
+        "main": "zhehong",
+        "sub": "huang"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "zhang_furen": {
+      "base": "arch_merchant",
+      "name": "张夫人",
+      "colors": {
+        "main": "qianhui",
+        "sub": "qingbu"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "midian_zhuchi": {
+      "base": "arch_merchant",
+      "name": "瘦高男子",
+      "colors": {
+        "main": "tianqing",
+        "sub": "ma"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "budai_guairen": {
+      "base": "arch_disciple",
+      "name": "布袋怪人",
+      "colors": {
+        "main": "huang",
+        "sub": "zi"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "kuiwu_nanzi": {
+      "base": "arch_disciple",
+      "name": "魁梧男子",
+      "colors": {
+        "main": "qingbu",
+        "sub": "songlv"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "hutou_qingnian": {
+      "base": "arch_townsman",
+      "name": "虎头面具青年",
+      "colors": {
+        "main": "ma",
+        "sub": "zhehong"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "qi_yunxiao": {
+      "base": "arch_merchant",
+      "name": "齐云霄",
+      "colors": {
+        "main": "zi",
+        "sub": "qianhui"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "lin_shishu_yuanshen": {
+      "base": "arch_disciple",
+      "name": "林师叔",
+      "colors": {
+        "main": "songlv",
+        "sub": "tianqing"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "qianzhujiao_jiaozhong": {
+      "base": "arch_cultivator_m",
+      "name": "千竹教众",
+      "colors": {
+        "main": "zhehong",
+        "sub": "huang"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "lei_wanhe": {
+      "base": "arch_cultivator_m",
+      "name": "雷万鹤",
+      "colors": {
+        "main": "qianhui",
+        "sub": "qingbu"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。",
+      "build": "fat"
+    },
+    "yu_kun": {
+      "base": "arch_disciple",
+      "name": "于坤",
+      "colors": {
+        "main": "tianqing",
+        "sub": "ma"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "li_shiniang": {
+      "base": "arch_cultivator_f",
+      "name": "师娘",
+      "colors": {
+        "main": "huang",
+        "sub": "zi"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "wu_xuan": {
+      "base": "arch_disciple",
+      "name": "武炫",
+      "colors": {
+        "main": "ma",
+        "sub": "zhehong"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "hong_fu": {
+      "base": "arch_cultivator_f",
+      "name": "红拂",
+      "colors": {
+        "main": "zi",
+        "sub": "qianhui"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "dong_xuaner": {
+      "base": "arch_cultivator_f",
+      "name": "董萱儿",
+      "colors": {
+        "main": "songlv",
+        "sub": "tianqing"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "yanjia_laozhe": {
+      "base": "arch_disciple",
+      "name": "燕家老者",
+      "colors": {
+        "main": "zhehong",
+        "sub": "huang"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "lvpao_ren": {
+      "base": "arch_disciple",
+      "name": "绿袍人",
+      "colors": {
+        "main": "songlv",
+        "sub": "hei"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "yan_yu": {
+      "base": "arch_disciple",
+      "name": "燕雨",
+      "colors": {
+        "main": "tianqing",
+        "sub": "ma"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "yanjia_dizi": {
+      "base": "arch_disciple",
+      "name": "燕家子弟",
+      "colors": {
+        "main": "huang",
+        "sub": "zi"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "wuyouzi": {
+      "base": "arch_disciple",
+      "name": "无游子",
+      "colors": {
+        "main": "qingbu",
+        "sub": "songlv"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "yanli_nanzi": {
+      "base": "arch_cultivator_m",
+      "name": "艳丽男子",
+      "colors": {
+        "main": "ma",
+        "sub": "zhehong"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "guiling_shaozhu": {
+      "base": "arch_disciple",
+      "name": "鬼灵门少主",
+      "colors": {
+        "main": "zi",
+        "sub": "qianhui"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "xuan_le": {
+      "base": "arch_cultivator_m",
+      "name": "宣乐",
+      "colors": {
+        "main": "zhehong",
+        "sub": "huang"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "yu_xing": {
+      "base": "arch_disciple",
+      "name": "余兴",
+      "colors": {
+        "main": "qianhui",
+        "sub": "qingbu"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "lv_tianmeng": {
+      "base": "arch_cultivator_m",
+      "name": "吕天蒙",
+      "colors": {
+        "main": "tianqing",
+        "sub": "ma"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "tianshazong_xiushi": {
+      "base": "arch_cultivator_m",
+      "name": "天煞宗修士",
+      "colors": {
+        "main": "huang",
+        "sub": "hei"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "tianshazong_toumu": {
+      "base": "arch_cultivator_m",
+      "name": "天煞宗领头",
+      "colors": {
+        "main": "huang",
+        "sub": "hei"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "moyanmen_xiushi": {
+      "base": "arch_cultivator_m",
+      "name": "魔焰门修士",
+      "colors": {
+        "main": "zhehong",
+        "sub": "hei"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "chen_pangzi": {
+      "base": "arch_merchant",
+      "name": "陈胖子",
+      "colors": {
+        "main": "qianhui",
+        "sub": "qingbu"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。",
+      "build": "fat"
+    },
+    "song_meng": {
+      "base": "arch_cultivator_m",
+      "name": "宋蒙",
+      "colors": {
+        "main": "huang",
+        "sub": "zi"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "huangfeng_zhanshi": {
+      "base": "arch_disciple",
+      "name": "黄枫谷弟子",
+      "colors": {
+        "main": "qingbu",
+        "sub": "songlv"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "xin_ruyin": {
+      "base": "arch_cultivator_f",
+      "name": "辛如音",
+      "colors": {
+        "main": "ma",
+        "sub": "zhehong"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "xin_yahuan": {
+      "base": "arch_cultivator_f",
+      "name": "丫鬟",
+      "colors": {
+        "main": "zi",
+        "sub": "qianhui"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "qin_gui": {
+      "base": "arch_townsman",
+      "name": "秦贵",
+      "colors": {
+        "main": "songlv",
+        "sub": "tianqing"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "qin_yan": {
+      "base": "arch_townsman",
+      "name": "秦言",
+      "colors": {
+        "main": "zhehong",
+        "sub": "huang"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "qinfu_laozhe": {
+      "base": "arch_townsman",
+      "name": "白发老者",
+      "colors": {
+        "main": "qianhui",
+        "sub": "qingbu"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "mengshan_laoda": {
+      "base": "arch_disciple",
+      "name": "蒙山老大",
+      "colors": {
+        "main": "tianqing",
+        "sub": "ma"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "mengshan_wumei": {
+      "base": "arch_cultivator_f",
+      "name": "五妹",
+      "colors": {
+        "main": "huang",
+        "sub": "zi"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "wu_xianshi": {
+      "base": "arch_disciple",
+      "name": "吴仙师",
+      "colors": {
+        "main": "qingbu",
+        "sub": "songlv"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "xiao_wangye": {
+      "base": "arch_townsman",
+      "name": "小王爷",
+      "colors": {
+        "main": "ma",
+        "sub": "zhehong"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "wang_zongguan": {
+      "base": "arch_townsman",
+      "name": "王总管",
+      "colors": {
+        "main": "zi",
+        "sub": "qianhui"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "xiao_zhen": {
+      "base": "arch_disciple",
+      "name": "萧振",
+      "colors": {
+        "main": "songlv",
+        "sub": "tianqing"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "xiaojia_shaonv": {
+      "base": "arch_cultivator_f",
+      "name": "萧家少女",
+      "colors": {
+        "main": "zhehong",
+        "sub": "huang"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "xiao_cuier": {
+      "base": "arch_cultivator_f",
+      "name": "萧翠儿",
+      "colors": {
+        "main": "qianhui",
+        "sub": "qingbu"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "xueshi": {
+      "base": "arch_disciple",
+      "name": "血侍",
+      "colors": {
+        "main": "tianqing",
+        "sub": "ma"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "liu_jing": {
+      "base": "arch_disciple",
+      "name": "刘靖",
+      "colors": {
+        "main": "huang",
+        "sub": "zi"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "zhong_weiniang": {
+      "base": "arch_cultivator_f",
+      "name": "钟卫娘",
+      "colors": {
+        "main": "qingbu",
+        "sub": "songlv"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "lanpao_ren": {
+      "base": "arch_disciple",
+      "name": "蓝袍人",
+      "colors": {
+        "main": "ma",
+        "sub": "zhehong"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "yue_huang": {
+      "base": "arch_disciple",
+      "name": "越皇",
+      "colors": {
+        "main": "zi",
+        "sub": "qianhui"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "gongmen_shiwei": {
+      "base": "arch_disciple",
+      "name": "宫门侍卫",
+      "colors": {
+        "main": "songlv",
+        "sub": "tianqing"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "ma_shizhi": {
+      "base": "arch_townsman",
+      "name": "马师侄",
+      "colors": {
+        "main": "zhehong",
+        "sub": "huang"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    },
+    "wusemen_menzhu": {
+      "base": "arch_disciple",
+      "name": "五色门门主",
+      "colors": {
+        "main": "qianhui",
+        "sub": "qingbu"
+      },
+      "note": "第8章身份类型化外观。只以本作框架件中的身份、姓名与在场为依据。"
+    }
   },
   "roles": {
     "hanli": {"look": "hanli", "variants": [{"max_chapter": 2, "look": "hanli_child"}], "note": "第 1–2 章用童年版"},
@@ -798,6 +1286,64 @@
     "fangshi_zhishi": "fangshi_zhishi",
     "wanbaolou_shicong": "wanbaolou_shicong",
     "tian_buli": "tian_buli",
-    "ding_lao": "ding_lao"
+    "ding_lao": "ding_lao",
+    "ma_shixiong": "ma_shibo",
+    "qilinge_dizi": "qilinge_dizi",
+    "xulao_qipu": "xulao_qipu",
+    "wang_ziling": "wang_ziling",
+    "zhang_furen": "zhang_furen",
+    "midian_zhuchi": "midian_zhuchi",
+    "budai_guairen": "budai_guairen",
+    "kuiwu_nanzi": "kuiwu_nanzi",
+    "hutou_qingnian": "hutou_qingnian",
+    "qi_yunxiao": "qi_yunxiao",
+    "lin_shishu_yuanshen": "lin_shishu_yuanshen",
+    "qianzhujiao_jiaozhong": "qianzhujiao_jiaozhong",
+    "lei_wanhe": "lei_wanhe",
+    "yu_kun": "yu_kun",
+    "li_shiniang": "li_shiniang",
+    "li_huayuan_shifu": "li_huayuan",
+    "wu_xuan": "wu_xuan",
+    "hong_fu": "hong_fu",
+    "dong_xuaner": "dong_xuaner",
+    "yanjia_laozhe": "yanjia_laozhe",
+    "lvpao_ren": "lvpao_ren",
+    "yan_yu": "yan_yu",
+    "yanjia_dizi": "yanjia_dizi",
+    "wuyouzi": "wuyouzi",
+    "yanli_nanzi": "yanli_nanzi",
+    "guiling_shaozhu": "guiling_shaozhu",
+    "xuan_le": "xuan_le",
+    "yu_xing": "yu_xing",
+    "lv_tianmeng": "lv_tianmeng",
+    "tianshazong_xiushi": "tianshazong_xiushi",
+    "tianshazong_toumu": "tianshazong_toumu",
+    "moyanmen_xiushi": "moyanmen_xiushi",
+    "chen_pangzi": "chen_pangzi",
+    "chen_qiaoqian": "chen_shimei",
+    "song_meng": "song_meng",
+    "huangfeng_zhanshi": "huangfeng_zhanshi",
+    "xin_ruyin": "xin_ruyin",
+    "xin_yahuan": "xin_yahuan",
+    "qin_gui": "qin_gui",
+    "qin_yan": "qin_yan",
+    "qinfu_laozhe": "qinfu_laozhe",
+    "mengshan_laoda": "mengshan_laoda",
+    "mengshan_wumei": "mengshan_wumei",
+    "wu_xianshi": "wu_xianshi",
+    "xiao_wangye": "xiao_wangye",
+    "wang_zongguan": "wang_zongguan",
+    "xiao_zhen": "xiao_zhen",
+    "xiaojia_shaonv": "xiaojia_shaonv",
+    "xiao_cuier": "xiao_cuier",
+    "xueshi": "xueshi",
+    "liu_jing": "liu_jing",
+    "zhong_weiniang": "zhong_weiniang",
+    "lanpao_ren": "lanpao_ren",
+    "yue_huang": "yue_huang",
+    "gongmen_shiwei": "gongmen_shiwei",
+    "ma_shizhi": "ma_shizhi",
+    "wusemen_menzhu": "wusemen_menzhu",
+    "yulingzong_canhun": "qu_hun"
   }
 }

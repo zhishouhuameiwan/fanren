@@ -1,0 +1,14 @@
+{
+  "id": "wuyouzi",
+  "name": "无游子",
+  "realm": "QiRefining9",
+  "maxHp": 100,
+  "maxMp": 40,
+  "attack": 15,
+  "defence": 12,
+  "speed": 6,
+  "element": 2,
+  "magics": [],
+  "origin": "原著",
+  "note": "第8章 ch253。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "magic_feitian_wugong",
+  "name": "飞天蜈蚣",
+  "descKey": "magic.desc.magic_feitian_wugong",
+  "element": 16,
+  "needMp": 12,
+  "power": 24,
+  "boost": "hits",
+  "needRealm": "FoundationLate",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。"
+}

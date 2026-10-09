@@ -1,0 +1,21 @@
+{
+  "id": "recipe_lianqi_san",
+  "name": "炼气散方",
+  "kind": "alchemy",
+  "productId": "pill_lianqi_san",
+  "productCount": 2,
+  "difficulty": 50,
+  "requiredProficiency": 30,
+  "inputs": [
+    {
+      "itemId": "herb_zishen_cao",
+      "count": 1,
+      "minAge": 100
+    },
+    {
+      "itemId": "material_lianqi_yao",
+      "count": 1
+    }
+  ],
+  "requireFlag": "ch08.gufang"
+}

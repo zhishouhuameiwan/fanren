@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 17,
+  "nextobjectid": 20,
   "tilesets": [
     {
       "firstgid": 1,
@@ -430,6 +430,11 @@
               "name": "wander",
               "type": "bool",
               "value": false
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch08.junling"
             }
           ]
         },
@@ -458,6 +463,11 @@
               "name": "wander",
               "type": "bool",
               "value": false
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch08.junling"
             }
           ]
         },
@@ -486,6 +496,11 @@
               "name": "wander",
               "type": "bool",
               "value": false
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch08.junling"
             }
           ]
         },
@@ -514,6 +529,11 @@
               "name": "wander",
               "type": "bool",
               "value": false
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch08.junling"
             }
           ]
         },
@@ -613,6 +633,110 @@
               "name": "deny_text_key",
               "type": "string",
               "value": "ch06.block.tainan_cun"
+            }
+          ]
+        },
+        {
+          "id": 17,
+          "name": "trigger_xiangjia",
+          "type": "trigger",
+          "x": 640,
+          "y": 672,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch08/xiangjia.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch08.junling"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch08.xiangjia"
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "name": "trigger_sipingbang",
+          "type": "trigger",
+          "x": 1088,
+          "y": 608,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch08/sipingbang.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch08.xiangjia"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch08.sunergou"
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "name": "spawn_from_tainan",
+          "type": "spawn",
+          "x": 1440,
+          "y": 544,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "spawn_from_tainan"
+            },
+            {
+              "name": "default",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "left"
             }
           ]
         }

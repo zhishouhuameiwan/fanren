@@ -312,7 +312,9 @@ TEST_F(Ch07BattleData, EveryFoeHasAWeaknessTheHandAtThatNodeCanReach) {
 TEST_F(Ch07BattleData, RuleTwentyFiveKnowsTheMeansOfChapterSeven) {
     const std::string validate = readFile(fs::path(assetRoot()) / "tools" / "validate.py");
     ASSERT_GT(validate.size(), 10000u) << "先验：读得到 tools/validate.py";
-    EXPECT_NE(validate.find("\nMEANS_LAST_CHAPTER = 7\n"), std::string::npos) << "E6：MEANS_LAST_CHAPTER = 7";
+    EXPECT_TRUE(validate.find("\nMEANS_LAST_CHAPTER = 7\n") != std::string::npos ||
+                validate.find("\nMEANS_LAST_CHAPTER = 8\n") != std::string::npos)
+        << "E6: Chapter 7 remains covered after the Chapter 8 table extension";
     const std::size_t chapterMeans = validate.find("\nCHAPTER_MEANS = {");
     ASSERT_NE(chapterMeans, std::string::npos);
     const std::size_t seven = validate.find("\n    7: [", chapterMeans);

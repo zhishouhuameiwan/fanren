@@ -1,0 +1,12 @@
+{
+  "id": "magic_ji_qingchi",
+  "name": "祭青尺符宝",
+  "descKey": "magic.desc.magic_ji_qingchi",
+  "element": 2,
+  "needMp": 18,
+  "power": 38,
+  "boost": "hits",
+  "needRealm": "FoundationEarly",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。"
+}

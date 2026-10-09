@@ -1,0 +1,11 @@
+{
+  "id": "material_lianqi_yao",
+  "name": "炼气散主药",
+  "descKey": "item.desc.material_lianqi_yao",
+  "kind": "material",
+  "grade": 2,
+  "price": 35,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "第8章物品；获得与收回由 scripts/ch08 管理，见设计13.1。"
+}

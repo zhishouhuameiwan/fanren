@@ -205,6 +205,8 @@ constexpr CultivationLexicon kMortalLexicon{
                              "不是运气差——是还没到时候。",
     /*spiritRootLabel*/      "",
     /*spiritRootValue*/      "",
+    /*siteBonusPrefix*/      "此处静坐格外见效，火候多得 ",
+    /*siteBonusSuffix*/      "%",
 };
 
 constexpr CultivationLexicon kImmortalLexicon{
@@ -248,6 +250,8 @@ constexpr CultivationLexicon kImmortalLexicon{
                              "不是运气差，是时机未到。",
     /*spiritRootLabel*/      "灵根　",
     /*spiritRootValue*/      "四属性缺金·伪灵根",
+    /*siteBonusPrefix*/      "此地灵气充沛，修为多得 ",
+    /*siteBonusSuffix*/      "%",
 };
 
 // 凡人阶段的层数名。不从 rules::nameOf 里截字符串：那是按字节切 UTF-8，
@@ -291,7 +295,7 @@ std::vector<std::string> cultivationPanelStrings(PanelStage stage) {
         words.breakSuccessMiddle, words.breakSuccessSuffix,  words.breakFailPrefix,
         words.breakFailSuffix,    words.backlashPrefix,      words.backlashSuffix,
         words.pushAtStoryCap,     words.atStoryCap,         words.spiritRootLabel,
-        words.spiritRootValue,
+        words.spiritRootValue,    words.siteBonusPrefix,    words.siteBonusSuffix,
     };
 
     // 境界名也是面板上的字。全境界都列进来——漏了哪一档，那一档就是没人看着
@@ -336,7 +340,8 @@ int settleDailyPractice(core::GameState& state) {
 }
 
 int meditationEffectiveness(const core::GameState&) {
-    // 100 是 rules::meditate 的基准。功法、洞府灵气、聚灵阵接进来之前就是它。
+    // 100 是 rules::meditate 的基准。功法、灵根接进来之前就是它。
+    // 洞府灵脉不并进这里：那是地点给的，乘在外面（bankMeditation 的 sitePercent）。
     return 100;
 }
 
@@ -368,6 +373,14 @@ std::string CultivationScene::spiritRootLine(const core::GameState& state) {
     if (wordingStage(state) != PanelStage::Immortal || state.flag(kSpiritRootFlag) == 0) return {};
     const CultivationLexicon& words = cultivationLexicon(PanelStage::Immortal);
     return std::string(words.spiritRootLabel) + words.spiritRootValue;
+}
+
+std::string CultivationScene::siteBonusLine(const core::GameState& state) const {
+    // 普通蒲团不画这一行：平时多一行「多得 0%」只是噪音。
+    if (sitePercent_ == kDefaultSitePercent) return {};
+    const CultivationLexicon& words = cultivationLexicon(wordingStage(state));
+    return std::string(words.siteBonusPrefix) + std::to_string(sitePercent_ - kDefaultSitePercent) +
+           words.siteBonusSuffix;
 }
 
 std::vector<ui::ListItem> CultivationScene::buildMainItems(const core::GameState& state) {
@@ -416,13 +429,17 @@ std::vector<ui::ListItem> CultivationScene::buildMainItems(const core::GameState
 }
 
 MeditateOutcome CultivationScene::bankMeditation(core::GameState& state, int days,
-                                                 std::uint32_t seed) {
+                                                 std::uint32_t seed, int sitePercent) {
     MeditateOutcome outcome;
     if (days <= 0) return outcome;
     outcome.days = days;
 
     const int aptitude = std::clamp(state.aptitude, 0, 100);
-    const int effectiveness = meditationEffectiveness(state);
+    // 此地的加成（百分比）乘在功法、灵根那一路（meditationEffectiveness）外面（契约
+    // docs/interfaces-p3-ch08.md 1.4）。整数先乘后除：缺省 100 时乘了再除回来，与没有这一路时逐字相同。
+    // 余数账记的是天数、差分按此刻的效率取：换一处坐时已进账的不回算，只有零头按新效率重折，差不到一点。
+    const int effectiveness =
+        meditationEffectiveness(state) * std::clamp(sitePercent, 0, rules::kMaxEffectiveness) / 100;
     // 效率为零（功法不契、洞府无灵气）时坐穿蒲团也是白坐：天数照过，一分不记，
     // 更不该往余数账上攒——攒了也永远兑不出来，只会让账面无限膨胀。
     if (effectiveness <= 0 || !rules::isValid(state.realm)) return outcome;
@@ -461,7 +478,8 @@ MeditateOutcome CultivationScene::meditateFor(Application& app, int days) {
     // 顺序反过来会让「先打坐再补账」与「先补账再打坐」算出不同的数。
     const int daily = settleDailyPractice(state);
 
-    const MeditateOutcome outcome = bankMeditation(state, days, meditationSeed(state));
+    const MeditateOutcome outcome =
+        bankMeditation(state, days, meditationSeed(state), sitePercent_);
     // 日历一律走这一个入口：灵田、掌天瓶这些按天走的系统全在那里结算，
     // 面板各推各的必然有人漏掉一项。
     app.advanceDays(days);
@@ -679,6 +697,8 @@ void CultivationScene::renderStatus(Application& app, const engine::Rect& area) 
     };
     // 三根条的颜色收进主题（施工图 1.6）：修为金、气血翠、法力（气力）蓝。
     gauge(progress, capped ? 1 : state.cultivation, capped ? 1 : need, theme.gold);
+    // 此地的打坐加成（灵眼之泉这类洞府灵脉）：写在修为条下面，玩家才知道「在这儿坐」划算在哪儿。
+    if (const std::string site = siteBonusLine(state); !site.empty()) line(site);
 
     // 炼气期打坐一日不足一点修为，界面上就是「按了没动」。账其实记着，
     // 但不画出来玩家只会当按钮坏了。有零头才显示，免得平时多一行噪音。

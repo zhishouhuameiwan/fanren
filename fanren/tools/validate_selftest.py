@@ -71,6 +71,9 @@ r"""门禁自身的负向自检：故意写坏，看 validate.py 与 genmaps.py 
   T. 配方占位旗标 story.recipe_later（第 7 章）—— 只许写在 data/recipes/** 的 requireFlag 里：
      脚本置它、别的数据文件引它、配方里写在别的字段、地图上引它，都必须报；五张门闸方子不许报。
 
+  U. 打坐设施的 effectiveness（第 8 章）—— 写在 kind=field 的设施上、写成字符串 "125"、写成 90、
+     写成 400，各自必报且只报自己那一条（位置 / 类型 / 取值）；打坐处写 int 125 不报，两头的 100、300 也不报。
+
   R. 衔接朝向与回弹（规则 29）—— 落点掉头且回程门就在跟前：朝向与来回弹都必须报；只把
      落点朝向拧 90°：只许报朝向、不许报来回弹；多入口的内门落点朝其中一面不许报，改朝
      进不去的那一面必须报。门与落点从几张不在返修的图里现找，不写死坐标。
@@ -1569,8 +1572,8 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
     # 韩立不在场的那一仗，手段只有编成里友军的兵刃：第 5 章的通表里有火，这里却不算。
     expect("夺帮那一夜的头目只怕火与刀 → 报（我方只有拳）", "data/roles/sipingbang_toumu.json",
            lambda p: p.__setitem__("weaknesses", ["火", "刀"]), "没有一样是这一场", "b05_duobang")
-    expect_quiet("第 8 章的敌人不在规则 25 的范围 → 不报", "data/roles/guilingmen_xiushi.json",
-                 lambda p: p.__setitem__("weaknesses", ["木"]), "b08_jinguyuan_juezhan")
+    expect_quiet("第 9 章的敌人不在规则 25 的范围 → 不报", "data/roles/wang_chan.json",
+                 lambda p: p.__setitem__("weaknesses", ["木"]), "b09_guzhen_zhuibing")
     expect("编成落在没登记手段的章 → 报", "data/battles/b03_gu_wai_elang.json",
            lambda p: p.__setitem__("chapter", 2), "没有登记我方必有手段")
 
@@ -1668,6 +1671,58 @@ def selftest_t_recipe_only_flag(case: Case, base: Path) -> None:
 
     found = mutated("maps/" + stable_maps(work)[0] + ".tmj", on_map)
     case.check("地图对象的属性里引它 → 报", any(needle in e for e in found), chr(10).join(found[:3]) or "（一条也没报）")
+
+
+def find_facility(work: Path, kind: str) -> tuple[str, str]:
+    """现找一处 kind 为 kind 的设施：(图, 对象名)。不写死图名：后面的章会往旧图上 patch 对象。"""
+    for path in sorted((work / "maps").glob("*.tmj")):
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        for entry in objects_layer(payload):
+            if entry.get("type") == "facility" and props_of(entry).get("kind") == kind:
+                return path.stem, entry["name"]
+    raise AssertionError("副本里找不到 kind=%s 的设施" % kind)
+
+
+def selftest_u_meditate_effectiveness(case: Case, base: Path) -> None:
+    """effectiveness 只许写在 kind=meditate 的设施上、必须是 Tiled 的 int、取值 100–300；三条各报各的。"""
+    print()
+    print("U. 打坐设施的 effectiveness（第 8 章）：只在打坐处、整数、100–300")
+
+    work = make_workdir(base / "u")
+    # 三条检查各自的报错措辞：每一条探针都要问「报的恰好是这一条」，不只是「报了点什么」。
+    phrases = {"位置": "只许写在 kind=meditate 的设施上", "类型": "必须是整数", "取值": "超出 100–300"}
+
+    def probe(kind: str, prop_type: str, value) -> tuple[set[str], list[str]]:
+        """把 effectiveness 写到一处 kind 设施上（写坏）→ 跑门禁 → 还原；返回报了哪几条与原文。"""
+        map_id, name = find_facility(work, kind)
+        path = work / "maps" / (map_id + ".tmj")
+        original = path.read_bytes()
+        payload = json.loads(original.decode("utf-8"))
+        entry = find_object(payload, name)
+        drop_prop(entry, validate.EFFECTIVENESS_PROP)
+        entry.setdefault("properties", []).append(
+            {"name": validate.EFFECTIVENESS_PROP, "type": prop_type, "value": value})
+        save_map(work, map_id, payload)
+        try:
+            found = [e for e in run_validate(work) if validate.EFFECTIVENESS_PROP in e]
+        finally:
+            path.write_bytes(original)
+        return {rule for rule, phrase in phrases.items() if any(phrase in e for e in found)}, found
+
+    # U0 · 正例：打坐处写 int 125 不报；两头的 100、300 也不报（钉住 100–300 是闭区间）。
+    for value in (125, 100, 300):
+        _rules, found = probe("meditate", "int", value)
+        case.check("打坐处写 int %d → 不报" % value, not found, chr(10).join(found[:3]))
+
+    # U1–U4 · 负例：每条只报它自己那一条。
+    for label, kind, prop_type, value, expect in (
+            ("写在 kind=field 的设施上", "field", "int", 125, {"位置"}),
+            ('写成字符串 "125"', "meditate", "string", "125", {"类型"}),
+            ("写成 90", "meditate", "int", 90, {"取值"}),
+            ("写成 400", "meditate", "int", 400, {"取值"})):
+        rules, found = probe(kind, prop_type, value)
+        case.check("%s → 只报%s" % (label, "、".join(sorted(expect))), rules == expect,
+                   chr(10).join(found[:3]) or "（一条也没报）")
 
 
 def parse_one(work: Path, map_id: str):
@@ -2138,6 +2193,7 @@ def main() -> int:
         selftest_p_path_actions(case, base)
         selftest_n_battle_break(case, base)
         selftest_t_recipe_only_flag(case, base)
+        selftest_u_meditate_effectiveness(case, base)
         selftest_q_encounters(case, base)
         selftest_r_portal_direction(case, base)
         selftest_s_npc_role_clash(case, base)

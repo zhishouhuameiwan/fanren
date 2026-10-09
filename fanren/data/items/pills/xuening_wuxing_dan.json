@@ -1,0 +1,13 @@
+{
+  "id": "pill_xuening_wuxing_dan",
+  "name": "血凝五行丹",
+  "descKey": "item.desc.pill_xuening_wuxing_dan",
+  "kind": "pill",
+  "grade": 2,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "第8章物品；获得与收回由 scripts/ch08 管理，见设计13.1。",
+  "restoreHp": 0,
+  "restoreMp": 0
+}

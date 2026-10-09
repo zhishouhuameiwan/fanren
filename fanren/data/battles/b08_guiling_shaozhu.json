@@ -1,0 +1,38 @@
+{
+  "id": "b08_guiling_shaozhu",
+  "name": "西峰·脱出血云",
+  "chapter": 8,
+  "terrain": "cliff",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "xue_gui",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "xue_gui",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "xue_gui",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "guiling_shaozhu",
+      "faction": "enemy",
+      "wave": 1
+    }
+  ],
+  "rewards": {
+    "cultivation": 220,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch08.battle.b08_guiling_shaozhu.intro",
+  "origin": "原著",
+  "note": "编成与必经入口见设计8.2；所有物品由脚本发放，③⑥没有消耗道具也须可胜。"
+}

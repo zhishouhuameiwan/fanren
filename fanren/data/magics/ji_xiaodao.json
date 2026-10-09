@@ -1,0 +1,12 @@
+{
+  "id": "magic_ji_xiaodao",
+  "name": "祭小刀符宝",
+  "descKey": "magic.desc.magic_ji_xiaodao",
+  "element": 1,
+  "needMp": 16,
+  "power": 40,
+  "boost": "power",
+  "needRealm": "FoundationEarly",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。"
+}

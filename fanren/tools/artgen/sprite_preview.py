@@ -316,6 +316,7 @@ def coverage(art: Path) -> tuple[str, int]:
         names[d["id"]] = d.get("name", d["id"])
 
     where: dict[str, list[str]] = {}
+    world_roles: set[str] = set()
     for p in sorted((REPO / "maps").glob("*.tmj")):
         d = json.loads(p.read_text(encoding="utf-8"))
         for layer in d.get("layers", []):
@@ -326,6 +327,7 @@ def coverage(art: Path) -> tuple[str, int]:
                 rid = props.get("role_id")
                 if rid:
                     where.setdefault(rid, []).append(f"地图 {p.stem}")
+                    world_roles.add(rid)
     # b0N 是剧情战，be0N 是野外遭遇战（第 3–5 章）
     battle_files = sorted((REPO / "data" / "battles").glob("b0[345]_*.json")) + \
         sorted((REPO / "data" / "battles").glob("be0[345]_*.json"))
@@ -356,6 +358,10 @@ def coverage(art: Path) -> tuple[str, int]:
                 note = f"另有非人形战斗图 `{enemies[rid]['file']}`"
             if look.startswith("arch_"):
                 note = (note + "；" if note else "") + "原型兜底"
+        elif rid in world_roles:
+            got = "**缺世界人物表**"
+            note = "战斗 enemies 不能替代 WorldView 的 roles -> sheets"
+            missing += 1
         elif rid in enemies:
             got = f"敌人图 `{enemies[rid]['file']}`（{enemies[rid]['kind']}）"
         else:

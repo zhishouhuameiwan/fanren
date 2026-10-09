@@ -830,13 +830,14 @@ def build_all():
     # 第 6 章在南城东墙开了一道门（往太南山脚），归 genmaps_ch06.py 所有（它的 patch_nancheng）。
     # 不在这里补回去，单跑本脚本就会把第 6 章整章从游戏里割断——太南山脚只从这一处进得去。
     import genmaps_ch06  # 延迟导入：模块层导入会与它的 import genmaps_ch05 成环
+    import genmaps_ch08
 
     return {
         "ch05_dukou": make_dukou(),
         "ch05_xicheng": make_xicheng(),
-        "ch05_nancheng": genmaps_ch06.patch_nancheng(make_nancheng()),
+        "ch05_nancheng": genmaps_ch08.patch_nancheng(genmaps_ch06.patch_nancheng(make_nancheng())),
         "ch05_kezhan": make_kezhan(),
-        "ch05_mofu": make_mofu(),
+        "ch05_mofu": genmaps_ch08.patch_mofu(make_mofu()),
         "ch05_dubashanzhuang": make_dubashanzhuang(),
         "ch01_hanjiacun": patch_hanjiacun(),
     }

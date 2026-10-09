@@ -1,0 +1,51 @@
+{
+  "id": "b08_lingkuang_shouzhen",
+  "name": "灵矿·守阵",
+  "chapter": 8,
+  "terrain": "cliff",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "xuan_le",
+      "faction": "ally"
+    },
+    {
+      "role_id": "lv_tianmeng",
+      "faction": "ally"
+    },
+    {
+      "role_id": "tianshazong_xiushi",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "tianshazong_xiushi",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "moyanmen_xiushi",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "tianshazong_toumu",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "moyanmen_xiushi",
+      "faction": "enemy",
+      "wave": 1
+    }
+  ],
+  "rewards": {
+    "cultivation": 260,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch08.battle.b08_lingkuang_shouzhen.intro",
+  "origin": "原著",
+  "note": "编成与必经入口见设计8.2；所有物品由脚本发放，③⑥没有消耗道具也须可胜。"
+}

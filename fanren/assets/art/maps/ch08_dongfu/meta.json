@@ -1,0 +1,60 @@
+{
+ "map": "ch08_dongfu",
+ "tile": 16,
+ "width": 48,
+ "height": 40,
+ "theme": "mountain_path",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  175,
+  192,
+  178
+ ],
+ "dof": 0.5,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "mist",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 7.5,
+   "y": 8.38,
+   "r": 4.5,
+   "color": [
+    207,
+    116,
+    66
+   ],
+   "intensity": 1.0,
+   "flicker": 0.35,
+   "kind": "furnace"
+  },
+  {
+   "x": 39.5,
+   "y": 23.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "ember",
+   "x": 7.5,
+   "y": 7.88
+  }
+ ],
+ "backdrop": "mountain_forest"
+}

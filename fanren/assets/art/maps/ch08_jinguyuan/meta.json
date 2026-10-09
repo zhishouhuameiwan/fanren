@@ -1,0 +1,41 @@
+{
+ "map": "ch08_jinguyuan",
+ "tile": 16,
+ "width": 48,
+ "height": 36,
+ "theme": "wild",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  201,
+  199,
+  167
+ ],
+ "dof": 0.5,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 27.5,
+   "y": 20.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "cliff_top"
+}

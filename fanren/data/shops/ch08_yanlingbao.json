@@ -1,0 +1,42 @@
+{
+  "id": "ch08_yanlingbao",
+  "name": "燕翎堡符铺",
+  "nameKey": "ch08.shop.name.yanlingbao",
+  "buyRate": 1,
+  "sellRate": 0.1,
+  "entries": [
+    {
+      "itemId": "talisman_huoqiu_fu",
+      "price": 0,
+      "stock": 12,
+      "restockDays": 10,
+      "restockAmount": 12,
+      "maxStock": 12
+    },
+    {
+      "itemId": "talisman_dingshen_fu",
+      "price": 0,
+      "stock": 8,
+      "restockDays": 10,
+      "restockAmount": 8,
+      "maxStock": 8
+    },
+    {
+      "itemId": "pill_yangjing_dan",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 10,
+      "maxStock": 10
+    },
+    {
+      "itemId": "pill_huiqi_dan",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 10,
+      "maxStock": 10
+    }
+  ],
+  "note": "库存按实际日历补充；主线所需可重复获得，千年紫桂花与闭关丹不得出售。"
+}

@@ -896,7 +896,7 @@ const std::map<int, Realm>& realmCapOfChapter() {
                                               {4, Realm::QiRefining8}, {5, Realm::QiRefining8},
                                               // 第 6 章：九层（scripts/ch06/kuxiu.lua 节点 9b 的 realm.advance）。
                                               {6, Realm::QiRefining9},
-                                              {7, Realm::QiRefining11}};
+                                              {7, Realm::QiRefining11}, {8, Realm::FoundationMid}};
     return kCap;
 }
 
@@ -1023,7 +1023,7 @@ TEST(PathActionData, EveryPriceFitsTheLeanestPurseOfItsChapter) {
     // 本章那一条求购（丹砂）是**有意**买不起的：条目挂着、poor_key 说没有灵石，让玩家看见自己的穷
     //（施工图 16.2）。例外只此一条、按 id 点名，别的求购照旧得付得起。
     const std::map<int, Purse> purse = {{2, {6, "ch02.duan2_start"}}, {4, {28, ""}}, {5, {87, ""}},
-                                        {6, {0, ""}}, {7, {82, ""}}};
+                                        {6, {0, ""}}, {7, {82, ""}}, {8, {276, ""}}};
     const std::set<std::string> kDeliberatelyUnaffordable = {"dansha_qiugou"};
     const RealData& real = realData();
     ASSERT_TRUE(real.ok) << real.error;
@@ -1075,6 +1075,12 @@ TEST(PathActionData, ThePurseTableStillMatchesTheChapterFixtures) {
         const auto state = fanren::io::loadGame((fixtures / file).string());
         ASSERT_TRUE(state.ok) << state.error;
         EXPECT_GE(state.value.itemCount(kSilver), 82) << file << "：第 7 章的钱袋按第 6 章终局第二侧的 82 块算的";
+    }
+    // Design 9: lean side 431 - rent 3 - array 12 - three brews 105 + loot 5 - gift 40 = 276.
+    for (const char* file : {"ch07-end-first.sav", "ch07-end-second.sav"}) {
+        const auto state = fanren::io::loadGame((fixtures / file).string());
+        ASSERT_TRUE(state.ok) << state.error;
+        EXPECT_GE(state.value.itemCount(kSilver), 431) << file;
     }
 }
 

@@ -115,7 +115,41 @@ constexpr OffChainFlag kOffChainFlags[] = {
 // 目标链至少要覆盖到的章：少了一章，那一章的 NPC 就没被考到。第 6 章目标链 2026-09-29 落地（data/objectives/ch06.json），
 // 第 7 章同日落地（data/objectives/ch07.json）。
 constexpr int kFirstChapter = 1;
-constexpr int kLastChapter = 7;
+constexpr int kLastChapter = 8;
+
+TEST(NpcPresence, ChapterEightDepartureAndArrivalFlagsMatchTheDesign) {
+    struct Presence { const char* map; const char* npc; const char* show; const char* hide; };
+    const Presence specs[] = {
+        {"ch08_jinguyuan", "npc_song_meng", "ch08.yinian", "ch08.nangong"},
+        {"ch08_yuejing", "npc_song_meng", "ch08.qb_yuanbing", "ch08.jingong"},
+        {"ch05_mofu", "npc_mo_fengwu", "ch05.dengmen", "ch05.done"},
+        {"ch08_yuejing", "npc_mo_fengwu", "ch08.qinzhai", "ch08.junling"},
+        {"ch06_huangfenggu", "npc_lin_shidi", "", "ch08.midian"},
+        {"ch08_dongfu", "npc_shuangtong_shu", "ch08.dengji", "ch08.lingquan"},
+        {"ch08_lingkuang", "npc_yu_xing", "", "ch08.shouzhen"},
+        {"ch08_yuejing", "npc_gongmen_shiwei", "", "ch08.qb_yuanbing"},
+        {"ch08_dongfu", "npc_qu_hun", "ch08.huifu", ""},
+        {"ch05_nancheng", "npc_huyuan_a", "", "ch08.junling"},
+        {"ch05_nancheng", "npc_huyuan_b", "", "ch08.junling"},
+        {"ch05_nancheng", "npc_huyuan_c", "", "ch08.junling"},
+        {"ch05_nancheng", "npc_huyuan_d", "", "ch08.junling"},
+    };
+    std::string root = ".";
+    for (const char* candidate : {".", "..", "../..", "../../.."})
+        if (fs::exists(fs::path(candidate) / "docs/ch08-design.md")) { root = candidate; break; }
+    for (const auto& s : specs) {
+        SCOPED_TRACE(s.npc);
+        const auto loaded = fanren::io::loadTileMap(root + "/maps/" + s.map + ".tmj");
+        ASSERT_TRUE(loaded.ok) << loaded.error;
+        int count = 0;
+        for (const auto& o : loaded.value.objects) if (o.name == s.npc) {
+            ++count;
+            EXPECT_EQ(o.property("visible_flag"), s.show);
+            EXPECT_EQ(o.property("hidden_flag"), s.hide);
+        }
+        EXPECT_EQ(count, 1);
+    }
+}
 
 // 与 tests/WorldViewTests.cpp 同一个找法。
 std::string repoRoot() {

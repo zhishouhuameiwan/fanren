@@ -1,0 +1,391 @@
+{
+  "id": "pathactions_ch08",
+  "name": "第8章路径行动",
+  "chapter": 8,
+  "entries": [
+    {
+      "id": "wangziling_dating",
+      "kind": "inquire",
+      "map": "ch08_tianxing_fangshi",
+      "npc": "npc_wang_ziling",
+      "when": [
+        {
+          "flag": "ch08.xulao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.qiyunxiao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.wangziling_dating",
+      "text_key": "ch08.path.wangziling_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "xulao_qipu_dating",
+      "kind": "inquire",
+      "map": "ch08_tianxing_fangshi",
+      "npc": "npc_xulao_qipu",
+      "when": [
+        {
+          "flag": "ch08.fangshi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.xulao_qipu_dating",
+      "text_key": "ch08.path.xulao_qipu_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "yanjia_dating",
+      "kind": "inquire",
+      "map": "ch08_yanlingbao",
+      "npc": "npc_yanjia_dizi",
+      "when": [
+        {
+          "flag": "ch08.biwu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.yanjia_dating",
+      "text_key": "ch08.path.yanjia_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "xuanle_dating",
+      "kind": "inquire",
+      "map": "ch08_lingkuang",
+      "npc": "npc_xuan_le",
+      "when": [
+        {
+          "flag": "ch08.lingkuang",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.shouzhen",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.xuanle_dating",
+      "text_key": "ch08.path.xuanle_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。",
+      "reveal": [
+        {
+          "role": "tianshazong_xiushi",
+          "category": "木"
+        }
+      ]
+    },
+    {
+      "id": "yuxing_dating",
+      "kind": "inquire",
+      "map": "ch08_lingkuang",
+      "npc": "npc_yu_xing",
+      "when": [
+        {
+          "flag": "ch08.lingkuang",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.shouzhen",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.yuxing_dating",
+      "text_key": "ch08.path.yuxing_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "zhongwu_dating",
+      "kind": "inquire",
+      "map": "ch08_lingkuang",
+      "npc": "npc_zhong_wu",
+      "when": [
+        {
+          "flag": "ch08.kuilei",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.shouzhen",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.zhongwu_dating",
+      "text_key": "ch08.path.zhongwu_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "lvtianmeng_dating",
+      "kind": "inquire",
+      "map": "ch08_lingkuang",
+      "npc": "npc_lv_tianmeng",
+      "when": [
+        {
+          "flag": "ch08.kuilei",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.shouzhen",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.lvtianmeng_dating",
+      "text_key": "ch08.path.lvtianmeng_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "chenpangzi_dating",
+      "kind": "inquire",
+      "map": "ch08_jinguyuan",
+      "npc": "npc_chen_pangzi",
+      "when": [
+        {
+          "flag": "ch08.yinian",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.chenpangzi_dating",
+      "text_key": "ch08.path.chenpangzi_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "huangfeng_dating",
+      "kind": "inquire",
+      "map": "ch08_jinguyuan",
+      "npc": "npc_huangfeng_zhanshi",
+      "when": [
+        {
+          "flag": "ch08.yinian",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.huangfeng_dating",
+      "text_key": "ch08.path.huangfeng_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。",
+      "reveal": [
+        {
+          "role": "guilingmen_xiushi",
+          "category": "水"
+        }
+      ]
+    },
+    {
+      "id": "songmeng_qiecuo",
+      "kind": "challenge",
+      "map": "ch08_jinguyuan",
+      "npc": "npc_song_meng",
+      "when": [
+        {
+          "flag": "ch08.yinian",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.nangong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.songmeng_qiecuo",
+      "text_key": "ch08.path.songmeng_qiecuo.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。",
+      "battle": "b08_songmeng_qiecuo",
+      "win_key": "ch08.path.songmeng_qiecuo.win",
+      "lose_key": "ch08.path.songmeng_qiecuo.lose",
+      "reward": {
+        "items": [{"item_id": "pill_huiqi_dan", "count": 1}]
+      }
+    },
+    {
+      "id": "qiyunxiao_dating",
+      "kind": "inquire",
+      "map": "ch08_jinmacheng",
+      "npc": "npc_qi_yunxiao",
+      "when": [
+        {
+          "flag": "ch08.jinma",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.qiyunxiao_dating",
+      "text_key": "ch08.path.qiyunxiao_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "xinruyin_dating",
+      "kind": "inquire",
+      "map": "ch08_jinmacheng",
+      "npc": "npc_xin_ruyin",
+      "when": [
+        {
+          "flag": "ch08.jiuren",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.xinruyin_dating",
+      "text_key": "ch08.path.xinruyin_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "qinyan_dating",
+      "kind": "inquire",
+      "map": "ch08_yuejing",
+      "npc": "npc_qin_yan",
+      "when": [
+        {
+          "flag": "ch08.qinzhai",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.qinyan_dating",
+      "text_key": "ch08.path.qinyan_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    },
+    {
+      "id": "jiefang_dating",
+      "kind": "inquire",
+      "map": "ch05_nancheng",
+      "npc": "npc_jiefang",
+      "when": [
+        {
+          "flag": "ch08.xiangjia",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch08.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch08.path.jiefang_dating",
+      "text_key": "ch08.path.jiefang_dating.text",
+      "origin": "改编",
+      "note": "设计16.3；仅在对应NPC在场时提供。"
+    }
+  ]
+}

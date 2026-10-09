@@ -1,0 +1,28 @@
+{
+  "id": "xuan_le",
+  "name": "宣乐",
+  "realm": "FoundationLate",
+  "maxHp": 410,
+  "maxMp": 24,
+  "attack": 14,
+  "defence": 24,
+  "speed": 10,
+  "element": 4,
+  "magics": [
+    "magic_bingzhui"
+  ],
+  "origin": "原著",
+  "note": "第8章 ch262-270。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 6,
+  "weaknesses": [
+    "木",
+    "暗器"
+  ],
+  "actions": 1,
+  "charge": {
+    "every": 3,
+    "mult": 1.8,
+    "all": false,
+    "text_key": "ch08.battle.bingzhui.charge"
+  }
+}

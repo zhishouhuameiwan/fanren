@@ -1,0 +1,12 @@
+{
+  "id": "magic_songmeng_jian",
+  "name": "宋蒙剑术",
+  "descKey": "magic.desc.magic_songmeng_jian",
+  "element": 1,
+  "needMp": 12,
+  "power": 24,
+  "boost": "hits",
+  "needRealm": "FoundationMid",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "magic_qingyuan_jianmang",
+  "name": "青元剑芒",
+  "descKey": "magic.desc.magic_qingyuan_jianmang",
+  "element": 2,
+  "needMp": 10,
+  "power": 20,
+  "boost": "hits",
+  "needRealm": "FoundationEarly",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。"
+}

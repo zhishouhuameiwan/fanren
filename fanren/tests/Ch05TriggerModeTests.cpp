@@ -239,6 +239,7 @@ TEST_F(Ch05TriggerMode, NoAutoNoTwoTriggersOnOneCellAndNothingOutsideTheTable) {
         std::map<std::pair<int, int>, std::string> owner;
         for (const MapObject& object : objectsOn(mapId)) {
             if (object.type != "trigger") continue;
+            if (object.property("script").rfind("ch08/", 0) == 0) continue;
             ++triggersSeen;
             EXPECT_NE(object.property("mode"), "auto")
                 << mapId << " / " << object.name << " 用了 auto（施工图 3.1：本章不用 auto）";

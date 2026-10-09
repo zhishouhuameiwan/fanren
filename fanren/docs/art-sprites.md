@@ -234,6 +234,12 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
 
 ## 8. 这一路自己定的事
 
+世界非人形NPC也必须走 `roles -> sheets`：`WorldView::drawCharacter` 不读 `enemies`。
+第8章 `shuangtong_shu` 由 `sprites_enemies.render_world_mouse()` 沿兽图绘成16x24的四向三帧及九帧战斗表，
+在 `sprites.py` 生成 `chars/shuangtong_shu.png` 并登记标准帧表、`foot_y`/`head_y`；不构造人形Look。
+原 `enemies/shuangtong_shu.png` 保留，供战斗使用。覆盖工具对真实地图NPC只接受人物表，兽图存在不算世界覆盖。
+
+
 | # | 决策 | 为什么 |
 | --- | --- | --- |
 | D-1 | 人物表 3 列 7 行、21 帧；战斗帧多一张「防御」 | 施工图 2.4 有防御动作，多画一帧比运行时拿待机顶替像样 |

@@ -1,0 +1,54 @@
+{
+ "map": "ch08_yanlingbao",
+ "tile": 16,
+ "width": 56,
+ "height": 40,
+ "theme": "town",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  214,
+  194,
+  176
+ ],
+ "dof": 0.5,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 30.5,
+   "y": 35.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  },
+  {
+   "x": 11.5,
+   "y": 31.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "town_street"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "magic_lvhuang",
+  "name": "绿煌剑光",
+  "descKey": "magic.desc.magic_lvhuang",
+  "element": 2,
+  "needMp": 14,
+  "power": 14,
+  "boost": "power",
+  "needRealm": "FoundationMid",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。"
+}

@@ -1,0 +1,12 @@
+{
+  "id": "magic_qiaoqian_fubao",
+  "name": "陈师姐符宝",
+  "descKey": "magic.desc.magic_qiaoqian_fubao",
+  "element": 1,
+  "needMp": 14,
+  "power": 26,
+  "boost": "power",
+  "needRealm": "FoundationMid",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。"
+}

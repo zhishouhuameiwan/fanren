@@ -27,7 +27,7 @@ if str(_HERE) not in sys.path:
 from PIL import Image  # noqa: E402
 
 from sprites_core import save_png, write_json  # noqa: E402
-from sprites_enemies import BEASTS, ORBS, render_beast, render_orb  # noqa: E402
+from sprites_enemies import BEASTS, ORBS, render_beast, render_orb, render_world_mouse  # noqa: E402
 from sprites_looks import Look, load_table  # noqa: E402
 from sprites_objects import CELL, pack_objects  # noqa: E402
 from sprites_render import SHEET_COLS, render_sheet, sheet_layout  # noqa: E402
@@ -97,6 +97,16 @@ def build(out_root: Path) -> list[Path]:
         written.append(save_png(img, sp / "chars" / f"{lid}.png"))
         sheets[lid] = _sheet_entry(look, fw, fh, img)
 
+    mouse = render_world_mouse()
+    written.append(save_png(mouse, sp / "chars" / "shuangtong_shu.png"))
+    top, bottom = _opaque_rows(mouse.crop((0, 0, 16, 24)))
+    layout = sheet_layout()
+    sheets["shuangtong_shu"] = {
+        "file": "chars/shuangtong_shu.png", "name": "双瞳鼠", "frame_w": 16, "frame_h": 24,
+        "cols": SHEET_COLS, "walk": layout["walk"], "battle": layout["battle"],
+        "battle_facing": "left", "foot_y": bottom, "head_y": top, "weapon": "fist",
+    }
+
     enemies: dict[str, dict] = {}
     for beast in BEASTS:
         img, lay = render_beast(beast)
@@ -135,6 +145,7 @@ def build(out_root: Path) -> list[Path]:
             variants[rid] = [dict(v) for v in entry["variants"]]
 
     index = {
+        # WorldView resolves map NPCs through roles -> sheets, never through enemies.
         "_说明": "由 tools/artgen/sprites.py 生成，勿手改。schema 见 docs/art-sprites.md。",
         "version": 1,
         "frame_w": 16,
@@ -143,7 +154,7 @@ def build(out_root: Path) -> list[Path]:
         "walk_cycle": [0, 1, 0, 2],
         "walk_fps": 8,
         "sheets": sheets,
-        "roles": roles,
+        "roles": {**roles, "shuangtong_shu": "shuangtong_shu"},
         "role_variants": variants,
         "enemies": enemies,
         "battle_overrides": BATTLE_OVERRIDES,

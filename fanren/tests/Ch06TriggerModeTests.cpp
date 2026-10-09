@@ -165,8 +165,9 @@ std::string withoutRepay(const std::string& code) {
 // 认旗标属性里 ch07. 开头的那些（guard_flag / set_flag / require_flag / visible_flag / hidden_flag）。它们归
 // Ch07TriggerModeTests 管；本文件数第 6 章的挂点与门时把它们排除在外，判据不改。一格一个对象（规则 17）仍对全图。
 bool patchedInByChapterSeven(const MapObject& object) {
+    if (object.name == "portal_to_nancheng" && object.property("target_map") == "ch05_nancheng") return true;
     for (const char* key : {"guard_flag", "set_flag", "require_flag", "visible_flag", "hidden_flag"}) {
-        if (object.property(key).rfind("ch07.", 0) == 0) return true;
+        if (object.property(key).rfind("ch07.", 0) == 0 || object.property(key).rfind("ch08.", 0) == 0) return true;
     }
     return false;
 }

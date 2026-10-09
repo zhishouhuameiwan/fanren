@@ -1,0 +1,61 @@
+{
+  "id": "q08_xiaojia",
+  "name": "萧家荐书",
+  "chapter": 8,
+  "kind": "side",
+  "title_key": "ch08.quest.xiaojia.title",
+  "summary_key": "ch08.quest.xiaojia.summary",
+  "accept": [
+    {
+      "flag": "ch08.xiao_qiu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch08.quest.xiaojia.s1",
+      "done": [
+        {
+          "flag": "ch08.xiao_jiaoyi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch08_yuejing",
+      "target_object": "trigger_houmen"
+    },
+    {
+      "id": "s2",
+      "text_key": "ch08.quest.xiaojia.s2",
+      "done": [
+        {
+          "flag": "ch08.xiao_tuijian",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch08_yuejing",
+      "target_object": "trigger_xiqu"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch08.xiao_tuijian",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail": [
+    {
+      "flag": "ch08.qb_yuanbing",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch08.quest.xiaojia.fail",
+  "rewards": [],
+  "origin": "原著，步骤改编",
+  "note": "奖励在脚本里落地；过期不阻挡主线。"
+}

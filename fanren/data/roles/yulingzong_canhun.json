@@ -1,0 +1,26 @@
+{
+  "id": "yulingzong_canhun",
+  "name": "御灵宗修士",
+  "realm": "FoundationMid",
+  "maxHp": 850,
+  "maxMp": 0,
+  "attack": 13,
+  "defence": 24,
+  "speed": 10,
+  "element": 2,
+  "magics": [],
+  "origin": "原著",
+  "note": "第8章 ch337-343。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 6,
+  "weaknesses": [
+    "金",
+    "火"
+  ],
+  "actions": 2,
+  "charge": {
+    "every": 2,
+    "mult": 1.8,
+    "all": false,
+    "text_key": "ch08.battle.lvhuang.charge"
+  }
+}

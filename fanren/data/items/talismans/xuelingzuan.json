@@ -1,0 +1,12 @@
+{
+  "id": "talisman_xuelingzuan",
+  "name": "血灵钻",
+  "descKey": "item.desc.talisman_xuelingzuan",
+  "kind": "talisman",
+  "grade": 2,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "第8章物品；获得与收回由 scripts/ch08 管理，见设计13.1。",
+  "castMagic": "magic_xuelingzuan"
+}

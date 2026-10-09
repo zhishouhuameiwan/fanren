@@ -1,0 +1,41 @@
+{
+ "map": "ch08_yuejing",
+ "tile": 16,
+ "width": 64,
+ "height": 48,
+ "theme": "town",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  211,
+  213,
+  205
+ ],
+ "dof": 0.5,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 44.5,
+   "y": 35.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "town_street"
+}

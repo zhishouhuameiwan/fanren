@@ -1,0 +1,11 @@
+{
+  "id": "material_juling_yao",
+  "name": "聚灵丹药引",
+  "descKey": "item.desc.material_juling_yao",
+  "kind": "material",
+  "grade": 2,
+  "price": 60,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "第8章物品；获得与收回由 scripts/ch08 管理，见设计13.1。"
+}

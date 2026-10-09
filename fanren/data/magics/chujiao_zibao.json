@@ -1,0 +1,14 @@
+{
+  "id": "magic_chujiao_zibao",
+  "name": "雏角自爆",
+  "descKey": "magic.desc.magic_chujiao_zibao",
+  "element": 8,
+  "needMp": 0,
+  "power": 0,
+  "boost": "power",
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。",
+  "effect": "stagger",
+  "stagger": 4
+}

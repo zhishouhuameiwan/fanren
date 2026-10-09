@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 36,
+  "nextobjectid": 39,
   "tilesets": [
     {
       "firstgid": 1,
@@ -597,6 +597,11 @@
               "name": "wander",
               "type": "bool",
               "value": false
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch08.midian"
             }
           ]
         },
@@ -1345,6 +1350,110 @@
               "name": "hidden_flag",
               "type": "string",
               "value": "ch07.jihe"
+            }
+          ]
+        },
+        {
+          "id": 36,
+          "name": "trigger_dengji",
+          "type": "trigger",
+          "x": 832,
+          "y": 256,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch08/dengji.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch08.shixiong"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch08.dengji"
+            }
+          ]
+        },
+        {
+          "id": 37,
+          "name": "portal_to_dongfu",
+          "type": "portal",
+          "x": 32,
+          "y": 640,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "target_map",
+              "type": "string",
+              "value": "ch08_dongfu"
+            },
+            {
+              "name": "target_spawn",
+              "type": "string",
+              "value": "spawn_entry"
+            },
+            {
+              "name": "transition",
+              "type": "string",
+              "value": "fade"
+            },
+            {
+              "name": "require_flag",
+              "type": "string",
+              "value": "ch08.dengji"
+            },
+            {
+              "name": "deny_text_key",
+              "type": "string",
+              "value": "ch08.block.dongfu"
+            }
+          ]
+        },
+        {
+          "id": 38,
+          "name": "spawn_from_dongfu",
+          "type": "spawn",
+          "x": 96,
+          "y": 768,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "spawn_from_dongfu"
+            },
+            {
+              "name": "default",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "right"
             }
           ]
         }

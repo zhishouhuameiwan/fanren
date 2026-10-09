@@ -1,0 +1,13 @@
+{
+  "id": "encounter_ch08_lingkuang",
+  "name": "荒原峡谷",
+  "dailyCap": 2,
+  "entries": [
+    {
+      "battleId": "be08_huangyuan_xiyi",
+      "weight": 1,
+      "minRealm": "FoundationEarly",
+      "maxRealm": "FoundationMid"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "id": "lv_tianmeng",
+  "name": "吕天蒙",
+  "realm": "FoundationLate",
+  "maxHp": 410,
+  "maxMp": 130,
+  "attack": 33,
+  "defence": 30,
+  "speed": 9,
+  "element": 16,
+  "magics": [
+    "magic_feitian_wugong"
+  ],
+  "origin": "原著",
+  "note": "第8章 ch265-269。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 4,
+  "weaknesses": [
+    "火",
+    "木"
+  ]
+}

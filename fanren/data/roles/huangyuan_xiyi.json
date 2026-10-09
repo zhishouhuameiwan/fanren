@@ -1,0 +1,19 @@
+{
+  "id": "huangyuan_xiyi",
+  "name": "荒原蜥蜴",
+  "realm": "QiRefining11",
+  "maxHp": 75,
+  "maxMp": 0,
+  "attack": 9,
+  "defence": 8,
+  "speed": 5,
+  "element": 16,
+  "magics": [],
+  "origin": "原著",
+  "note": "第8章 ch264。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 2,
+  "weaknesses": [
+    "木",
+    "拳"
+  ]
+}

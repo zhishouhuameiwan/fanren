@@ -1,0 +1,48 @@
+{
+  "id": "q08_liesha",
+  "name": "出营猎杀",
+  "chapter": 8,
+  "kind": "side",
+  "title_key": "ch08.quest.liesha.title",
+  "summary_key": "ch08.quest.liesha.summary",
+  "accept": [
+    {
+      "flag": "ch08.yinian",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch08.quest.liesha.s1",
+      "done": [
+        {
+          "flag": "ch08.liesha",
+          "op": ">=",
+          "value": 3
+        }
+      ],
+      "target_map": "ch08_jinguyuan",
+      "target_object": "trigger_liesha"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch08.liesha",
+      "op": ">=",
+      "value": 3
+    }
+  ],
+  "fail": [
+    {
+      "flag": "ch08.nangong",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch08.quest.liesha.fail",
+  "rewards": [],
+  "origin": "原著，步骤改编",
+  "note": "奖励在脚本里落地；过期不阻挡主线。"
+}

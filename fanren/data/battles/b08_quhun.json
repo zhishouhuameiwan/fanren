@@ -1,0 +1,23 @@
+{
+  "id": "b08_quhun",
+  "name": "山顶·御灵宗残魂",
+  "chapter": 8,
+  "terrain": "forest",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "yulingzong_canhun",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 300,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch08.battle.b08_quhun.intro",
+  "origin": "原著",
+  "note": "编成与必经入口见设计8.2；所有物品由脚本发放，③⑥没有消耗道具也须可胜。"
+}

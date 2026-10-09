@@ -678,7 +678,10 @@ void Application::openFacility(const core::MapObject& facility) {
     }
 
     if (kind == "meditate") {
-        pushScene(std::make_unique<CultivationScene>());
+        // 此地的打坐效率（map_spec 4.6 的 effectiveness，百分比；契约 docs/interfaces-p3-ch08.md 1.4）：
+        // 灵眼之泉这类洞府灵脉写它，没写就是普通蒲团。非正数当缺省——门禁只放 100–300，这里只是不崩。
+        const int sitePercent = propertyInt(facility.property("effectiveness"), kDefaultSitePercent);
+        pushScene(std::make_unique<CultivationScene>(sitePercent > 0 ? sitePercent : kDefaultSitePercent));
         return;
     }
     if (kind == "field" && !facility.property("ref_id").empty()) {

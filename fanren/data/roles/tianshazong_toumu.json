@@ -1,0 +1,26 @@
+{
+  "id": "tianshazong_toumu",
+  "name": "天煞宗领头",
+  "realm": "FoundationMid",
+  "maxHp": 320,
+  "maxMp": 0,
+  "attack": 12,
+  "defence": 18,
+  "speed": 8,
+  "element": 16,
+  "magics": [],
+  "origin": "原著",
+  "note": "第8章 ch266。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 5,
+  "weaknesses": [
+    "木",
+    "暗器"
+  ],
+  "actions": 2,
+  "charge": {
+    "every": 3,
+    "mult": 2,
+    "all": true,
+    "text_key": "ch08.battle.hongzhen.charge"
+  }
+}

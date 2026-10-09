@@ -1,0 +1,41 @@
+{
+ "map": "ch08_tianxing_fangshi",
+ "tile": 16,
+ "width": 48,
+ "height": 36,
+ "theme": "town",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  206,
+  207,
+  190
+ ],
+ "dof": 0.5,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  }
+ ],
+ "lights": [
+  {
+   "x": 27.5,
+   "y": 32.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "town_street"
+}

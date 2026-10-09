@@ -1,0 +1,13 @@
+{
+  "id": "pill_juling_dan",
+  "name": "聚灵丹",
+  "descKey": "item.desc.pill_juling_dan",
+  "kind": "pill",
+  "grade": 2,
+  "price": 90,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "第8章物品；获得与收回由 scripts/ch08 管理，见设计13.1。",
+  "restoreHp": 0,
+  "restoreMp": 75
+}

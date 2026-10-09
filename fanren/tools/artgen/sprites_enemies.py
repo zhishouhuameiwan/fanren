@@ -1310,7 +1310,99 @@ HUOYAN = Beast(
     note="环形山里一级下阶的小兽，成群出没：个头小，赤红的毛，背上一溜火苗、尾尖一点火星；出招是冲着人喷一口火星；倒下时火灭成灰。",
 )
 
-BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN)
+
+def _chapter8_rows(kind, pose, w=32, h=24):
+    rows = [["."] * w for _ in range(h)]
+    def dot(x, y, code="B"):
+        if 0 <= x < w and 0 <= y < h:
+            rows[y][x] = code
+    def line(x0, y0, x1, y1, code="C"):
+        n = max(abs(x1 - x0), abs(y1 - y0), 1)
+        for step in range(n + 1):
+            dot(round(x0 + (x1 - x0) * step / n), round(y0 + (y1 - y0) * step / n), code)
+    def ellipse(cx, cy, rx, ry, code="B"):
+        for y in range(max(0, cy - ry), min(h, cy + ry + 1)):
+            for x in range(max(0, cx - rx), min(w, cx + rx + 1)):
+                if ((x - cx) / max(rx, 1)) ** 2 + ((y - cy) / max(ry, 1)) ** 2 <= 1:
+                    dot(x, y, "A" if y < cy - ry // 2 else code)
+    down = pose == 2
+    shift = 2 if pose == 1 else 0
+    if kind == "xue_gui":
+        ellipse(17 + shift, 9 if not down else 19, 7, 7 if not down else 2)
+        if not down:
+            for x in (12, 16, 21):
+                line(x, 14, x - 3, 21)
+            dot(19 + shift, 8, "e")
+            dot(22 + shift, 8, "e")
+            if pose == 1:
+                line(22, 13, 30, 9, "A")
+        else:
+            for x in (8, 15, 24):
+                dot(x, 18, "A")
+    elif kind == "xue_zhizhu":
+        ellipse(14 + shift, 11 if not down else 19, 8, 6 if not down else 2)
+        ellipse(23 + shift, 12 if not down else 19, 4, 4 if not down else 2, "C")
+        for x in (8, 13, 18, 22):
+            if not down:
+                line(x, 12, x - 5, 16)
+                line(x - 5, 16, x - 6, 21)
+                line(x, 12, x + 3, 5)
+                line(x + 3, 5, x + 6, 3)
+        dot(26 + shift, 11 if not down else 19, "e" if not down else "n")
+        if pose == 1:
+            line(27, 13, 31, 13, "W")
+    elif kind == "kuilei_shou":
+        for y in range(8 if not down else 17, 18 if not down else 21):
+            for x in range(7, 25):
+                dot(x, y, "A" if y % 4 == 0 else "C" if x % 5 == 0 else "B")
+        if not down:
+            for x in (9, 22):
+                line(x, 17, x + shift, 21, "D")
+            ellipse(25 + shift, 9, 4, 4)
+            dot(28 + shift, 8, "e")
+            if pose == 1:
+                line(28, 11, 31, 11, "W")
+    else:
+        ellipse(15 + shift, 15 if not down else 20, 10, 4 if not down else 2)
+        ellipse(25 + shift, 13 if not down else 19, 5, 4 if not down else 2)
+        line(7, 16 if not down else 20, 1, 19, "C")
+        if not down:
+            for x in (11, 21):
+                line(x, 17, x - shift, 21, "k")
+            dot(28 + shift, 12, "e")
+            if kind == "shuangtong_shu":
+                ellipse(24 + shift, 8, 2, 3)
+                ellipse(28 + shift, 8, 2, 3)
+                dot(26 + shift, 12, "e")
+            else:
+                for x in (10, 14, 18):
+                    line(x, 12, x, 10, "A")
+            if pose == 1:
+                dot(29, 15, "r")
+                dot(30, 15, "W")
+        else:
+            dot(28, 19, "n")
+    return tuple("".join(row) for row in rows)
+
+
+def _chapter8_beast(kind, name, body):
+    ramps = dict(WOLF.ramps)
+    ramps["fur"] = [P.mix(body, "ink1", .6), P.mix(body, "ink3", .3),
+                    P.c(body), P.mix(body, "paper", .25)]
+    return Beast(kind, name, 32, 24, _chapter8_rows(kind, 0),
+                 _chapter8_rows(kind, 1), _chapter8_rows(kind, 2),
+                 ramps, _codes(), 19, "第8章非人形：独立剪影、出招与倒下帧。")
+
+
+CHAPTER8_BEASTS = tuple(_chapter8_beast(*entry) for entry in (
+    ("shuangtong_shu", "双瞳鼠", "soil4"),
+    ("xue_gui", "血鬼", "red2"),
+    ("xue_zhizhu", "血蜘蛛", "red3"),
+    ("kuilei_shou", "傀儡兽", "stone3"),
+    ("huangyuan_xiyi", "荒原蜥蜴", "jade2"),
+))
+
+BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN) + CHAPTER8_BEASTS
 
 
 def _canvas_from(rows: tuple[str, ...], beast: Beast) -> Canvas:
@@ -1359,6 +1451,63 @@ def render_beast(beast: Beast) -> tuple[Image.Image, dict[str, list[int]]]:
 # ===========================================================================
 # 元神光球（识海之战）
 # ===========================================================================
+
+def render_world_mouse() -> Image.Image:
+    """The map mouse uses the standard 16x24, four-direction character format."""
+    mouse = next(beast for beast in CHAPTER8_BEASTS if beast.id == "shuangtong_shu")
+    battle, _ = render_beast(mouse)
+    def side(index, left=False, step=0):
+        src = battle.crop((index * mouse.w, 0, (index + 1) * mouse.w, mouse.h))
+        src = src.resize((16, 12), Image.Resampling.NEAREST)
+        out = Image.new("RGBA", (16, 24))
+        out.alpha_composite(src, (0, 12))
+        if step == 2:
+            tail = out.crop((0, 18, 5, 23))
+            out.paste((0, 0, 0, 0), (0, 18, 5, 23))
+            out.alpha_composite(tail, (0, 17))
+        if left:
+            out = out.transpose(Image.Transpose.FLIP_LEFT_RIGHT)
+        return out
+    mats = Materials.build(mouse.ramps)
+    def end_view(back, step):
+        rows = [["."] * 16 for _ in range(24)]
+        def dot(x, y, code):
+            if 0 <= x < 16 and 0 <= y < 24:
+                rows[y][x] = code
+        for y in range(13, 21):
+            for x in range(3, 13):
+                if ((x - 7.5) / 5) ** 2 + ((y - 17) / 4) ** 2 <= 1:
+                    dot(x, y, "A" if y < 15 else "B")
+        head_y = 12 if back else 18
+        for y in range(head_y - 2, head_y + 3):
+            for x in range(4, 12):
+                if ((x - 7.5) / 4) ** 2 + ((y - head_y) / 3) ** 2 <= 1:
+                    dot(x, y, "C" if back else "B")
+        for x in (4, 11):
+            dot(x, head_y - 3, "A")
+            dot(x, head_y - 2, "B")
+        if not back:
+            for x in (5, 10):
+                dot(x, head_y, "e")
+            dot(7, head_y + 2, "n")
+            for y in range(9, 14):
+                dot(7 + y % 2, y, "C")
+        else:
+            for y in range(19, 22):
+                dot(8 + y % 2, y, "C")
+        for x in (4, 11):
+            dot(x + (1 if step == 1 else -1 if step == 2 else 0), 21, "k")
+        c = Canvas(16, 24)
+        c.stamp(["".join(row) for row in rows], 0, 0, mouse.codes)
+        return to_image(add_outline(c, mats), mats)
+    frames = [end_view(False, step) for step in range(3)]
+    frames += [side(i, True, step) for step, i in enumerate((0, 1, 0))]
+    frames += [side(i, step=step) for step, i in enumerate((0, 1, 0))]
+    frames += [end_view(True, step) for step in range(3)]
+    frames += [side(i, True) for i in (0, 1, 1, 2, 2, 3, 4, 0, 1)]
+    return grid_sheet(frames, 3, 16, 24)
+
+
 
 @dataclass(frozen=True)
 class Orb:

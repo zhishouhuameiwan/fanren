@@ -1,0 +1,12 @@
+{
+  "id": "talisman_mojiao_chujiao",
+  "name": "墨蛟雏角",
+  "descKey": "item.desc.talisman_mojiao_chujiao",
+  "kind": "talisman",
+  "grade": 2,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "第8章物品；获得与收回由 scripts/ch08 管理，见设计13.1。",
+  "castMagic": "magic_chujiao_zibao"
+}

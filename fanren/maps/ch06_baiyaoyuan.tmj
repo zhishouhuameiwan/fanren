@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 17,
+  "nextobjectid": 19,
   "tilesets": [
     {
       "firstgid": 1,
@@ -653,6 +653,82 @@
               "name": "require_flag",
               "type": "string",
               "value": "ch07.chaibao"
+            }
+          ]
+        },
+        {
+          "id": 17,
+          "name": "trigger_shixiong",
+          "type": "trigger",
+          "x": 576,
+          "y": 256,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch08/shixiong.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch07.done"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch08.shixiong"
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "name": "trigger_jinglong",
+          "type": "trigger",
+          "x": 224,
+          "y": 352,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch08/jinglong.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "enter"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch08.huifu"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch08.done"
             }
           ]
         }

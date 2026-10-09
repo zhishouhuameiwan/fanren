@@ -1,31 +1,33 @@
 {
   "id": "b08_jinguyuan_qianfeng",
-  "name": "金鼓原·前锋遭遇",
+  "name": "金鼓原·出营猎杀",
   "chapter": 8,
   "terrain": "battlefield",
   "can_escape": true,
-  "defeat_is_fatal": true,
+  "defeat_is_fatal": false,
   "units": [
     {
       "role_id": "guilingmen_xiushi",
-      "faction": "enemy"
+      "faction": "enemy",
+      "wave": 0
     },
     {
-      "role_id": "guilingmen_xiushi",
-      "faction": "enemy"
+      "role_id": "tianshazong_xiushi",
+      "faction": "enemy",
+      "wave": 0
     },
     {
-      "role_id": "hehuanzong_xiushi",
-      "faction": "enemy"
+      "role_id": "moyanmen_xiushi",
+      "faction": "enemy",
+      "wave": 0
     }
   ],
   "rewards": {
-    "cultivation": 420,
-    "spirit_stones": 120,
+    "cultivation": 80,
+    "spirit_stones": 0,
     "drops": []
   },
-  "intro_key": "ch08.battle.jinguyuan_qianfeng.intro",
+  "intro_key": "ch08.battle.b08_jinguyuan_qianfeng.intro",
   "origin": "原著",
-  "rewritten_by_lore": true,
-  "note": "旧原型的「越燕大战」三场之一。全书「燕国」0 命中，入侵方是天罗国魔道六宗，具名战场为金鼓原（越国与车骑国交界，ch272）。本战为第一轮大战的前锋遭遇（ch245-270）。"
+  "note": "编成与必经入口见设计8.2；所有物品由脚本发放，③⑥没有消耗道具也须可胜。"
 }

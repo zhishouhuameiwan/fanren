@@ -917,8 +917,9 @@ def check():
     import genmaps_ch05
     import genmaps_ch06
     import genmaps_ch07
+    import genmaps_ch08
 
-    for chapter in (genmaps_ch02, genmaps_ch03, genmaps_ch04, genmaps_ch05, genmaps_ch06, genmaps_ch07):
+    for chapter in (genmaps_ch02, genmaps_ch03, genmaps_ch04, genmaps_ch05, genmaps_ch06, genmaps_ch07, genmaps_ch08):
         for map_id, payload in chapter.build_all().items():
             # 神手谷三边都产出：以本文件的为准（那是整张重建 + 两层补丁，更严）。
             built.setdefault(map_id, payload)
@@ -929,6 +930,8 @@ def check():
     # 这里在它那一份上再补一次（幂等；genmaps_ch06.build_all 自己也已补过）。
     built["ch06_huangfenggu"] = genmaps_ch07.patch_huangfenggu(built["ch06_huangfenggu"])
     built["ch06_baiyaoyuan"] = genmaps_ch07.patch_baiyaoyuan(built["ch06_baiyaoyuan"])
+    for map_id, apply in genmaps_ch08.PATCHES.items():
+        built[map_id] = apply(built[map_id])
     return check_maps(built)
 
 

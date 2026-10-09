@@ -1,0 +1,42 @@
+{
+  "id": "ch08_jinguyuan_jiaoyisuo",
+  "name": "金鼓原交易所",
+  "nameKey": "ch08.shop.name.jinguyuan_jiaoyisuo",
+  "buyRate": 1,
+  "sellRate": 0.1,
+  "entries": [
+    {
+      "itemId": "material_juling_yao",
+      "price": 0,
+      "stock": 5,
+      "restockDays": 10,
+      "restockAmount": 5,
+      "maxStock": 5
+    },
+    {
+      "itemId": "pill_yangjing_dan",
+      "price": 0,
+      "stock": 15,
+      "restockDays": 10,
+      "restockAmount": 15,
+      "maxStock": 15
+    },
+    {
+      "itemId": "pill_huiqi_dan",
+      "price": 0,
+      "stock": 15,
+      "restockDays": 10,
+      "restockAmount": 15,
+      "maxStock": 15
+    },
+    {
+      "itemId": "talisman_huoqiu_fu",
+      "price": 0,
+      "stock": 15,
+      "restockDays": 10,
+      "restockAmount": 15,
+      "maxStock": 15
+    }
+  ],
+  "note": "库存按实际日历补充；主线所需可重复获得，千年紫桂花与闭关丹不得出售。"
+}

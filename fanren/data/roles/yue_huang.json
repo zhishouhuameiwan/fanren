@@ -1,0 +1,29 @@
+{
+  "id": "yue_huang",
+  "name": "越皇",
+  "realm": "FoundationLate",
+  "maxHp": 1100,
+  "maxMp": 0,
+  "attack": 18,
+  "defence": 30,
+  "speed": 11,
+  "element": 1,
+  "magics": [],
+  "origin": "原著",
+  "note": "第8章 ch324-329。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 7,
+  "weaknesses": [
+    "金",
+    "木",
+    "水",
+    "火",
+    "土"
+  ],
+  "actions": 1,
+  "charge": {
+    "every": 3,
+    "mult": 2.2,
+    "all": false,
+    "text_key": "ch08.battle.heixuedao.charge"
+  }
+}

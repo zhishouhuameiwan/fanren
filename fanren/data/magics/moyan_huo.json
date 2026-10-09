@@ -1,0 +1,12 @@
+{
+  "id": "magic_moyan_huo",
+  "name": "魔火",
+  "descKey": "magic.desc.magic_moyan_huo",
+  "element": 8,
+  "needMp": 12,
+  "power": 12,
+  "boost": "power",
+  "needRealm": "FoundationEarly",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。"
+}

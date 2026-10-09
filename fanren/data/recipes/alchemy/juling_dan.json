@@ -1,0 +1,21 @@
+{
+  "id": "recipe_juling_dan",
+  "name": "聚灵丹方",
+  "kind": "alchemy",
+  "productId": "pill_juling_dan",
+  "productCount": 2,
+  "difficulty": 60,
+  "requiredProficiency": 30,
+  "inputs": [
+    {
+      "itemId": "herb_xuehong_zhi",
+      "count": 1,
+      "minAge": 300
+    },
+    {
+      "itemId": "material_juling_yao",
+      "count": 1
+    }
+  ],
+  "requireFlag": "ch08.gufang"
+}

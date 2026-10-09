@@ -1,0 +1,29 @@
+{
+  "id": "guiling_shaozhu",
+  "name": "鬼灵门少主",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 30,
+  "attack": 12,
+  "defence": 24,
+  "speed": 10,
+  "element": 4,
+  "magics": [
+    "magic_biyin_cha",
+    "magic_xueyun"
+  ],
+  "origin": "原著",
+  "note": "第8章 ch248-262。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 5,
+  "weaknesses": [
+    "火",
+    "金"
+  ],
+  "actions": 2,
+  "charge": {
+    "every": 3,
+    "mult": 1.8,
+    "all": true,
+    "text_key": "ch08.battle.xueling.charge"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "story_yunxiao_xinde",
+  "name": "云霄心得",
+  "descKey": "item.desc.story_yunxiao_xinde",
+  "kind": "story",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "第8章物品；获得与收回由 scripts/ch08 管理，见设计13.1。"
+}

@@ -167,6 +167,7 @@ std::string codeOnly(const std::string& source) {
 
 // 一个对象属于本章：它挂的脚本在 scripts/ch07/，或者它的哪一个属性写着 ch07. 开头的旗标 / 文案 key。
 bool belongsToChapterSeven(const MapObject& object) {
+    if (object.property("script").rfind("ch08/", 0) == 0) return false;
     if (object.property("script").rfind("ch07/", 0) == 0) return true;
     for (const char* key : {"guard_flag", "set_flag", "require_flag", "visible_flag", "hidden_flag", "deny_text_key"}) {
         if (object.property(key).rfind("ch07.", 0) == 0) return true;

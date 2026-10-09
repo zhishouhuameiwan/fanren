@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 10,
+  "nextobjectid": 11,
   "tilesets": [
     {
       "firstgid": 1,
@@ -412,6 +412,34 @@
               "name": "hidden_flag",
               "type": "string",
               "value": "ch06.rugu"
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "name": "portal_to_nancheng",
+          "type": "portal",
+          "x": 32,
+          "y": 704,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "target_map",
+              "type": "string",
+              "value": "ch05_nancheng"
+            },
+            {
+              "name": "target_spawn",
+              "type": "string",
+              "value": "spawn_from_tainan"
+            },
+            {
+              "name": "transition",
+              "type": "string",
+              "value": "fade"
             }
           ]
         }

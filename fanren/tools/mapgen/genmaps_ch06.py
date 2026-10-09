@@ -678,14 +678,15 @@ def build_all():
     """
     import genmaps_ch05
     import genmaps_ch07  # 延迟导入：模块层导入会与它的 import genmaps_ch06 成环
+    import genmaps_ch08
     return {
-        "ch06_tainan_cun": make_tainan_cun(),
+        "ch06_tainan_cun": genmaps_ch08.patch_tainan_cun(make_tainan_cun()),
         "ch06_tainan_gu": make_tainan_gu(),
         "ch06_sanxiu_lou": make_sanxiu_lou(),
         "ch06_shanqiu": make_shanqiu(),
-        "ch06_huangfenggu": genmaps_ch07.patch_huangfenggu(make_huangfenggu()),
-        "ch06_baiyaoyuan": genmaps_ch07.patch_baiyaoyuan(make_baiyaoyuan()),
-        "ch05_nancheng": patch_nancheng(genmaps_ch05.make_nancheng()),
+        "ch06_huangfenggu": genmaps_ch08.patch_huangfenggu(genmaps_ch07.patch_huangfenggu(make_huangfenggu())),
+        "ch06_baiyaoyuan": genmaps_ch08.patch_baiyaoyuan(genmaps_ch07.patch_baiyaoyuan(make_baiyaoyuan())),
+        "ch05_nancheng": genmaps_ch08.patch_nancheng(patch_nancheng(genmaps_ch05.make_nancheng())),
     }
 
 

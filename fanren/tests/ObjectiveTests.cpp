@@ -610,6 +610,27 @@ constexpr ScriptTransfer kScriptTransfers[] = {
     {"ch07.xiashan", "scripts/ch07/xiashan.lua", "ch07_jindi_wai"},            // 32a 下山赶到出口
     {"ch07.chujindi", "scripts/ch07/chukou.lua", "ch06_baiyaoyuan"},           // 32b 骑蟒数日回谷
     {"ch07.done", "scripts/ch07/zhuji.lua", "ch06_baiyaoyuan"},                // 36 筑基出关，御器飞回药园
+    // Chapter 8 design 3.1: twenty transfers, including the same-map landings.
+    {"ch08.dengji", "scripts/ch08/dengji.lua", "ch08_dongfu"},
+    {"ch08.midian", "scripts/ch08/midian.lua", "ch08_tianxing_fangshi"},
+    {"ch08.qiyunxiao", "scripts/ch08/qiyunxiao.lua", "ch08_tianxing_fangshi"},
+    {"ch08.quqi", "scripts/ch08/quqi.lua", "ch08_dongfu"},
+    {"ch08.hongfu", "scripts/ch08/chuanyin.lua", "ch08_yanlingbao"},
+    {"ch08.tuoshen", "scripts/ch08/xifeng.lua", "ch08_lingkuang"},
+    {"ch08.shouzhen", "scripts/ch08/zhenbian.lua", "ch08_lingkuang"},
+    {"ch08.nuoyi", "scripts/ch08/chuansongzhen.lua", "ch08_dongfu"},
+    {"ch08.zhaoji", "scripts/ch08/feifu.lua", "ch08_jinguyuan"},
+    {"ch08.nangong", "scripts/ch08/lizhu.lua", "ch08_jinmacheng"},
+    {"ch08.yueding", "scripts/ch08/xin_zhuwu.lua", "ch08_yuejing"},
+    {"ch08.qb_yuanbing", "scripts/ch08/qingbao.lua", "ch08_yuejing"},
+    {"ch08.buzhen2", "scripts/ch08/zhulin_zhenyan.lua", "ch08_yuejing"},
+    {"ch08.jingong", "scripts/ch08/chufa.lua", "ch08_yuejing"},
+    {"ch08.huanggong", "scripts/ch08/lenggong.lua", "ch08_yuejing"},
+    {"ch08.yuehuang", "scripts/ch08/zhulinxin.lua", "ch08_yuejing"},
+    {"ch08.junling", "scripts/ch08/shadan.lua", "ch05_nancheng"},
+    {"ch08.lifu", "scripts/ch08/pianyuan.lua", "ch08_jiayuan_shanlin"},
+    {"ch08.yaolang", "scripts/ch08/shandong.lua", "ch08_jiayuan_shanlin"},
+    {"ch08.shalang", "scripts/ch08/yindong.lua", "ch08_dongfu"},
 };
 
 // 门的钥匙里不在目标链上的：哪个脚本置它、紧跟在链上哪一步之后到手。

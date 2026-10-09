@@ -244,8 +244,8 @@ std::int32_t realmAttack(Realm realm) noexcept {
         return std::max(kMortalAttack, raw);
     }
     switch (realm) {
-        case Realm::FoundationEarly: return 32;   // 暂定，到那一章再标定
-        case Realm::FoundationMid:   return 37;   // 暂定
+        case Realm::FoundationEarly: return 32;   // 第 8 章六战标定，保留原值
+        case Realm::FoundationMid:   return 37;   // 第 8 章六战标定，保留原值
         case Realm::FoundationLate:  return 44;   // 暂定
         case Realm::CoreEarly:       return 62;   // 暂定
         case Realm::CoreMid:         return 76;   // 暂定
@@ -262,8 +262,8 @@ std::int32_t realmDefence(Realm realm) noexcept {
         return std::max(kMortalDefence, kQiDefencePerLevel * v);
     }
     switch (realm) {
-        case Realm::FoundationEarly: return 20;   // 暂定，到那一章再标定
-        case Realm::FoundationMid:   return 26;   // 暂定
+        case Realm::FoundationEarly: return 20;   // 第 8 章六战标定，保留原值
+        case Realm::FoundationMid:   return 26;   // 第 8 章六战标定，保留原值
         case Realm::FoundationLate:  return 30;   // 暂定
         case Realm::CoreEarly:       return 46;   // 暂定
         case Realm::CoreMid:         return 58;   // 暂定

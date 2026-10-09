@@ -1,0 +1,11 @@
+{
+  "id": "material_tangbi",
+  "name": "螳螂双臂",
+  "descKey": "item.desc.material_tangbi",
+  "kind": "material",
+  "grade": 2,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "第8章物品；获得与收回由 scripts/ch08 管理，见设计13.1。"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "magic_ji_qinghuozhang",
+  "name": "祭青火瘴",
+  "descKey": "magic.desc.magic_ji_qinghuozhang",
+  "element": 8,
+  "needMp": 14,
+  "power": 22,
+  "boost": "power",
+  "needRealm": "FoundationEarly",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。",
+  "poison": 3,
+  "poisonPower": 6
+}

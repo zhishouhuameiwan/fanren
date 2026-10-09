@@ -1,0 +1,12 @@
+{
+  "id": "magic_kuilei_guangzhu",
+  "name": "傀儡光柱",
+  "descKey": "magic.desc.magic_kuilei_guangzhu",
+  "element": 1,
+  "needMp": 10,
+  "power": 22,
+  "boost": "hits",
+  "needRealm": "FoundationEarly",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。"
+}

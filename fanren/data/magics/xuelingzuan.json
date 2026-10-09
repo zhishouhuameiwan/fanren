@@ -1,0 +1,14 @@
+{
+  "id": "magic_xuelingzuan",
+  "name": "血灵钻",
+  "descKey": "magic.desc.magic_xuelingzuan",
+  "element": 1,
+  "needMp": 0,
+  "power": 0,
+  "boost": "power",
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "第8章战斗数据。数值为内容初值，须由实际意图玩家量具核对。",
+  "effect": "stagger",
+  "stagger": 4
+}

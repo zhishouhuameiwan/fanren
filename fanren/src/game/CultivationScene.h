@@ -81,6 +81,12 @@ struct CultivationLexicon {
     // 凡人表两样都是空串：「灵根」是凡人篇禁词，那一行在凡人阶段根本不画。
     const char* spiritRootLabel;    // 「灵根　」
     const char* spiritRootValue;    // 「四属性缺金·伪灵根」
+
+    // 此地的打坐加成一行（契约 docs/interfaces-p3-ch08.md 1.4）。追加在末尾，照 G-14 那次按位置初始化。
+    // 状态栏在 sitePercent ≠ 100 时画「前缀 + 多出的百分点 + 后缀」。凡人表照样写一句不带禁词的：
+    // 凡人阶段实际走不到这一行（灵眼之泉在第 8 章），但禁词扫描两个阶段都扫，空串等于替它关掉一条缝。
+    const char* siteBonusPrefix;    // 「此地灵气充沛，修为多得 」
+    const char* siteBonusSuffix;    // 「%」
 };
 
 [[nodiscard]] const CultivationLexicon& cultivationLexicon(PanelStage stage);
@@ -110,9 +116,14 @@ struct MeditateOutcome {
     bool insight = false;
 };
 
-// 打坐效率。功法、灵根、洞府灵气将来都要并进这里；眼下只有基准值 100。
+// 打坐效率。功法、灵根将来都要并进这里；眼下只有基准值 100。
 // 入口先具名留好——散在各面板里现算，迟早两处算得不一样。
+// 地点（洞府灵脉）的加成是另一路：由地图设施给，乘在它外面（CultivationScene::bankMeditation 的 sitePercent）。
 [[nodiscard]] int meditationEffectiveness(const core::GameState& state);
+
+// 此地的打坐效率（百分比）不写时的值：普通蒲团，与没有这一路时逐字相同。
+// 地图上 kind=meditate 的设施用 effectiveness 属性改它（docs/map_spec.md 4.6，门禁只放 100–300）。
+inline constexpr int kDefaultSitePercent = 100;
 
 // 冲关的丹药加成（百分点）。筑基丹之类尚未实现，恒为 0；具名出来是为了
 // 将来接丹药时只有一处可改。
@@ -147,6 +158,11 @@ int settleDailyPractice(core::GameState& state);
 
 class CultivationScene : public Scene {
 public:
+    // sitePercent：在这一处打坐的效率（百分比），由 Application::openFacility 从设施的
+    // effectiveness 属性读出来交进来（契约 docs/interfaces-p3-ch08.md 1.4）。缺省是普通蒲团，
+    // 现有的 std::make_unique<CultivationScene>() 一处不用改。
+    explicit CultivationScene(int sitePercent = kDefaultSitePercent) : sitePercent_(sitePercent) {}
+
     void onEnter(Application& app) override;
     bool update(Application& app, double deltaSeconds) override;
     void render(Application& app) override;
@@ -174,11 +190,20 @@ public:
     // renderStatus 画的就是它，测试问的也是它。
     [[nodiscard]] static std::string spiritRootLine(const core::GameState& state);
 
+    // 状态栏上「此地加成」那一行：这一处的 sitePercent ≠ 100 才有，否则空串（不画这一行）。
+    // renderStatus 画的就是它，测试问的也是它。
+    [[nodiscard]] std::string siteBonusLine(const core::GameState& state) const;
+
     // 把 days 天打坐的收益兑现进 state.cultivation，零头留在余数账上。
     // 余数账的算法与「长短打坐等价」的保证见 .cpp 顶部的长注释。
-    static MeditateOutcome bankMeditation(core::GameState& state, int days, std::uint32_t seed);
+    // sitePercent 是此地的加成（先夹到 [0, rules::kMaxEffectiveness]），乘在 meditationEffectiveness
+    // 外面；缺省时结果与加这个参数之前逐字相同。日课（settleDailyPractice）只走缺省——灵脉的加成
+    // 只给「在那一处坐下」的人。
+    static MeditateOutcome bankMeditation(core::GameState& state, int days, std::uint32_t seed,
+                                          int sitePercent = kDefaultSitePercent);
 
     // 打坐一次：兑现收益 + 推进日历。日历一律走 Application::advanceDays。
+    // 收益按这一处的 sitePercent 算。
     MeditateOutcome meditateFor(Application& app, int days);
 
     // 冲关一次。返回规则层的原始判定，顺带把它翻成 feedback() 里的一句话。
@@ -198,6 +223,7 @@ private:
     void enterDuration(const core::GameState& state, const ui::Theme& theme);
     void renderStatus(Application& app, const engine::Rect& area) const;
 
+    int sitePercent_ = kDefaultSitePercent;   // 此地的打坐效率（百分比），构造时定下，面板开着时不变
     Mode mode_ = Mode::Main;
     ui::ListView main_;
     ui::ListView duration_;

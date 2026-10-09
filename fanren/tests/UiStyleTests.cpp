@@ -197,11 +197,11 @@ TEST(ChapterTableData, TheShippedTableIsWhatTheWorkOrderAsked) {
     // 「太南谷·黄枫谷」。
     const fanren::core::GameData data = shippedData();
     const ChapterTable table = shippedChapters(data);
-    const char* titles[] = {"山村·七玄门", "绿瓶四年", "神手谷惊变", "落日峰", "嘉元城·墨府", "太南谷·黄枫谷", "血色试炼"};
-    const char* numerals[] = {"第一章", "第二章", "第三章", "第四章", "第五章", "第六章", "第七章"};
-    const char* flags[] = {"ch01.done", "ch02.done", "ch03.done", "ch04.done", "ch05.done", "ch06.done", "ch07.done"};
-    ASSERT_EQ(table.chapters.size(), 7u);
-    for (int i = 0; i < 7; ++i) {
+    const char* titles[] = {"山村·七玄门", "绿瓶四年", "神手谷惊变", "落日峰", "嘉元城·墨府", "太南谷·黄枫谷", "血色试炼", "魔道入侵"};
+    const char* numerals[] = {"第一章", "第二章", "第三章", "第四章", "第五章", "第六章", "第七章", "第八章"};
+    const char* flags[] = {"ch01.done", "ch02.done", "ch03.done", "ch04.done", "ch05.done", "ch06.done", "ch07.done", "ch08.done"};
+    ASSERT_EQ(table.chapters.size(), 8u);
+    for (int i = 0; i < 8; ++i) {
         const auto& entry = table.chapters[static_cast<std::size_t>(i)];
         EXPECT_EQ(entry.number, i + 1);
         EXPECT_EQ(entry.title, titles[i]);
@@ -228,8 +228,8 @@ TEST(ChapterCards, OnlyAChapterEndingForTheFirstTimeQueuesCards) {
     EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch01.done", 1, 0).empty());
     EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch01.done", 0, 0).empty());
     EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch01.koujue_received", 0, 1).empty());
-    EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch08.done", 0, 1).empty())
-        << "表里没有的章不排（第 6、7 章 2026-09-29 进了表，这里换成第 8 章）";
+    EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch09.done", 0, 1).empty())
+        << "表里没有的章不排（第 8 章已进入章节表）";
     const std::vector<CardRequest> anyValue{{CardKind::Closing, 2}, {CardKind::Opening, 3}};
     EXPECT_EQ(fanren::game::cardsForFlagChange(table, "ch02.done", 0, 5), anyValue)
         << "置成任何非 0 值都算演完";
@@ -237,13 +237,13 @@ TEST(ChapterCards, OnlyAChapterEndingForTheFirstTimeQueuesCards) {
 
 TEST(ChapterCards, TheLastChapterIsFollowedByToBeContinued) {
     const ChapterTable table = shippedChapters(shippedData());
-    const std::vector<CardRequest> expected{{CardKind::Closing, 7}, {CardKind::ToBeContinued, 0}};
-    EXPECT_EQ(fanren::game::cardsForFlagChange(table, "ch07.done", 0, 1), expected);
+    const std::vector<CardRequest> expected{{CardKind::Closing, 8}, {CardKind::ToBeContinued, 0}};
+    EXPECT_EQ(fanren::game::cardsForFlagChange(table, "ch08.done", 0, 1), expected);
     const fanren::game::Card more = fanren::game::resolveCard(table, expected[1]);
     EXPECT_EQ(more.headline, "未完待续");
     const fanren::game::Card closing = fanren::game::resolveCard(table, expected[0]);
-    EXPECT_EQ(closing.headline, "第七章　终");
-    EXPECT_EQ(closing.kicker, "血色试炼");
+    EXPECT_EQ(closing.headline, "第八章　终");
+    EXPECT_EQ(closing.kicker, "魔道入侵");
     // 第 6 章不再是最后一章：它「终」之后接第七章开篇，不接「未完待续」；第六章的卡片仍是「太南谷·黄枫谷」。
     const std::vector<CardRequest> sixth{{CardKind::Closing, 6}, {CardKind::Opening, 7}};
     EXPECT_EQ(fanren::game::cardsForFlagChange(table, "ch06.done", 0, 1), sixth);

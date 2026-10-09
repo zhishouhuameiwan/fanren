@@ -1,0 +1,28 @@
+{
+  "id": "b08_zhongrudong",
+  "name": "钟乳洞·宣乐与血蜘蛛",
+  "chapter": 8,
+  "terrain": "cave",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "xuan_le",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "xue_zhizhu",
+      "faction": "enemy",
+      "wave": 1
+    }
+  ],
+  "rewards": {
+    "cultivation": 320,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch08.battle.b08_zhongrudong.intro",
+  "origin": "原著",
+  "note": "编成与必经入口见设计8.2；所有物品由脚本发放，③⑥没有消耗道具也须可胜。"
+}

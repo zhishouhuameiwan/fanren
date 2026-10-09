@@ -1,0 +1,19 @@
+{
+  "id": "tianshazong_xiushi",
+  "name": "天煞宗修士",
+  "realm": "FoundationEarly",
+  "maxHp": 125,
+  "maxMp": 0,
+  "attack": 10,
+  "defence": 12,
+  "speed": 5,
+  "element": 16,
+  "magics": [],
+  "origin": "原著",
+  "note": "第8章 ch266。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 3,
+  "weaknesses": [
+    "木",
+    "水"
+  ]
+}

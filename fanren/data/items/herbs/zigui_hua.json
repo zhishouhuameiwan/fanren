@@ -1,0 +1,13 @@
+{
+  "id": "herb_zigui_hua",
+  "name": "紫桂花",
+  "descKey": "item.desc.herb_zigui_hua",
+  "kind": "herb",
+  "grade": 5,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "第8章物品；获得与收回由 scripts/ch08 管理，见设计13.1。",
+  "herbAge": 0,
+  "maxAge": 2000
+}

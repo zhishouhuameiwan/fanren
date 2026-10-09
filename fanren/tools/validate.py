@@ -231,6 +231,33 @@ def object_properties(obj: dict) -> dict[str, str]:
     return result
 
 
+# 设施属性 effectiveness（docs/map_spec.md 4.6；契约 docs/interfaces-p3-ch08.md 5.1 第 1 条）：
+# 在这一处打坐的修为效率，百分比，缺省 100。引擎只在 kind=meditate 的设施上读它
+# （Application::openFacility），写在别处等于没写。三条各报各的：写错一处只报那一处。
+# 类型要看 Tiled 的原始属性：object_properties 把值一律转成字符串，"125" 与 125 在那里分不出来。
+EFFECTIVENESS_PROP = "effectiveness"
+EFFECTIVENESS_RANGE = (100, 300)
+
+
+def check_facility_effectiveness(where: str, obj_type: str, oprops: dict[str, str], obj: dict,
+                                 report: Report) -> None:
+    raw = next((p for p in obj.get("properties", []) or []
+                if isinstance(p, dict) and p.get("name") == EFFECTIVENESS_PROP), None)
+    if raw is None:
+        return
+    if obj_type != "facility" or oprops.get("kind") != "meditate":
+        report.error(where, f"{EFFECTIVENESS_PROP} 只许写在 kind=meditate 的设施上"
+                            f"（这里是 {obj_type or '无 type'}、kind={oprops.get('kind', '')}）：引擎只在打坐处读它")
+    value = raw.get("value")
+    if raw.get("type") != "int" or isinstance(value, bool) or not isinstance(value, int):
+        report.error(where, f"{EFFECTIVENESS_PROP} 必须是整数（Tiled 的 int 属性），这里写的是 "
+                            f"{raw.get('type')} {value!r}")
+        return
+    low, high = EFFECTIVENESS_RANGE
+    if not low <= value <= high:
+        report.error(where, f"{EFFECTIVENESS_PROP}={value} 超出 {low}–{high}（百分比，缺省 100 = 普通蒲团）")
+
+
 @dataclass
 class ParsedMap:
     path: Path
@@ -334,6 +361,8 @@ def check_map(path: Path, report: Report) -> ParsedMap | None:
             for prop in OBJECT_REQUIRED_PROPS[obj_type]:
                 if prop not in oprops:
                     report.error(where, f"{obj_type} 缺少必填属性 {prop}")
+
+        check_facility_effectiveness(where, obj_type, oprops, obj, report)
 
         record = {
             "name": obj_name,
@@ -2217,6 +2246,14 @@ CHAPTER_MEANS = {
         ("水", "learn", "magic_bingdong_shu", "ch06"),
         ("土", "learn", "magic_liusha_shu", "ch06"),
         ("金", "learn", "magic_ji_jinfu", "ch07")],
+    # 第 8 章（docs/interfaces-p3-ch08.md 5.2）：shixiong.lua 开篇教青元剑芒，其余来路沿用前章。
+    8: [("拳", "hand", "", ""),
+        ("火", "learn", "magic_huodan_shu", "ch04"),
+        ("土", "learn", "magic_liusha_shu", "ch06"),
+        ("水", "learn", "magic_bingdong_shu", "ch06"),
+        ("金", "learn", "magic_ji_jinfu", "ch07"),
+        ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
+        ("暗器", "give", "weapon_wuming_sixian", "ch07")],
 }
 # 某一场仗额外必有的：蚀心散在节点 7 备毒时由 scripts/ch03/beidu.lua 给出（两包起），
 # 暗道那一仗是节点 8。谷外遇狼（节点 1）那会儿还没有，所以不进第 3 章的通表。
@@ -2243,7 +2280,7 @@ BATTLE_EXTRA_MEANS = {
        for battle_id in ("b07_yixiantian", "b07_fengyue", "b07_zhongxinqu_duoyao", "b07_zhaoze_shouyao",
                          "be07_huoyan_shu", "be07_tiebi_yuan", "be07_tuishan_shou")},
 }
-MEANS_LAST_CHAPTER = 7
+MEANS_LAST_CHAPTER = 8
 
 
 def check_category_list(where, payload, field, allowed, report) -> list[str]:

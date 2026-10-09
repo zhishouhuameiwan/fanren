@@ -1,0 +1,31 @@
+{
+  "id": "b08_yuehuang",
+  "name": "竹林·越皇",
+  "chapter": 8,
+  "terrain": "forest",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "chen_qiaoqian",
+      "faction": "ally"
+    },
+    {
+      "role_id": "zhong_weiniang",
+      "faction": "ally"
+    },
+    {
+      "role_id": "yue_huang",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 360,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch08.battle.b08_yuehuang.intro",
+  "origin": "原著",
+  "note": "编成与必经入口见设计8.2；所有物品由脚本发放，③⑥没有消耗道具也须可胜。"
+}

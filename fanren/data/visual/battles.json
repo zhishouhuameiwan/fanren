@@ -220,6 +220,51 @@
       "backdrop": "mountain_forest",
       "map": "ch07_huanxingshan",
       "why": "野外遭遇：环形山，白天"
+    },
+    "b08_guiling_shaozhu": {
+      "map": "ch08_yanlingbao",
+      "backdrop": "cliff_top",
+      "why": "实际发起地点对应设计8.2。"
+    },
+    "b08_lingkuang_shouzhen": {
+      "map": "ch08_lingkuang",
+      "backdrop": "cliff_top",
+      "why": "实际发起地点对应设计8.2。"
+    },
+    "b08_zhongrudong": {
+      "map": "ch08_lingkuang",
+      "backdrop": "cave_tunnel",
+      "why": "实际发起地点对应设计8.2。"
+    },
+    "b08_jinguyuan_juezhan": {
+      "map": "ch08_jinguyuan",
+      "backdrop": "cliff_top",
+      "why": "实际发起地点对应设计8.2。"
+    },
+    "b08_yuehuang": {
+      "map": "ch08_yuejing",
+      "backdrop": "mountain_forest",
+      "why": "实际发起地点对应设计8.2。"
+    },
+    "b08_quhun": {
+      "map": "ch08_jiayuan_shanlin",
+      "backdrop": "mountain_forest_dusk",
+      "why": "实际发起地点对应设计8.2。"
+    },
+    "b08_jinguyuan_qianfeng": {
+      "map": "ch08_jinguyuan",
+      "backdrop": "cliff_top",
+      "why": "实际发起地点对应设计8.2。"
+    },
+    "b08_songmeng_qiecuo": {
+      "map": "ch08_jinguyuan",
+      "backdrop": "town_street",
+      "why": "实际发起地点对应设计8.2。"
+    },
+    "be08_huangyuan_xiyi": {
+      "map": "ch08_lingkuang",
+      "backdrop": "cliff_top",
+      "why": "实际发起地点对应设计8.2。"
     }
   }
 }

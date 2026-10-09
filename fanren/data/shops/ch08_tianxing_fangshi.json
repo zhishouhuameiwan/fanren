@@ -1,0 +1,60 @@
+{
+  "id": "ch08_tianxing_fangshi",
+  "name": "天星坊市杂货铺",
+  "nameKey": "ch08.shop.name.tianxing_fangshi",
+  "buyRate": 1,
+  "sellRate": 0.1,
+  "entries": [
+    {
+      "itemId": "herb_zishen_cao",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 10,
+      "maxStock": 10,
+      "herbAge": 1
+    },
+    {
+      "itemId": "herb_xuehong_zhi",
+      "price": 0,
+      "stock": 8,
+      "restockDays": 10,
+      "restockAmount": 8,
+      "maxStock": 8,
+      "herbAge": 1
+    },
+    {
+      "itemId": "material_fuzhi",
+      "price": 0,
+      "stock": 15,
+      "restockDays": 10,
+      "restockAmount": 15,
+      "maxStock": 15
+    },
+    {
+      "itemId": "material_dansha",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 10,
+      "maxStock": 10
+    },
+    {
+      "itemId": "pill_yangjing_dan",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 10,
+      "maxStock": 10
+    },
+    {
+      "itemId": "pill_huiqi_dan",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 10,
+      "maxStock": 10
+    }
+  ],
+  "note": "库存按实际日历补充；主线所需可重复获得，千年紫桂花与闭关丹不得出售。"
+}

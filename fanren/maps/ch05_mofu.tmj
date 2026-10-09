@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 17,
+  "nextobjectid": 18,
   "tilesets": [
     {
       "firstgid": 1,
@@ -703,6 +703,44 @@
               "name": "hidden_flag",
               "type": "string",
               "value": "ch05.yange"
+            }
+          ]
+        },
+        {
+          "id": 17,
+          "name": "trigger_pianyuan",
+          "type": "trigger",
+          "x": 1152,
+          "y": 256,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch08/pianyuan.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "enter"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch08.sunergou"
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch08.lifu"
             }
           ]
         }

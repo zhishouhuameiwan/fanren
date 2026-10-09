@@ -1,0 +1,21 @@
+{
+  "id": "zhong_weiniang",
+  "name": "钟卫娘",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 200,
+  "attack": 28,
+  "defence": 26,
+  "speed": 13,
+  "element": 8,
+  "magics": [
+    "magic_weiniang_fubao"
+  ],
+  "origin": "原著",
+  "note": "第8章 ch312-329。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 4,
+  "weaknesses": [
+    "水",
+    "土"
+  ]
+}

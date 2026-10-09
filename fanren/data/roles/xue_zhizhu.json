@@ -1,0 +1,26 @@
+{
+  "id": "xue_zhizhu",
+  "name": "血蜘蛛",
+  "realm": "FoundationLate",
+  "maxHp": 1000,
+  "maxMp": 0,
+  "attack": 12,
+  "defence": 22,
+  "speed": 8,
+  "element": 4,
+  "magics": [],
+  "origin": "原著",
+  "note": "第8章 ch268-270。身份、在场与使用边界见 docs/ch08-design.md 13.1；战斗数值为内容初值，量具记录在 work-notes/ch08c。",
+  "toughness": 6,
+  "weaknesses": [
+    "金",
+    "火"
+  ],
+  "actions": 2,
+  "charge": {
+    "every": 3,
+    "mult": 1.5,
+    "all": true,
+    "text_key": "ch08.battle.zhusi.charge"
+  }
+}

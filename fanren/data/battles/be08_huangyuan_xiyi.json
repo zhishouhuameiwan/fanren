@@ -1,0 +1,28 @@
+{
+  "id": "be08_huangyuan_xiyi",
+  "name": "荒原·蜥蜴",
+  "chapter": 8,
+  "terrain": "cliff",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "huangyuan_xiyi",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "huangyuan_xiyi",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 5,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch08.battle.be08_huangyuan_xiyi.intro",
+  "origin": "原著",
+  "note": "编成与必经入口见设计8.2；所有物品由脚本发放，③⑥没有消耗道具也须可胜。"
+}
