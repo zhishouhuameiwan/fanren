@@ -1,0 +1,14 @@
+{
+  "id": "tian_buli",
+  "name": "田掌柜",
+  "realm": "Mortal",
+  "maxHp": 120,
+  "maxMp": 0,
+  "attack": 10,
+  "defence": 5,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "万宝楼掌柜田卜离（ch162-165），凡人。只在脚本里说话（11b）。不参与战斗。"
+}

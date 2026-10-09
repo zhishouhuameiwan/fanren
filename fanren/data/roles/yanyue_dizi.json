@@ -1,0 +1,14 @@
+{
+  "id": "yanyue_dizi",
+  "name": "掩月宗弟子",
+  "realm": "QiRefining12",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "掩月宗弟子的代表（ch178）：**不摆一排同名 NPC**（规则 30 的群像白名单与 kCrowdRoles 都不归施工路，第 6 章 18.2 第 6 条的教训），人多的样子烘进底图。荒山、出口各一（轮流在场）。不参与战斗。"
+}

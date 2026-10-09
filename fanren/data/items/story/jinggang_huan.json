@@ -1,0 +1,11 @@
+{
+  "id": "story_jinggang_huan",
+  "name": "精钢环",
+  "descKey": "item.desc.story_jinggang_huan",
+  "kind": "story",
+  "grade": 2,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "叶师叔送来的三件法器之一（ch152）：一枚指环，驱动后自己飞出去锁敌、可放大。节点 13 陆师兄的风刃把它劈碎（ch168、171），当场 take。本作没有装备系统，只作物品与旁白（施工图第 7 节）。"
+}

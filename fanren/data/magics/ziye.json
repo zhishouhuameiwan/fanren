@@ -1,0 +1,11 @@
+{
+  "id": "magic_ziye",
+  "name": "紫液",
+  "descKey": "magic.desc.magic_ziye",
+  "element": 4,
+  "needMp": 20,
+  "power": 26,
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "墨蛟蜕皮之后喷的紫色丹液（ch206）：连人带法器化掉。水。敌方用；它的蓄势重招打全体（8.2 ⑤）。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

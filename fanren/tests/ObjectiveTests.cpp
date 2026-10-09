@@ -580,7 +580,7 @@ TEST_F(ObjectiveRoute, OtherOpenDoorsDoNotChangeTheRoute) {
 //   · 两张表都拿脚本原文核（TheTransferAndDoorKeyTablesMatchTheScripts）：表里每一条对得上脚本；
 //     反过来，置了目标链 done_flag 又 teleport 的脚本、不在链上的门钥匙，也都必须在表里。漏登一处，
 //     起点或旗标就算错了，算错的那一步可能恰好有路——于是假绿。
-// 走的是整条链（眼下第 1–5 章），新章的链落地就一起走。
+// 走的是整条链（眼下第 1–7 章），新章的链落地就一起走。
 
 // 脚本演完把人传送走的那几步：下一步的起点是 toMap，不是这一步的目标图。
 struct ScriptTransfer {
@@ -598,6 +598,18 @@ constexpr ScriptTransfer kScriptTransfers[] = {
     {"ch06.rugu", "scripts/ch06/guaipo.lua", "ch06_tainan_gu"},                // 通音符开阵，雾道进谷
     {"ch06.chugu", "scripts/ch06/sanhui.lua", "ch06_shanqiu"},                 // 出谷，御风百余里到荒丘
     {"ch06.xisha", "scripts/ch06/xisha.lua", "ch06_huangfenggu"},              // 天雾台之后乘船入谷
+    // 第 7 章（docs/ch07-design.md 3.1 表末「脚本 teleport 登进 kScriptTransfers」那十处；逐条对过脚本里顶格的
+    // flag.set 与 teleport，2026-09-29 测试路）。
+    {"ch07.likai", "scripts/ch07/fangshi_chu.lua", "ch07_shandong"},           // 12 出坊市，绕路三四天歇进山洞
+    {"ch07.fanhui", "scripts/ch07/fanhui.lua", "ch06_baiyaoyuan"},             // 14 带她西去、连夜赶回药园
+    {"ch07.jihe", "scripts/ch07/jihe.lua", "ch07_jindi_wai"},                  // 18 银甲角蟒两天两夜到荒山
+    {"ch07.qipai", "scripts/ch07/liedui.lua", "ch07_jindi_wai"},               // 19b 飞到黄土坡（同图）
+    {"ch07.pojin", "scripts/ch07/pojin.lua", "ch07_jindi_waiwei"},             // 20 挪移阵送进外围
+    {"ch07.didao", "scripts/ch07/qingshidian.lua", "ch07_dixia_zhaoze"},       // 29 钻下地道
+    {"ch07.nangong", "scripts/ch07/jiaoshi.lua", "ch07_huanxingshan"},         // 31 打穿地面回到环形山
+    {"ch07.xiashan", "scripts/ch07/xiashan.lua", "ch07_jindi_wai"},            // 32a 下山赶到出口
+    {"ch07.chujindi", "scripts/ch07/chukou.lua", "ch06_baiyaoyuan"},           // 32b 骑蟒数日回谷
+    {"ch07.done", "scripts/ch07/zhuji.lua", "ch06_baiyaoyuan"},                // 36 筑基出关，御器飞回药园
 };
 
 // 门的钥匙里不在目标链上的：哪个脚本置它、紧跟在链上哪一步之后到手。
@@ -742,8 +754,8 @@ std::string describeGaps(const std::vector<RouteGap>& gaps) {
 }
 
 TEST_F(ObjectiveRoute, EveryObjectiveStepCanBeReachedThroughTheDoorsOpenAtThatStep) {
-    // 先验：链真的覆盖到了已完成的五章。少一章，那一章就没被走到，这里却照样绿。
-    for (int chapter = 1; chapter <= 5; ++chapter) {
+    // 先验：链真的覆盖到了已完成的七章。少一章，那一章就没被走到，这里却照样绿。
+    for (int chapter = 1; chapter <= 7; ++chapter) {
         const bool has = std::any_of(app_.data().objectives.begin(), app_.data().objectives.end(),
                                      [chapter](const Objective& step) { return step.chapter == chapter; });
         ASSERT_TRUE(has) << "第 " << chapter << " 章没有目标链，走不到它";

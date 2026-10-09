@@ -1,6 +1,8 @@
 #include "core/model/Types.h"
 
 #include <algorithm>
+#include <cstddef>
+#include <vector>
 
 namespace fanren::core {
 
@@ -96,6 +98,41 @@ bool GameState::removeItemOfAge(const std::string& itemId, int count, int herbAg
         if (entry.itemId != itemId || entry.herbAge != herbAge || remaining == 0) continue;
         const int take = std::min(entry.count, remaining);
         entry.count -= take;
+        remaining -= take;
+    }
+    bag.erase(std::remove_if(bag.begin(), bag.end(),
+                             [](const BagEntry& e) { return e.count <= 0; }),
+              bag.end());
+    return remaining == 0;
+}
+
+int GameState::itemCountAtLeastAge(const std::string& itemId, int minAge) const {
+    int total = 0;
+    for (const BagEntry& entry : bag) {
+        if (entry.itemId == itemId && entry.herbAge >= minAge) total += entry.count;
+    }
+    return total;
+}
+
+bool GameState::removeItemAtLeastAge(const std::string& itemId, int count, int minAge) {
+    if (count <= 0) return true;
+    // 全有或全无：先问够不够再动手（与 removeItemOfAge 同一个理由）。交药是一句「够不够」，
+    // 不够却先扣掉几株，脚本走的是「你还没凑齐」那一支，药却已经少了。
+    if (itemCountAtLeastAge(itemId, minAge) < count) return false;
+
+    // 够格的堆按年份从低到高扣：够格里最嫩的先交，更老的留给玩家（契约 4.1）。
+    // 只排够格那几堆的下标，不动背包里别的堆。
+    std::vector<std::size_t> eligible;
+    for (std::size_t i = 0; i < bag.size(); ++i) {
+        if (bag[i].itemId == itemId && bag[i].herbAge >= minAge) eligible.push_back(i);
+    }
+    std::stable_sort(eligible.begin(), eligible.end(),
+                     [this](std::size_t a, std::size_t b) { return bag[a].herbAge < bag[b].herbAge; });
+    int remaining = count;
+    for (const std::size_t index : eligible) {
+        if (remaining == 0) break;
+        const int take = std::min(bag[index].count, remaining);
+        bag[index].count -= take;
         remaining -= take;
     }
     bag.erase(std::remove_if(bag.begin(), bag.end(),

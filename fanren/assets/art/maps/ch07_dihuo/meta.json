@@ -1,0 +1,129 @@
+{
+ "map": "ch07_dihuo",
+ "tile": 16,
+ "width": 32,
+ "height": 24,
+ "theme": "indoor_stone",
+ "time": "indoor",
+ "season": "autumn",
+ "ambient": [
+  150,
+  96,
+  78
+ ],
+ "dof": 0.38,
+ "bloom": 0.5,
+ "vignette": 0.45,
+ "particles": [
+  {
+   "kind": "ember",
+   "rate": 0.4
+  },
+  {
+   "kind": "dust",
+   "rate": 0.15
+  }
+ ],
+ "lights": [
+  {
+   "x": 21.0,
+   "y": 2.0,
+   "r": 4.5,
+   "color": [
+    207,
+    116,
+    66
+   ],
+   "intensity": 1.0,
+   "flicker": 0.35,
+   "kind": "furnace"
+  },
+  {
+   "x": 9.5,
+   "y": 9.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  },
+  {
+   "x": 28.5,
+   "y": 1.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 20.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 25.5,
+   "y": 0.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 17.5,
+   "y": 6.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 6.5,
+   "y": 8.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "ember",
+   "x": 21.0,
+   "y": 1.5
+  }
+ ],
+ "backdrop": "secret_room"
+}

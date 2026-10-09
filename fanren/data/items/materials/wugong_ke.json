@@ -1,0 +1,11 @@
+{
+  "id": "material_wugong_ke",
+  "name": "蜈蚣背壳",
+  "descKey": "item.desc.material_wugong_ke",
+  "kind": "material",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "紫猴花洞那只巨蜈蚣的背壳（ch198）：挡得住顶级法器全力一击，他想拿来做内甲。原著 ch221、227 还用得上；本章只收着。"
+}

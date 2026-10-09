@@ -1,0 +1,14 @@
+{
+  "id": "nichang_xianzi",
+  "name": "霓裳仙子",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 4,
+  "magics": [],
+  "origin": "原著",
+  "note": "掩月宗本届领队（ch177-211）。在场：荒山、出口。不参与战斗。"
+}

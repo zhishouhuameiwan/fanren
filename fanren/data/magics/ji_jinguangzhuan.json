@@ -1,0 +1,11 @@
+{
+  "id": "magic_ji_jinguangzhuan",
+  "name": "祭金光砖",
+  "descKey": "magic.desc.magic_ji_jinguangzhuan",
+  "element": 16,
+  "needMp": 37,
+  "power": 60,
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "驱动金光砖符宝（ch184、207）：先抽走使用者约三分之一的法力（needMp 37 ≈ 十一层 110 的三分之一），金砖长到屋子大拍下去。土、一击（boost power）。⑤ 墨蛟只有「土」要得了命，就是它（8.2 ⑤）。**节点 31 耗尽：magic.forget**（验收 7）。不登 CHAPTER_MEANS（流沙术已给了「土」，8.2 末段）。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

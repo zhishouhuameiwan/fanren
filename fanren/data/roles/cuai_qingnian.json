@@ -1,0 +1,14 @@
+{
+  "id": "cuai_qingnian",
+  "name": "粗矮青年",
+  "realm": "QiRefining10",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 16,
+  "magics": [],
+  "origin": "原著",
+  "note": "节点 6 山头上会土墙术的那个青年（ch158）。NPC，只在山头那一段。不参与战斗。"
+}

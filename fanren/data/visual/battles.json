@@ -180,6 +180,46 @@
       "backdrop": "sect_courtyard",
       "map": "ch06_huangfenggu",
       "why": "路径行动·切磋，黄枫谷石屋群（施工图 8.2：可选两场各随所在图）"
+    },
+    "b07_lu_shixiong": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch07_shandong",
+      "why": "太岳山脉外围山洞外，下半夜（施工图 8.2：mountain_forest_dusk；没有夜里的山林背景，取暮色版）"
+    },
+    "b07_yixiantian": {
+      "backdrop": "cliff_top",
+      "map": "ch07_jindi_waiwei",
+      "why": "一线天出口，两侧峭壁（施工图 8.2：cliff_top）"
+    },
+    "b07_fengyue": {
+      "backdrop": "mountain_forest",
+      "map": "ch07_jindi_zhongxin",
+      "why": "中心区外的林子，第二日早上（施工图 8.2：mountain_forest）"
+    },
+    "b07_zhongxinqu_duoyao": {
+      "backdrop": "mountain_forest",
+      "map": "ch07_huanxingshan",
+      "why": "环形山近山顶的小石殿前（施工图 8.2：mountain_forest）"
+    },
+    "b07_zhaoze_shouyao": {
+      "backdrop": "cave_tunnel",
+      "map": "ch07_dixia_zhaoze",
+      "why": "地下百余丈的沼泽（施工图 8.2：cave_tunnel）"
+    },
+    "be07_tuishan_shou": {
+      "backdrop": "mountain_forest",
+      "map": "ch07_huanxingshan",
+      "why": "野外遭遇：环形山的山坡，白天（与环形山图的背景一致）"
+    },
+    "be07_tiebi_yuan": {
+      "backdrop": "mountain_forest",
+      "map": "ch07_huanxingshan",
+      "why": "野外遭遇与支线 Z2 东坡石屋：环形山，白天"
+    },
+    "be07_huoyan_shu": {
+      "backdrop": "mountain_forest",
+      "map": "ch07_huanxingshan",
+      "why": "野外遭遇：环形山，白天"
     }
   }
 }

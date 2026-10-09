@@ -11,6 +11,8 @@
 // 在这里复制一份常量迟早会与那边分家，而分家的样子是采收与催熟对同一株药
 // 给出两种说法。Field.h 不反过来依赖本文件，没有环。
 #include "core/rules/Field.h"
+// 容量下限按大境界分档（bottleCapacityFloor）。Realm.h 不依赖本文件，同样没有环。
+#include "core/rules/Realm.h"
 
 namespace fanren::rules {
 
@@ -35,6 +37,26 @@ inline constexpr int kBaseChargeDays = 7;
 // 这道闸不是平衡微调而是堵漏：没有上限时挂机一百年能凝出五千余滴，配上
 // herbPrice 的 121 倍超线性曲线就是无技巧的无限刷钱。
 inline constexpr int kBottleCapacityPerTier = 3;
+
+// 瓶子容量随大境界的下限（契约 docs/interfaces-p3-ch07.md 第 3 节）：凡人与炼气 3、筑基 6、
+// 结丹 9，即 kBottleCapacityPerTier × 档位；更高的档按结丹算（本作到结丹为止，用不上）。
+//
+// 上面那句「rules 层不写死」的意思不变：这里给的仍是具名基准，写进 capacity 的是三处调用方——
+// Application 的 RealmAdvance（脚本升境）、CultivationScene 的 applyRealmAttributes（面板突破）、
+// SaveFile 读档。写法一律 capacity = max(capacity, bottleCapacityFloor(tierOf(realm)))：
+// 只补不削，已经更大的（剧情道具、洞府灵脉给的加成）一滴也不动；抬上限不送液，drops 不动。
+[[nodiscard]] constexpr int bottleCapacityFloor(RealmTier tier) noexcept {
+    switch (tier) {
+        case RealmTier::Mortal:
+        case RealmTier::QiRefining:
+            return kBottleCapacityPerTier;
+        case RealmTier::Foundation:
+            return kBottleCapacityPerTier * 2;
+        case RealmTier::Core:
+            return kBottleCapacityPerTier * 3;
+    }
+    return kBottleCapacityPerTier * 3;
+}
 
 // 单株灵草的年份上限（万年），本命法宝的万年份天雷竹即取此上限（大纲 4.1）。
 // 同时充当计价与灵田生长的溢出闸。

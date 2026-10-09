@@ -38,6 +38,7 @@ r"""门禁自身的负向自检：故意写坏，看 validate.py 与 genmaps.py 
   G. 脚本里的物品 id —— give / take / bottle.mature 三种写法用了不存在的药名
      都必须报；而 my_bottle.mature / bottleXmature 这类形近写法不许报
      （这一条同时钉住那条正则里 `bottle\.mature` 的转义没被吃掉）。
+     第 7 章加的 take_aged / item.count_aged 同样：拼错必报、拼对不报、形近不报（G4–G6）。
 
   H. deny_text_key —— 退回旧的按源图命名、与 require_flag 落单，都必须报；
      而两者皆无的普通传送点不许报。
@@ -64,7 +65,11 @@ r"""门禁自身的负向自检：故意写坏，看 validate.py 与 genmaps.py 
      useRange）；上场的敌人必须有架势与破绽；第 1–5 章每个敌人至少一样破绽是那一场我方
      必有的手段打得到的——外加那张手段表自己的来路（火弹术的五行、脚本里的 magic.learn、
      蚀心散带不带毒）。每一条都配一条「按这一场算、不该报」的对照：同一只狼在第 5 章有火弹、
-     僵兽只剩毒、第 6 章不在范围、识海没有架势。
+     僵兽只剩毒、第 6 章不在范围、识海没有架势。第 7 章加的：法术的 effect stagger 与 stagger
+     取值、物品的 castMagic（引用与药效互斥）、手段表里 give 一件兵器时核它的 weapon 字段。
+
+  T. 配方占位旗标 story.recipe_later（第 7 章）—— 只许写在 data/recipes/** 的 requireFlag 里：
+     脚本置它、别的数据文件引它、配方里写在别的字段、地图上引它，都必须报；五张门闸方子不许报。
 
   R. 衔接朝向与回弹（规则 29）—— 落点掉头且回程门就在跟前：朝向与来回弹都必须报；只把
      落点朝向拧 90°：只许报朝向、不许报来回弹；多入口的内门落点朝其中一面不许报，改朝
@@ -667,6 +672,36 @@ def selftest_g_script_item_ids(case: Case, base: Path) -> None:
         out.write(probe)
     errors = run_validate_full(work)
     case.check("形近写法不误报（回顾断言与点的转义都还在）",
+               not any("herb_tan_zhen" in e for e in errors),
+               chr(10).join(e for e in errors if "herb_tan_zhen" in e))
+
+    # G4 / G5 · 第 7 章按年份下限的两种写法（docs/interfaces-p3-ch07.md 5.1 第 3 条）：take_aged 与
+    #     item.count_aged 用了不存在的药名都必须报。漏进正则之前，马师伯收药那一句拼错了药名，
+    #     脚本只会安静地「一株也数不到」，玩家永远交不上差。
+    work = make_full_workdir(base / "g4")
+    probe = (chr(10) + 'take_aged("herb_bu_cun_zai_si", 3, 44)' + chr(10) +
+             'local aged = item.count_aged("herb_bu_cun_zai_wu", 44)' + chr(10))
+    with (work / "scripts" / "ch02" / "cuishu.lua").open("a", encoding="utf-8") as out:
+        out.write(probe)
+    errors = run_validate_full(work)
+    case.check("take_aged 的物品 id 不存在 → 报错",
+               any("herb_bu_cun_zai_si" in e for e in errors), chr(10).join(errors[:3]))
+    case.check("item.count_aged 的物品 id 不存在 → 报错",
+               any("herb_bu_cun_zai_wu" in e for e in errors), chr(10).join(errors[:3]))
+
+    # G6 · 正例：两种写法拼对了一条不报；形近写法也不许误报——
+    #       my_item.count_aged —— 负向回顾；itemXcount_aged —— `item\.count_aged` 里那个点的转义。
+    work = make_full_workdir(base / "g6")
+    probe = (chr(10) + 'take_aged("herb_huangjing_cao", 3, 44)' + chr(10) +
+             'local aged = item.count_aged("herb_huangjing_cao", 44)' + chr(10) +
+             'local my_item = { count_aged = function() return 0 end }' + chr(10) +
+             'local near = my_item.count_aged("herb_tan_zhen_san", 1)' + chr(10) +
+             'local miss = itemXcount_aged("herb_tan_zhen_si", 1)' + chr(10))
+    with (work / "scripts" / "ch02" / "cuishu.lua").open("a", encoding="utf-8") as out:
+        out.write(probe)
+    errors = run_validate_full(work)
+    case.check("take_aged / item.count_aged 拼对了 → 全量校验干净", not errors, chr(10).join(errors[:3]))
+    case.check("item.count_aged 的形近写法不误报（回顾断言与点的转义都还在）",
                not any("herb_tan_zhen" in e for e in errors),
                chr(10).join(e for e in errors if "herb_tan_zhen" in e))
 
@@ -1412,7 +1447,7 @@ def selftest_p_path_actions(case: Case, base: Path) -> None:
 # 每一条报错都至少命中其中一个——新加报错时对一遍：第一版漏了「weaknesses」，于是
 # 「类别名拼错」「写了两遍」那两条报是报了，却被这张表筛掉，自检当场红了两条。
 BREAK_RULE_WORDS = ("破绽", "架势", "已作废", "手段", "weaknesses", "weapons", "charge", "boost",
-                    "weapon", "actions", "toughness", "killable_by", "effect")
+                    "weapon", "actions", "toughness", "killable_by", "effect", "stagger", "castMagic")
 
 
 def selftest_n_battle_break(case: Case, base: Path) -> None:
@@ -1490,6 +1525,25 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
            lambda p: p.__setitem__("effect", "Reveal"), "effect 只许")
     expect("伤人的法术挂 effect reveal → 报", "data/magics/huodan_shu.json",
            lambda p: p.__setitem__("effect", "reveal"), "effect 不能与 power")
+    # stagger（削架势，契约 docs/interfaces-p3-ch07.md 5.1 第 1 条）：拼错、取值越界、写成字符串、
+    # 写在不削架势的法术上、伤人的法术挂 effect stagger，各一条。土牢术的数据写得对，由 N0 管着「不报」。
+    tulao = "data/magics/tulao_shu.json"
+    expect("法术 effect 写成大写 Stagger → 报", tulao, lambda p: p.__setitem__("effect", "Stagger"), "effect 只许")
+    expect("stagger 写 0 → 报", tulao, lambda p: p.__setitem__("stagger", 0), "stagger 必须是")
+    expect("stagger 写 10 → 报", tulao, lambda p: p.__setitem__("stagger", 10), "stagger 必须是")
+    expect("stagger 写成字符串 \"3\" → 报", tulao, lambda p: p.__setitem__("stagger", "3"), "stagger 必须是")
+    expect("stagger 写在不削架势的法术上 → 报", "data/magics/huodan_shu.json",
+           lambda p: p.__setitem__("stagger", 2), "stagger 只许与")
+    expect("伤人的法术挂 effect stagger → 报", "data/magics/huodan_shu.json",
+           lambda p: p.__setitem__("effect", "stagger"), "effect 不能与 power")
+    # castMagic（道具施法，5.1 第 2 条）：指向不存在的法术、与药效同写，各一条。
+    tulao_fu = "data/items/talismans/tulao_fu.json"
+    expect("castMagic 指向不存在的法术 → 报", tulao_fu,
+           lambda p: p.__setitem__("castMagic", "magic_bu_cun_zai"), "magic id 不存在")
+    expect("castMagic 与 restoreHp 同写 → 报", tulao_fu,
+           lambda p: p.__setitem__("restoreHp", 10), "castMagic 不能与 restoreHp")
+    expect("castMagic 与 curesPoison 同写 → 报", tulao_fu,
+           lambda p: p.__setitem__("curesPoison", True), "castMagic 不能与 curesPoison")
     expect("兵器给的类别写成五行 → 报", "data/items/weapons/yudai_duanjian.json",
            lambda p: p.__setitem__("weapon", "火"), "weapon 只许兵刃类别")
     expect("物品还写着 useRange → 报", "data/items/pills/shixin_san.json",
@@ -1515,8 +1569,8 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
     # 韩立不在场的那一仗，手段只有编成里友军的兵刃：第 5 章的通表里有火，这里却不算。
     expect("夺帮那一夜的头目只怕火与刀 → 报（我方只有拳）", "data/roles/sipingbang_toumu.json",
            lambda p: p.__setitem__("weaknesses", ["火", "刀"]), "没有一样是这一场", "b05_duobang")
-    expect_quiet("第 7 章的敌人不在规则 25 的范围 → 不报", "data/roles/lu_shixiong.json",
-                 lambda p: p.__setitem__("weaknesses", ["木"]), "b07_lu_shixiong")
+    expect_quiet("第 8 章的敌人不在规则 25 的范围 → 不报", "data/roles/guilingmen_xiushi.json",
+                 lambda p: p.__setitem__("weaknesses", ["木"]), "b08_jinguyuan_juezhan")
     expect("编成落在没登记手段的章 → 报", "data/battles/b03_gu_wai_elang.json",
            lambda p: p.__setitem__("chapter", 2), "没有登记我方必有手段")
 
@@ -1534,6 +1588,86 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
         script.write_bytes(original)
     case.check("第 4 章的脚本不再教火弹术 → 报（火就不是必有的手段）",
                any("没有 magic.learn" in e for e in found), chr(10).join(found[:3]) or "（一条也没报）")
+
+    # give 一件兵器（契约 docs/interfaces-p3-ch07.md 5.1 第 4 条）：来路是兵刃类时核它的 weapon 字段。
+    # 表里眼下还没有这样的一条（第 7 章的丝线由协调者集成时登），这里临时在表上加一条——第 6 章领取的
+    # 冷月刀（scripts/ch06/lingqu.lua 真的 give 了它）——问完原样拿掉。
+    saved_means = validate.BATTLE_EXTRA_MEANS
+    validate.BATTLE_EXTRA_MEANS = dict(saved_means)
+    validate.BATTLE_EXTRA_MEANS["b06_shanqiu_xisha"] = (
+        list(saved_means.get("b06_shanqiu_xisha", [])) + [("刀", "give", "weapon_lengyue_dao", "ch06")])
+    try:
+        quiet = [e for e in rule_errors() if "weapon_lengyue_dao" in e]
+        case.check("give 的冷月刀 weapon 是「刀」→ 不报", not quiet, chr(10).join(quiet[:3]))
+        expect("give 的冷月刀 weapon 被改成「剑」→ 报（揣在身上打不出「刀」）", "data/items/weapons/lengyue_dao.json",
+               lambda p: p.__setitem__("weapon", "剑"), "weapon 不是「刀」")
+    finally:
+        validate.BATTLE_EXTRA_MEANS = saved_means
+
+
+# ---------------------------------------------------------------------------
+# T. 配方占位旗标（契约 docs/interfaces-p3-ch07.md 5.1 第 5 条）
+# ---------------------------------------------------------------------------
+
+def selftest_t_recipe_only_flag(case: Case, base: Path) -> None:
+    """story.recipe_later 只许写在 data/recipes/** 的 requireFlag 里；脚本置它、别处引它都必须报。"""
+    print()
+    print("T. 配方占位旗标 story.recipe_later：只许做配方的门闸")
+
+    work = make_full_workdir(base / "t")
+    needle = "只许写在 data/recipes/** 的 requireFlag 里"
+
+    def flag_errors() -> list[str]:
+        return [e for e in run_validate_full(work) if validate.RECIPE_ONLY_FLAG in e]
+
+    # T0 · 对照：五张门闸方子的 requireFlag 正挂着它，不许报。
+    clean = flag_errors()
+    case.check("不动的副本（五张方子的 requireFlag 挂着它）→ 不报", not clean, chr(10).join(clean[:3]))
+
+    def mutated(relative: str, mutate) -> list[str]:
+        path = work / relative
+        original = path.read_bytes()
+        mutate(path)
+        try:
+            return flag_errors()
+        finally:
+            path.write_bytes(original)
+
+    def patch_json(change):
+        def run(path: Path) -> None:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            change(payload)
+            path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), "utf-8")
+        return run
+
+    def append_line(line: str):
+        def run(path: Path) -> None:
+            with path.open("a", encoding="utf-8") as out:
+                out.write(chr(10) + line + chr(10))
+        return run
+
+    # T1 · 脚本置它：那几张还没写到的方子当场就露名。
+    found = mutated("scripts/ch02/cuishu.lua", append_line('flag.set("story.recipe_later")'))
+    case.check("脚本 flag.set(story.recipe_later) → 报", any("脚本置了" in e for e in found),
+               chr(10).join(found[:3]) or "（一条也没报）")
+    # T2 · 别的数据文件引它（一件符上挂一个 *_flag 字段）：一道永远开不了的门。
+    found = mutated("data/items/talismans/tulao_fu.json",
+                    patch_json(lambda p: p.__setitem__("unlock_flag", "story.recipe_later")))
+    case.check("物品里引它 → 报", any(needle in e for e in found), chr(10).join(found[:3]) or "（一条也没报）")
+    # T3 · 配方里写在 requireFlag 以外的字段：加载器不认那个字段，方子就不锁了。
+    found = mutated("data/recipes/alchemy/jiedan_lingyao.json",
+                    patch_json(lambda p: p.__setitem__("unlockFlag", p.pop("requireFlag"))))
+    case.check("配方里写在 requireFlag 以外的字段 → 报", any(needle in e for e in found),
+               chr(10).join(found[:3]) or "（一条也没报）")
+
+    # T4 · 地图上引它（挂在一个对象的属性上）。
+    def on_map(path: Path) -> None:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        set_prop(objects_layer(payload)[0], "probe_flag", "story.recipe_later")
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + chr(10), encoding="utf-8")
+
+    found = mutated("maps/" + stable_maps(work)[0] + ".tmj", on_map)
+    case.check("地图对象的属性里引它 → 报", any(needle in e for e in found), chr(10).join(found[:3]) or "（一条也没报）")
 
 
 def parse_one(work: Path, map_id: str):
@@ -2003,6 +2137,7 @@ def main() -> int:
         selftest_m_quests(case, base)
         selftest_p_path_actions(case, base)
         selftest_n_battle_break(case, base)
+        selftest_t_recipe_only_flag(case, base)
         selftest_q_encounters(case, base)
         selftest_r_portal_direction(case, base)
         selftest_s_npc_role_clash(case, base)

@@ -204,7 +204,7 @@ TEST(RealmVitals, LandsOnTheEnemyCurveThatDataAlreadyDefines) {
     };
     const Anchor anchors[]{
         {Realm::QiRefining4, 72, "jiexiu"},
-        {Realm::QiRefining11, 155, "lu_shixiong"},
+        {Realm::QiRefining12, 180, "lu_shixiong"},
         {Realm::QiRefining13, 176, "heishajiao_shigui"},
         {Realm::FoundationLate, 470, "wang_chan"},
         {Realm::CoreMid, 900, "wu_chou"},

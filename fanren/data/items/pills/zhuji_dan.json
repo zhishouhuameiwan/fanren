@@ -5,7 +5,7 @@
   "kind": "pill",
   "grade": 5,
   "price": 9000,
-  "tradeable": true,
+  "tradeable": false,
   "restoreHp": 0,
   "restoreMp": 0,
   "origin": "原著",

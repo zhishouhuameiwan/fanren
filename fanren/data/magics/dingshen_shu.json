@@ -1,0 +1,13 @@
+{
+  "id": "magic_dingshen_shu",
+  "name": "定神术",
+  "descKey": "magic.desc.magic_dingshen_shu",
+  "element": 0,
+  "needMp": 0,
+  "power": 0,
+  "needRealm": "QiRefining1",
+  "effect": "stagger",
+  "stagger": 1,
+  "origin": "改编",
+  "note": "只供定神符施放，不学（全仓 magic.learn 0 处）。定神术是 ch131 他手里那门符术，ch138 照着它画定神符：得先画好符、再念咒去催。战斗里做成道具施法（契约 docs/interfaces-p3-ch07.md 第 2 节）：定神符一张削一点架势（第 6 章设计 10.1 E2 早定的口径）；不伤人、不判破绽，削到 0 照样破势。数值归平衡路。"
+}

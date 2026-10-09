@@ -1,0 +1,11 @@
+{
+  "id": "material_mojiao_cailiao",
+  "name": "墨蛟材料",
+  "descKey": "item.desc.material_mojiao_cailiao",
+  "kind": "material",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "墨蛟尸身上割下来的一包（ch207、213）：皮、角爪一类。原著第 8 章拿鳍尾炼了一件飞行法器（那个名字第 1-7 章禁，施工图 12.1），本章只给这一包、不说用处。"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "story_hei_xue",
+  "name": "黑靴",
+  "descKey": "item.desc.story_hei_xue",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "改编",
+  "note": "封岳那双靴子在节点 23 到 24 之间的名字：原著 ch192 钟吾一叫才知它叫踏云靴。节点 24 钟吾认出它之后（tongmen.lua）take 本物、give story_tayun_xue（校对 LOW-3）。"
+}

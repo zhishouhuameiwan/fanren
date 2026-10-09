@@ -1,0 +1,13 @@
+{
+  "id": "herb_huangjing_zhi",
+  "name": "黄精芝",
+  "descKey": "item.desc.herb_huangjing_zhi",
+  "kind": "herb",
+  "grade": 5,
+  "price": 20,
+  "tradeable": false,
+  "herbAge": 0,
+  "maxAge": 2000,
+  "origin": "原著",
+  "note": "千年灵草（ch161-165）：园角两槽专养，五阶、年份上限 2000（从两年往上八滴过千年）。**tradeable false**：`herbPrice` 的平方曲线下，一株千余年的药按 0.3 收购也值上万灵石——万宝楼的以物易物（节点 11b，脚本）才是它唯一的出口，这也是原著的意思（ch165 这种买卖少做；施工图第 7 节、第 9 节第 4 条）。不写 restoreHp：千年灵草不当战场上的干粮。定颜丹方的主料（千年，施工图第 7 节配方表）。"
+}

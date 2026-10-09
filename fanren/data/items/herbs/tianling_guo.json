@@ -1,0 +1,13 @@
+{
+  "id": "herb_tianling_guo",
+  "name": "天灵果",
+  "descKey": "item.desc.herb_tianling_guo",
+  "kind": "herb",
+  "grade": 4,
+  "price": 30,
+  "tradeable": false,
+  "herbAge": 0,
+  "maxAge": 800,
+  "origin": "原著",
+  "note": "筑基丹三主药之一（ch158）。只长在禁地；小石殿里那几株未熟（ch200-203）。幼苗与成熟的分给法同紫猴花。四阶、年份上限 800（主药四五百年即可入药，ch196）。**tradeable false**：禁地药卖了会把第 8 章的钱撑爆（第 9 节第 4 条）。不写回复字段：不当战场上的干粮。"
+}

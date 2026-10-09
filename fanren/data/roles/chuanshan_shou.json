@@ -1,0 +1,19 @@
+{
+  "id": "chuanshan_shou",
+  "name": "穿山甲兽",
+  "realm": "QiRefining10",
+  "maxHp": 80,
+  "maxMp": 0,
+  "attack": 8,
+  "defence": 14,
+  "speed": 6,
+  "element": 16,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "木",
+    "水"
+  ],
+  "origin": "原著",
+  "note": "络腮胡子的另一头灵兽（ch184）：像穿山甲的兽，一身硬甲。非人形。土；破绽木、水。\n\n【平衡路 2026-09-29】攻 14 → 8（每下 5）。② 的斩杀线见络腮胡子那一条；灵兽是分心的（8.2 ②）。"
+}

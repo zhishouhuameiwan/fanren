@@ -202,6 +202,10 @@ enum class BattleEventKind {
     // 本场每一个站着的敌人各一条，紧跟在那一手的 Act 之后；revealed = 这一下新揭开的，
     // value = 揭开之后它的全部已揭开（= 它的全部破绽）。不是一击：没有 Hit，不伤人、不削架势。
     Reveal,
+    // actor 削 target 的架势（Magic::effect == Stagger，施法或道具施法，契约 docs/interfaces-p3-ch07.md 2.3）。
+    // 追加在末尾。紧跟在那一手的 Act 之后；value = 削掉的点数，toughness = 削后的架势。
+    // 削到 0 时紧接一条 Break（与「打中破绽削到 0」同一条）。不是一击：没有 Hit，不伤人、不判破绽。
+    Stagger,
 };
 
 struct BattleEvent {
@@ -302,15 +306,15 @@ public:
     [[nodiscard]] Action decideAi(int actorIndex) const;
 
     // ---- 给界面与 AI 的只读判断（与结算走同一份口径）----
-    // 这一手打的是哪几类：普攻 = 所出的兵刃；法术 = 五行（带毒加「毒」）；毒药 = 毒。
-    // 其余动作、吞噬模式一律 0。
+    // 这一手打的是哪几类：普攻 = 所出的兵刃；法术 = 五行（带毒加「毒」）；毒药 = 毒；
+    // 带 castMagic 的符箓 = 那门法术的类别。其余动作、吞噬模式一律 0。
     [[nodiscard]] int hitCategories(const Action& action) const;
-    // 这一手打几击：普攻 1+蓄劲；连发型法术 1+蓄劲；其余 1（毒药也是一击）。
+    // 这一手打几击：普攻 1+蓄劲；连发型法术 1+蓄劲；其余 1（毒药也是一击；道具施法不吃劲，也是一击）。
     [[nodiscard]] int hitCount(const Action& action) const;
     // 普攻出的是哪一样兵刃：action.category 非 0 就是它，否则取这个单位位序最前的那一样。
     [[nodiscard]] int attackCategory(const Action& action) const;
     // 这一击对 target 估计打多少（含破势 ×2、防御减半、蓄势倍数；不含之后的变化）。
-    // AI 挑目标与菜单报数都走它，不另算一份。
+    // AI 挑目标与菜单报数都走它，不另算一份。道具施法按那门法术、劲 0 估。
     [[nodiscard]] int estimateHitDamage(const Action& action, int targetIndex) const;
 
 private:
@@ -329,12 +333,25 @@ private:
     [[nodiscard]] bool checkCharge(const Unit& u, std::string* why) const;
     [[nodiscard]] bool checkBoost(const Action& a, const Unit& u, std::string* why) const;
     [[nodiscard]] bool checkEnemyTarget(int targetIndex, const Unit& actor, std::string* why) const;
+    // 一门法术挑的目标（施法与道具施法共用）：看破不挑；伤人的与削架势的打一个敌人，
+    // 削架势的另要那个敌人有架势可削、还没破势。
+    [[nodiscard]] bool checkMagicTarget(const Action& a, const Magic& magic, const Unit& u,
+                                        std::string* why) const;
+    // 一手 Item 若是带 castMagic 的符箓，返回它施展的那门法术（登记在本场的那一份）；否则 nullptr。
+    [[nodiscard]] const Magic* castMagicOf(const Action& action) const;
 
     std::string applyAttack(const Action& a);
     std::string applyCast(const Action& a);
-    // 看破（Magic::effect == Reveal）：扣法力，本场每一个站着的敌人破绽全部揭开。
+    // 一门法术落下去（施法与道具施法共用，契约 docs/interfaces-p3-ch07.md 2.3「逐项相同」）。
+    // viaItem 为空是施法；非空是用那件符箓施展——只差三处：不扣法力、不吃蓄劲、
+    // Act 那一行记 Item、说法是「X 使用 Y——」。
+    std::string resolveMagic(const Action& a, const Magic& magic, const Item* viaItem);
+    // 看破（Magic::effect == Reveal）：扣法力（道具不扣），本场每一个站着的敌人破绽全部揭开。
     // 不算一次攻击——不判破绽、不削架势、不打断蓄势、不扣劲（蓄了也只当没蓄）。
-    std::string applyReveal(const Action& a, const Magic& magic);
+    std::string applyReveal(const Action& a, const Magic& magic, const Item* viaItem);
+    // 削架势（Magic::effect == Stagger）：扣法力（道具不扣），目标架势减 magic.stagger，到 0 即破势
+    //（breakUnit，与打中破绽削到 0 同一条路）。不判破绽、不揭开、不伤人、不扣劲。
+    std::string applyStagger(const Action& a, const Magic& magic, const Item* viaItem);
     std::string applyItem(const Action& a);
     std::string applyDefend(const Action& a);
     std::string applyEscape(const Action& a);
@@ -368,6 +385,8 @@ private:
     void breakUnit(int targetIndex, std::string& text, StrikeOutcome& out);
     void emitStrike(int attackerIndex, int targetIndex, int category, int hit, int hits,
                     const StrikeOutcome& out);
+    // 破势那一段事件：Break，蓄势中的再加 ChargeInterrupt。emitStrike 与削架势共用，次序一样。
+    void emitBreak(int attackerIndex, int targetIndex, const StrikeOutcome& out);
 
     // 这一击的最终伤害：基数乘上破势 ×2、防御减半、重招倍数，至少 1。
     [[nodiscard]] int finalDamage(int baseDamage, const Unit& attacker, const Unit& target) const;

@@ -1,0 +1,11 @@
+{
+  "id": "material_zhuji_yaofen",
+  "name": "筑基丹药粉",
+  "descKey": "item.desc.material_zhuji_yaofen",
+  "kind": "material",
+  "grade": 5,
+  "price": 0,
+  "tradeable": false,
+  "origin": "改编",
+  "note": "一炉份的筑基丹药粉（施工图第 7 节、16.1 第 6 条）：三味主药催到四五百年、三十一味辅药催足年份，按方研好分装（ch214 他把药粉一瓶瓶倒进鼎里）。筑基丹方 recipe_zhuji_dan 的唯一一味料。节点 34 蒙太奇一律给 40 份（不看玩家手里剩多少幼苗：两侧同账），35b 演废丹扣 22，35c 余量扣光。tradeable false。"
+}

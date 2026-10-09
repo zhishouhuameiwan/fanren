@@ -1,0 +1,11 @@
+{
+  "id": "talisman_jinguangzhuan",
+  "name": "金光砖符宝",
+  "descKey": "item.desc.talisman_jinguangzhuan",
+  "kind": "talisman",
+  "grade": 5,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "万宝楼四件之一（ch164-165）：结丹修士把一件砖形法宝的部分威能封进符纸。驱动先抽走使用者约三分之一的法力（ch184）；本作做成法术「祭金光砖」（土、一击；magic_ji_jinguangzhuan）。**节点 31 破土时耗尽成了废纸**（ch209）：当场 take 本物并 magic.forget（施工图验收 7）。本身不带 castMagic——它的施展走那门法术，与第 5、6 章剑符同一口径。"
+}

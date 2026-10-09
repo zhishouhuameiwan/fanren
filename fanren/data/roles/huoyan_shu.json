@@ -1,0 +1,20 @@
+{
+  "id": "huoyan_shu",
+  "name": "火焰鼠",
+  "realm": "QiRefining7",
+  "maxHp": 45,
+  "maxMp": 0,
+  "attack": 12,
+  "defence": 6,
+  "speed": 12,
+  "element": 8,
+  "magics": [
+    "magic_huodan_shu"
+  ],
+  "toughness": 2,
+  "weaknesses": [
+    "水"
+  ],
+  "origin": "原著",
+  "note": "环形山里一级下阶的小兽（ch194 秘闻里举的例）：成群，吐火星。非人形。遭遇 be07_huoyan_shu。火；破绽水。\n\n【平衡路 2026-09-29】法力 30 → 0：三只一回合三发火弹就是 48，比 ② 四个人齐上还重（遭遇要低于同章剧情战）；火弹术留在表里、不出手，普攻每下 11，三只一回合 33（docs/ch07-balance.md 遭遇）。"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "magic_tulao_shu",
+  "name": "土牢术",
+  "descKey": "magic.desc.magic_tulao_shu",
+  "element": 16,
+  "needMp": 0,
+  "power": 0,
+  "needRealm": "QiRefining1",
+  "effect": "stagger",
+  "stagger": 3,
+  "origin": "改编",
+  "note": "只供土牢符施放，不学（全仓 magic.learn 0 处）。原著 ch183 高阶土牢符困住络腮胡子：游戏里做成一下削掉三点架势。"
+}

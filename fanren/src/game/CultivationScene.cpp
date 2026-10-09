@@ -7,6 +7,7 @@
 #include <string_view>
 #include <utility>
 
+#include "core/rules/Bottle.h"
 #include "core/rules/Calendar.h"
 #include "game/Application.h"
 
@@ -144,6 +145,10 @@ struct RealmGrowth {
     state.maxHp = hp.max;
     state.mp = mp.current;
     state.maxMp = mp.max;
+    // 瓶子容量的下限跟着大境界走（契约 docs/interfaces-p3-ch07.md 3.3 第 2 处；另两处是 Application
+    // 的 RealmAdvance 与 SaveFile 读档，同一个函数）。只补不削，不送液；同档内升层不变。
+    state.bottle.capacity =
+        std::max(state.bottle.capacity, rules::bottleCapacityFloor(rules::tierOf(state.realm)));
     return growth;
 }
 

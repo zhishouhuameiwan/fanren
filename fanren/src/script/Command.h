@@ -34,6 +34,9 @@ enum class CommandKind {
     // 八方旅人化改造（docs/interfaces-octo-pathactions.md 11 节、docs/audio.md）：脚本点播 BGM。
     // 同样追加在末尾。
     PlayBgm,
+    // P3 第 7 章增补（契约 docs/interfaces-p3-ch07.md 第 4 节）：按年份下限扣物（take_aged）。
+    // 同样追加在末尾。计数（item.count_aged）走 __host，不占命令位。
+    TakeItemAged,
 };
 
 // bgm() 的这个 id 不是曲子，是「撤掉点播、放回地图曲」（api.lua 的 bgm("map")）。
@@ -72,6 +75,7 @@ inline constexpr const char* kMapBgm = "map";
 //   RealmAdvance -          -            目标境界编号 -      -
 //   RealmCap    -            -            上限境界编号 -      -
 //   PlayBgm     曲子 id / "map" -          -            -      -
+//   TakeItemAged 物品 id     -            数量         年份下限  -
 //
 // 注：Talk 的 a 放文案 key 而不是说话人，与契约里「a 是主参数：文案 key /
 // 地图 id / 物品 id」的排列一致 —— 各命令的 a 一律是那条命令的主体。

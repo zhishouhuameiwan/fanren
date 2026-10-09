@@ -19,6 +19,7 @@
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cstdlib>
 #include <deque>
 #include <filesystem>
 #include <fstream>
@@ -435,10 +436,16 @@ TEST_F(Ch06Slice, No9_TheSwordTalismanStaysFromNineBAndRuleTwentyFiveKnowsMetalA
     for (const auto& [path, source] : scriptsUnder(root_, "ch05")) chapterFive += countOf(codeOnly(source), "magic.forget(\"magic_ji_jianfu\")");
     EXPECT_EQ(chapterFive, 1) << "扫描器自检：第 5 章那一处 magic.forget 该数得出来";
 
-    // tools/validate.py：MEANS_LAST_CHAPTER = 6；② 那一场的必有手段里有金（祭剑符）与土（流沙术），来路都在 ch06。
+    // tools/validate.py：第 6 章在规则 25 的范围里（MEANS_LAST_CHAPTER ≥ 6；第 7 章起它会往上抬，这里只要求不低于 6——
+    // 从前写成「恰好等于 6」，第 7 章一登记就红，判的是「今天碰巧的样子」而不是约束本身）；
+    // ② 那一场的必有手段里有金（祭剑符）与土（流沙术），来路都在 ch06。
     const std::string validate = readFile(fs::path(root_) / "tools" / "validate.py");
     ASSERT_GT(validate.size(), 10000u) << "先验：读得到 tools/validate.py";
-    EXPECT_NE(validate.find("\nMEANS_LAST_CHAPTER = 6\n"), std::string::npos) << "施工图 E6：MEANS_LAST_CHAPTER = 6";
+    const std::string lastKey = "\nMEANS_LAST_CHAPTER = ";
+    const std::size_t lastAt = validate.find(lastKey);
+    ASSERT_NE(lastAt, std::string::npos) << "先验：validate.py 里有 MEANS_LAST_CHAPTER";
+    const int lastChapter = std::atoi(validate.c_str() + lastAt + lastKey.size());
+    EXPECT_GE(lastChapter, 6) << "施工图 E6：规则 25 要管到第 6 章（MEANS_LAST_CHAPTER ≥ 6），读到的是 " << lastChapter;
     const std::size_t chapterMeans = validate.find("\nCHAPTER_MEANS = {");
     ASSERT_NE(chapterMeans, std::string::npos);
     EXPECT_NE(validate.find("\n    6: [", chapterMeans), std::string::npos) << "施工图 E6：CHAPTER_MEANS 有第 6 章";

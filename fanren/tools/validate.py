@@ -65,10 +65,13 @@ REFERENCE_FIELDS = {
     'battleId': 'battle',
     'battle_id': 'battle',
     'magics': 'magic',
+    # 道具施法：一件符箓施展的那门法术（docs/interfaces-p3-ch07.md 5.1 第 2 条）。
+    'castMagic': 'magic',
     # 归一化别名：驼峰与下划线两种写法都能命中，见 normalise_field 的说明。
     'item_id': 'item',
     'product_id': 'item',
     'seed_id': 'item',
+    'cast_magic': 'magic',
 }
 
 # 每类引用对应的 data 子目录。id 从这些目录下的文件里收集。
@@ -840,8 +843,10 @@ SCRIPT_FLAG_SET_CALL = re.compile(r"""(?<![A-Za-z0-9_])flag\.set\s*\(\s*['"]([^'
 # 反斜杠在这里是要紧的：`bottle.mature` 的点若没转义，`bottleXmature` 也会
 # 匹配。本项目栽过一次「正则的转义被 heredoc 吃掉、从此永远报通过」，
 # 所以这条与它的负向自检（validate_selftest.py 用例 G）是一起加的。
+# 第 7 章又加了两种按年份下限的写法（docs/interfaces-p3-ch07.md 第 4 节）：take_aged 与
+# item.count_aged，同样拿物品 id 当第一个参数；`item\.count_aged` 的点也转义，负向自检是 G4–G6。
 SCRIPT_ITEM_CALL = re.compile(
-    r"""(?<![A-Za-z0-9_])(?:give|take|bottle\.mature)\s*\(\s*['"]([^'"]+)['"]""")
+    r"""(?<![A-Za-z0-9_])(?:give|take|take_aged|bottle\.mature|item\.count_aged)\s*\(\s*['"]([^'"]+)['"]""")
 SCRIPT_MAP_CALL = re.compile(r"""(?<![A-Za-z0-9_])teleport\s*\(\s*['"]([^'"]+)['"]""")
 SCRIPT_CHOICE_CALL = re.compile(r"""(?<![A-Za-z0-9_])choice\s*[({]([^)}]*)[)}]""", re.S)
 LUA_STRING = re.compile(r"""['"]([^'"]+)['"]""")
@@ -2179,6 +2184,10 @@ OBSOLETE_BATTLE_FIELDS = ("width", "height", "player_spawn")
 OBSOLETE_UNIT_FIELDS = ("x", "y")
 OBSOLETE_MAGIC_FIELDS = ("castRange",)
 OBSOLETE_ITEM_FIELDS = ("useRange",)
+# 与 castMagic（道具施法）互斥的四样药效：写了其中任何一样（非 0 / true），这件东西就是药不是符。
+CAST_MAGIC_EXCLUSIVE_FIELDS = ("restoreHp", "restoreMp", "poison", "curesPoison")
+# 规则 25 的来路里「give 一件兵器」给得出的类别：拳是空手、毒核的是 poison，剩下这三样核 weapon 字段。
+GIVEN_WEAPON_CATEGORIES = ("剑", "刀", "暗器")
 
 # 规则 25 的「我方必有手段」表：第 1–5 章每一场仗，玩家**不靠买、不靠选**一定带着的攻击类别。
 #
@@ -2187,7 +2196,7 @@ OBSOLETE_ITEM_FIELDS = ("useRange",)
 # 每一条都写明来路，并由 check_means_sources 去脚本与数据里核一遍：来路被删了，这里当场红。
 #
 #   (类别, 来路种类, 来路 id, 在哪一章的脚本里)
-#   来路种类：hand = 空手；learn = magic.learn；give = give() 给的毒药。
+#   来路种类：hand = 空手；learn = magic.learn；give = give() 给的毒药或兵器（兵刃类核 weapon 字段）。
 CHAPTER_MEANS = {
     3: [("拳", "hand", "", "")],
     4: [("拳", "hand", "", ""),
@@ -2200,6 +2209,14 @@ CHAPTER_MEANS = {
     # 而节点 6 的叶家寻衅在那之前——登成整章必有，规则 25 就会对那一仗放水。9b 之后的几场按场登在下面。
     6: [("拳", "hand", "", ""),
         ("火", "learn", "magic_huodan_shu", "ch04")],
+    # 第 7 章（docs/ch07-design.md 8.2）：本章第一仗（节点 13 陆师兄）在节点 11b 万宝楼之后，
+    # 那一节 scripts/ch07/wanbaolou.lua 学会祭金符（金）；流沙术（土）、冰冻术（水）第 6 章 9b 起常驻。
+    # 祭剑符在 ch170（scripts/ch07/yeyu.lua）收回、祭金光砖在 ch209（jiaoshi.lua）收回，都不登——金、土另有常驻来路。
+    7: [("拳", "hand", "", ""),
+        ("火", "learn", "magic_huodan_shu", "ch04"),
+        ("水", "learn", "magic_bingdong_shu", "ch06"),
+        ("土", "learn", "magic_liusha_shu", "ch06"),
+        ("金", "learn", "magic_ji_jinfu", "ch07")],
 }
 # 某一场仗额外必有的：蚀心散在节点 7 备毒时由 scripts/ch03/beidu.lua 给出（两包起），
 # 暗道那一仗是节点 8。谷外遇狼（节点 1）那会儿还没有，所以不进第 3 章的通表。
@@ -2219,8 +2236,14 @@ BATTLE_EXTRA_MEANS = {
                           ("土", "learn", "magic_liusha_shu", "ch06")],
     "b06_huangfenggu_qiecuo": [("金", "learn", "magic_ji_jianfu", "ch06"),
                                ("土", "learn", "magic_liusha_shu", "ch06")],
+    # 第 7 章 ① 陆师兄之后才到手的两样（docs/ch07-design.md 8.2）：祭青蛟旗（木）在 yeyu.lua 陆师兄死后搜身学会；
+    # 无名丝线（暗器）在 liangshi.lua 给出。这几场都在那两处之后。
+    **{battle_id: [("木", "learn", "magic_ji_qingjiao", "ch07"),
+                   ("暗器", "give", "weapon_wuming_sixian", "ch07")]
+       for battle_id in ("b07_yixiantian", "b07_fengyue", "b07_zhongxinqu_duoyao", "b07_zhaoze_shouyao",
+                         "be07_huoyan_shu", "be07_tiebi_yuan", "be07_tuishan_shou")},
 }
-MEANS_LAST_CHAPTER = 6
+MEANS_LAST_CHAPTER = 7
 
 
 def check_category_list(where, payload, field, allowed, report) -> list[str]:
@@ -2313,8 +2336,8 @@ def check_means_sources(report) -> None:
 
     表是人写的，而人写的表会漂：哪天火弹术挪到第 5 章才教，这张表还写着第 4 章必有火，
     规则 25 就会放过一整章打不出破绽的敌人。所以逐条去核：learn 的那门法术存在、
-    它的五行真是这一类、那一章的脚本里真有 magic.learn；give 的那件东西存在、真的带毒、
-    那一章的脚本里真有 give。"""
+    它的五行真是这一类、那一章的脚本里真有 magic.learn；give 的那件东西存在、真的带毒
+    （兵刃类：weapon 字段真是那一类）、那一章的脚本里真有 give。"""
     magics: dict[str, dict] = {}
     for path in sorted((ROOT / "data" / "magics").rglob("*.json")):
         payload = read_json(path, report)
@@ -2354,6 +2377,11 @@ def check_means_sources(report) -> None:
                 continue
             if category == "毒" and not (is_plain_int(item.get("poison")) and item.get("poison", 0) > 0):
                 report.error(where, f"{owner}：{source} 不带毒，撒出去不算「毒」类一击")
+            # 兵刃类的来路（docs/interfaces-p3-ch07.md 5.1 第 4 条）：give 的那件得真是这一类兵器——
+            # 揣在身上普攻才多出这一类（BattleScene::heroWeapons 读的就是 weapon 字段）。
+            if category in GIVEN_WEAPON_CATEGORIES and item.get("weapon") != category:
+                report.error(where, f"{owner}：{source} 的 weapon 不是「{category}」（实际是 {item.get('weapon')!r}），"
+                                    f"揣在身上也打不出这一类")
             if not re.search(r'give\s*\(\s*["\']' + re.escape(source) + r'["\']', code):
                 report.error(where, f"{owner}：scripts/{chapter_dir}/ 里没有 give(\"{source}\")，"
                                     f"「{category}」就不是玩家必有的手段")
@@ -2382,7 +2410,8 @@ def check_battle_break_data(report) -> None:
     """规则 24（形状，全仓）与规则 25（第 1–5 章：每个敌人至少一样破绽打得到）。
 
     24：角色的 weapons / weaknesses / toughness / actions / charge 写了就得写对；法术的 boost
-        只许 hits / power，effect 只许 reveal 且不与 power / poison 同写；兵器的 weapon 只许兵刃五类；格子时代的遗留字段（战场宽高、
+        只许 hits / power，effect 只许 reveal / stagger 且不与 power / poison 同写，stagger 只许 1–9
+        且只与 effect stagger 同写；物品的 castMagic 不与四样药效同写；兵器的 weapon 只许兵刃五类；格子时代的遗留字段（战场宽高、
         player_spawn、单位坐标、castRange、useRange）一律报错；上场的敌人（识海除外）
         必须有架势与破绽。
     25：第 1–5 章每一场仗（识海除外）的每一个敌人，破绽里至少有一样是那一场我方**必有**
@@ -2401,18 +2430,26 @@ def check_battle_break_data(report) -> None:
                 report.error(where, f"{field_name} 已作废：横版战斗没有距离，删掉这一项")
         if "boost" in payload and payload["boost"] not in ("hits", "power"):
             report.error(where, f"boost 只许 \"hits\" 或 \"power\"，实际是 {payload['boost']!r}")
-        # effect（契约 docs/interfaces-p3-ch06.md 第 1、5 节）：写了就得是 "reveal"（天眼术的看破），
-        # 且不许与 power > 0 / poison > 0 同写——一门法术要么伤人要么看破。加载器（DataLoader.cpp）
-        # 查同一条；power 缺省是 10，所以看破的法术得明写 "power": 0。
+        # effect（契约 docs/interfaces-p3-ch06.md 第 1、5 节，docs/interfaces-p3-ch07.md 5.1 第 1 条）：
+        # 写了就得是 "reveal"（天眼术的看破）或 "stagger"（削架势），且不许与 power > 0 / poison > 0
+        # 同写——一门法术要么伤人、要么看破或削架势。加载器（DataLoader.cpp）查同一条；power 缺省
+        # 是 10，所以带效果的法术得明写 "power": 0。
         if "effect" in payload:
-            if payload["effect"] != "reveal":
-                report.error(where, f"effect 只许 \"reveal\"，实际是 {payload['effect']!r}")
+            if payload["effect"] not in ("reveal", "stagger"):
+                report.error(where, f"effect 只许 \"reveal\" 或 \"stagger\"，实际是 {payload['effect']!r}")
             else:
                 power = payload.get("power", 10)
                 poison = payload.get("poison", 0)
                 if (isinstance(power, int) and power > 0) or (isinstance(poison, int) and poison > 0):
                     report.error(where, f"effect 不能与 power > 0 或 poison > 0 同写（power {power!r}，"
-                                        f"poison {poison!r}）：一门法术要么伤人要么看破")
+                                        f"poison {poison!r}）：一门法术要么伤人、要么看破或削架势")
+        # stagger（削几点架势）：1–9 的整数，只许与 effect "stagger" 同写（不写取 1）。写在别的法术上
+        # 是一个谁也不读的数；写成 "3"、0、10 都是数据错。
+        if "stagger" in payload:
+            if payload.get("effect") != "stagger":
+                report.error(where, "stagger 只许与 effect \"stagger\" 同写")
+            elif not is_plain_int(payload["stagger"]) or not 1 <= payload["stagger"] <= 9:
+                report.error(where, f"stagger 必须是 1 到 9 的整数，实际是 {payload['stagger']!r}")
 
     for path in sorted((ROOT / "data" / "items").rglob("*.json")):
         payload = read_json(path, report)
@@ -2424,6 +2461,13 @@ def check_battle_break_data(report) -> None:
                 report.error(where, f"{field_name} 已作废：横版战斗没有距离，删掉这一项")
         if "weapon" in payload and payload["weapon"] not in WEAPON_CATEGORIES:
             report.error(where, f"weapon 只许兵刃类别（{'、'.join(WEAPON_CATEGORIES)}），实际是 {payload['weapon']!r}")
+        # castMagic（道具施法，docs/interfaces-p3-ch07.md 5.1 第 2 条）：一件东西要么是药、要么是符，
+        # 与四样药效同写报错（加载器查同一条）。它指向的法术存不存在由 REFERENCE_FIELDS 那一条查。
+        if "castMagic" in payload:
+            potions = [name for name in CAST_MAGIC_EXCLUSIVE_FIELDS
+                       if payload.get(name) is True or (is_plain_int(payload.get(name)) and payload[name] > 0)]
+            if potions:
+                report.error(where, f"castMagic 不能与 {'、'.join(potions)} 同写：一件东西要么是药、要么是符")
 
     check_means_sources(report)
 
@@ -2975,6 +3019,47 @@ def check_npc_role_clash(maps: list[ParsedMap], report: Report) -> None:
                               "（data/roles 里的 name），" + complementary)
 
 
+# 只给配方当门闸的占位旗标（docs/interfaces-p3-ch07.md 1.2、5.1 第 5 条）：**永不置**，挂在它上面的
+# 方子（结丹灵药方与四张制符方）就永远不列；写到用得上那几张方子的章时换成那一章的旗标。
+RECIPE_ONLY_FLAG = "story.recipe_later"
+
+
+def check_recipe_only_flag(report) -> None:
+    """story.recipe_later 只许出现在 data/recipes/** 的 requireFlag 里；任何脚本置它都报错。
+
+    别处引用它——地图门闸、路径行动、任务、目标链——都等于写了一道永远开不了的门；
+    脚本一旦置了它，那几张还没写到的方子就在炼制面板上提前露了名（第 4–6 章的名字泄漏，
+    docs/ch07-design.md 第 7 节「堵泄漏」）。"""
+    data_dir = ROOT / "data"
+    sources = sorted(data_dir.rglob("*.json")) if data_dir.exists() else []
+    maps_dir = ROOT / "maps"
+    sources += sorted(maps_dir.glob("*.tmj")) if maps_dir.exists() else []
+    for path in sources:
+        # flags.json 是登记表本身；text/ 是文案，不是引用方。
+        if path.name == "flags.json" or path.parent.name == "text":
+            continue
+        payload = read_json(path, report)
+        if payload is None:
+            continue
+        in_recipes = path.is_relative_to(data_dir) and path.relative_to(data_dir).parts[0] == "recipes"
+        pairs = []
+        walk_json(payload, [], pairs)
+        for field_name, value in pairs:
+            if value == RECIPE_ONLY_FLAG and not (in_recipes and field_name == "requireFlag"):
+                report.error(str(path.relative_to(ROOT)),
+                             f"{RECIPE_ONLY_FLAG} 只许写在 data/recipes/** 的 requireFlag 里（这里是字段 "
+                             f"{field_name}）：它永不置，挂在别处就是一道永远开不了的门")
+    scripts_dir = ROOT / "scripts"
+    for path in sorted(scripts_dir.rglob("*.lua")) if scripts_dir.exists() else []:
+        if path.parent.name == "common":
+            continue
+        source = strip_lua_comments(path.read_text(encoding="utf-8"))
+        if RECIPE_ONLY_FLAG in SCRIPT_FLAG_SET.findall(source):
+            report.error(str(path.relative_to(ROOT)),
+                         f"脚本置了 {RECIPE_ONLY_FLAG}：它永不置，一置就把还没写到的方子提前露在炼制面板上"
+                         "（写到那一章时把那几张方子的 requireFlag 换成那一章的旗标）")
+
+
 def check_data_references(texts, flags, defined, report):
     """校验 data/ 下数据文件里的引用：文案 key、旗标、以及物品/角色/战斗/法术 id。"""
     data_dir = ROOT / 'data'
@@ -3082,6 +3167,7 @@ def main() -> int:
                 check_quests(parsed_maps, flags, defined, report)
                 check_path_actions(parsed_maps, flags, texts, defined, report)
                 check_battle_break_data(report)
+                check_recipe_only_flag(report)
                 check_encounters(parsed_maps, report)
                 check_script_bgm(report)
 

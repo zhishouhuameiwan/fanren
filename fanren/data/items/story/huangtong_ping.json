@@ -1,0 +1,11 @@
+{
+  "id": "story_huangtong_ping",
+  "name": "黄铜瓶",
+  "descKey": "item.desc.story_huangtong_ping",
+  "kind": "story",
+  "grade": 2,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "叶师叔送来的三件法器之一（ch152）：保灵力不失的瓶子。节点 1 试过：绿液装进去撑得久些，过时照样没了。节点 14 两粒筑基丹换进这只瓶子（ch171）。"
+}

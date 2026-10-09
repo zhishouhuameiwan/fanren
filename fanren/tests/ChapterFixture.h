@@ -111,6 +111,26 @@ inline constexpr const char* kChapterSixEndingFirst = "ch06-end-first.sav";
 inline constexpr const char* kChapterSixEndingSecond = "ch06-end-second.sav";
 inline constexpr const char* kWriteChapterSixFixturesEnv = "FANREN_WRITE_CH06_FIXTURES";
 
+// ---- 第 7 章 → 第 8 章（测试路，docs/ch07-design.md 验收第 2 条）----
+//
+// 两侧照 tests/Ch07AcceptanceTests.cpp 两条通关用例的实际走法：
+//   first  —— Ch07Walkthrough.FirstSideWalksTheWholeChapterAndEveryGateHoldsThenOpens
+//             （从 ch06-end-first 起步，每一处二选一取第一项；支线 Z1、Z2 都做；坊市收药摊买两瓶清灵散；
+//             ② 开场甩土牢符、③ 开场掷天雷子——施工图 8.2 的原著解法）；
+//   second —— Ch07Walkthrough.SecondSideTakesEveryOtherChoice
+//             （从 ch06-end-second 起步，每一处取第二项；Z1、Z2 都不做、坊市不买；一张符也不用）。
+// 两条都不在起点上手摆任何字段（第 6 章终局原样读入）。药园那几年、地火屋开炉是那只手按 R-3 提示替玩家做的
+//（文件头「药园经营」），天数是玩家推的，所以终局的日子随那只手的节奏走；剧情挂点拨的日子逐步判过。
+//
+// 重新生成（第 7 章的剧情真的改了、或第 6 章的交接存档重生成过，终局本就该变的时候）：
+//   set FANREN_WRITE_CH07_FIXTURES=1
+//   build-<槽>\fanren_tests.exe --gtest_filter=Ch07Walkthrough.FirstSideWalksTheWholeChapterAndEveryGateHoldsThenOpens:Ch07Walkthrough.SecondSideTakesEveryOtherChoice
+// 生成之后**先跑一遍不带这个变量的全套**。第 6 章的交接存档一变（主树整改合回时会变：日子、ch06.qianyao、站位），
+// 这两份就要跟着重生成——它们是从那两份起步的。
+inline constexpr const char* kChapterSevenEndingFirst = "ch07-end-first.sav";
+inline constexpr const char* kChapterSevenEndingSecond = "ch07-end-second.sav";
+inline constexpr const char* kWriteChapterSevenFixturesEnv = "FANREN_WRITE_CH07_FIXTURES";
+
 inline std::filesystem::path chapterFixturePath(const std::string& assetRoot,
                                                 const std::string& fileName) {
     return std::filesystem::path(assetRoot) / "tests" / "fixtures" / fileName;

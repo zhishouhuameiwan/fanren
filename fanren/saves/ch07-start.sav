@@ -1,0 +1,433 @@
+{
+  "checksum": "c2fb4b7dce71adb4",
+  "payload": {
+    "alchemyProficiency": 100,
+    "aptitude": 50,
+    "bag": [
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_mo_shouzha"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "herb_tugu_hua"
+      },
+      {
+        "count": 2,
+        "herbAge": 0,
+        "itemId": "pill_qingdu_san"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "weapon_yudai_duanjian"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_mo_jiashu"
+      },
+      {
+        "count": 2,
+        "herbAge": 0,
+        "itemId": "pill_jinchuang_yao"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "talisman_jianfu"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_mo_yishu"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_nuanyang_baoyu"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_jinfa_fu"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_jinzhu_bi"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "material_qixingcao_zhongzi"
+      },
+      {
+        "count": 3,
+        "herbAge": 0,
+        "itemId": "material_dansha"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_fabao_canpian"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_qingxi_bilu"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_shengxianling"
+      },
+      {
+        "count": 112,
+        "herbAge": 0,
+        "itemId": "material_lingshi"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "talisman_dingshen_fu"
+      },
+      {
+        "count": 4,
+        "herbAge": 0,
+        "itemId": "talisman_huoqiu_fu"
+      },
+      {
+        "count": 2,
+        "herbAge": 0,
+        "itemId": "talisman_hushen_fu"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_qingye_faqi"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "weapon_lieyang_jian"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "weapon_lengyue_dao"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_chuwudai"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_yaoyuan_yupai"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "story_mupai"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "talisman_jinci_fu"
+      }
+    ],
+    "bottle": {
+      "capacity": 3,
+      "drops": 3,
+      "lastChargeDay": 1699,
+      "matureKnown": true,
+      "owned": true
+    },
+    "chapter": 1,
+    "cultivation": 1005,
+    "cultivationRemainder": 0,
+    "day": 1699,
+    "encounter": {
+      "lastDay": 0,
+      "stepsSinceLast": 0,
+      "stepsUntilNext": 0,
+      "triggeredToday": 0
+    },
+    "facing": 3,
+    "fields": [
+      {
+        "id": "field_baiyaoyuan",
+        "slots": [
+          {
+            "age": 0,
+            "maxAge": 0,
+            "plantedDay": 0,
+            "ripe": false,
+            "seedId": ""
+          },
+          {
+            "age": 0,
+            "maxAge": 0,
+            "plantedDay": 0,
+            "ripe": false,
+            "seedId": ""
+          },
+          {
+            "age": 0,
+            "maxAge": 0,
+            "plantedDay": 0,
+            "ripe": false,
+            "seedId": ""
+          },
+          {
+            "age": 0,
+            "maxAge": 0,
+            "plantedDay": 0,
+            "ripe": false,
+            "seedId": ""
+          },
+          {
+            "age": 0,
+            "maxAge": 0,
+            "plantedDay": 0,
+            "ripe": false,
+            "seedId": ""
+          },
+          {
+            "age": 0,
+            "maxAge": 0,
+            "plantedDay": 0,
+            "ripe": false,
+            "seedId": ""
+          }
+        ]
+      }
+    ],
+    "flags": {
+      "ch01.baoming_done": 1,
+      "ch01.climb_done": 1,
+      "ch01.dazuo_done": 1,
+      "ch01.done": 1,
+      "ch01.fangbang_done": 1,
+      "ch01.koujue_received": 1,
+      "ch01.muqin_bie": 1,
+      "ch01.sanshu_met": 1,
+      "ch01.shenshougu_arrived": 1,
+      "ch01.shoutu_done": 1,
+      "ch01.zhangtie_met": 1,
+      "ch02.caiyao_done": 1,
+      "ch02.chousui_jian": 1,
+      "ch02.cuishou_unlocked": 1,
+      "ch02.dazuo_done": 1,
+      "ch02.done": 1,
+      "ch02.duan2_start": 1,
+      "ch02.duan3_start": 1,
+      "ch02.duan4_start": 1,
+      "ch02.duan5_start": 1,
+      "ch02.kaigai_done": 1,
+      "ch02.koujue_ceng": 3,
+      "ch02.qian_quxiang": 1,
+      "ch02.renqing_jiexia": 1,
+      "ch02.renyao_done": 1,
+      "ch02.shiping_done": 1,
+      "ch02.shiyao_done": 1,
+      "ch02.xiangqi_ping": 1,
+      "ch02.zaping_done": 1,
+      "ch03.andao_zhan": 1,
+      "ch03.beidu_done": 1,
+      "ch03.done": 1,
+      "ch03.elang_done": 1,
+      "ch03.jieyao_xuan": 1,
+      "ch03.miji_done": 1,
+      "ch03.miji_juewu": 1,
+      "ch03.mo_gui_gu": 1,
+      "ch03.mo_siwang": 1,
+      "ch03.quhun_rudui": 1,
+      "ch03.shichong_wan": 1,
+      "ch03.shihai_done": 1,
+      "ch03.shihai_yaoxia": 35,
+      "ch03.tanpai_done": 1,
+      "ch03.tanpai_ren": 1,
+      "ch03.tiezhe_zhi": 1,
+      "ch03.yingdui_xuan": 1,
+      "ch03.yuzitong_chujue": 1,
+      "ch03.yuzitong_lu": 1,
+      "ch04.bushu": 1,
+      "ch04.done": 1,
+      "ch04.fawu_bingyong": 1,
+      "ch04.gongfang_zhan": 1,
+      "ch04.hui_cun": 1,
+      "ch04.huodan_xue": 1,
+      "ch04.jia_tianlong": 1,
+      "ch04.jianfu_dedao": 1,
+      "ch04.jinguang_jian": 1,
+      "ch04.kailu": 1,
+      "ch04.kaizhan": 1,
+      "ch04.liandan": 1,
+      "ch04.liuxia": 1,
+      "ch04.pai_dedao": 1,
+      "ch04.xin_neirong": 1,
+      "ch04.yufeng_xue": 1,
+      "ch05.anpai": 1,
+      "ch05.chuzheng": 1,
+      "ch05.cisha": 1,
+      "ch05.dengmen": 1,
+      "ch05.dingji": 1,
+      "ch05.done": 1,
+      "ch05.duizhi": 1,
+      "ch05.duobang": 1,
+      "ch05.fengwu_chao": 1,
+      "ch05.fengwu_qiu": 1,
+      "ch05.fengwu_yigao": 1,
+      "ch05.huayuan": 1,
+      "ch05.jianfu_qiu": 1,
+      "ch05.jianmianli": 1,
+      "ch05.jiaoyi": 1,
+      "ch05.jieren": 1,
+      "ch05.jiulou": 1,
+      "ch05.kaipian": 1,
+      "ch05.lian_jianfu": 1,
+      "ch05.matou": 1,
+      "ch05.qianrenzui": 1,
+      "ch05.qingbao": 1,
+      "ch05.qingling_qiu": 1,
+      "ch05.qinwu": 1,
+      "ch05.shangchuan": 1,
+      "ch05.shigui": 1,
+      "ch05.shoufu": 1,
+      "ch05.tancha": 1,
+      "ch05.toutin": 1,
+      "ch05.xiaoxiang": 1,
+      "ch05.yange": 1,
+      "ch05.yeru": 1,
+      "ch05.yindu_qi": 1581,
+      "ch05.zhuishao": 1,
+      "ch06.canpian": 1,
+      "ch06.changchungong": 1,
+      "ch06.chudu": 1,
+      "ch06.chugu": 1,
+      "ch06.chuwudai": 1,
+      "ch06.dingshen_qiu": 1,
+      "ch06.done": 1,
+      "ch06.feixingfu": 1,
+      "ch06.huinuo": 1,
+      "ch06.jinzhubi": 1,
+      "ch06.jiuceng": 1,
+      "ch06.jujue": 1,
+      "ch06.linggen": 1,
+      "ch06.lingshi": 1,
+      "ch06.qingyan": 1,
+      "ch06.rangdan": 1,
+      "ch06.renyao": 1,
+      "ch06.rugu": 1,
+      "ch06.ruhuo": 1,
+      "ch06.rumen": 1,
+      "ch06.shengxianling": 1,
+      "ch06.shuangshou": 1,
+      "ch06.wan_met": 1,
+      "ch06.wufeng": 2,
+      "ch06.xisha": 1,
+      "ch06.xunxin": 1,
+      "ch06.yishi": 1,
+      "ch06.zawu": 1,
+      "ch06.zhifu": 1,
+      "ch06.zhongzi": 1,
+      "ch06.zhoushu": 1,
+      "story.xiuxian_known": 1
+    },
+    "forgeProficiency": 0,
+    "formationProficiency": 0,
+    "hp": 53,
+    "knownWeaknesses": {
+      "dubashanzhuang_xuntou": [
+        "剑"
+      ],
+      "hei_xiong": [
+        "剑"
+      ],
+      "huangyi_ren": [
+        "火"
+      ],
+      "jia_tianlong": [
+        "剑"
+      ],
+      "jiang_shou": [
+        "毒"
+      ],
+      "jinguang_shangren": [
+        "火"
+      ],
+      "long_zhong_shou": [
+        "剑"
+      ],
+      "matou_dashou": [
+        "拳"
+      ],
+      "mofu_shigui": [
+        "火"
+      ],
+      "ouyang_feitian": [
+        "金"
+      ],
+      "tiequanhui_fushou": [
+        "剑"
+      ],
+      "tiequanhui_quanshi": [
+        "剑"
+      ],
+      "tujia_dahan": [
+        "金"
+      ],
+      "wild_wolf": [
+        "剑",
+        "拳"
+      ],
+      "wu_feng": [
+        "火"
+      ],
+      "yan_ge": [
+        "剑"
+      ],
+      "ye_bao": [
+        "火"
+      ],
+      "yejia_dizi": [
+        "剑"
+      ],
+      "yelangbang_mazei": [
+        "剑"
+      ],
+      "yelangbang_toumu": [
+        "拳"
+      ]
+    },
+    "lastPracticeDay": 0,
+    "learnedMagics": [
+      "magic_huodan_shu",
+      "magic_yufeng_jue",
+      "magic_tianyan_shu",
+      "magic_liusha_shu",
+      "magic_bingdong_shu",
+      "magic_ji_jianfu"
+    ],
+    "mapId": "ch06_baiyaoyuan",
+    "maxHp": 132,
+    "maxMp": 90,
+    "mp": 90,
+    "party": [],
+    "playSecondsGameplay": 22.63333333333333,
+    "playSecondsSystem": 0.0,
+    "position": {
+      "x": 23,
+      "y": 3
+    },
+    "realm": 9,
+    "realmCap": 9,
+    "talismanProficiency": 0
+  },
+  "save_version": 8
+}

@@ -1,0 +1,12 @@
+{
+  "id": "talisman_tianleizi",
+  "name": "天雷子",
+  "descKey": "item.desc.talisman_tianleizi",
+  "kind": "talisman",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "castMagic": "magic_tianleizi",
+  "origin": "原著",
+  "note": "原著首见 ch163（万宝楼的锦盒之宝）：截天雷凝成的雷珠，世上所剩无几；ch189 封岳那一仗他掷出去定了局。战斗里是道具施法（契约 docs/interfaces-p3-ch07.md 第 2 节）：用一件 = 以 magic_tianleizi 施展一次，不耗法力、不吃蓄劲、扣一件——整章只有一粒，扔在哪一仗由玩家定（docs/ch07-design.md 8.3「天雷子与 ③ 的关系」）。tradeable false：店里不收，price 0 同理（与剑符一个口径）；grade 3 只是标它稀罕，不参与任何计算。"
+}

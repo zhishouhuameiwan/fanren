@@ -1,0 +1,12 @@
+{
+  "id": "weapon_biguang_dao",
+  "name": "碧光刀",
+  "descKey": "item.desc.weapon_biguang_dao",
+  "kind": "artifact",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "weapon": "刀",
+  "origin": "原著",
+  "note": "李师祖收他作记名弟子时给的见面礼（ch212）：碧色长刀，顶级法器。揣在身上普攻多一样「刀」（已有冷月刀，类别不变）。"
+}

@@ -299,7 +299,7 @@ protected:
     std::vector<fanren::ui::ListItem> rows(CraftKind kind, int toolGrade) {
         return AlchemyScene::buildRecipeItems(
             app_.data(), app_.state(), kind, toolGrade,
-            AlchemyScene::visibleRecipes(app_.recipes(), kind));
+            AlchemyScene::visibleRecipes(app_.recipes(), kind, app_.state()));
     }
 
     // 取某一行，**按值返回**。
@@ -316,7 +316,7 @@ protected:
     }
 
     int indexOfRecipe(CraftKind kind, const std::string& recipeId) {
-        const auto picked = AlchemyScene::visibleRecipes(app_.recipes(), kind);
+        const auto picked = AlchemyScene::visibleRecipes(app_.recipes(), kind, app_.state());
         for (std::size_t i = 0; i < picked.size(); ++i) {
             if (picked[i]->id == recipeId) return static_cast<int>(i);
         }
@@ -330,7 +330,7 @@ TEST_F(Ch04AlchemyPanelTest, EveryRecipeOfTheCraftIsListedEvenWhenItCannotBeMade
     // 契约第 3.2 节：**配不出来的列出来但点不动，并写明缺什么。**
     // 直接不显示，玩家会以为这门手艺根本没有这张方子，掉头去别处找。
     const std::vector<fanren::ui::ListItem> items = rows(CraftKind::Alchemy, 1);
-    const auto picked = AlchemyScene::visibleRecipes(app_.recipes(), CraftKind::Alchemy);
+    const auto picked = AlchemyScene::visibleRecipes(app_.recipes(), CraftKind::Alchemy, app_.state());
     ASSERT_FALSE(picked.empty());
     ASSERT_EQ(items.size(), picked.size() + 1) << "末项固定是「离开」";
     EXPECT_EQ(items.back().label, "离开");
@@ -389,6 +389,8 @@ TEST_F(Ch04AlchemyPanelTest, WithoutAFurnaceEveryRowIsDisabledAndSaysItIsTheFurn
 
 TEST_F(Ch04AlchemyPanelTest, TooLowAProficiencySaysSoInsteadOfBlamingTheMaterials) {
     // 结丹灵药方：难度 88、熟练度门槛 72。材料给足，只有火候不够。
+    // 它挂着占位门闸 story.recipe_later（第 7 章契约 1.2），先让它「到手」才列得出来；判据不变。
+    state().setFlag("story.recipe_later");
     const auto found = app_.recipes().find("recipe_jiedan_lingyao");
     ASSERT_NE(found, app_.recipes().end());
     for (const fanren::rules::Ingredient& need : found->second.inputs) {
@@ -499,6 +501,8 @@ TEST_F(Ch04AlchemyPanelTest, AlchemyCanSucceedAndCanBlowUpAndBothAreAccountedFor
 TEST_F(Ch04AlchemyPanelTest, ATalismanFailureSparesTheCatalystWhileAlchemyBurnsEverything) {
     // 失败按 failurePolicyOf 决定扣不扣料（契约第 3.2 节）。四艺的性格差异就
     // 落在这张表上：炼丹尽毁，制符只废纸墨、妖丹保得住。
+    // 护身符方挂着占位门闸 story.recipe_later（第 7 章契约 1.2）：开面板取行之前先让它「到手」；判据不变。
+    state().setFlag("story.recipe_later");
     const auto found = app_.recipes().find(kTalismanRecipe);
     ASSERT_NE(found, app_.recipes().end());
     AlchemyScene scene(CraftKind::Talisman, 1);

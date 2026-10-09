@@ -92,12 +92,15 @@ AlchemyScene::AlchemyScene(rules::CraftKind kind, int toolGrade)
     : kind_(kind), toolGrade_(std::clamp(toolGrade, 0, rules::kMaxToolGrade)) {}
 
 std::vector<const rules::Recipe*> AlchemyScene::visibleRecipes(
-    const std::map<std::string, rules::Recipe>& all, rules::CraftKind kind) {
+    const std::map<std::string, rules::Recipe>& all, rules::CraftKind kind, const core::GameState& state) {
     std::vector<const rules::Recipe*> picked;
     // std::map 按 key 字典序遍历，所以行序是确定的。跟着哈希序走的话，
     // 同一间丹房每次进来行序都不一样，而玩家记住的是「第二行是回气丹方」。
     for (const auto& entry : all) {
         if (entry.second.kind != kind) continue;
+        // 还没到手的方子不列，连名字都不露（契约 docs/interfaces-p3-ch07.md 1.5）：第 4 章丹房上
+        // 提前摆着「结丹灵药方」，第 6 章制符桌的缺料理由里冒出「一级妖丹」，都是名字泄漏。
+        if (!rules::recipeKnown(entry.second, state)) continue;
         picked.push_back(&entry.second);
     }
     return picked;
@@ -220,7 +223,7 @@ bool AlchemyScene::craftAt(Application& app, int recipeIndex) {
 }
 
 void AlchemyScene::enterList(Application& app) {
-    const std::vector<const rules::Recipe*> recipes = visibleRecipes(app.recipes(), kind_);
+    const std::vector<const rules::Recipe*> recipes = visibleRecipes(app.recipes(), kind_, app.state());
     recipeIds_.clear();
     recipeIds_.reserve(recipes.size());
     for (const rules::Recipe* recipe : recipes) recipeIds_.push_back(recipe->id);

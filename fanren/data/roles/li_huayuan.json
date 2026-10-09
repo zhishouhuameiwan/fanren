@@ -1,0 +1,14 @@
+{
+  "id": "li_huayuan",
+  "name": "李师祖",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 1,
+  "magics": [],
+  "origin": "原著",
+  "note": "黄枫谷结丹修士，本届试炼带队（ch174-213）。**名牌写「李师祖」**，全名只在台词里、节点 33 马师伯口中第一次出现（ch212，施工图 12.2）。收韩立作记名弟子、给碧光刀（32b）；三年后送来署名的《青元剑诀》（34）。在场：大殿（ch07.ma_songyao → ch07.jihe）、荒山（ch07.jihe → ch07.pojin）、出口（ch07.pojin → ch07.chujindi）。不参与战斗。"
+}

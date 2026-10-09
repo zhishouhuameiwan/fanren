@@ -1,0 +1,19 @@
+{
+  "id": "tiebi_yuan",
+  "name": "铁臂猿",
+  "realm": "QiRefining9",
+  "maxHp": 90,
+  "maxMp": 0,
+  "attack": 15,
+  "defence": 12,
+  "speed": 10,
+  "element": 1,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "火",
+    "剑"
+  ],
+  "origin": "原著",
+  "note": "环形山的下阶妖兽（ch200）：两只一起出没，臂硬如铁。非人形。遭遇 be07_tiebi_yuan，兼作支线 Z2 东坡石屋那一场。金；破绽火、剑。\n\n【平衡路 2026-09-29】攻 18 → 15（每下 17，两只一回合 34）。遭遇要「低于同章剧情战」（契约 docs/interfaces-octo-encounters.md）：从前两只一回合 46，与 ② 四个人齐上一样重；第一侧支线 Z2 东坡那一场也是它（docs/ch07-balance.md 遭遇）。"
+}

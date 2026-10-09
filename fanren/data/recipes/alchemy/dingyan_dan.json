@@ -4,18 +4,14 @@
   "kind": "alchemy",
   "productId": "pill_dingyan_dan",
   "productCount": 1,
-  "difficulty": 55,
-  "requiredProficiency": 38,
+  "difficulty": 60,
+  "requiredProficiency": 30,
   "inputs": [
     {
-      "itemId": "herb_zishen_cao",
+      "itemId": "herb_huangjing_zhi",
       "count": 2,
-      "minAge": 60
-    },
-    {
-      "itemId": "herb_qingfeng_cao",
-      "count": 2,
-      "minAge": 60
+      "minAge": 1000
     }
-  ]
+  ],
+  "requireFlag": "ch07.cangshi"
 }

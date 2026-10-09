@@ -6,6 +6,7 @@
   "productCount": 1,
   "difficulty": 88,
   "requiredProficiency": 72,
+  "requireFlag": "story.recipe_later",
   "inputs": [
     {
       "itemId": "herb_xuehong_zhi",

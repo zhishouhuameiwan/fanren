@@ -20,9 +20,9 @@ assert len(BGM) == len(songs_world.SONGS) + len(songs_sect.SONGS) + len(songs_sp
 SFX = {s.id: s for s in (*sfx_ui.SFX, *sfx_battle.SFX, *sfx_jingle.SFX)}
 assert len(SFX) == len(sfx_ui.SFX) + len(sfx_battle.SFX) + len(sfx_jingle.SFX), "两条音效用了同一个 id"
 
-# 地图属性里写死的 13 个 id：少一个，进图就是「找不到音频资源」。
+# 地图属性里写死的 14 个 id：少一个，进图就是「找不到音频资源」。
 MAP_BGM = ("bgm_village", "bgm_town", "bgm_mountain_path", "bgm_cliff", "bgm_qixuanmen", "bgm_valley",
-           "bgm_indoor", "bgm_sect", "bgm_cave", "bgm_wild", "bgm_river", "bgm_inn", "bgm_manor")
+           "bgm_indoor", "bgm_sect", "bgm_cave", "bgm_wild", "bgm_river", "bgm_inn", "bgm_manor", "bgm_night")
 
 _BGM_SPEC = Spec("bgm", 60.0, 100.0, loop=True, lufs_range=(-17.0, -15.0))
 

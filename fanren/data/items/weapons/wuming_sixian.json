@@ -1,0 +1,12 @@
+{
+  "id": "weapon_wuming_sixian",
+  "name": "透明丝线",
+  "descKey": "item.desc.weapon_wuming_sixian",
+  "kind": "artifact",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "weapon": "暗器",
+  "origin": "原著",
+  "note": "禁地外围山崖下捡的（ch182）：注入法力绷成十余丈长、几乎看不见的一根丝，锋利。原著没给它名字，本作叫它透明丝线。**暗器**：揣在身上普攻就多一类「暗器」（施工图 8.2；docs/octopath-battle.md 2.2）；一线天取严姓首级、小石殿取赤脚大汉首级都是它（ch184、202）。addAttack 不写：没有装备系统，写了也没人读。"
+}

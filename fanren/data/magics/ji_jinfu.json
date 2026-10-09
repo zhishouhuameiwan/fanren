@@ -1,0 +1,12 @@
+{
+  "id": "magic_ji_jinfu",
+  "name": "祭金蚨子母刃",
+  "descKey": "magic.desc.magic_ji_jinfu",
+  "element": 1,
+  "needMp": 12,
+  "power": 12,
+  "needRealm": "QiRefining1",
+  "boost": "hits",
+  "origin": "原著",
+  "note": "驱动金蚨子母刃（ch163）：母刃领着子刃一齐出去。法器驱动靠法力，所以做成法术（施工图第 7 节「法器即法术」）。金、连发（boost hits：蓄劲多出几柄子刃）。节点 11b 万宝楼与物品同时 magic.learn——CHAPTER_MEANS[7] 的「金」就是它（8.2），五场必打之前必经。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

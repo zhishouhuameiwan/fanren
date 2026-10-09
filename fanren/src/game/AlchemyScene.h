@@ -13,7 +13,8 @@
 //
 // 面板的硬口径（与灵田、商店一致，本项目在这三处已经写死）：
 //   · **配不出来的方子照样列出来**，置灰并写明缺什么。直接不显示，玩家会以为
-//     这门手艺根本没有这张方子，掉头去别处找。
+//     这门手艺根本没有这张方子，掉头去别处找。这一条管的是**到手了的**方子；
+//     还没到手的（requireFlag 未置）一概不列，连名字都不露（visibleRecipes）。
 //   · **静默失败是明令禁止的。** 成功、失败、连开工都开不了，三种结果各有各的
 //     一句话，且失败那句要说清楚亏了什么（rules::craft 的 log 已经写好）。
 #include <cstdint>
@@ -81,8 +82,8 @@ public:
     // ---- 纯逻辑，公开供无头测试直接驱动 ----
     // （与灵田、商店、战斗菜单同一个理由：藏在实现文件里的规则没人测得到。）
 
-    // 本门手艺的全部方子，按 id 字典序。定序不是装饰：std::map 的遍历序是稳的，
-    // 而「第二行是回气丹方」是玩家会记住的东西。
+    // 本门手艺列出来的方子（到手了的那些），按 id 字典序，与列表同源。定序不是装饰：
+    // std::map 的遍历序是稳的，而「第二行是回气丹方」是玩家会记住的东西。
     [[nodiscard]] const std::vector<std::string>& recipeIds() const { return recipeIds_; }
 
     // 配方列表。末项固定是「离开」，因此条目数恒为方子数 + 1。
@@ -91,10 +92,12 @@ public:
         const core::GameData& data, const core::GameState& state, rules::CraftKind kind,
         int toolGrade, const std::vector<const rules::Recipe*>& recipes);
 
-    // 本门手艺此刻能看见的方子。指针指进 Application 持有的那张表，
-    // 只许在同一帧内即取即用。
+    // 本门手艺此刻能看见的方子：只列到手了的（rules::recipeKnown，契约 docs/interfaces-p3-ch07.md 1.5）。
+    // 指针指进 Application 持有的那张表，只许在同一帧内即取即用。
+    // 刻意只有这一个签名：从前那个不收存档的两参版删掉了，留着就会有人绕过门闸。
     [[nodiscard]] static std::vector<const rules::Recipe*> visibleRecipes(
-        const std::map<std::string, rules::Recipe>& all, rules::CraftKind kind);
+        const std::map<std::string, rules::Recipe>& all, rules::CraftKind kind,
+        const core::GameState& state);
 
     // 开一炉。返回是否**真的开工了**（成了还是炸了都算开工，见下）。
     //

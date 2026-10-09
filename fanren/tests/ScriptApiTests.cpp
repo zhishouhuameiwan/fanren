@@ -971,4 +971,79 @@ TEST_F(ScriptApiTest, TheMindBattleKeepsItsOwnVolumeButNotItsOwnAttack) {
     EXPECT_EQ(hero.defence, fanren::rules::realmDefence(Realm::QiRefining8));
 }
 
+// ---------------------------------------------------------------------------
+// 第 7 章（契约 docs/interfaces-p3-ch07.md）：E3 脚本升境带着瓶子容量走；E4 按年份下限计数与扣物。
+// 其余几条（纯函数、面板突破、读档、GameState 那一层）在 tests/Ch07EngineTests.cpp。
+// ---------------------------------------------------------------------------
+
+// 3.4 第 2 条：炼气十三层、容量 3、滴数 3 → realm.advance(21) → 容量 6、滴数仍 3。
+TEST_F(ScriptApiTest, AScriptedStepIntoFoundationWidensTheBottleWithoutFillingIt) {
+    GameState& s = state();
+    seatAt(s, Realm::QiRefining13);
+    makeBottle(/*owned=*/true, /*matureKnown=*/true, /*drops=*/3);
+    s.bottle.capacity = 3;
+    s.setFlag("test_target", fanren::rules::toValue(Realm::FoundationEarly));
+
+    runInlineScript("realm_advance.lua", kAdvanceScript);
+
+    ASSERT_EQ(s.flag("adv_ok"), 1);
+    ASSERT_EQ(s.realm, Realm::FoundationEarly);
+    EXPECT_EQ(s.bottle.capacity, 6) << "升到筑基，瓶子的容量跟着到 6";
+    EXPECT_EQ(s.bottle.drops, 3) << "抬上限不送液";
+}
+
+// 4.4 第 3 条：背包「黄精 44 年 ×2 ＋ 11 年 ×3 ＋ 0 年 ×1」，走真的 api.lua 调 item.count_aged / take_aged。
+void seedAgedHuangjing(GameState& s) {
+    s.addItem(kHerbId, 2, 44);
+    s.addItem(kHerbId, 3, 11);
+    s.addItem(kHerbId, 1, 0);
+}
+
+TEST_F(ScriptApiTest, TheScriptCountsOnlyThePilesOldEnough) {
+    GameState& s = state();
+    seedAgedHuangjing(s);
+    struct Case {
+        int minAge;
+        int expected;
+    };
+    for (const Case& c : {Case{44, 2}, Case{0, 6}, Case{45, 0}}) {
+        s.setFlag("test_min_age", c.minAge);
+        s.setFlag("test_count", 0);   // 只数不扣
+        s.setFlag("aged_before", -1);
+        runScript("t/ch07_take_aged.lua");
+        EXPECT_EQ(s.flag("aged_before"), c.expected) << "年份下限 " << c.minAge;
+    }
+    EXPECT_EQ(s.itemCount(kHerbId), 6) << "数一数不该动背包";
+}
+
+TEST_F(ScriptApiTest, TheScriptTakesAllOrNothingFromTheYoungestPileOldEnough) {
+    GameState& s = state();
+    const auto takeAged = [&](int count, int minAge) {
+        s.setFlag("test_min_age", minAge);
+        s.setFlag("test_count", count);
+        s.setFlag("take_ok", -1);
+        runScript("t/ch07_take_aged.lua");
+        return s.flag("take_ok");
+    };
+
+    seedAgedHuangjing(s);
+    EXPECT_EQ(takeAged(3, 44), 0) << "够格的只有两株";
+    EXPECT_EQ(s.itemCountOfAge(kHerbId, 44), 2) << "一株不动";
+    EXPECT_EQ(s.itemCountOfAge(kHerbId, 11), 3);
+    EXPECT_EQ(s.itemCountOfAge(kHerbId, 0), 1);
+
+    EXPECT_EQ(takeAged(2, 20), 1);
+    EXPECT_EQ(s.itemCountOfAge(kHerbId, 44), 0) << "够格的只有四十四年那两株";
+    EXPECT_EQ(s.itemCountOfAge(kHerbId, 11), 3);
+    EXPECT_EQ(s.itemCountOfAge(kHerbId, 0), 1);
+    EXPECT_EQ(s.flag("aged_after"), 0) << "脚本扣完再数，够格的一株不剩";
+
+    s.bag.clear();
+    seedAgedHuangjing(s);
+    EXPECT_EQ(takeAged(2, 5), 1);
+    EXPECT_EQ(s.itemCountOfAge(kHerbId, 11), 1) << "够格里年份最低的先扣";
+    EXPECT_EQ(s.itemCountOfAge(kHerbId, 44), 2) << "更老的留给玩家";
+    EXPECT_EQ(s.itemCountOfAge(kHerbId, 0), 1) << "不够格的不碰";
+}
+
 }  // namespace

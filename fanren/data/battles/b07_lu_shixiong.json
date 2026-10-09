@@ -1,6 +1,6 @@
 {
   "id": "b07_lu_shixiong",
-  "name": "坊市夜路·陆师兄",
+  "name": "山洞夜遇·陆师兄",
   "chapter": 7,
   "terrain": "field",
   "can_escape": false,
@@ -12,18 +12,11 @@
     }
   ],
   "rewards": {
-    "cultivation": 200,
-    "spirit_stones": 60,
-    "drops": [
-      {
-        "item_id": "pill_zhuji_dan",
-        "count": 2,
-        "rate": 100
-      }
-    ]
+    "cultivation": 220,
+    "spirit_stones": 0,
+    "drops": []
   },
-  "intro_key": "ch07.battle.lu_shixiong.intro",
+  "intro_key": "ch07.battle.lu.intro",
   "origin": "原著",
-  "rewritten_by_lore": true,
-  "note": "旧原型此位是「禁地魔修 / 燕血魔门」，而血色禁地是越国七派共管、筑基以下弟子同入之地，魔道入侵要到 ch217 之后，不可能出现在这里。改为原著实有的「坊市备战期夜遇并击杀陆师兄夺两枚筑基丹」（ch160-171）。"
+  "note": "第 7 章战斗①（节点 13，ch07_shandong trigger_yeyu，interact + once）：陆师兄制住陈师妹要灭口夺丹，韩立在洞里敛气旁观，被陆识破（ch165-169）。意图：法力之战（施工图 8.2 ①）。can_escape 假、defeat_is_fatal 真（原著这一仗输了就是死）。rewards 灵石 0、drops 空：东西全由脚本搜身给（第 9 节第 3 条）。【第 7 章改写 2026-09-29】旧占位写的是「坊市夜路」、掉灵石 60 与筑基丹：搜身那几样挪进 scripts/ch07/yeyu.lua。"
 }

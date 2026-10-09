@@ -976,8 +976,8 @@ protected:
         return dynamic_cast<AlchemyScene*>(app_.topScene());
     }
 
-    int recipeRow(CraftKind kind, const std::string& recipeId) const {
-        const auto picked = AlchemyScene::visibleRecipes(app_.recipes(), kind);
+    int recipeRow(CraftKind kind, const std::string& recipeId) {
+        const auto picked = AlchemyScene::visibleRecipes(app_.recipes(), kind, app_.state());
         for (std::size_t i = 0; i < picked.size(); ++i) {
             if (picked[i]->id == recipeId) return static_cast<int>(i);
         }
@@ -2193,7 +2193,7 @@ TEST_F(Ch04Walkthrough, TheFurnaceOnThePeakOnlyAnswersAfterTheSceneAndThenCanSuc
         return AlchemyScene::buildRecipeItems(app_.data(), state(), CraftKind::Alchemy,
                                               panel->toolGrade(),
                                               AlchemyScene::visibleRecipes(app_.recipes(),
-                                                                           CraftKind::Alchemy));
+                                                                           CraftKind::Alchemy, state()));
     };
 
     // ---- 开不了工要说清楚缺什么：这一刻缺的是火候，不是料 ----

@@ -247,6 +247,10 @@ int proficiencyGain(const Recipe& recipe, bool success) noexcept {
                    : kProficiencyGainOnFailure + difficulty / 50;
 }
 
+bool recipeKnown(const Recipe& recipe, const core::GameState& state) {
+    return recipe.requireFlag.empty() || state.flag(recipe.requireFlag) != 0;
+}
+
 core::Result<std::string> canCraft(const Recipe& recipe, const core::GameState& state,
                                    int proficiency, bool hasTool) {
     using Gate = core::Result<std::string>;
@@ -256,6 +260,11 @@ core::Result<std::string> canCraft(const Recipe& recipe, const core::GameState& 
     const std::vector<std::pair<std::string, int>> demand = aggregateDemand(recipe);
     if (demand.empty() || recipe.productId.empty() || recipe.productCount <= 0) {
         return Gate::failure("这张方子残缺不全，无从下手。");
+    }
+    // 还没到手的方子（契约 docs/interfaces-p3-ch07.md 1.3）：面板本来就不列它，这一道管的是
+    // 绕过面板的来路——排在炉鼎之前：方子都没有，缺不缺炉子无从谈起。
+    if (!recipeKnown(recipe, state)) {
+        return Gate::failure("手边还没有这张方子。");
     }
     if (!hasTool) {
         return Gate::failure(std::string(toolMissingMessage(recipe.kind)));

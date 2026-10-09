@@ -1,0 +1,11 @@
+{
+  "id": "magic_yinhui_jian",
+  "name": "银辉剑",
+  "descKey": "magic.desc.magic_yinhui_jian",
+  "element": 1,
+  "needMp": 12,
+  "power": 24,
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "赤脚大汉的银色巨剑（ch201-202）：金。敌方用。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

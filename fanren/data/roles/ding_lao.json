@@ -1,0 +1,14 @@
+{
+  "id": "ding_lao",
+  "name": "丁老",
+  "realm": "Mortal",
+  "maxHp": 120,
+  "maxMp": 0,
+  "attack": 10,
+  "defence": 5,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "万宝楼的鉴定人（ch163-164），凡人老者。只在脚本里说话（11b）。不参与战斗。"
+}

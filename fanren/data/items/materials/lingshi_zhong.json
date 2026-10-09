@@ -1,0 +1,12 @@
+{
+  "id": "material_lingshi_zhong",
+  "name": "中阶灵石",
+  "descKey": "item.desc.material_lingshi_zhong",
+  "kind": "material",
+  "grade": 3,
+  "price": 100,
+  "tradeable": false,
+  "restoreMp": 50,
+  "origin": "原著",
+  "note": "中阶灵石（ch131 首见，ch152 叶师叔送来火、土各一块，ch174 议事大殿任取一块，ch213 清点禁地所得十余块）。本作第 7 章起单列一件物品（施工图第 7 节、16.1 第 17 条）：**不当钱**——商店不以它计价、也不收（tradeable false），原著 ch214「公认一百低阶兑一块，却没人肯换」，游戏里就不给兑换的按钮；price 100 只记那条兑率，程序不读。战斗里握着它回法力（ch169 他靠它比陆师兄多撑几口气），restoreMp 是初值，归平衡路。地火屋定金用一块（节点 35a）。"
+}

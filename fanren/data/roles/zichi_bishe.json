@@ -1,0 +1,18 @@
+{
+  "id": "zichi_bishe",
+  "name": "紫翅碧蛇",
+  "realm": "QiRefining10",
+  "maxHp": 60,
+  "maxMp": 0,
+  "attack": 9,
+  "defence": 6,
+  "speed": 13,
+  "element": 2,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "火"
+  ],
+  "origin": "原著",
+  "note": "络腮胡子放出来的灵兽（ch184）：碧绿的蛇、背上一对紫色肉翅。非人形。原著是陆续放出来的，本作开场就在（8.3 ②）。木；破绽火。\n\n【平衡路 2026-09-29】攻 16 → 9（每下 7）。② 的斩杀线见络腮胡子那一条；灵兽是分心的（8.2 ②）。"
+}

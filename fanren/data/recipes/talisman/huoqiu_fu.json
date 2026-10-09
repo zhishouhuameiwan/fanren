@@ -6,6 +6,7 @@
   "productCount": 2,
   "difficulty": 20,
   "requiredProficiency": 6,
+  "requireFlag": "story.recipe_later",
   "inputs": [
     {
       "itemId": "material_fuzhi",

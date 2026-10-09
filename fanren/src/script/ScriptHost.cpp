@@ -48,6 +48,7 @@ const std::unordered_map<std::string, CommandKind>& kindTable() {
         {"realm_advance", CommandKind::RealmAdvance},
         {"realm_cap", CommandKind::RealmCap},
         {"play_bgm", CommandKind::PlayBgm},
+        {"take_item_aged", CommandKind::TakeItemAged},
     };
     return table;
 }
@@ -235,6 +236,11 @@ struct ScriptHost::Impl {
         });
         host.set_function("item_count", [self](const std::string& id) -> int {
             return self->state != nullptr ? self->state->itemCount(id) : 0;
+        });
+        // 年份不低于 minAge 的有几件（契约 docs/interfaces-p3-ch07.md 4.3）。minAge <= 0 即全部年份，
+        // 与 item_count 同一个答案。扣走够格的那几件走命令（take_item_aged），不在这里。
+        host.set_function("item_count_aged", [self](const std::string& id, int minAge) -> int {
+            return self->state != nullptr ? self->state->itemCountAtLeastAge(id, minAge) : 0;
         });
         host.set_function("realm_at_least", [self](int value) -> bool {
             if (self->state == nullptr) {

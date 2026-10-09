@@ -1,0 +1,11 @@
+{
+  "id": "magic_ji_qingjiao",
+  "name": "祭青蛟旗",
+  "descKey": "magic.desc.magic_ji_qingjiao",
+  "element": 2,
+  "needMp": 20,
+  "power": 22,
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "驱动青蛟旗（ch167-168）：风刃成片地出去。木（施工图 8.2：风灵根属木）。节点 13 战后 magic.learn，BATTLE_EXTRA_MEANS 里 ②③④⑤ 的「木」就是它。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

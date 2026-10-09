@@ -1,0 +1,13 @@
+{
+  "id": "magic_ji_qingning",
+  "name": "祭镜",
+  "descKey": "magic.desc.magic_ji_qingning",
+  "element": 0,
+  "needMp": 15,
+  "power": 0,
+  "needRealm": "QiRefining1",
+  "effect": "stagger",
+  "stagger": 2,
+  "origin": "原著",
+  "note": "驱动青凝镜（ch186、202）：一照青光，定住对面的法器——做成削架势 2（effect stagger，契约 docs/interfaces-p3-ch07.md 第 2 节），不伤人、不判破绽。④ 赤脚大汉那一仗「定住他的剑」（8.2 ④）。节点 23 战后 magic.learn。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

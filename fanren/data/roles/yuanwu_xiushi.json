@@ -1,0 +1,14 @@
+{
+  "id": "yuanwu_xiushi",
+  "name": "元武国修士",
+  "realm": "QiRefining8",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "坊市里来交易的元武国修士（ch161：两边修仙界不敌对）。坊市 NPC。不参与战斗。"
+}

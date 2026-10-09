@@ -33,6 +33,13 @@ bool deny(std::string* why, std::string text) {
     return bits.empty() ? kCategoryNone : bits.front();
 }
 
+// 施法与道具施法那一手的说法开头（契约 docs/interfaces-p3-ch07.md 2.3）：施法是「韩立 施展【天眼术】」，
+// 道具是「韩立 使用 天雷子——」。后者以破折号收尾，接下去的半句不再加「，」。
+[[nodiscard]] std::string castOpener(const Unit& caster, const Magic& magic, const Item* viaItem) {
+    return viaItem != nullptr ? caster.name + " 使用 " + viaItem->name + "——"
+                              : caster.name + " 施展【" + magic.name + "】";
+}
+
 }  // namespace
 
 bool BattleState::isLegal(const Action& action) const { return checkLegal(action, nullptr); }
@@ -69,8 +76,9 @@ bool BattleState::checkLegal(const Action& action, std::string* why) const {
 
 bool BattleState::checkBoost(const Action& a, const Unit& u, std::string* why) const {
     if (a.boost == 0) return true;
-    // 看破（天眼术）不吃蓄劲：蓄了也只当没蓄——不拦、不扣（applyReveal 不花劲），
-    // 与界面上「蓄了劲再防御」一样按 0 算（契约 docs/interfaces-p3-ch06.md 1.3 / 1.6）。
+    // 看破（天眼术）与削架势不吃蓄劲：蓄了也只当没蓄——不拦、不扣（applyReveal / applyStagger
+    // 不花劲），与界面上「蓄了劲再防御」一样按 0 算（契约 docs/interfaces-p3-ch06.md 1.3 / 1.6、
+    // docs/interfaces-p3-ch07.md 2.3）。道具施法不在此列：物品本来就蓄不了劲，下面照旧回绝。
     if (a.kind == ActionKind::Cast) {
         const Magic* magic = findMagic(a.magicId);
         if (magic != nullptr && magic->effect != MagicEffect::None) return true;
@@ -128,15 +136,36 @@ bool BattleState::checkCast(const Action& a, const Unit& u, std::string* why) co
     // 放行的判据是 castableMagic：带看破效果的天眼术不伤人，却施展得了（契约 interfaces-p3-ch06 1.3）。
     if (!castableMagic(*magic)) return deny(why, "【" + magic->name + "】不是伤人的法术");
     if (u.mp < magic->needMp) return deny(why, "法力不足，施展不了【" + magic->name + "】");
+    return checkMagicTarget(a, *magic, u, why);
+}
+
+bool BattleState::checkMagicTarget(const Action& a, const Magic& magic, const Unit& u,
+                                   std::string* why) const {
     // 看破照的是整个场子，不挑目标：targetIndex 不看。
-    if (magic->effect != MagicEffect::None) return true;
-    return checkEnemyTarget(a.targetIndex, u, why);
+    if (magic.effect == MagicEffect::Reveal) return true;
+    if (!checkEnemyTarget(a.targetIndex, u, why)) return false;
+    if (magic.effect == MagicEffect::Stagger) {
+        // 没有架势可削、已经破势：拦在前头并说清楚，法力与物品都不扣——与「解毒药用在
+        // 没中毒的人身上」同一个口径（契约 docs/interfaces-p3-ch07.md 2.3）。
+        const Unit& target = unitRef(a.targetIndex);
+        if (target.maxToughness <= 0) return deny(why, target.name + " 没有架势可削");
+        if (target.broken()) return deny(why, target.name + " 已经破势");
+    }
+    return true;
 }
 
 bool BattleState::checkItem(const Action& a, const Unit& u, std::string* why) const {
     // 物品 id 借用 magicId 字段传递：契约的 Action 没有 itemId。
     const Item* item = findItem(a.magicId);
     if (item == nullptr) return deny(why, "没有这件物品：" + a.magicId);
+    // 带 castMagic 的符箓：用它 = 以那门法术施展一次，目标照那门法术挑（契约
+    // docs/interfaces-p3-ch07.md 2.3）；下面「丹药只能给自己人用」那一条管不到它。
+    // 不查法力、不查习得：那是施法的门槛，符箓的力气在纸上。
+    if (!item->castMagic.empty()) {
+        const Magic* magic = findMagic(item->castMagic);
+        if (magic == nullptr) return deny(why, "没有这门法术：" + item->castMagic);
+        return checkMagicTarget(a, *magic, u, why);
+    }
     if (!validIndex(a.targetIndex)) return deny(why, "目标不存在");
     const Unit& target = unitRef(a.targetIndex);
     if (!target.alive()) return deny(why, target.name + " " + absenceReason(target));
@@ -227,7 +256,9 @@ int BattleState::hitCategories(const Action& action) const {
             return magic == nullptr ? kCategoryNone : magicCategories(*magic);
         }
         case ActionKind::Item: {
+            // 带 castMagic 的符箓打的是那门法术的类别（契约 docs/interfaces-p3-ch07.md 2.3）；
             // 毒药撒过去算「毒」类一击；丹药、解毒药不是打人的。
+            if (const Magic* magic = castMagicOf(action)) return magicCategories(*magic);
             const Item* item = findItem(action.magicId);
             return item != nullptr && item->poison > 0 ? kCategoryPoison : kCategoryNone;
         }
@@ -239,6 +270,12 @@ int BattleState::hitCategories(const Action& action) const {
     return kCategoryNone;
 }
 
+const Magic* BattleState::castMagicOf(const Action& action) const {
+    if (action.kind != ActionKind::Item) return nullptr;
+    const Item* item = findItem(action.magicId);
+    return item == nullptr || item->castMagic.empty() ? nullptr : findMagic(item->castMagic);
+}
+
 int BattleState::hitCount(const Action& action) const {
     const int boost = std::max(0, action.boost);
     switch (action.kind) {
@@ -248,6 +285,7 @@ int BattleState::hitCount(const Action& action) const {
             const Magic* magic = findMagic(action.magicId);
             return magic != nullptr && magic->boost == MagicBoost::Hits ? 1 + boost : 1;
         }
+        // 道具施法恒一击：连发型的法术装进符里也只打一发——不吃劲（契约 2.3）。
         case ActionKind::Item:
         case ActionKind::Defend:
         case ActionKind::Escape:
@@ -290,7 +328,16 @@ int BattleState::estimateHitDamage(const Action& action, int targetIndex) const 
                                          magic->element, target.element);
             return finalDamage(base, attacker, target);
         }
-        case ActionKind::Item:
+        case ActionKind::Item: {
+            // 道具施法按那门法术、劲 0 估（契约 docs/interfaces-p3-ch07.md 2.3）；别的物品不是打人的。
+            const Magic* magic = castMagicOf(action);
+            if (magic == nullptr) return 0;
+            Action asCast = action;
+            asCast.kind = ActionKind::Cast;
+            asCast.magicId = magic->id;
+            asCast.boost = 0;
+            return estimateHitDamage(asCast, targetIndex);
+        }
         case ActionKind::Defend:
         case ActionKind::Escape:
         case ActionKind::Charge:
@@ -368,10 +415,20 @@ std::string BattleState::applyAttack(const Action& a) {
 
 std::string BattleState::applyCast(const Action& a) {
     const Magic magic = *findMagic(a.magicId);   // 合法性已确认；取拷贝，免得与成员别名
-    if (magic.effect == MagicEffect::Reveal) return applyReveal(a, magic);
+    return resolveMagic(a, magic, nullptr);
+}
+
+std::string BattleState::resolveMagic(const Action& a, const Magic& magic, const Item* viaItem) {
+    if (magic.effect == MagicEffect::Reveal) return applyReveal(a, magic, viaItem);
+    if (magic.effect == MagicEffect::Stagger) return applyStagger(a, magic, viaItem);
     Unit& caster = unitRef(a.actorIndex);
-    caster.mp -= magic.needMp;
-    spendBoost(a.actorIndex, a.boost);
+    // 道具施法与施法只差三处（契约 docs/interfaces-p3-ch07.md 2.3）：① 不扣法力；② 不吃蓄劲
+    //（checkBoost 回绝带劲的物品，所以 a.boost 恒 0、hitCount 恒 1）；③ Act 那一行记 Item、
+    // 说法是「X 使用 Y——」。伤害公式、五行、境界压制、破绽、削架势、破势、打断蓄势一概照旧。
+    if (viaItem == nullptr) {
+        caster.mp -= magic.needMp;
+        spendBoost(a.actorIndex, a.boost);
+    }
     const int category = magicCategories(magic);
     const int hits = hitCount(a);
     // 威力型蓄劲：威力 ×(1+N) 喂进同一条公式，仍是一击。
@@ -379,13 +436,16 @@ std::string BattleState::applyCast(const Action& a) {
                                                        : magic.power;
     const bool heavy = caster.charging;
 
-    std::string head = caster.name + (heavy ? " 使出重招，施展【" : " 施展【") + magic.name + "】";
+    std::string head = viaItem != nullptr
+                           ? castOpener(caster, magic, viaItem)
+                           : caster.name + (heavy ? " 使出重招，施展【" : " 施展【") + magic.name + "】";
     if (hits > 1) head += "（连发 " + std::to_string(hits) + " 发）";
     if (magic.boost == MagicBoost::Power && a.boost > 0) {
         head += "（蓄劲 " + std::to_string(a.boost) + " 点，威力 ×" + std::to_string(1 + a.boost) + "）";
     }
     head += (heavy && caster.chargeAll) ? std::string("横扫全场") : "击中 " + unitRef(a.targetIndex).name;
-    BattleEvent act{BattleEventKind::Act, a.actorIndex, a.targetIndex, static_cast<int>(ActionKind::Cast)};
+    BattleEvent act{BattleEventKind::Act, a.actorIndex, a.targetIndex,
+                    static_cast<int>(viaItem != nullptr ? ActionKind::Item : ActionKind::Cast)};
     act.category = category;
     act.hits = hits;
     act.text = head;
@@ -414,15 +474,18 @@ std::string BattleState::applyCast(const Action& a) {
     return text;
 }
 
-std::string BattleState::applyReveal(const Action& a, const Magic& magic) {
+std::string BattleState::applyReveal(const Action& a, const Magic& magic, const Item* viaItem) {
     // 契约 docs/interfaces-p3-ch06.md 1.3：扣法力；本场每一个站着的敌人破绽全部揭开——与「打中破绽
     // 揭开」是同一份 Unit::revealed，同 id 的一起揭开，收场时照旧并进 GameState::knownWeaknesses
     //（BattleScene::finish）。不是一击：不判破绽、不削架势、不打断蓄势、没有伤害数字；劲不扣。
+    // 道具施展的不扣法力（契约 docs/interfaces-p3-ch07.md 2.3）。
     Unit& caster = unitRef(a.actorIndex);
-    caster.mp -= magic.needMp;
+    if (viaItem == nullptr) caster.mp -= magic.needMp;
     const bool casterAlly = caster.ally;
-    const std::string head = caster.name + " 施展【" + magic.name + "】";
-    BattleEvent act{BattleEventKind::Act, a.actorIndex, -1, static_cast<int>(ActionKind::Cast)};
+    const std::string head = castOpener(caster, magic, viaItem);
+    const std::string lead = viaItem != nullptr ? "" : "，";
+    BattleEvent act{BattleEventKind::Act, a.actorIndex, -1,
+                    static_cast<int>(viaItem != nullptr ? ActionKind::Item : ActionKind::Cast)};
     act.hits = 1;
     act.text = head;
     emit(std::move(act));
@@ -440,10 +503,45 @@ std::string BattleState::applyReveal(const Action& a, const Magic& magic) {
         reveal.revealed = fresh;
         emit(std::move(reveal));
         if (target.weaknesses == 0) continue;
-        text += (any ? "；" : "，") + target.name + " 的破绽「" + categoryNames(target.weaknesses) + "」尽收眼底";
+        text += (any ? std::string("；") : lead) + target.name + " 的破绽「" + categoryNames(target.weaknesses) +
+                "」尽收眼底";
         any = true;
     }
-    if (!any) text += "，场上没有看得出的破绽";
+    if (!any) text += lead + "场上没有看得出的破绽";
+    return text;
+}
+
+std::string BattleState::applyStagger(const Action& a, const Magic& magic, const Item* viaItem) {
+    // 契约 docs/interfaces-p3-ch07.md 2.3：扣法力（道具不扣）；目标架势减 stagger（下限 0），削到 0 即破势——
+    // 走「打中破绽削到 0」那一条（breakUnit：同样的破势回合数、同样打断蓄势，emitBreak：同样的 Break 事件）。
+    // 不是一击：不判破绽、不揭开、不伤人、没有伤害数字；劲不扣（蓄了也只当没蓄）。
+    // 没有架势、已经破势的目标到不了这里（checkMagicTarget 拦在前头）。
+    Unit& caster = unitRef(a.actorIndex);
+    if (viaItem == nullptr) caster.mp -= magic.needMp;
+    Unit& target = unitRef(a.targetIndex);
+    const std::string head = castOpener(caster, magic, viaItem);
+    BattleEvent act{BattleEventKind::Act, a.actorIndex, a.targetIndex,
+                    static_cast<int>(viaItem != nullptr ? ActionKind::Item : ActionKind::Cast)};
+    act.category = magicCategories(magic);   // 只给画面挑施法光的颜色；这一手不判破绽
+    act.hits = 1;
+    act.text = head;
+    emit(std::move(act));
+
+    const int before = target.toughness;
+    target.toughness = std::max(0, target.toughness - magic.stagger);
+    const int cut = before - target.toughness;
+    BattleEvent stagger{BattleEventKind::Stagger, a.actorIndex, a.targetIndex, cut};
+    stagger.hp = target.hp;
+    stagger.toughness = target.toughness;
+    emit(std::move(stagger));
+
+    std::string text = head + (viaItem != nullptr ? "" : "，") + target.name + " 的架势被削去 " +
+                       std::to_string(cut) + " 点";
+    if (target.toughness == 0) {
+        StrikeOutcome out;
+        breakUnit(a.targetIndex, text, out);
+        emitBreak(a.actorIndex, a.targetIndex, out);
+    }
     return text;
 }
 
@@ -482,6 +580,13 @@ void BattleState::emitStrike(int attackerIndex, int targetIndex, int category, i
     event.hp = target.hp;
     event.toughness = target.toughness;
     emit(std::move(event));
+    emitBreak(attackerIndex, targetIndex, out);
+    if (out.fled) emit(BattleEvent{BattleEventKind::Fled, attackerIndex, targetIndex});
+    if (out.fell) emit(BattleEvent{BattleEventKind::Fall, attackerIndex, targetIndex});
+}
+
+void BattleState::emitBreak(int attackerIndex, int targetIndex, const StrikeOutcome& out) {
+    const Unit& target = unitRef(targetIndex);
     if (out.broke) {
         BattleEvent broke{BattleEventKind::Break, attackerIndex, targetIndex,
                           target.breakRecoverRound - round_};
@@ -490,8 +595,6 @@ void BattleState::emitStrike(int attackerIndex, int targetIndex, int category, i
         emit(std::move(broke));
     }
     if (out.interrupted) emit(BattleEvent{BattleEventKind::ChargeInterrupt, attackerIndex, targetIndex});
-    if (out.fled) emit(BattleEvent{BattleEventKind::Fled, attackerIndex, targetIndex});
-    if (out.fell) emit(BattleEvent{BattleEventKind::Fall, attackerIndex, targetIndex});
 }
 
 std::string BattleState::resolveWeakness(int targetIndex, int category, StrikeOutcome& out) {
@@ -608,6 +711,12 @@ std::string BattleState::applyPoison(int targetIndex, int turns, int power) {
 
 std::string BattleState::applyItem(const Action& a) {
     const Item item = *findItem(a.magicId);
+    // 带 castMagic 的符箓：以那门法术施展一次（契约 docs/interfaces-p3-ch07.md 2.3）。
+    // 排在取目标之前：看破的符不挑目标，targetIndex 可以是 -1。
+    if (!item.castMagic.empty()) {
+        const Magic magic = *findMagic(item.castMagic);   // 合法性已确认（checkItem）
+        return resolveMagic(a, magic, &item);
+    }
     Unit& user = unitRef(a.actorIndex);
     Unit& target = unitRef(a.targetIndex);
 

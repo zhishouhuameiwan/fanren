@@ -161,6 +161,16 @@ std::string withoutRepay(const std::string& code) {
     return code.substr(0, start) + code.substr(close + 5);
 }
 
+// 第 7 章经 genmaps_ch07.patch_*() 加到 ch06_huangfenggu、ch06_baiyaoyuan 上的对象（docs/interfaces-p3-ch07.md 5.3）：
+// 认旗标属性里 ch07. 开头的那些（guard_flag / set_flag / require_flag / visible_flag / hidden_flag）。它们归
+// Ch07TriggerModeTests 管；本文件数第 6 章的挂点与门时把它们排除在外，判据不改。一格一个对象（规则 17）仍对全图。
+bool patchedInByChapterSeven(const MapObject& object) {
+    for (const char* key : {"guard_flag", "set_flag", "require_flag", "visible_flag", "hidden_flag"}) {
+        if (object.property(key).rfind("ch07.", 0) == 0) return true;
+    }
+    return false;
+}
+
 class Ch06TriggerMode : public ::testing::Test {
 protected:
     void SetUp() override {
@@ -303,7 +313,7 @@ TEST_F(Ch06TriggerMode, NoAutoOneObjectPerCellAndNothingOutsideTheTable) {
         std::map<std::pair<int, int>, std::string> owner;
         for (const MapObject& object : objectsOn(mapId)) {
             if (object.type == "spawn" || object.type == "encounter") continue;   // 出生点与遭遇区不占格
-            if (object.type == "trigger") {
+            if (object.type == "trigger" && !patchedInByChapterSeven(object)) {
                 ++triggersSeen;
                 EXPECT_NE(object.property("mode"), "auto") << mapId << " / " << object.name << " 用了 auto（本章不用 auto）";
                 EXPECT_TRUE(listed.count(std::string(mapId) + "/" + object.name))
@@ -497,7 +507,7 @@ TEST_F(Ch06TriggerMode, TheThreeGatesAreTheOnesSectionFourDrawsAndThereIsNoWayBa
     std::multiset<std::pair<std::string, std::string>> links;
     for (const char* mapId : kChapterMaps) {
         for (const MapObject& object : objectsOn(mapId)) {
-            if (object.type != "portal") continue;
+            if (object.type != "portal" || patchedInByChapterSeven(object)) continue;
             links.insert({mapId, object.property("target_map")});
             if (!object.property("require_flag").empty()) ++gated;
         }

@@ -1,0 +1,11 @@
+{
+  "id": "story_jinfu_zimuren",
+  "name": "金蚨子母刃",
+  "descKey": "item.desc.story_jinfu_zimuren",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "万宝楼四件之一（ch163）：母刃一、子刃八，顶级法器。驱动靠法力，本作做成法术「祭金蚨子母刃」（金、连发；magic_ji_jinfu，节点 11b 与本物同时给）。节点 26 八柄子刃倒埋在洞道里剖开巨蜈蚣（ch197）。"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "han_yunzhi",
+  "name": "菡云芝",
+  "realm": "QiRefining10",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "卖符少女入了灵兽山（ch179），ch203 自报姓名菡云芝。本作从节点 28 战后那一句起用这个 role（施工图第 5 节）；`maifu_shaonv` 的名字不变。出口 NPC（visible ch07.pojin / hidden ch07.chujindi）；路径行动 hanyunzhi_dating 不许提那半日。不参与战斗。"
+}

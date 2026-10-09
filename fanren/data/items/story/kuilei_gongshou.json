@@ -1,0 +1,11 @@
+{
+  "id": "story_kuilei_gongshou",
+  "name": "傀儡弓手",
+  "descKey": "item.desc.story_kuilei_gongshou",
+  "kind": "story",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "议事大殿从隔绝神识的袋子里摸出来的那件上品法器（ch174 只说造型奇特，ch213 才看清）：要以「分神」秘术注入一丝神识才驱使得动，筑基以上才修得了分神。节点 18 给的是 story_bubao_faqi「布包」，节点 34 清点时打开细看才换成本物（施工图 3.2「本章不说它是什么」；校对 LOW-3）。"
+}

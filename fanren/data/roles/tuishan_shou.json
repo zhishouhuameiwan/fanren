@@ -1,0 +1,19 @@
+{
+  "id": "tuishan_shou",
+  "name": "推山兽",
+  "realm": "QiRefining9",
+  "maxHp": 120,
+  "maxMp": 0,
+  "attack": 18,
+  "defence": 16,
+  "speed": 6,
+  "element": 16,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "木",
+    "暗器"
+  ],
+  "origin": "原著",
+  "note": "环形山里常见的下阶妖兽（ch196）：几丈高的巨型野猪，天生一身石肤。非人形。环形山遭遇 be07_tuishan_shou。土；破绽木、暗器（原著丝线一挥就剖开了）。\n\n【平衡路 2026-09-29】量过、不动：一只每下 23，意图玩家满血一回合一砖（金光砖）收场（docs/ch07-balance.md 遭遇）。"
+}

@@ -1,0 +1,34 @@
+{
+  "id": "ch07_fangshi_yaotan",
+  "name": "坊市收药摊",
+  "nameKey": "ch07.shop.name.fangshi_yaotan",
+  "buyRate": 0.5,
+  "sellRate": 0.3,
+  "entries": [
+    {
+      "itemId": "pill_qingling_san",
+      "price": 0,
+      "stock": 4,
+      "restockDays": 10,
+      "restockAmount": 1,
+      "maxStock": 4
+    },
+    {
+      "itemId": "pill_jinchuang_yao",
+      "price": 0,
+      "stock": 6,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 6
+    },
+    {
+      "itemId": "pill_huiqi_dan",
+      "price": 0,
+      "stock": 3,
+      "restockDays": 15,
+      "restockAmount": 1,
+      "maxStock": 3
+    }
+  ],
+  "note": "黄枫谷坊市北段的收药摊（施工图第 4 节、第 9 节）：收药换灵石，sellRate 0.3（第 9 节来源表「可选：坊市收药摊」）。千年黄精芝、禁地三药、筑基丹、药粉都是 tradeable false，这里收不了（第 9 节第 4 条）。顺带卖三样常用药：清灵散（节点 14、26 的「有则扣」，买得到才不落空）、金疮药、回气丹；挂牌 = 物品基价 × buyRate，price 字段不读。"
+}

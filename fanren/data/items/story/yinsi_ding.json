@@ -1,0 +1,11 @@
+{
+  "id": "story_yinsi_ding",
+  "name": "银丝鼎",
+  "descKey": "item.desc.story_yinsi_ding",
+  "kind": "story",
+  "grade": 2,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "许老那里挑的最小一只丹鼎（ch156）：储物袋只装得下它，三十二块。地火屋十九号悬在圆墩上用（ch214）。只作物品，不做炉鼎品质对成丹的影响（施工图第 7 节）。"
+}

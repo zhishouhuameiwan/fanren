@@ -1,0 +1,11 @@
+{
+  "id": "magic_zhuque_huan",
+  "name": "朱雀环",
+  "descKey": "magic.desc.magic_zhuque_huan",
+  "element": 8,
+  "needMp": 14,
+  "power": 24,
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "白衣少女的法宝（ch205）：环里裹着成片的火。火。⑤ 里友军用（编成写死，不入队）；她法力只剩炼气顶峰，数值按炼气十三层给。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

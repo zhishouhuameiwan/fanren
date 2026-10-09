@@ -1,0 +1,11 @@
+{
+  "id": "story_qingyuan_jianjue",
+  "name": "青元剑诀",
+  "descKey": "item.desc.story_qingyuan_jianjue",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "李师祖亲手誊写、署了名的剑诀（ch213）：共九层，前三层炼气可修、中三层筑基、后三层结丹。节点 35a 丑汉凭这笔字认出他是谁的人；节点 36 服丹之后只能靠它吸纳残余药力（ch216）。后三层的神通名第 1-7 章禁（施工图 12.1）。"
+}

@@ -153,8 +153,10 @@ Action BattleState::allyDecision(int actorIndex) const {
             if (isLegal(attack)) options.push_back(attack);
         }
         for (const auto& entry : magics_) {
-            // 天眼术（看破）不用：我方 AI 按「打谁、打多重」挑，不伤人的一手不在候选里
-            //（契约 docs/interfaces-p3-ch06.md 1.3）。
+            // 天眼术（看破）与削架势的法术不用：我方 AI 按「打谁、打多重」挑，不伤人的一手不在候选里
+            //（契约 docs/interfaces-p3-ch06.md 1.3、docs/interfaces-p3-ch07.md 2.3）。
+            // 削架势的漏进来的话，它的五行会被当成「还没试过的类别」拿去探破绽，而它根本不判破绽。
+            // 物品（含带 castMagic 的符箓）本来就不在候选里：我方 AI 不吃药，也不掏符。
             if (!offensiveMagic(entry.second)) continue;
             Action cast = makeAction(ActionKind::Cast, actorIndex, target);
             cast.magicId = entry.first;

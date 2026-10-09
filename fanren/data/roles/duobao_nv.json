@@ -1,0 +1,14 @@
+{
+  "id": "duobao_nv",
+  "name": "白衣女子",
+  "realm": "QiRefining12",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 4,
+  "magics": [],
+  "origin": "原著",
+  "note": "掩月双娇之一（ch186-187）：长老的后人，法器多（小镜子、粉红水晶球）。节点 23 是演出、不开战（8.3），死在封岳的黄芒下。只在脚本里说话。不参与战斗。"
+}

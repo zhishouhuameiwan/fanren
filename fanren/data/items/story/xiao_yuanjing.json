@@ -1,0 +1,11 @@
+{
+  "id": "story_xiao_yuanjing",
+  "name": "小圆镜",
+  "descKey": "item.desc.story_xiao_yuanjing",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "改编",
+  "note": "多宝女那面小镜子在节点 23 到 28 之间的名字：原著 ch202 赤脚大汉一叫才知它叫青凝镜。节点 28 大汉认出它之后（xiaoshidian.lua）take 本物、give story_qingning_jing（校对 LOW-3）。法术 magic_ji_qingning 节点 23 就学会（④ 要用），名字写成「祭镜」，前后都说得通。"
+}

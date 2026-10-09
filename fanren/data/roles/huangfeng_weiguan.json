@@ -1,0 +1,14 @@
+{
+  "id": "huangfeng_weiguan",
+  "name": "围观弟子",
+  "realm": "QiRefining7",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "节点 6 山头看热闹的外门弟子（ch157）。**只摆一个**，其余烘进底图（群像白名单不归施工路，施工图第 5 节）。不参与战斗。"
+}

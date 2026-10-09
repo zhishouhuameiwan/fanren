@@ -1,0 +1,14 @@
+{
+  "id": "wanbaolou_shicong",
+  "name": "万宝楼伙计",
+  "realm": "QiRefining5",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "万宝楼门口迎客的伙计（ch162）。坊市 NPC。不参与战斗。"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "story_tayun_xue",
+  "name": "踏云靴",
+  "descKey": "item.desc.story_tayun_xue",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "封岳的靴子（ch190；名字 ch192 钟吾叫出）：妖兽皮所制，穿上一步飘出老远——封岳身法快的底细。天雷子过后只剩它完好。本作不做身法加成（O2 不做），只作物品与旁白；节点 24 钟吾凭它认出封岳已死。节点 23 给的是 story_hei_xue「黑靴」，节点 24 钟吾叫出名字之后才换成本物（校对 LOW-3）。"
+}

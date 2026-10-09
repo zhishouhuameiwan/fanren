@@ -1,0 +1,14 @@
+{
+  "id": "xiang_shaonian",
+  "name": "黄毛少年",
+  "realm": "QiRefining11",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著（外貌改编）",
+  "note": "跟着向之礼的十一层少年（ch174-175），死在禁地。荒山 NPC。不参与战斗。"
+}

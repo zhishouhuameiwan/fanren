@@ -1,0 +1,13 @@
+{
+  "id": "herb_zihou_hua",
+  "name": "紫猴花",
+  "descKey": "item.desc.herb_zihou_hua",
+  "kind": "herb",
+  "grade": 4,
+  "price": 30,
+  "tradeable": false,
+  "herbAge": 0,
+  "maxAge": 800,
+  "origin": "原著",
+  "note": "筑基丹三主药之一（ch158；ch196-198 紫猴花洞）。只长在禁地环形山；幼苗 herb_age 1、成熟的 ≥ 300（施工图第 17 节第 24 条），嗅灵兽只闻得出百年以上的（ch210）——节点 32b 按这条线分。四阶、年份上限 800（主药四五百年即可入药，ch196）。**tradeable false**：禁地药卖了会把第 8 章的钱撑爆（第 9 节第 4 条）。不写回复字段：不当战场上的干粮。"
+}

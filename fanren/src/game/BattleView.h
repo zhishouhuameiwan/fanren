@@ -90,6 +90,9 @@ public:
     void onChargeDeclare(int unit);
     // 看破（天眼术）照到这个敌人：金光一闪，bits 那几格破绽图标一起亮（与「打中揭开」同一套画法）。
     void onReveal(int unit, int bits);
+    // 削架势（土牢符、定神符）：架势格被削——复用 onHit 里「架势减少」那一段（盾跳一下、旧数字往下掉），
+    // previousToughness 是削之前显示的架势。
+    void onStagger(int unit, int previousToughness);
     // 这一手演完了：冲出去的人退回原位、施法的收势、这一手的气焰散掉。
     void endAction();
     // 头顶飘一句（「蓄劲 ×2」「中毒」）。

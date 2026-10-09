@@ -1,0 +1,12 @@
+{
+  "id": "magic_tianleizi",
+  "name": "天雷子",
+  "descKey": "magic.desc.magic_tianleizi",
+  "element": 8,
+  "needMp": 0,
+  "power": 60,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "原著",
+  "note": "只供道具天雷子（talisman_tianleizi）施放，不学（全仓 magic.learn 0 处）。ch163 万宝楼田掌柜介绍它：截天雷凝成的雷珠，筑基修士正面硬接也会化为飞灰；ch189 封岳那一仗他就是靠它收的场——③ 那一仗的原著解法（docs/ch07-design.md 8.2 / 8.3）。火属（element 8）：封岳的破绽里有火。power 60 是初值，归平衡路拿 BattleHand 量；道具施法不吃蓄劲，boost 写 power 只是与别的伤人法术同一个缺省。"
+}

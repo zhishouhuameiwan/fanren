@@ -6,6 +6,7 @@
   "grade": 1,
   "price": 4,
   "tradeable": true,
+  "castMagic": "magic_dingshen_shu",
   "origin": "原著",
-  "note": "初级下阶的定神符（ch131、ch138）：定神术要念咒催它才生效，是「符术」用的符，与把法术存在纸里、一激就用的符箓不同。节点 9a 他画了一打，十二张全废；此后制符桌（recipe_dingshen_fu）自己练，成功率两成上下。定价 4：坊市挂牌 2 块（buyRate 0.5）；卖回坊市按 sellRate 0.08 取整是 0 块——施工图第 6 节说它「能卖 2 块灵石」，与第 7 节的 sellRate 0.08 对不上，以商店的数为准（施工偏差）。本作不给它战斗用途（E2 不做）。"
+  "note": "初级下阶的定神符（ch131、ch138）：定神术要念咒催它才生效，是「符术」用的符，与把法术存在纸里、一激就用的符箓不同。节点 9a 他画了一打，十二张全废；此后制符桌（recipe_dingshen_fu）自己练，成功率两成上下。定价 4：坊市挂牌 2 块（buyRate 0.5）；卖回坊市按 sellRate 0.08 取整是 0 块——施工图第 6 节说它「能卖 2 块灵石」，与第 7 节的 sellRate 0.08 对不上，以商店的数为准（施工偏差）。第 7 章起可在战斗里用：castMagic magic_dingshen_shu，削一点架势（docs/interfaces-p3-ch07.md 第 2 节）。"
 }

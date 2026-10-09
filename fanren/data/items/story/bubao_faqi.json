@@ -1,0 +1,11 @@
+{
+  "id": "story_bubao_faqi",
+  "name": "布包",
+  "descKey": "item.desc.story_bubao_faqi",
+  "kind": "story",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "改编",
+  "note": "议事大殿从隔绝神识的袋子里摸出来的那件法器，节点 18 到 34 之间的名字：施工图 3.2「本章不说它是什么，节点 34 清点时才说」。节点 34（sannian.lua）打开细看时 take 本物、give story_kuilei_gongshou（校对 LOW-3，与 maifu_shaonv → han_yunzhi 同一个办法）。"
+}

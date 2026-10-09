@@ -1,0 +1,11 @@
+{
+  "id": "story_yinse_shuye",
+  "name": "银色书页",
+  "descKey": "item.desc.story_yinse_shuye",
+  "kind": "story",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "赤脚大汉遗物里的一张银色书页（ch213）：凹凸的花纹，参不透。本章只收着。"
+}

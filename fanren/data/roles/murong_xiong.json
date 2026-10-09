@@ -1,0 +1,14 @@
+{
+  "id": "murong_xiong",
+  "name": "慕容兄",
+  "realm": "QiRefining6",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "慕容兄弟之兄（ch152、157-158）：雷灵根，十一二岁，大开山门时的新秀。节点 6 山头演雷法（NPC，visible ch07.chouhan / hidden ch07.murong）。不参与战斗。"
+}

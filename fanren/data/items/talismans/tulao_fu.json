@@ -1,0 +1,12 @@
+{
+  "id": "talisman_tulao_fu",
+  "name": "土牢符",
+  "descKey": "item.desc.talisman_tulao_fu",
+  "kind": "talisman",
+  "grade": 1,
+  "price": 0,
+  "tradeable": false,
+  "castMagic": "magic_tulao_shu",
+  "origin": "原著",
+  "note": "原著 ch183：他手上几张初级高阶符箓里的一张，掷向络腮胡子，土牢一起把人困在原地（ch184）。战斗里是道具施法（契约 docs/interfaces-p3-ch07.md 第 2 节）：用一件 = 以 magic_tulao_shu 施展一次，削三点架势，不伤人、不耗法力、扣一件；对已经破势或没有架势的敌人用不出去，也不扣。② 一线天那一仗的原著解法（docs/ch07-design.md 8.2）。tradeable false、price 0：由脚本给，不进商店。"
+}

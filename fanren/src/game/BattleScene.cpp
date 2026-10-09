@@ -125,6 +125,13 @@ constexpr int kMenuFeedbackH = 72;
     return slots.empty() ? std::string{} : "破绽 " + slots;
 }
 
+// 一门法术这一手打什么，写在菜单行尾（法术列表与物品列表的符箓共用）：削架势的写「削架势 N」
+//——它不判破绽，写五行只会让人以为打得中哪一样；别的写它的类别（五行，带毒加「毒」），没有就空着。
+[[nodiscard]] std::string spellEffectLabel(const core::Magic& magic) {
+    if (magic.effect == core::MagicEffect::Stagger) return "削架势 " + std::to_string(magic.stagger);
+    return core::categoryNames(core::magicCategories(magic));
+}
+
 }  // namespace
 
 std::string foeStatusText(const Unit& unit) {
@@ -432,11 +439,16 @@ void BattleScene::registerFieldMagics(Application& app) {
 
 void BattleScene::registerBagItems(Application& app) {
     // 登记范围 = 玩家背包里战斗中真有效果的那些，判据在 core::battleUsable。
+    // 带 castMagic 的符箓连它施展的那门法术一起登记：结算按那门法术走（契约
+    // docs/interfaces-p3-ch07.md 2.3）。登记表里多一门法术不会让谁学会它——各单位只施展得了
+    // 自己那份清单上的（Unit::magicsExhaustive，game 层建场一律置位）。
     for (const core::BagEntry& entry : app.state().bag) {
         if (entry.count <= 0) continue;
         const core::Item* item = app.data().findItem(entry.itemId);
         if (item == nullptr || !core::battleUsable(*item)) continue;
         battle_.addItem(*item);
+        if (item->castMagic.empty()) continue;
+        if (const core::Magic* magic = app.data().findMagic(item->castMagic)) battle_.addMagic(*magic);
     }
 }
 
@@ -606,10 +618,8 @@ std::vector<ui::ListItem> BattleScene::buildMagicItems(const core::GameData& dat
         probe.magicId = id;
         magicIds.push_back(id);
         std::string detail = std::string("耗") + mpWord(wordingStage(state)) + " " + std::to_string(magic->needMp);
-        if (const std::string cats = core::categoryNames(core::magicCategories(*magic)); !cats.empty()) {
-            detail += " · " + cats;
-        }
-        // 看破（天眼术）不吃蓄劲，不写「蓄劲加威」骗人。
+        if (const std::string what = spellEffectLabel(*magic); !what.empty()) detail += " · " + what;
+        // 看破（天眼术）与削架势不吃蓄劲，不写「蓄劲加威」骗人。
         if (magic->effect == core::MagicEffect::None) {
             detail += magic->boost == core::MagicBoost::Hits ? " · 蓄劲连发" : " · 蓄劲加威";
         }
@@ -634,9 +644,16 @@ std::vector<ui::ListItem> BattleScene::buildItemItems(const core::GameData& data
         probe.actorIndex = actorIndex;
         probe.magicId = id;   // 契约的 Action 没有 itemId，物品借用这个槽位
         itemIds.push_back(id);
-        // 毒药往对面使、丹药给自己人用，按**数据**分流（与 checkItem 同一条口径）。
-        items.push_back(row(item->name, "余 " + std::to_string(state.itemCount(id)),
-                            refuseOnAnyone(state, battle, probe, /*wantAlly=*/item->poison <= 0)));
+        std::string detail = "余 " + std::to_string(state.itemCount(id));
+        // 符箓行尾写它施展的那门法术打什么（「火」「削架势 3」），不写法力：用符不耗法力
+        //（契约 docs/interfaces-p3-ch07.md 2.5）。
+        if (const core::Magic* spell = item->castMagic.empty() ? nullptr : data.findMagic(item->castMagic)) {
+            if (const std::string what = spellEffectLabel(*spell); !what.empty()) detail += " · " + what;
+        }
+        // 毒药往对面使、丹药给自己人用，按**数据**分流（与 checkItem 同一条口径）；
+        // 带 castMagic 的符箓照那门法术挑目标，打的是敌人。
+        const bool wantAlly = item->castMagic.empty() && item->poison <= 0;
+        items.push_back(row(item->name, detail, refuseOnAnyone(state, battle, probe, wantAlly)));
     }
     if (itemIds.empty()) items.push_back(row("（无）", {}, emptyItemReason(data, state)));
     items.push_back(backRow());
@@ -654,12 +671,15 @@ std::vector<ui::ListItem> BattleScene::buildTargetItems(const core::GameState& s
     }
     const std::vector<Unit>& units = battle.units();
     const Unit& actor = units[static_cast<std::size_t>(shape.actorIndex)];
+    // 带 castMagic 的符箓按那门法术挑目标（契约 docs/interfaces-p3-ch07.md 2.5）：同施法一样只列敌人。
+    const core::Item* item = shape.kind == ActionKind::Item ? battle.findItem(shape.magicId) : nullptr;
+    const bool enemiesOnly = shape.kind != ActionKind::Item || (item != nullptr && !item->castMagic.empty());
     for (std::size_t i = 0; i < units.size(); ++i) {
         const Unit& unit = units[i];
         if (!unit.alive()) continue;
         // 攻击与施法只列敌人；物品两边都列——往哪一边使是数据决定的，
         // 让玩家看见「毒药不能用在自己人身上」比从列表里删掉说得清楚。
-        if (shape.kind != ActionKind::Item && unit.ally == actor.ally) continue;
+        if (enemiesOnly && unit.ally == actor.ally) continue;
         Action probe = shape;
         probe.targetIndex = static_cast<int>(i);
         targetIndices.push_back(static_cast<int>(i));
@@ -837,14 +857,22 @@ bool BattleScene::menuChoose(Application& app, int index) {
             }
             shape_.kind = menu_ == BattleMenuMode::Magic ? ActionKind::Cast : ActionKind::Item;
             shape_.magicId = menuIds_[static_cast<std::size_t>(index)];
-            // 看破照的是整个场子，不挑目标：选中就施展（契约 docs/interfaces-p3-ch06.md 1.5）。
-            // 蓄劲按 0 发——它不吃劲，与防御同一个口径。
-            if (const core::Magic* magic = app.data().findMagic(shape_.magicId);
-                menu_ == BattleMenuMode::Magic && magic != nullptr && magic->effect != core::MagicEffect::None) {
-                shape_.actorIndex = battle_.currentActor();
-                shape_.targetIndex = -1;
-                shape_.boost = 0;
-                return issueFromMenu(app, shape_);
+            {
+                // 看破照的是整个场子，不挑目标：选中就施展（契约 docs/interfaces-p3-ch06.md 1.5）；
+                // 装着看破的符箓同理（契约 docs/interfaces-p3-ch07.md 2.5）。削架势要挑一个敌人，照常择敌。
+                // 蓄劲按 0 发——它不吃劲，与防御同一个口径。
+                const core::Item* item =
+                    menu_ == BattleMenuMode::Item ? app.data().findItem(shape_.magicId) : nullptr;
+                const std::string spellId = menu_ == BattleMenuMode::Magic ? shape_.magicId
+                                            : item != nullptr               ? item->castMagic
+                                                                            : std::string{};
+                const core::Magic* magic = app.data().findMagic(spellId);
+                if (magic != nullptr && magic->effect == core::MagicEffect::Reveal) {
+                    shape_.actorIndex = battle_.currentActor();
+                    shape_.targetIndex = -1;
+                    shape_.boost = 0;
+                    return issueFromMenu(app, shape_);
+                }
             }
             enterTarget(app);
             return true;
@@ -1162,6 +1190,15 @@ double BattleScene::playEvent(Application& app, const BattleEvent& e) {
             }
             view.onReveal(e.target, e.value);
             return 0.25;
+        case BattleEventKind::Stagger: {
+            // 削架势（契约 docs/interfaces-p3-ch07.md 2.5）：架势格被削，复用「打中破绽架势减少」的
+            // 那套画法；削到 0 的破势由紧跟着的 Break 那一条演。
+            ShownUnit* s = at(e.target);
+            const int before = s != nullptr ? s->toughness : e.toughness + e.value;
+            if (s != nullptr) s->toughness = e.toughness;
+            view.onStagger(e.target, before);
+            return 0.35;
+        }
     }
     return 0.1;
 }

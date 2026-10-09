@@ -1,0 +1,14 @@
+{
+  "id": "huangshan_shijie",
+  "name": "黄衫师姐",
+  "realm": "QiRefining12",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "陈师妹的同伴，十二层（ch175、186-188）：第二日早被多宝女追到树下，死在封岳手里。荒山 NPC；节点 23 只在脚本里。不参与战斗。"
+}

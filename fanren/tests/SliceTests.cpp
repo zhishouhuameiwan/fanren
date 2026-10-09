@@ -313,6 +313,8 @@ TEST_F(SliceTest, BuildsTheEncounterFromDataFiles) {
 TEST_F(SliceTest, EveryMigratedBattleIsPlayableToACompleteOutcome) {
     // 逐场跑完。任何一场卡住不分胜负，都说明那份配置有问题——
     // 这是 P2「二十场战斗迁移完成并可打」的判据本身。
+    // b07_zhaoze_shouyao 第 7 章改写成地下沼泽的墨蛟（killable_by 土，我方打不死就得被它打死、不许僵住）；
+    // 2026-09-29 按 docs/interfaces-p3-ch07.md 5.3 核过仍跑得出结果，这一格不换。
     const std::vector<std::string> ids = {
         "b03_gu_wai_elang", "b04_yelangbang_laifan", "b05_mofu_shigui",
         "b06_huangfenggu_qiecuo", "b07_zhaoze_shouyao", "b10_gujia_bidou",

@@ -14,6 +14,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "core/rules/Bottle.h"
 #include "core/rules/Realm.h"
 
 namespace fanren::io {
@@ -249,6 +250,10 @@ core::Result<GameState> fromJson(const json& p) {
         s.bottle.lastChargeDay = b.value("lastChargeDay", 0);
         s.bottle.capacity = b.value("capacity", 3);
     }
+    // 先读出容量，再按境界抬到下限（契约 docs/interfaces-p3-ch07.md 3.3 第 3 处；另两处是 Application
+    // 的 RealmAdvance 与 CultivationScene 的 applyRealmAttributes，同一个函数）。只补不削：存档里
+    // 已经更大的一滴不动；E3 之前写下的「筑基、容量 3」的档读进来就是 6。drops 不动。
+    s.bottle.capacity = std::max(s.bottle.capacity, rules::bottleCapacityFloor(rules::tierOf(s.realm)));
     if (p.contains("fields") && p["fields"].is_array()) {
         for (const json& f : p["fields"]) {
             if (!f.is_object()) continue;

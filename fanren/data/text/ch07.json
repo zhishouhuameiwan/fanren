@@ -1,0 +1,16 @@
+{
+  "ch07.map.yuelu_dian.name": "岳麓殿",
+  "ch07.map.dihuo.name": "地火屋",
+  "ch07.map.fangshi.name": "黄枫谷坊市",
+  "ch07.map.shandong.name": "太岳山脉外围",
+  "ch07.map.jindi_wai.name": "禁地之外",
+  "ch07.map.jindi_waiwei.name": "禁地外围",
+  "ch07.map.jindi_zhongxin.name": "中心区外",
+  "ch07.map.huanxingshan.name": "环形山",
+  "ch07.map.dixia_zhaoze.name": "地下沼泽",
+  "ch07.block.fangshi": "南边那条路通往坊市。没有外出的令牌，山门口的执事不会放他出去。",
+  "ch07.block.yuelu_dian": "北边那道阵门封得严严实实，门框上有一道空着的凹槽，缺一样嵌进去的东西。",
+  "ch07.block.dihuo": "石门上的光一层层地流，推不动，也看不透。借火的事，得先让门边那个汉子点头。",
+  "ch07.block.jindi_zhongxin": "再往前就是中心区了。可外围这一片他还没摸清，资料上记的几处也没走到，贸然往里闯，等于把后背亮给别人。",
+  "ch07.block.huanxingshan": "山上的雾浓得化不开，一脚踏进去，就再分不清东南西北。"
+}

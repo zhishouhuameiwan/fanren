@@ -1,0 +1,14 @@
+{
+  "id": "murong_di",
+  "name": "慕容弟",
+  "realm": "QiRefining6",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "慕容兄弟之弟（ch152、157-158）：同上。不参与战斗。"
+}

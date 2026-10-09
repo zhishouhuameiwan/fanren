@@ -1,0 +1,11 @@
+{
+  "id": "story_qingning_jing",
+  "name": "青凝镜",
+  "descKey": "item.desc.story_qingning_jing",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "多宝女的护身法器（ch186 小镜子，ch202 赤脚大汉叫出名字）：一照青光，把一片法器定在半空。掩月双娇的东西，露出来必遭她们的长辈追杀。本作做成法术「祭镜」（削架势 2；magic_ji_qingning，节点 23 就学会）。节点 23 给的是 story_xiao_yuanjing「小圆镜」，节点 28 大汉认出之后才换成本物（校对 LOW-3）；名字在节点 28 之前的文案里不出现。"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "magic_heishui",
+  "name": "黑水",
+  "descKey": "magic.desc.magic_heishui",
+  "element": 4,
+  "needMp": 10,
+  "power": 20,
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "墨蛟喷的墨黑水柱（ch205-206）：水。敌方用。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

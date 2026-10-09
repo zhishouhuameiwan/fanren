@@ -1,0 +1,11 @@
+{
+  "id": "magic_xiaodao_fubao",
+  "name": "小刀符宝",
+  "descKey": "magic.desc.magic_xiaodao_fubao",
+  "element": 1,
+  "needMp": 12,
+  "power": 26,
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "封岳手里那把小刀符宝放出的黄芒（ch187-189）：金。敌方用。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

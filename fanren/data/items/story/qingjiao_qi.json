@@ -1,0 +1,11 @@
+{
+  "id": "story_qingjiao_qi",
+  "name": "青蛟旗",
+  "descKey": "item.desc.story_qingjiao_qi",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "陆师兄的顶级法器（ch167-170）：旗面绣着一条青蛟，放出风刃、化蛟。节点 13 战后搜得，本作做成法术「祭青蛟旗」（木；magic_ji_qingjiao，与本物同时给）。"
+}

@@ -501,7 +501,7 @@ TEST_F(BattleKitTest, NobodyCanUseAnItemInsideTheMindEither) {
 
 TEST_F(BattleKitTest, AnEnemyReallyCastsInARealBattle) {
     // 登记只是第一步，「在真实的一局里真的放出来过」才是这个缺口的全貌。
-    // 陆师兄会火球术，敌方 AI 法力够就先放法术。
+    // 陆师兄会青弧斩，敌方 AI 法力够就先放法术。
     BattleScene scene("b07_lu_shixiong");
     scene.onEnter(app_);
     ASSERT_GT(scene.battle().registeredMagicCount(), 0u);

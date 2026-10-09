@@ -1,0 +1,14 @@
+{
+  "id": "jujianmen_gaoren",
+  "name": "巨剑门高人",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 1,
+  "magics": [],
+  "origin": "原著",
+  "note": "巨剑门的结丹（ch179、210）：掷剑试禁的那一位。在场：荒山、出口。不参与战斗。"
+}

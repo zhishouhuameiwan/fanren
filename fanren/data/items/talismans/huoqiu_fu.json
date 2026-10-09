@@ -6,6 +6,7 @@
   "grade": 1,
   "price": 26,
   "tradeable": true,
+  "castMagic": "magic_huoqiu_shu",
   "addAttack": 5,
   "origin": "原著",
   "note": "原著确证：ch186、261（另有「火弹符」见于后文，超出本篇范围）。注意原著低阶攻击法术作「火弹术」（ch67），「火球术」全本 0 命中，勿混用。"

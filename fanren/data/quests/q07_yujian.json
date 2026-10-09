@@ -1,0 +1,66 @@
+{
+  "id": "q07_yujian",
+  "name": "钟吾的玉简",
+  "chapter": 7,
+  "kind": "side",
+  "title_key": "ch07.quest.yujian.title",
+  "summary_key": "ch07.quest.yujian.summary",
+  "accept": [
+    {
+      "flag": "ch07.yujian_qiu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1_dongpo",
+      "text_key": "ch07.quest.yujian.s1",
+      "done": [
+        {
+          "flag": "ch07.yujian_a",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch07_huanxingshan",
+      "target_object": "trigger_yujian_dongpo"
+    },
+    {
+      "id": "s2_hantan",
+      "text_key": "ch07.quest.yujian.s2",
+      "done": [
+        {
+          "flag": "ch07.yujian_b",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch07_huanxingshan",
+      "target_object": "trigger_yujian_hantan"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch07.yujian_a",
+      "op": ">=",
+      "value": 1
+    },
+    {
+      "flag": "ch07.yujian_b",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail": [
+    {
+      "flag": "ch07.didao",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch07.quest.yujian.fail",
+  "rewards": [],
+  "origin": "改编（ch193 互换玉简；ch203 他后来去的正是玉简上记的地方）",
+  "note": "支线 Z2（docs/ch07-design.md 第 6 节）。接：节点 24 青铜门前换过玉简（scripts/ch07/tongmen.lua 置 ch07.yujian_qiu）。两步不分先后：东坡石屋（yujian_dongpo.lua，门口两只铁臂猿 be07_tiebi_yuan，可逃——逃了不置 ch07.yujian_a，还能再来）；北坡寒潭（yujian_hantan.lua）。两处都在环形山（require ch07.yueyang 才进得去）。过期：ch07.didao 置位（节点 29 钻进地道；回到环形山时落在破洞外一格的死角里，只能往出口走）；了结压过过期。回报不进 rewards：每处 give 成熟灵药（脚本），节点 32b 门派加赏灵石 50 ＋ 中阶灵石 1（chukou.lua 读两面旗）。"
+}

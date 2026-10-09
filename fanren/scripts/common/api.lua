@@ -353,3 +353,24 @@ field = {
     planted = function(field_id) return __host.field_planted(field_id or "") end,
     ripe = function(field_id) return __host.field_ripe(field_id or "") end,
 }
+
+-- ---------------------------------------------------------------------------
+-- 按年份下限计数与扣物（第 7 章契约 docs/interfaces-p3-ch07.md 第 4 节）
+--
+-- 扣物三种写法各有用处，别混用：
+--   take(id, n)          「哪一堆都行」：先扣年份低的（交一株黄精抵人情，哪一株都算数）；
+--   take(id, n, age)     「恰好这一堆」：只扣年份正好是 age 的那一堆（商店卖的就是玩家点的那一株）；
+--   take_aged(id, n, a)  「够格的里挑」：年份不低于 a 的堆里扣，够格里年份低的先扣
+--                        （马师伯收四十四年以上的黄精：嫩苗不够格，更老的留给玩家）。
+-- ---------------------------------------------------------------------------
+
+-- 年份不低于 min_age 的有几件（第 7 章契约 4.1）。
+item.count_aged = function(id, min_age)
+    return __host.item_count_aged(id or "", min_age or 0)
+end
+
+-- 从年份不低于 min_age 的堆里扣 count 件，够格里年份低的先扣；不够就一件不扣。
+function take_aged(item_id, count, min_age)
+    local result = emit{ kind = "take_item_aged", a = item_id or "", x = count or 1, y = min_age or 0 }
+    return result.ok == true
+end

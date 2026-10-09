@@ -1,0 +1,26 @@
+{
+  "id": "encounter_ch07_huanxingshan",
+  "name": "环形山",
+  "dailyCap": 2,
+  "entries": [
+    {
+      "battleId": "be07_tuishan_shou",
+      "weight": 3,
+      "minRealm": "QiRefining9",
+      "maxRealm": "QiRefining13"
+    },
+    {
+      "battleId": "be07_tiebi_yuan",
+      "weight": 2,
+      "minRealm": "QiRefining9",
+      "maxRealm": "QiRefining13"
+    },
+    {
+      "battleId": "be07_huoyan_shu",
+      "weight": 3,
+      "minRealm": "QiRefining9",
+      "maxRealm": "QiRefining13"
+    }
+  ],
+  "note": "第 7 章环形山那一块遭遇区（ch07_huanxingshan 的 encounter_shanlu，require_flag ch07.yueyang）。原著环形山里妖兽成群（ch194），灵药点多有守护兽（ch196-200）；外围、中心区外不放（那两处的死都是人杀的，施工图 8.4）。dailyCap 2；玩家在打坐点多坐几天，遭遇也就多几轮——都是可逃的小仗，不影响账。"
+}

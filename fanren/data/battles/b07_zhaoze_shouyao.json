@@ -1,37 +1,26 @@
 {
   "id": "b07_zhaoze_shouyao",
-  "name": "地下沼泽守药妖兽",
+  "name": "地下沼泽·墨蛟",
   "chapter": 7,
-  "terrain": "secret",
-  "can_escape": true,
+  "terrain": "cave",
+  "can_escape": false,
   "defeat_is_fatal": true,
   "units": [
     {
-      "role_id": "zhaoze_yaoshou",
-      "faction": "enemy"
+      "role_id": "baiyi_shaonv",
+      "faction": "ally"
     },
     {
-      "role_id": "zhaoze_yaoshou",
-      "faction": "enemy"
-    },
-    {
-      "role_id": "zhaoze_yaoshou",
+      "role_id": "mo_jiao",
       "faction": "enemy"
     }
   ],
   "rewards": {
-    "cultivation": 160,
-    "spirit_stones": 40,
-    "drops": [
-      {
-        "item_id": "pill_huiqi_dan",
-        "count": 2,
-        "rate": 100
-      }
-    ]
+    "cultivation": 320,
+    "spirit_stones": 0,
+    "drops": []
   },
-  "intro_key": "ch07.battle.zhaoze_shouyao.intro",
-  "origin": "改编",
-  "rewritten_by_lore": true,
-  "note": "旧原型的「血傀」依托查无的燕血魔门。改为禁地地下沼泽／乌龙潭一带的守药妖兽，与「月阳宝珠驱瘴、与南宫婉同逃出地下沼泽」的场景衔接。妖兽本身原著未具名，标为改编。"
+  "intro_key": "ch07.battle.mojiao.intro",
+  "origin": "原著",
+  "note": "第 7 章战斗⑤（节点 30，ch07_dixia_zhaoze trigger_guanzhan，enter + once）：墨蛟蜕皮之后他才出手，友军白衣少女（编成写死、不入队；`ch07.mojiao` 的两个选项只改台词，编成只有一张，8.2 ⑤）。意图：她烧、你砸——朱雀环（火）打破绽破势，破势窗口里金光砖（土，只有土要得了它的命）；紫液全体重招要在它出手之前破势打断，或者防御扛。致命、不可逃；灵石 0、drops 空。\n\n【第 7 章改写 2026-09-29】旧占位是「沼泽妖兽 ×3」、月阳宝珠驱瘴——地下沼泽里是墨蛟（ch205-207），宝珠驱的是环形山的雾（施工图 1.2）；id 沿用。tests/SliceTests.cpp 的「迁移战斗逐场跑完」表里有它：打不死墨蛟的一方会被它打死，分得出胜负（契约 5.3）。"
 }

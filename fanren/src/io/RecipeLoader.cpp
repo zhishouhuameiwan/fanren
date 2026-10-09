@@ -141,6 +141,15 @@ core::Result<rules::Recipe> loadRecipe(const std::string& path) {
                             std::to_string(rules::kMaxProficiency) + " 之间，现为 " +
                             std::to_string(recipe.requiredProficiency) + "）：" + path);
     }
+    // 门闸旗标（契约 docs/interfaces-p3-ch07.md 1.4）：缺省没有门闸；写了就得是非空字符串。
+    // 空串或数字悄悄收下，这张方子就成了「谁都看得见」，而写数据的人以为它锁着。
+    // 旗标登没登记归门禁（字段名归一化后以 _flag 结尾，check_data_references 那一条）。
+    if (root.contains("requireFlag")) {
+        recipe.requireFlag = readString(root, "requireFlag");
+        if (recipe.requireFlag.empty()) {
+            return Out::failure("配方 " + recipe.id + " 的 requireFlag 必须是非空字符串：" + path);
+        }
+    }
 
     if (!root.contains("inputs") || !root["inputs"].is_array()) {
         return Out::failure("配方 " + recipe.id + " 缺少 inputs 数组：" + path);

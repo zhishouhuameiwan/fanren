@@ -1,0 +1,14 @@
+{
+  "id": "fangshi_zhishi",
+  "name": "执事弟子",
+  "realm": "QiRefining11",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "坊市维持秩序的黄枫谷执事弟子（ch162 北段摊位有人护着）。坊市 NPC；路径行动求购火球符。不参与战斗。"
+}

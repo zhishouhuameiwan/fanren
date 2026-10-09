@@ -53,6 +53,10 @@ struct Recipe {
     // 同一个 itemId 允许出现多条，用来写分级配方（「十年草 2 株 + 百年草 1 株」）。
     // 判定时按 itemId 先聚合总量再比，绝不能让每条需求各自去完整背包里认领一遍。
     std::vector<Ingredient> inputs;
+    // 门闸旗标（P3 第 7 章增补，契约 docs/interfaces-p3-ch07.md 第 1 节）：旗标未置 = 这张方子
+    // 「还没得到」，面板不列、也开不了工（recipeKnown）。空串 = 没有门闸。追加在末尾，
+    // 按字段顺序写的聚合初始化不受影响。
+    std::string requireFlag;
 };
 
 // 炼制一次的结果。失败时材料是否损毁由 kind 决定：
@@ -129,12 +133,17 @@ inline constexpr int kProficiencyGainOnFailure = 1;
 // 两处判断共用同一个谓词，canCraft 与 craft 才不可能对同一局面给出不同答案。
 [[nodiscard]] constexpr bool hasToolOfGrade(int toolGrade) noexcept { return toolGrade > 0; }
 
+// 这张方子到手了没有（契约 docs/interfaces-p3-ch07.md 第 1 节）：没有门闸（requireFlag 为空），
+// 或者那面旗标已置。炼制面板列不列、开不开得了工，只问它这一个函数。
+[[nodiscard]] bool recipeKnown(const Recipe& recipe, const core::GameState& state);
+
 // ---- 判定 ----
 
-// 能否开工：配方是否完整、有没有炉鼎、熟练度够不够、材料够不够、年份够不够。
+// 能否开工：配方是否完整、到手了没有、有没有炉鼎、熟练度够不够、材料够不够、年份够不够。
 // 返回失败原因（可直接显示），成功时 value 为空串。
-// 检查顺序：配方 → 炉鼎 → 熟练度 → 材料 → 年份。按「在故事里先卡住哪一步」排：
-// 没炉子连火都生不起来，其次才轮到手艺和料。这个顺序是对外承诺，有测试锁住。
+// 检查顺序：配方 → 已得 → 炉鼎 → 熟练度 → 材料 → 年份。按「在故事里先卡住哪一步」排：
+// 方子都还没到手，谈不上生火；没炉子连火都生不起来，其次才轮到手艺和料。
+// 这个顺序是对外承诺，有测试锁住。
 //
 // 材料一步按 itemId 聚合全部需求后再与背包总量比；年份一步按门槛从高到低逐条
 // 认领，认领过的堆不再回到池子里。两步都不可省：

@@ -272,6 +272,23 @@ core::Result<bool> loadOneItem(const fs::path& path, std::map<std::string, Item>
         item.weapon = bit;
     }
 
+    // 道具施法（契约 docs/interfaces-p3-ch07.md 2.2 / 2.4）："castMagic": "magic_tianleizi"——
+    // 在战斗里用它 = 以那门法术施展一次。写了就得是非空字符串；与四样药效同写报错：
+    // 一件东西要么是药、要么是符（结算只走得了一条路，另一半会悄悄作废）。
+    // 指向的法术存不存在、施展不施展得了，要等法术也读完才查得了（loadGameDataImpl 的汇总处）。
+    if (j.contains("castMagic")) {
+        if (!j["castMagic"].is_string() || j["castMagic"].get<std::string>().empty()) {
+            return core::Result<bool>::failure("物品 \"" + id + "\" 的 castMagic 必须是非空的法术 id: " +
+                                                path.string());
+        }
+        item.castMagic = j["castMagic"].get<std::string>();
+        if (item.restoreHp > 0 || item.restoreMp > 0 || item.poison > 0 || item.curesPoison) {
+            return core::Result<bool>::failure(
+                "物品 \"" + id + "\" 的 castMagic 不能与 restoreHp / restoreMp / poison / curesPoison 同写"
+                "（一件东西要么是药、要么是符）: " + path.string());
+        }
+    }
+
     firstSeenBy.emplace(id, path);
     items.emplace(std::move(id), std::move(item));
     return core::Result<bool>::success(true);
@@ -345,22 +362,40 @@ core::Result<bool> loadOneMagic(const fs::path& path, std::map<std::string, Magi
         }
     }
 
-    // 不伤人的效果（契约 docs/interfaces-p3-ch06.md 1.2）：只认 "reveal"（天眼术的看破），缺省没有。
+    // 不伤人的效果（契约 docs/interfaces-p3-ch06.md 1.2、docs/interfaces-p3-ch07.md 2.2）：只认
+    // "reveal"（天眼术的看破）与 "stagger"（削架势），缺省没有。
     // 写了别的（含空串、大小写、多一个空格）一律报错，口径同上面的 boost。
-    // 与 power > 0 / poison > 0 同写也报错：一门法术要么伤人要么看破，免得有人给火弹术挂个 reveal
-    // 变成「打一下顺便全看穿」。power 缺省是 10，所以看破的法术得明写 "power": 0。
+    // 与 power > 0 / poison > 0 同写也报错：一门法术要么伤人、要么看破或削架势，免得有人给火弹术
+    // 挂个 reveal 变成「打一下顺便全看穿」。power 缺省是 10，所以带效果的法术得明写 "power": 0。
     if (j.contains("effect")) {
         const std::string effect = j["effect"].is_string() ? j["effect"].get<std::string>() : std::string{};
-        if (effect != "reveal") {
-            return core::Result<bool>::failure("法术 \"" + id + "\" 的 effect 只许 \"reveal\": " +
+        if (effect == "reveal") {
+            magic.effect = core::MagicEffect::Reveal;
+        } else if (effect == "stagger") {
+            magic.effect = core::MagicEffect::Stagger;
+        } else {
+            return core::Result<bool>::failure("法术 \"" + id + "\" 的 effect 只许 \"reveal\" 或 \"stagger\": " +
                                                 path.string());
         }
-        magic.effect = core::MagicEffect::Reveal;
         if (magic.power > 0 || magic.poison > 0) {
             return core::Result<bool>::failure("法术 \"" + id +
                                                 "\" 的 effect 不能与 power > 0 或 poison > 0 同写"
-                                                "（一门法术要么伤人要么看破）: " + path.string());
+                                                "（一门法术要么伤人、要么看破或削架势）: " + path.string());
         }
+    }
+    // 削几点架势（契约 docs/interfaces-p3-ch07.md 2.2）：1–9 的整数，只许与 effect "stagger" 同写；
+    // effect "stagger" 而不写它取 1。写在别的法术上等于一个谁也不读的数，写成 "3" 或 0 同样当场报出来。
+    if (j.contains("stagger")) {
+        if (magic.effect != core::MagicEffect::Stagger) {
+            return core::Result<bool>::failure("法术 \"" + id + "\" 的 stagger 只许与 effect \"stagger\" 同写: " +
+                                                path.string());
+        }
+        const int value = j["stagger"].is_number_integer() ? j["stagger"].get<int>() : 0;
+        if (value < 1 || value > 9) {
+            return core::Result<bool>::failure("法术 \"" + id + "\" 的 stagger 必须是 1 到 9 的整数: " +
+                                                path.string());
+        }
+        magic.stagger = value;
     }
 
     firstSeenBy.emplace(id, path);
@@ -618,6 +653,23 @@ core::Result<GameData> loadGameDataImpl(const std::string& dataRootStr) {
     for (const fs::path& file : listJsonFilesSorted(dataRoot / "magics")) {
         core::Result<bool> r = loadOneMagic(file, data.magics, magicSeen);
         if (!r) return core::Result<GameData>::failure(r.error);
+    }
+
+    // 道具施法的引用（契约 docs/interfaces-p3-ch07.md 2.4）：物品与法术都读完了才查得了。
+    // 指向不存在的法术，或指向施展不了的法术（护身罡这类不伤人、也没有效果的），当场报出来——
+    // 悄悄收下的话，这件符在战斗菜单里要么点不动、要么点下去什么也不发生。
+    for (const auto& [itemId, item] : data.items) {
+        if (item.castMagic.empty()) continue;
+        const Magic* magic = data.findMagic(item.castMagic);
+        const std::string where = itemSeen.at(itemId).string();
+        if (magic == nullptr) {
+            return core::Result<GameData>::failure("物品 \"" + itemId + "\" 的 castMagic 指向不存在的法术 \"" +
+                                                   item.castMagic + "\": " + where);
+        }
+        if (!core::castableMagic(*magic)) {
+            return core::Result<GameData>::failure("物品 \"" + itemId + "\" 的 castMagic 指向的法术 \"" +
+                                                   item.castMagic + "\" 施展不了（不伤人、也没有效果）: " + where);
+        }
     }
 
     std::map<std::string, fs::path> roleSeen;

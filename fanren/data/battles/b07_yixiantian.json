@@ -1,0 +1,34 @@
+{
+  "id": "b07_yixiantian",
+  "name": "一线天",
+  "chapter": 7,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "luosai_huzi",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "yan_xiongdi",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "zichi_bishe",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "chuanshan_shou",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 260,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch07.battle.yixiantian.intro",
+  "origin": "原著",
+  "note": "第 7 章战斗②（节点 22，ch07_jindi_waiwei trigger_yixiantian，enter + once）：络腮胡子与天阙堡严姓前后堵住（ch182-184）。四个敌人一齐上是本章最乱的一仗：先除没罩子的严（丝线，暗器）、再困住有罩子的胡子（土牢符削架势 → 破势窗口里金光砖）；两只灵兽是分心的（8.2 ②）。原著灵兽是陆续放出来的，引擎没有召唤，前移到开场（8.3）。致命、不可逃；灵石 0、drops 空。"
+}

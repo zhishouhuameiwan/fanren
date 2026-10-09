@@ -28,6 +28,7 @@
 //   ch04-start.sav   第 3 章章末交过来的那一份（炼气三层，站在韩家村）
 //   ch04-siege.sav   节点 6 开战之前（炼气八层、两门法术、峰上炼下的药，站在演武场）
 //   ch06-start.sav   第 5 章章末交过来的那一份（tests/fixtures/ch05-end-first.sav，炼气八层，站在南城东门里）
+//   ch07-start.sav   第 6 章章末交过来的那一份（tests/fixtures/ch06-end-first.sav，炼气九层，站在百药园叶师叔那一包旁边）
 #include <cstdio>
 #include <string>
 #include <vector>
@@ -109,6 +110,34 @@ bool chapterFiveEnding(const std::string& assets, GameState& out) {
     }
     out = handedOver.value;
     return true;
+}
+
+// 第 6 章章末交到第 7 章手里的那一份：第 6 章第一侧通关测试写出的交接存档，原样读进来
+//（位置由 main 摆到节点 1 那一包旁边）。与 tests/Ch07AcceptanceTests.cpp 的 startFromChapterSixEnding() 读的是同一份；
+// 那边一个字段也不改，这里只改位置与朝向——第 6 章在百药园药田角落收场，第 7 章节点 1 也在百药园（同一张图，不过门）。
+bool chapterSixEnding(const std::string& assets, GameState& out) {
+    const std::string fixture = assets + "/tests/fixtures/ch06-end-first.sav";
+    auto handedOver = fanren::io::loadGame(fixture);
+    if (!handedOver) {
+        std::fprintf(stderr, "读不进第 6 章的交接存档 %s：%s\n", fixture.c_str(), handedOver.error.c_str());
+        return false;
+    }
+    out = handedOver.value;
+    return true;
+}
+
+// 面朝 to（与 WorldScene 走一步时的朝向同一个编码：0 上 1 右 2 下 3 左）。
+int facingToward(const Point& from, const Point& to) {
+    if (to.x > from.x) return 1;
+    if (to.x < from.x) return 3;
+    return to.y < from.y ? 0 : 2;
+}
+
+const MapObject* objectNamed(const TileMap& map, const std::string& name) {
+    for (const MapObject& o : map.objects) {
+        if (o.name == name) return &o;
+    }
+    return nullptr;
 }
 
 // 节点 6「野狼帮来犯」开战之前。前五个节点的成果直接给上，省掉一年多的过场。
@@ -205,8 +234,25 @@ int main(int argc, char** argv) {
     }
     chapterSix.facing = 1;
 
+    // 第 7 章章首：第 6 章的交接存档，摆在节点 1 拆包的挂点（trigger_chaibao，交互型）旁边一格、面朝它——按确认就开。
+    auto garden = fanren::io::loadTileMap(assets + "/maps/ch06_baiyaoyuan.tmj");
+    if (!garden) {
+        std::fprintf(stderr, "载入百药园失败：%s\n", garden.error.c_str());
+        return 1;
+    }
+    GameState chapterSeven;
+    if (!chapterSixEnding(assets, chapterSeven)) return 1;
+    chapterSeven.mapId = garden.value.id;
+    const MapObject* parcel = objectNamed(garden.value, "trigger_chaibao");
+    if (parcel == nullptr || !placeBeside(garden.value, "trigger_chaibao", chapterSeven.position)) {
+        std::fprintf(stderr, "百药园上找不到 trigger_chaibao，或它四周没有能站的格子\n");
+        return 1;
+    }
+    chapterSeven.facing = facingToward(chapterSeven.position, parcel->position);
+
     if (!write(start, out, "ch04-start.sav")) return 1;
     if (!write(siege, out, "ch04-siege.sav")) return 1;
     if (!write(chapterSix, out, "ch06-start.sav")) return 1;
+    if (!write(chapterSeven, out, "ch07-start.sav")) return 1;
     return 0;
 }

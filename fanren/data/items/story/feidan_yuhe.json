@@ -1,0 +1,11 @@
+{
+  "id": "story_feidan_yuhe",
+  "name": "一盒废丹",
+  "descKey": "item.desc.story_feidan_yuhe",
+  "kind": "story",
+  "grade": 1,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "地火屋里二十几炉凝不成丹的碎片（ch215），他舍不得扔，收进一只盒子。只作物品。"
+}

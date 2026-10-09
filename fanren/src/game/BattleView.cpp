@@ -533,6 +533,13 @@ void BattleView::onAct(const BattleEvent& e) {
         }
         case ActionKind::Item:
             a.casting = true;
+            // 带 castMagic 的符箓：复用那门法术的施法光与声（契约 docs/interfaces-p3-ch07.md 2.5）。
+            // 丹药、毒药那一手的 Act 不带类别，照旧只抬手。
+            if (e.category != 0) {
+                const StrikeLook look = strikeLook(e.category);
+                addEffect(FxSheetId::Glow, bodyCenter(e.actor), 2.6f, look.tint, false, 0.f, 0.45f);
+                eng_.playSfx(castSfx(e.category));
+            }
             break;
         case ActionKind::Charge:
             a.chargeFlare = 0.6f;
@@ -712,6 +719,17 @@ void BattleView::onReveal(int unit, int bits) {
         a.hud.reveal = 0.55f;
         a.hud.revealBits = bits;
     }
+}
+
+void BattleView::onStagger(int unit, int previousToughness) {
+    if (!validUnit(unit)) return;
+    Actor& a = actors_[static_cast<std::size_t>(unit)];
+    // 复用 onHit 里「架势减少」那一段（盾跳一下、旧数字往下掉）与现成的金光火花，不新画资源
+    //（契约 docs/interfaces-p3-ch07.md 2.5）。不出伤害数字：这一下没伤人。
+    burst(FxSheetId::Spark, bodyCenter(unit), 8, 80.f, 220.f, 300.f, 0.25f, 0.5f, 16.f, kGoldGlow);
+    a.hud.shieldHit = 0.3f;
+    a.hud.shieldFrom = previousToughness;
+    eng_.playSfx("hit_weak");
 }
 
 // ---------------------------------------------------------------------------

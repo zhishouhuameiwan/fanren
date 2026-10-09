@@ -1,0 +1,14 @@
+{
+  "id": "fuyunzi",
+  "name": "浮云子",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 2,
+  "magics": [],
+  "origin": "原著",
+  "note": "清虚门结丹，本届领队（ch175-211）：与李师祖打赌，输了血线蛟内丹。在场：荒山、出口。不参与战斗。"
+}

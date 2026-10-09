@@ -73,13 +73,19 @@ struct Item {
     // 「扔得多远」这件事整个不存在了，字段随之删掉，数据里也一并清掉
     //（tools/validate.py 见到还写着它的物品会报错，免得有人以为它还管用）。
     int weapon = 0;
+
+    // ---- 道具施法（P3 第 7 章增补，契约 docs/interfaces-p3-ch07.md 第 2 节）----
+    // 同样追加在末尾。一件符箓在战斗里用出去 = 以这门法术施展一次：不耗法力、不吃蓄劲、
+    // 扣一件。空串 = 不是施法的道具。与 restoreHp / restoreMp / poison / curesPoison
+    // 互斥（加载器查）：一件东西要么是药、要么是符。
+    std::string castMagic;
 };
 
 // 这件东西在战斗里用不用得上。
 //
-// 判据就是「战斗真的会拿它做点什么」：`BattleState::applyItem` 只读下面这五个
-// 字段，一件都不沾的东西登记到战场上，玩家选中它只会换来一句「并无变化」，
-// 白丢一个回合——那不是少了个功能，那是个陷阱。
+// 判据就是「战斗真的会拿它做点什么」：`BattleState::applyItem` 只读下面这六个
+// 字段（带 castMagic 的那一件按那门法术施展一次），一件都不沾的东西登记到战场上，
+// 玩家选中它只会换来一句「并无变化」，白丢一个回合——那不是少了个功能，那是个陷阱。
 //
 // **刻意不按 kind 分类，更不按物品 id。** 毒药、解毒药、丹药的真实条目由编剧写，
 // game 层与 core 层都不该认识它们的名字（契约 docs/interfaces-p3-ch03.md 2.3 节
@@ -90,7 +96,8 @@ struct Item {
 // `addAttack` / `addDefence` 不算：那是装备加成，战斗里没有「装备一下」这个动作。
 // 将来给 Item 加了新的战斗效果字段，改这一处即可，登记范围会自动跟上。
 [[nodiscard]] inline bool battleUsable(const Item& item) {
-    return item.restoreHp > 0 || item.restoreMp > 0 || item.poison > 0 || item.curesPoison;
+    return item.restoreHp > 0 || item.restoreMp > 0 || item.poison > 0 || item.curesPoison ||
+           !item.castMagic.empty();
 }
 
 // 法术蓄劲时怎么变强（docs/octopath-battle.md 2.3）。
@@ -98,11 +105,12 @@ struct Item {
 //   Hits ：连发 1+N 发，每发单独算伤害、单独判破绽——「弹」这一类用它。
 enum class MagicBoost { Power, Hits };
 
-// 法术不伤人的效果（契约 docs/interfaces-p3-ch06.md 第 1 节）。
-//   None  ：没有（现有全部法术）；
-//   Reveal：天眼术「看破」——施展一次，本场所有敌人的破绽全部揭开。不伤人、不削架势、不吃蓄劲。
-// 与 power > 0 / poison > 0 互斥（加载器报错）：一门法术要么伤人，要么看破。
-enum class MagicEffect { None, Reveal };
+// 法术不伤人的效果（契约 docs/interfaces-p3-ch06.md 第 1 节；Stagger 见 docs/interfaces-p3-ch07.md 第 2 节）。
+//   None   ：没有（伤人的法术）；
+//   Reveal ：天眼术「看破」——施展一次，本场所有敌人的破绽全部揭开。不伤人、不削架势、不吃蓄劲。
+//   Stagger：削架势——一个敌人的架势减 Magic::stagger 点，削到 0 就破势。不判破绽、不伤人、不吃蓄劲。
+// 与 power > 0 / poison > 0 互斥（加载器报错）：一门法术要么伤人，要么看破或削架势。追加在末尾。
+enum class MagicEffect { None, Reveal, Stagger };
 
 struct Magic {
     std::string id;
@@ -122,8 +130,11 @@ struct Magic {
     // 蓄劲的方式（数据字段 "boost": "hits" | "power"，缺省 power）。追加在末尾。
     MagicBoost boost = MagicBoost::Power;
 
-    // 不伤人的效果（数据字段 "effect": "reveal"，缺省没有）。追加在末尾。
+    // 不伤人的效果（数据字段 "effect": "reveal" | "stagger"，缺省没有）。追加在末尾。
     MagicEffect effect = MagicEffect::None;
+
+    // 削几点架势（数据字段 "stagger"，1–9，缺省 1；只对 effect == Stagger 有意义）。追加在末尾。
+    int stagger = 1;
 };
 
 // 法术这一击是什么类别：它的五行；带毒的再加一个「毒」（docs/octopath-battle.md 2.2）。
@@ -144,7 +155,7 @@ struct Magic {
     return magic.power > 0 || magic.poison > 0;
 }
 
-// 这门法术在战斗里能不能施展：伤人的，或者带一样不伤人的效果（天眼术的看破）。
+// 这门法术在战斗里能不能施展：伤人的，或者带一样不伤人的效果（天眼术的看破、削架势）。
 // 菜单「能不能点」问它；凡是「伤害 / 下毒」的分支照旧问 offensiveMagic。
 // 护身罡、御风决（power 0、没有 effect）两样都不是，照旧点不动（契约 docs/interfaces-p3-ch06.md 1.3）。
 [[nodiscard]] inline bool castableMagic(const Magic& magic) {
@@ -375,6 +386,12 @@ struct GameState {
     // 走 removeItem 会转头扣掉一年份那株，账面上灵石照给、少的却是另一堆，
     // 而这种错在存档里看不出来，要到玩家回头找那株药时才暴露。
     [[nodiscard]] bool removeItemOfAge(const std::string& itemId, int count, int herbAge);
+    // 按年份下限（P3 第 7 章增补，契约 docs/interfaces-p3-ch07.md 第 4 节）：马师伯收
+    // 「四十四年以上」的黄精，上面两条都答不了——一条哪一堆都算，一条只认恰好那个年份。
+    // 年份不低于 minAge 的有几件（minAge <= 0 即全部年份）。
+    [[nodiscard]] int itemCountAtLeastAge(const std::string& itemId, int minAge) const;
+    // 从年份不低于 minAge 的堆里扣 count 件，够格里年份低的先扣；不够就一件不扣。
+    [[nodiscard]] bool removeItemAtLeastAge(const std::string& itemId, int count, int minAge);
 
     // ---- 队伍（P3 第 3 章增补，契约第 1.1 节）----
     //

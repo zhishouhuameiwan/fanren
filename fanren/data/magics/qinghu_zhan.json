@@ -1,0 +1,11 @@
+{
+  "id": "magic_qinghu_zhan",
+  "name": "青弧斩",
+  "descKey": "magic.desc.magic_qinghu_zhan",
+  "element": 2,
+  "needMp": 10,
+  "power": 18,
+  "needRealm": "QiRefining1",
+  "origin": "原著",
+  "note": "陆师兄的风刃（ch158 月形的青光，ch168 青蛟旗的风刃）：木。敌方用，全仓 magic.learn 0 处。tests/Ch03BattleKitTests.cpp 拿 b07_lu_shixiong 验「敌人真的施法」：这一门是陆师兄法术表里那门伤人法术，needMp 10、他的法力 120，够放（契约 5.3）。数值是施工图 8.1 意图玩家下的初值（内容路给的一版），归平衡路按 tests/BattleHand.h 那只手量过再定。"
+}

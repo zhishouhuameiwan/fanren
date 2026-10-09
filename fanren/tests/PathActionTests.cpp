@@ -888,12 +888,15 @@ TEST(PathActionData, EachKindOpensInTheChapterTheDesignSays) {
 //            本章条目全在那一刻收起——所以第 1 章的打探一条也不设门槛（派工原话）。
 //   第 2 章：三层（scripts/ch02/ceng3.lua 的 realm.cap）。第 3 章：三层（本章脚本不抬）。
 //   第 4、5 章：八层（scripts/ch04/yufeng.lua 的 realm.advance；第 5 章不升境，ch05-design 1.3）。
+//   第 7 章：十一层（scripts/ch07/yaolou.lua 节点 3 的 realm.advance(11)）。十二、十三层与筑基初期都在
+//            scripts/ch07/zhuji.lua，那个脚本当场置 ch07.done——同第 1 章的例外，那几层从第 8 章算起。
 // 这张表的来处由下面的 TheRealmCapTableStillMatchesTheScripts 从脚本里再推一遍。
 const std::map<int, Realm>& realmCapOfChapter() {
     static const std::map<int, Realm> kCap = {{1, Realm::Mortal},      {2, Realm::QiRefining3}, {3, Realm::QiRefining3},
                                               {4, Realm::QiRefining8}, {5, Realm::QiRefining8},
                                               // 第 6 章：九层（scripts/ch06/kuxiu.lua 节点 9b 的 realm.advance）。
-                                              {6, Realm::QiRefining9}};
+                                              {6, Realm::QiRefining9},
+                                              {7, Realm::QiRefining11}};
     return kCap;
 }
 
@@ -912,36 +915,91 @@ TEST(PathActionData, EveryGateIsWithinWhatHanLiCanReachInThatChapter) {
 }
 
 // 门槛上限表的来处：剧情脚本里抬境界的那几句（realm.cap / realm.advance，玩家打坐突破也越不过它）。
-// 第 N 章够得着的 = 第 1..N 章脚本里抬到过的最高一层。第 1 章例外：那一层与 ch01.done 在同一个脚本里给，
-// 本章条目在那一刻一起收起，所以按凡人算——这一点也核：第 1 章抬境界的脚本必须同时置 ch01.done。
+// 第 N 章够得着的 = 第 1..N 章脚本里抬到过的最高一层。例外：抬境界的那一句与本章的 chNN.done 在同一个
+// 脚本里（第 1 章口诀、第 7 章服丹筑基），本章条目在那一刻一起收起，那几层从下一章算起——
+// 所以第 1 章按凡人算，第 7 章按十一层算。
+// 参数两种写法都认：常量名（realm.QI_REFINING_7、realm.FOUNDATION_EARLY）与直接写编号（第 7 章的
+// realm.advance(11)）。注释里提到的不算（每行从第一个 -- 起去掉）。
+
+// 常量名 → 境界编号（与 scripts/common/api.lua 的 realm 常量同一张表）；认不得返回 -1。
+int realmValueOfConstant(const std::string& name) {
+    static const std::regex kQi(R"re(QI_REFINING_(\d+))re");
+    std::smatch m;
+    if (std::regex_match(name, m, kQi)) return std::stoi(m[1].str());
+    static const std::map<std::string, int> kNamed = {{"MORTAL", 0},          {"FOUNDATION_EARLY", 21},
+                                                      {"FOUNDATION_MID", 22}, {"FOUNDATION_LATE", 23},
+                                                      {"CORE_EARLY", 31},     {"CORE_MID", 32},
+                                                      {"CORE_LATE", 33}};
+    const auto it = kNamed.find(name);
+    return it == kNamed.end() ? -1 : it->second;
+}
+
+// 脚本的活代码：每行从第一个 -- 起算注释、去掉。
+std::string liveLuaOf(const std::string& body) {
+    std::string code;
+    std::istringstream in(body);
+    for (std::string line; std::getline(in, line);) code += line.substr(0, line.find("--")) + "\n";
+    return code;
+}
+
+struct RealmRaise {
+    int value = -1;        // 抬到的境界编号；认不得的常量名是 -1
+    std::string written;   // 原文里那个参数
+    bool literal = false;  // 直接写的编号
+};
+
+std::vector<RealmRaise> realmRaisesIn(const std::string& code) {
+    static const std::regex kRaise(R"re(realm\.(?:cap|advance)\(\s*(?:realm\.([A-Z_0-9]+)|(\d+))\s*\))re");
+    std::vector<RealmRaise> out;
+    for (auto it = std::sregex_iterator(code.begin(), code.end(), kRaise); it != std::sregex_iterator(); ++it) {
+        RealmRaise raise;
+        raise.literal = (*it)[2].matched;
+        raise.written = raise.literal ? (*it)[2].str() : (*it)[1].str();
+        raise.value = raise.literal ? std::stoi(raise.written) : realmValueOfConstant(raise.written);
+        out.push_back(raise);
+    }
+    return out;
+}
+
 TEST(PathActionData, TheRealmCapTableStillMatchesTheScripts) {
-    static const std::regex kRaise(R"re(realm\.(?:cap|advance)\(realm\.QI_REFINING_(\d+)\))re");
-    std::map<int, int> raisedIn;
+    const int lastChapter = realmCapOfChapter().rbegin()->first;
+    std::map<int, int> countsIn;         // 算在第几章 → 抬到的最高编号
+    std::vector<std::string> deferred;   // 与本章 done 同脚本、挪到下一章算的那几处
     int scripts = 0;
-    for (int chapter = 1; chapter <= 6; ++chapter) {
+    int literal = 0;
+    int named = 0;
+    for (int chapter = 1; chapter <= lastChapter; ++chapter) {
         const fs::path dir = fs::path(assetRoot()) / "scripts" / ("ch0" + std::to_string(chapter));
         ASSERT_TRUE(fs::is_directory(dir)) << dir.string();
+        const std::string closing = "flag.set(\"ch0" + std::to_string(chapter) + ".done\")";
         for (const auto& entry : fs::directory_iterator(dir)) {
             if (entry.path().extension() != ".lua") continue;
             ++scripts;
-            const std::string body = readFile(entry.path());
-            for (auto it = std::sregex_iterator(body.begin(), body.end(), kRaise); it != std::sregex_iterator(); ++it) {
-                raisedIn[chapter] = std::max(raisedIn[chapter], std::stoi((*it)[1].str()));
-                if (chapter == 1) {
-                    EXPECT_NE(body.find(R"(flag.set("ch01.done"))"), std::string::npos)
-                        << entry.path().string() << " 在第 1 章抬了境界，却不在同一个脚本里收尾：第 1 章的门槛不能再按凡人算";
-                }
+            const std::string code = liveLuaOf(readFile(entry.path()));
+            const bool closesTheChapter = code.find(closing) != std::string::npos;
+            for (const RealmRaise& raise : realmRaisesIn(code)) {
+                EXPECT_GE(raise.value, 0) << entry.path().string() << "：认不得的境界常量 realm." << raise.written;
+                if (raise.value < 0) continue;
+                ++(raise.literal ? literal : named);
+                const int counted = closesTheChapter ? chapter + 1 : chapter;
+                countsIn[counted] = std::max(countsIn[counted], raise.value);
+                if (closesTheChapter) deferred.push_back(entry.path().filename().string() + "→" + raise.written);
             }
         }
     }
     ASSERT_GT(scripts, 20) << "先验：脚本读到了";
-    ASSERT_GT(raisedIn[1], 0) << "先验：正则抓得到脚本里抬境界的那一句";
-    int reachable = raisedIn[1];
-    for (int chapter = 2; chapter <= 6; ++chapter) {
-        reachable = std::max(reachable, raisedIn[chapter]);
+    ASSERT_GT(named, 0) << "先验：正则抓得到写常量名的那一种（realm.QI_REFINING_N）";
+    ASSERT_GT(literal, 0) << "先验：正则抓得到直接写编号的那一种（第 7 章 realm.advance(11)）";
+    std::string deferredList;
+    for (const std::string& d : deferred) deferredList += " " + d;
+    ASSERT_GE(deferred.size(), 2u) << "先验：第 1 章口诀、第 7 章服丹那几句与本章 done 同脚本、挪到了下一章："
+                                   << deferredList;
+    int reachable = 0;
+    for (int chapter = 1; chapter <= lastChapter; ++chapter) {
+        reachable = std::max(reachable, countsIn[chapter]);
         EXPECT_EQ(fanren::rules::toValue(realmCapOfChapter().at(chapter)), reachable)
-            << "第 " << chapter << " 章：脚本抬到炼气 " << reachable << " 层，门槛上限表写的是"
-            << fanren::rules::nameOf(realmCapOfChapter().at(chapter));
+            << "第 " << chapter << " 章：脚本抬到编号 " << reachable << "（挪到下一章算的：" << deferredList
+            << "），门槛上限表写的是" << fanren::rules::nameOf(realmCapOfChapter().at(chapter));
     }
 }
 
@@ -952,6 +1010,9 @@ TEST(PathActionData, TheRealmCapTableStillMatchesTheScripts) {
 //            之后只增不减。
 //   第 5 章：87 块——第 4 章终局首侧 112（第二侧 148）；本章能花钱的只有三处可选项（3a 一袋 20、4a 一小袋 10、
 //            7b 见面礼 20），中间③④两仗各进 10、15；全花掉的那条路上最低点是 7b 之后：112−20+10−10+15−20 = 87。
+//   第 7 章：82 块——第 6 章终局第二侧 82（首侧 112）；节点 4b 之前只进不出（两次交药 +24、+60），4b 藏室 −22、
+//            5a 银丝鼎 −32 之后还有 112，往后主线只有 35a 的 −1——全章最低点就是开局那 82
+//           （docs/ch07-design.md 第 9 节；本章唯一一条求购 12 块，docs/interfaces-p3-ch07.md 5.3）。
 struct Purse {
     int silver;
     const char* afterFlag;   // 空 = 本章一开局就有
@@ -962,7 +1023,7 @@ TEST(PathActionData, EveryPriceFitsTheLeanestPurseOfItsChapter) {
     // 本章那一条求购（丹砂）是**有意**买不起的：条目挂着、poor_key 说没有灵石，让玩家看见自己的穷
     //（施工图 16.2）。例外只此一条、按 id 点名，别的求购照旧得付得起。
     const std::map<int, Purse> purse = {{2, {6, "ch02.duan2_start"}}, {4, {28, ""}}, {5, {87, ""}},
-                                        {6, {0, ""}}};
+                                        {6, {0, ""}}, {7, {82, ""}}};
     const std::set<std::string> kDeliberatelyUnaffordable = {"dansha_qiugou"};
     const RealData& real = realData();
     ASSERT_TRUE(real.ok) << real.error;
@@ -1009,6 +1070,11 @@ TEST(PathActionData, ThePurseTableStillMatchesTheChapterFixtures) {
         const auto state = fanren::io::loadGame((fixtures / file).string());
         ASSERT_TRUE(state.ok) << state.error;
         EXPECT_GE(state.value.itemCount(kSilver), 112) << file << "：第 5 章的钱袋从 112 块推出来";
+    }
+    for (const char* file : {"ch06-end-first.sav", "ch06-end-second.sav"}) {
+        const auto state = fanren::io::loadGame((fixtures / file).string());
+        ASSERT_TRUE(state.ok) << state.error;
+        EXPECT_GE(state.value.itemCount(kSilver), 82) << file << "：第 7 章的钱袋按第 6 章终局第二侧的 82 块算的";
     }
 }
 

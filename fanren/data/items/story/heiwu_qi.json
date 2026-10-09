@@ -1,0 +1,11 @@
+{
+  "id": "story_heiwu_qi",
+  "name": "黑雾小旗",
+  "descKey": "item.desc.story_heiwu_qi",
+  "kind": "story",
+  "grade": 2,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "叶师叔送来的三件法器之一（ch152）：黑色三角小旗，挥出黑雾遮目掩踪。只作物品与旁白（16.1 第 18 条）。"
+}

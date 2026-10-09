@@ -1,0 +1,14 @@
+{
+  "id": "lanyi_nvzi",
+  "name": "蓝衣女子",
+  "realm": "FoundationEarly",
+  "maxHp": 260,
+  "maxMp": 180,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 8,
+  "magics": [],
+  "origin": "原著",
+  "note": "慕容兄弟的师姐（ch158）：火焰鸟收场、传音说韩立只顾自己。原著名字在 ch708 才出，**不点名**（施工图第 5 节、12.1）。节点 6 山头 NPC。不参与战斗。"
+}

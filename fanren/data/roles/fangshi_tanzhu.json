@@ -1,0 +1,14 @@
+{
+  "id": "fangshi_tanzhu",
+  "name": "收药摊主",
+  "realm": "QiRefining6",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "坊市北段收药的摊主（ch161-162 北段临时摊位）：收药换灵石（商店 ch07_fangshi_yaotan）。坊市 NPC，全程在场。不参与战斗。"
+}

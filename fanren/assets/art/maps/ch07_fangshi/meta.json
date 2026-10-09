@@ -1,0 +1,66 @@
+{
+ "map": "ch07_fangshi",
+ "tile": 16,
+ "width": 48,
+ "height": 30,
+ "theme": "town",
+ "time": "day",
+ "season": "autumn",
+ "ambient": [
+  236,
+  232,
+  222
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  },
+  {
+   "kind": "leaf",
+   "rate": 0.1
+  }
+ ],
+ "lights": [
+  {
+   "x": 26.5,
+   "y": 4.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "leaf",
+   "x": 13.5,
+   "y": 2.0
+  },
+  {
+   "kind": "leaf",
+   "x": 34.5,
+   "y": 2.0
+  },
+  {
+   "kind": "leaf",
+   "x": 43.5,
+   "y": 2.0
+  },
+  {
+   "kind": "leaf",
+   "x": 44.5,
+   "y": 11.0
+  }
+ ],
+ "backdrop": "town_street"
+}

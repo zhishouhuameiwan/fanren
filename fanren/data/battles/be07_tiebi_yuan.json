@@ -1,0 +1,25 @@
+{
+  "id": "be07_tiebi_yuan",
+  "name": "环形山·铁臂猿",
+  "chapter": 7,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "tiebi_yuan",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "tiebi_yuan",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 5,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "origin": "原著",
+  "note": "第 7 章环形山野外遭遇（data/encounters/ch07_huanxingshan.json；遭遇区 require_flag ch07.yueyang）：两只铁臂猿（ch200）；兼作支线 Z2 东坡石屋那一场。可逃、输了不死（docs/interfaces-octo-encounters.md：低于同章剧情战）。灵石 0、drops 空：禁地里的东西只从脚本来。数值平衡路量过（docs/ch07-balance.md 遭遇）：铁臂猿攻 18 → 15，意图玩家满血两回合、不吃药。"
+}

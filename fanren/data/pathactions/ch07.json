@@ -1,0 +1,426 @@
+{
+  "id": "pathactions_ch07",
+  "name": "第 7 章路径行动",
+  "chapter": 7,
+  "note": "原著 ch152-216。打探十三条、求购一条（施工图 16.3 十四条，落地十四条：丑汉那一条按「ch07.dihuo 之后换一句恭敬的」拆成前后两条；菡云芝那一条不落——出口那一批里她 visible 是 ch07.pojin、hidden 是 ch07.chujindi，可玩家从外围回到禁地外时落在出口通道里，出口第一格就是 32b 的 enter 触发，这段时间里走不到她跟前，落了就是一条永远挂不出来的死条目，见施工图第 18 节）。能说话的：黄枫谷的吴风、于执事、叶师叔、王师叔；岳麓殿的许老、丑汉；坊市的收药摊主、元武国修士、执事弟子；禁地外的向之礼、陈师妹、灵兽山弟子、巨剑门弟子。ch07.path.* 十四条 done_flag 与本文件同批登记（门禁规则 26）。章内先后按施工图 12.2：没有一条提「血色试炼」「岳麓殿」「定颜丹」「师祖」；挂在节点 8 之前的吴风、于执事两条不提禁地。",
+  "entries": [
+    {
+      "id": "wufeng_dating",
+      "kind": "inquire",
+      "map": "ch06_huangfenggu",
+      "npc": "npc_wu_feng",
+      "when": [
+        {
+          "flag": "ch07.chaibao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.lianqi",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.wufeng_dating",
+      "text_key": "ch07.path.wufeng_dating.text",
+      "origin": "改编（钩子：节点 8 敛气术那一段）",
+      "note": "中阶法术难在用不在学：咒长、手诀多，斗起来来不及。节点 8 他自己想通同一件事（chuangong.reason），到那时收起，免得一句话说两遍。"
+    },
+    {
+      "id": "yu_dating",
+      "kind": "inquire",
+      "map": "ch06_huangfenggu",
+      "npc": "npc_yu_zhishi",
+      "when": [
+        {
+          "flag": "ch07.chaibao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.chuling",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.yu_dating",
+      "text_key": "ch07.path.yu_dating.text",
+      "origin": "改编（节点 10 外出令牌）",
+      "note": "外出令牌一年一回、那一栏年年空着（施工图 16.3）。节点 10 他真去领了，于执事那句在 chuling 脚本里，这里到那时收起。"
+    },
+    {
+      "id": "ye_dating",
+      "kind": "inquire",
+      "map": "ch06_huangfenggu",
+      "npc": "npc_ye_shishu",
+      "when": [
+        {
+          "flag": "ch06.rangdan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.jiaoyao1",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.danbao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.ye_dating",
+      "text_key": "ch07.path.ye_dating.text",
+      "origin": "改编（第 6 章让丹的后话）",
+      "note": "侄孙闭关的消息，不说结果（施工图 16.3）。结果在节点 3 药篓第二年那一句（yaolou.y2_nephew）：出关还是炼气顶层——所以 until 写 ch07.danbao，免得玩家听过结果还能听到「十拿九稳」。叶师叔 visible_flag=ch06.rangdan，when 里一并写上。"
+    },
+    {
+      "id": "wang_dating",
+      "kind": "inquire",
+      "map": "ch06_huangfenggu",
+      "npc": "npc_wang_shishu",
+      "when": [
+        {
+          "flag": "ch06.wufeng",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.baoming",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.jihe",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.wang_dating",
+      "text_key": "ch07.path.wang_dating.text",
+      "origin": "本作自拟（施工图 16.3）",
+      "note": "禁地资料是历届生还者一届一届攒的。报名之后挂出，出发（ch07.jihe）即收起。王师叔 visible_flag=ch06.linggen，when 里一并写上。"
+    },
+    {
+      "id": "xulao_dating",
+      "kind": "inquire",
+      "map": "ch07_yuelu_dian",
+      "npc": "npc_xu_lao",
+      "when": [
+        {
+          "flag": "ch07.cangshi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.xulao_dating",
+      "text_key": "ch07.path.xulao_dating.text",
+      "origin": "改编（节点 5a 地火与丹鼎）",
+      "note": "扛得住地火的才叫丹炉（施工图 16.3）。"
+    },
+    {
+      "id": "chouhan_dating",
+      "kind": "inquire",
+      "map": "ch07_yuelu_dian",
+      "npc": "npc_chou_han",
+      "when": [
+        {
+          "flag": "ch07.chouhan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.dihuo",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.chouhan_dating",
+      "text_key": "ch07.path.chouhan_dating.text",
+      "origin": "改编（节点 5b 石门前的规矩）",
+      "note": "地火间按间、按天收钱（施工图 16.3）。节点 35a 丑汉认出剑诀之后收起，换 chouhan_dating2 那一句恭敬的。"
+    },
+    {
+      "id": "chouhan_dating2",
+      "kind": "inquire",
+      "map": "ch07_yuelu_dian",
+      "npc": "npc_chou_han",
+      "when": [
+        {
+          "flag": "ch07.dihuo",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.chouhan_dating2",
+      "text_key": "ch07.path.chouhan_dating2.text",
+      "origin": "改编（节点 35a 之后）",
+      "note": "施工图 16.3「ch07.dihuo 之后换一句恭敬的」：路径行动没有按旗标换文案的字段，只能拆成前后两条，时段首尾相接（本条 when 蕴含上一条的 until）。"
+    },
+    {
+      "id": "tanzhu_dating",
+      "kind": "inquire",
+      "map": "ch07_fangshi",
+      "npc": "npc_fangshi_tanzhu",
+      "when": [
+        {
+          "flag": "ch07.fangshi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.tanzhu_dating",
+      "text_key": "ch07.path.tanzhu_dating.text",
+      "origin": "改编（施工图第 7 节：百年以上的药有价无市）",
+      "note": "说法与收药摊的实际买卖对得上：他收是收，给不起价（卖价 0.3）；千年黄精芝 tradeable=false，店里本来就不收。"
+    },
+    {
+      "id": "yuanwu_dating",
+      "kind": "inquire",
+      "map": "ch07_fangshi",
+      "npc": "npc_yuanwu_xiushi",
+      "when": [
+        {
+          "flag": "ch07.fangshi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.yuanwu_dating",
+      "text_key": "ch07.path.yuanwu_dating.text",
+      "origin": "本作自拟（施工图 16.3）",
+      "note": "元武国与越国修仙界向来不相往来、也不为敌。"
+    },
+    {
+      "id": "zhishi_qiugou",
+      "kind": "purchase",
+      "map": "ch07_fangshi",
+      "npc": "npc_fangshi_zhishi",
+      "when": [
+        {
+          "flag": "ch07.fangshi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.zhishi_qiugou",
+      "text_key": "ch07.path.zhishi_qiugou.text",
+      "item_id": "talisman_huoqiu_fu",
+      "count": 2,
+      "price": 12,
+      "deal_key": "ch07.path.zhishi_qiugou.deal",
+      "poor_key": "ch07.path.zhishi_qiugou.poor",
+      "origin": "本作自拟（施工图 16.3）",
+      "note": "火球符 2 张 12 块灵石（单张底价 26）。E2 之后火球符进得了战斗，是节点 13 之前唯一便宜的火。"
+    },
+    {
+      "id": "xiang_dating",
+      "kind": "inquire",
+      "map": "ch07_jindi_wai",
+      "npc": "npc_xiang_zhili_poxia",
+      "when": [
+        {
+          "flag": "ch07.qipai",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.pojin",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.xiang_dating",
+      "text_key": "ch07.path.xiang_dating.text",
+      "origin": "改编（节点 19a 之后）",
+      "note": "他又找了别人结伙（施工图 16.3）。施工图写 when=ch07.xiang；向之礼分两批站位（荒山 jihe→qipai、坡下 qipai→pojin），「又找了人」挂在坡下那一批，when 按他的 visible_flag 写 ch07.qipai（它在 ch07.xiang 之后）。"
+    },
+    {
+      "id": "chen_dating",
+      "kind": "inquire",
+      "map": "ch07_jindi_wai",
+      "npc": "npc_chen_shimei_huangshan",
+      "when": [
+        {
+          "flag": "ch07.jihe",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.qipai",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.chen_dating",
+      "text_key": "ch07.path.chen_dating.text",
+      "origin": "改编（节点 14：她不知道是谁救的她）",
+      "note": "冷冷一眼，一个字也没有——写成动作（施工图 16.3）。荒山那一批（visible ch07.jihe、hidden ch07.qipai）。"
+    },
+    {
+      "id": "lingshou_dating",
+      "kind": "inquire",
+      "map": "ch07_jindi_wai",
+      "npc": "npc_lingshoushan_dizi_chukou",
+      "when": [
+        {
+          "flag": "ch07.qipai",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.pojin",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.chujindi",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.lingshou_dating",
+      "text_key": "ch07.path.lingshou_dating.text",
+      "reveal": [
+        {
+          "role": "zichi_bishe",
+          "category": "火"
+        }
+      ],
+      "origin": "本作自拟（施工图 16.3）",
+      "note": "揭紫翅碧蛇（战斗② b07_yixiantian）的火类破绽。施工图写 when=ch07.jihe；灵兽山弟子只在坡上那一批（visible ch07.qipai），when 按在场旗标写；进禁地（ch07.pojin）即收起——出来以后揭了也没用；until 另写 hidden_flag ch07.chujindi（门禁规则 26 的在场检查只认它本身）。"
+    },
+    {
+      "id": "jujian_dating",
+      "kind": "inquire",
+      "map": "ch07_jindi_wai",
+      "npc": "npc_jujianmen_dizi_chukou",
+      "when": [
+        {
+          "flag": "ch07.qipai",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch07.pojin",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.chujindi",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch07.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "done_flag": "ch07.path.jujian_dating",
+      "text_key": "ch07.path.jujian_dating.text",
+      "reveal": [
+        {
+          "role": "yan_wuchi",
+          "category": "火"
+        }
+      ],
+      "origin": "本作自拟（施工图 16.3）",
+      "note": "揭赤脚大汉（战斗④ b07_zhongxinqu_duoyao）的火类破绽。when / until 的写法同 lingshou_dating。"
+    }
+  ]
+}

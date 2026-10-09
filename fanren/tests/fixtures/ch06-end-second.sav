@@ -1,5 +1,5 @@
 {
-  "checksum": "821330af54350b95",
+  "checksum": "d0cafa11322eb341",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -162,7 +162,7 @@
       "stepsUntilNext": 0,
       "triggeredToday": 0
     },
-    "facing": 1,
+    "facing": 3,
     "fields": [
       {
         "id": "field_baiyaoyuan",
@@ -422,7 +422,7 @@
     "playSecondsGameplay": 21.81666666666671,
     "playSecondsSystem": 0.0,
     "position": {
-      "x": 10,
+      "x": 12,
       "y": 19
     },
     "realm": 9,

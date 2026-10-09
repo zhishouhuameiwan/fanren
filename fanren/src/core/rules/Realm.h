@@ -94,8 +94,8 @@ enum class RealmTier : std::int32_t {
 //   炼气六层      mofu_shigui 88 / 黄枫谷外门弟子 92      96
 //   炼气八层      zhaoze_yaoshou 112                     120
 //   炼气十层      huadaowu_dizi 132                      144
-//   炼气十一层    lu_shixiong 155                        156
-//   炼气十二层    qingxumen_gaotu 178                    168
+//   炼气十一层    —                                      156
+//   炼气十二层    qingxumen_gaotu 178 / lu_shixiong 180  168
 //   炼气十三层    heishajiao_shigui 176                  180
 //   筑基初期      240 / 262 / 268                        260
 //   筑基中期      326 / 340 / 352 / 428 / 430            380
@@ -105,8 +105,8 @@ enum class RealmTier : std::int32_t {
 //   结丹后期      feng_xi 1450（第 14 章的终局对手）      1300
 //
 // 炼气期于是收成一条直线 **24 + 12 × 层数**（法力 10 × 层数），它同时穿过
-// jiexiu(四层 72)、lu_shixiong(十一层 155≈156) 与 heishajiao_shigui(十三层 176≈180)
-// 三个点。只钉一个点的曲线随便一条都能穿过去（见 docs/README.md 那张空转法表里
+// jiexiu(四层 72)、lu_shixiong(十二层 180，差 7%) 与 heishajiao_shigui(十三层 176≈180)
+// 三个点（陆师兄第 7 章改成十二层、maxHp 钉 180，docs/interfaces-p3-ch07.md 5.3）。只钉一个点的曲线随便一条都能穿过去（见 docs/README.md 那张空转法表里
 // 的「只钉一个数据点」），所以单测是**扫一片**：逐层与 data 的同境界角色比对。
 //
 // 凡人一档刻意保持 10，与 `GameState` 的默认值一字不差：

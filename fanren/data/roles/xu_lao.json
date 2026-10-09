@@ -1,0 +1,14 @@
+{
+  "id": "xu_lao",
+  "name": "许老",
+  "realm": "FoundationEarly",
+  "maxHp": 260,
+  "maxMp": 180,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "岳麓殿丹房的掌柜（ch154-156）：筑基，不许人叫他师伯，只叫许老——好明着要钱。藏室按时辰收灵石、复制另算；卖丹炉。岳麓殿 NPC，全程在场。不参与战斗。"
+}

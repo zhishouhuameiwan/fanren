@@ -1,0 +1,45 @@
+{
+ "map": "ch07_jindi_zhongxin",
+ "tile": 16,
+ "width": 48,
+ "height": 36,
+ "theme": "valley",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  198,
+  200,
+  196
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "petal",
+   "rate": 0.3
+  },
+  {
+   "kind": "mist",
+   "rate": 0.15
+  }
+ ],
+ "lights": [
+  {
+   "x": 20.5,
+   "y": 33.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "herb_valley"
+}

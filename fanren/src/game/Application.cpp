@@ -1029,6 +1029,15 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
                              : state_.removeItem(command.a, count);
             return true;
         }
+        case CommandKind::TakeItemAged: {
+            // take_aged（契约 docs/interfaces-p3-ch07.md 4.3）：从年份不低于 y 的堆里扣 x 件，
+            // 够格里年份低的先扣；不够就一件不扣、如实报失败。三种扣法各管一样：TakeItem 不给年份
+            // 是「哪一堆都行」、给了是「恰好这一堆」，这一条是「够格的里挑」——马师伯收「四十四年以上」
+            // 的黄精，前两种一个会把刚种下的苗交上去，一个对不上浇到 1536 年的千年药。
+            const int count = command.x <= 0 ? 1 : command.x;
+            outcome.ok = state_.removeItemAtLeastAge(command.a, count, command.y);
+            return true;
+        }
         case CommandKind::PlaySfx:
             if (engine_) engine_->playSfx(command.a);
             return true;
@@ -1305,6 +1314,10 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
             state_.maxHp = hp.max;
             state_.mp = mp.current;
             state_.maxMp = mp.max;
+            // 瓶子容量的下限跟着大境界走（契约 docs/interfaces-p3-ch07.md 3.3 第 1 处；另两处是
+            // CultivationScene 的 applyRealmAttributes 与 SaveFile 读档，同一个函数）。只补不削，不送液。
+            state_.bottle.capacity =
+                std::max(state_.bottle.capacity, rules::bottleCapacityFloor(rules::tierOf(target)));
             // 只在真升上去的这一支响（终审 M-3）：原地不动、往回拨都已在上面返回，不该有动静。
             engine_->playSfx("realm_up");
             outcome.ok = true;

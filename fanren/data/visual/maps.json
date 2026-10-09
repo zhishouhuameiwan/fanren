@@ -829,6 +829,392 @@
           "why": "茅屋里的蒲团（打坐）"
         }
       ]
+    },
+    "ch07_yuelu_dian": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "season": "autumn",
+      "why": "巫钧山腹里的岳麓殿：石柱大厅、丹道尽头许老的铺子与楼上藏室、无标记通道尽头的五彩石门（施工图第 4 节）。山腹里没有天光，灯火偏冷。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.3
+        }
+      ],
+      "ambient": [
+        104,
+        112,
+        128
+      ],
+      "backdrop": "secret_room",
+      "dof": 0.4,
+      "dof_why": "山腹里的厅堂与甬道，纵深不大，只糊一点边",
+      "props": [
+        {
+          "at": [
+            8,
+            5
+          ],
+          "kind": "desk",
+          "why": "藏室的书桌（4b）"
+        },
+        {
+          "at": [
+            6,
+            2
+          ],
+          "kind": "bookshelf",
+          "why": "藏室的书架"
+        },
+        {
+          "at": [
+            3,
+            5
+          ],
+          "kind": "bookshelf",
+          "why": "藏室另一排书架"
+        },
+        {
+          "at": [
+            5,
+            15
+          ],
+          "kind": "counter",
+          "why": "许老的柜台（5a）"
+        },
+        {
+          "at": [
+            12,
+            13
+          ],
+          "kind": "furnace",
+          "why": "许老靠墙那排丹鼎"
+        },
+        {
+          "at": [
+            23,
+            13
+          ],
+          "kind": "gate_doors",
+          "why": "「器」道尽头关着的门（装饰）"
+        },
+        {
+          "at": [
+            35,
+            6
+          ],
+          "kind": "stool",
+          "why": "石门前的石墩"
+        },
+        {
+          "at": [
+            44,
+            6
+          ],
+          "kind": "stool",
+          "why": "石门前的石墩"
+        }
+      ]
+    },
+    "ch07_dihuo": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "season": "autumn",
+      "why": "地火屋：坞石通道、圆厅三十六扇石门、十九号里的圆墩地火（施工图第 4 节）。地底的火光把一切都染成暖红。",
+      "particles": [
+        {
+          "kind": "ember",
+          "rate": 0.4
+        },
+        {
+          "kind": "dust",
+          "rate": 0.15
+        }
+      ],
+      "ambient": [
+        150,
+        96,
+        78
+      ],
+      "backdrop": "secret_room",
+      "dof": 0.38,
+      "dof_why": "窄（32×24）的地下石屋，糊一点边就够，别糊到圆墩",
+      "props": [
+        {
+          "at": [
+            20,
+            1
+          ],
+          "kind": "furnace",
+          "why": "十九号的坞石圆墩（地火，facility_dihuo）"
+        },
+        {
+          "at": [
+            24,
+            2
+          ],
+          "kind": "stool",
+          "why": "圆墩旁的石凳（35c）"
+        },
+        {
+          "at": [
+            28,
+            1
+          ],
+          "kind": "dais",
+          "why": "墙角的蒲团（36）"
+        },
+        {
+          "at": [
+            9,
+            6
+          ],
+          "kind": "gate_doors",
+          "why": "圆厅四周的石门（装饰）"
+        },
+        {
+          "at": [
+            12,
+            6
+          ],
+          "kind": "gate_doors",
+          "why": "圆厅四周的石门"
+        },
+        {
+          "at": [
+            15,
+            6
+          ],
+          "kind": "gate_doors",
+          "why": "圆厅四周的石门"
+        },
+        {
+          "at": [
+            18,
+            6
+          ],
+          "kind": "gate_doors",
+          "why": "圆厅四周的石门"
+        }
+      ]
+    },
+    "ch07_fangshi": {
+      "theme": "town",
+      "time": "day",
+      "season": "autumn",
+      "why": "黄枫谷坊市：一条南北长街，北段临时摊位、南段铺面，万宝楼在东（施工图第 4 节）。白天，人来人往。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.3
+        },
+        {
+          "kind": "leaf",
+          "rate": 0.1
+        }
+      ],
+      "backdrop": "town_street",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "props": [
+        {
+          "at": [
+            19,
+            7
+          ],
+          "kind": "stall",
+          "why": "北街收药摊的柜（facility_yaotan）"
+        },
+        {
+          "at": [
+            17,
+            5
+          ],
+          "kind": "stall_row",
+          "why": "北段临时摊架"
+        },
+        {
+          "at": [
+            29,
+            5
+          ],
+          "kind": "stall_row",
+          "why": "北段临时摊架"
+        },
+        {
+          "at": [
+            28,
+            19
+          ],
+          "kind": "gate_doors",
+          "why": "万宝楼的门（11b）"
+        }
+      ]
+    },
+    "ch07_shandong": {
+      "theme": "wild",
+      "time": "night",
+      "season": "autumn",
+      "why": "太岳山脉外围半山腰的石洞与洞外空地：节点 13 是下半夜（施工图第 4 节）。",
+      "particles": [
+        {
+          "kind": "firefly",
+          "rate": 0.3
+        },
+        {
+          "kind": "leaf",
+          "rate": 0.1
+        }
+      ],
+      "backdrop": "mountain_forest_dusk",
+      "dof": 0.55,
+      "dof_why": "夜里本来就暗，远处留一点糊",
+      "props": [
+        {
+          "at": [
+            20,
+            10
+          ],
+          "kind": "rock",
+          "why": "洞外空地上那块大石（14）"
+        }
+      ]
+    },
+    "ch07_jindi_wai": {
+      "theme": "cliff",
+      "time": "day",
+      "season": "autumn",
+      "why": "禁地之外：北半光秃秃的荒山（集合、赌约），南半寸草不生的黄土坡与风刃之墙上打出的通道（施工图第 4 节）。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.45
+        }
+      ],
+      "backdrop": "cliff_top",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "props": [
+        {
+          "at": [
+            26,
+            6
+          ],
+          "kind": "stake",
+          "why": "荒山队列前的旗杆（19b）"
+        }
+      ]
+    },
+    "ch07_jindi_waiwei": {
+      "theme": "wild",
+      "time": "day",
+      "season": "autumn",
+      "why": "禁地外围：灰黑的腐土、东北角结着寒气的乌龙潭、西北一道陡崖、当中峭壁夹出的一线天（施工图第 4 节）。天灰蒙蒙的，光发红。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.35
+        },
+        {
+          "kind": "dust",
+          "rate": 0.15
+        }
+      ],
+      "ambient": [
+        206,
+        176,
+        170
+      ],
+      "backdrop": "mountain_forest_dusk",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感"
+    },
+    "ch07_jindi_zhongxin": {
+      "theme": "valley",
+      "time": "day",
+      "season": "summer",
+      "why": "中心区外：南半林子、一道石墙与青铜门、北半第一层花园、东北上山小路（施工图第 4 节）。禁地的天始终灰蒙蒙的。",
+      "particles": [
+        {
+          "kind": "petal",
+          "rate": 0.3
+        },
+        {
+          "kind": "mist",
+          "rate": 0.15
+        }
+      ],
+      "ambient": [
+        198,
+        200,
+        196
+      ],
+      "backdrop": "herb_valley",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感"
+    },
+    "ch07_huanxingshan": {
+      "theme": "mountain_path",
+      "time": "day",
+      "season": "summer",
+      "why": "环形山：雾散之后的山坡、西边山体里的紫猴花洞、山顶的小石殿与石洞、东南小盆地的青石殿（施工图第 4 节）。雾没散尽。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.4
+        },
+        {
+          "kind": "leaf",
+          "rate": 0.1
+        }
+      ],
+      "backdrop": "mountain_forest",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "props": [
+        {
+          "at": [
+            19,
+            28
+          ],
+          "kind": "rock",
+          "why": "洞外的岔路石（27）"
+        }
+      ]
+    },
+    "ch07_dixia_zhaoze": {
+      "theme": "cave",
+      "time": "indoor",
+      "season": "summer",
+      "why": "地下百余丈的沼泽：黑泥、热气、当中一座白玉小亭（施工图第 4 节）。暗青，湿热。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.4
+        },
+        {
+          "kind": "ember",
+          "rate": 0.1
+        }
+      ],
+      "ambient": [
+        70,
+        92,
+        96
+      ],
+      "backdrop": "cave_tunnel",
+      "dof": 0.45,
+      "dof_why": "地下大洞有纵深，洞里本来也暗",
+      "props": [
+        {
+          "at": [
+            17,
+            13
+          ],
+          "kind": "pavilion",
+          "why": "沼泽当中的白玉小亭（金箱悬在里头，装饰）"
+        }
+      ]
     }
   }
 }

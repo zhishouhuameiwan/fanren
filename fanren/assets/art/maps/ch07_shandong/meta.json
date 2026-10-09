@@ -1,0 +1,71 @@
+{
+ "map": "ch07_shandong",
+ "tile": 16,
+ "width": 32,
+ "height": 24,
+ "theme": "wild",
+ "time": "night",
+ "season": "autumn",
+ "ambient": [
+  84,
+  96,
+  142
+ ],
+ "dof": 0.55,
+ "bloom": 0.6,
+ "vignette": 0.5,
+ "particles": [
+  {
+   "kind": "firefly",
+   "rate": 0.3
+  },
+  {
+   "kind": "leaf",
+   "rate": 0.1
+  }
+ ],
+ "lights": [
+  {
+   "x": 10.5,
+   "y": 11.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "leaf",
+   "x": 28.5,
+   "y": 2.0
+  },
+  {
+   "kind": "leaf",
+   "x": 24.5,
+   "y": 4.0
+  },
+  {
+   "kind": "leaf",
+   "x": 27.5,
+   "y": 13.0
+  },
+  {
+   "kind": "leaf",
+   "x": 22.5,
+   "y": 17.0
+  },
+  {
+   "kind": "leaf",
+   "x": 29.5,
+   "y": 19.0
+  }
+ ],
+ "backdrop": "mountain_forest_dusk"
+}

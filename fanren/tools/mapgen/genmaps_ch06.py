@@ -670,15 +670,21 @@ def patch_nancheng(payload):
 
 
 def build_all():
-    """本章六张图的完整产出，外加南城那处就地修补的东门。"""
+    """本章六张图的完整产出，外加南城那处就地修补的东门。
+
+    黄枫谷、百药园上还有第 7 章补的门与对象，归 genmaps_ch07.py 所有（它的 patch_huangfenggu /
+    patch_baiyaoyuan）。不在这里补回去，单跑本脚本就会把第 7 章从这两张图上抹掉——坊市、岳麓殿
+    只从黄枫谷进得去（第 5 章给南城补东门的同一个做法）。
+    """
     import genmaps_ch05
+    import genmaps_ch07  # 延迟导入：模块层导入会与它的 import genmaps_ch06 成环
     return {
         "ch06_tainan_cun": make_tainan_cun(),
         "ch06_tainan_gu": make_tainan_gu(),
         "ch06_sanxiu_lou": make_sanxiu_lou(),
         "ch06_shanqiu": make_shanqiu(),
-        "ch06_huangfenggu": make_huangfenggu(),
-        "ch06_baiyaoyuan": make_baiyaoyuan(),
+        "ch06_huangfenggu": genmaps_ch07.patch_huangfenggu(make_huangfenggu()),
+        "ch06_baiyaoyuan": genmaps_ch07.patch_baiyaoyuan(make_baiyaoyuan()),
         "ch05_nancheng": patch_nancheng(genmaps_ch05.make_nancheng()),
     }
 

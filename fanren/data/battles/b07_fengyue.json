@@ -1,0 +1,22 @@
+{
+  "id": "b07_fengyue",
+  "name": "林中·封岳",
+  "chapter": 7,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "feng_yue",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 280,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch07.battle.fengyue.intro",
+  "origin": "原著",
+  "note": "第 7 章战斗③（节点 23，ch07_jindi_zhongxin trigger_shulin，interact + once）：多宝女那一段做成演出，只打封岳（8.3）。意图：天雷子（E2 道具施法，火）一掷定局是原著的解法；没有天雷子，就拿青蛟旗（木）或火弹（火）打破绽破势、破势窗口里金光砖。不用 killable_by（8.2 ③）。致命、不可逃；灵石 0、drops 空。"
+}

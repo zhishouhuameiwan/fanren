@@ -1,0 +1,14 @@
+{
+  "id": "zhong_wu",
+  "name": "钟吾",
+  "realm": "QiRefining13",
+  "maxHp": 120,
+  "maxMp": 100,
+  "attack": 18,
+  "defence": 10,
+  "speed": 8,
+  "element": 2,
+  "magics": [],
+  "origin": "原著",
+  "note": "灵兽山弟子（ch192-210）：驱蛇驱蜂；凭踏云靴认出封岳已死，改口称兄弟、换了玉简（24）。活着出禁地（lore「ch199 结局」是错的，施工图 1.2），第 8 章还会再见。出口 NPC（visible ch07.pojin / hidden ch07.chujindi）。不参与战斗。"
+}
