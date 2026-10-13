@@ -64,6 +64,10 @@ void drawObjectiveBox(engine::Engine& engine, const ui::Theme& theme, Geometry& 
 void drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
                     const std::string& text);
 
+inline constexpr float kPathHintFooterHeight = 72.f;
+void drawPathActionHint(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
+                        const std::string& text);
+
 // 目标菱形：悬在目标头顶。glow 是柔光贴图（可为无效句柄，只是少一圈光）。
 void drawObjectiveDiamond(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
                           engine::TextureId glow, float cx, float cy);

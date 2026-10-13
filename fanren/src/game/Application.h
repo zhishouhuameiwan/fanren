@@ -208,10 +208,13 @@ public:
 
     // ---- 八方旅人化：主菜单、标题流程、章节卡、淡入淡出（docs/interfaces-octo-ui.md）----
 
-    // 打开主菜单（状态 · 物品 · 法术 · 记事 · 存盘 · 返回）。行走时按 Tab / Esc 调它——
+    // 打开主菜单（状态 · 物品 · 法术 · 记事 · 存盘 · 设置 · 返回首页 · 返回）。行走时按 Tab / Esc 调它——
     // 按键的钩子在 WorldScene::update（地图画面那一路的文件），那几行见上面那份契约文档。
     // 只该在世界层、脚本没在跑的时候调：WorldScene 的那道「脚本在跑就不受理输入」已经挡着。
     void openMainMenu();
+
+    // 放弃本局未存盘的进度，清理运行期状态，在帧末回到首页；不写入存档。
+    void returnToTitle();
 
     // 标题画面的「新的旅程」：全新的存档状态，站到 kNewGameMap 的出生点，压世界层，
     // 再压第一章的开篇卡。载图失败如实返回（标题画面把它说出来），不压任何场景。
@@ -416,6 +419,7 @@ private:
     std::map<std::string, core::BattleSetup> battles_;
     std::map<std::string, std::string> battleBackdrops_;   // battle_id → 背景 id（battleBackdrop）
     std::map<std::string, rules::Shop> shops_;
+    std::map<std::string, rules::Shop> initialShops_;
     std::map<std::string, rules::Recipe> recipes_;
     // portalLinks() 的缓存。loaded 与内容分开记：一个一道门都没有的资产根
     // 也是「读过了」，不该每帧重读一遍。

@@ -22,13 +22,11 @@ namespace {
 constexpr float kW = static_cast<float>(engine::kLogicalWidth);
 constexpr float kH = static_cast<float>(engine::kLogicalHeight);
 
-// 摆位。左栏两块（七项命令、左下角的盘缠日期所在），右栏一块大的放当前页。
-// 命令块的高 = 七行列表（ui::listAreaHeight(7) = 258）+ 上下各 12；加「设置」那一项时从 252 长到 282，
-// 离下面的盘缠块（y = 540）还远。
-constexpr engine::Rect kCommandPanel{48, 48, 300, 282};
+// 左栏命令块容纳八行列表与上下各 12，下面的盘缠块仍从 y = 540 开始。
+constexpr engine::Rect kCommandPanel{48, 48, 300, 312};
 constexpr engine::Rect kInfoPanel{48, 540, 300, 132};
 constexpr engine::Rect kPagePanel{372, 48, 860, 624};
-constexpr int kPageCount = 7;
+constexpr int kPageCount = 8;
 
 // 「设置」页的摘要列哪几行（系统设置面板的行下标）：有值的那九项（含手柄震动，docs/gamepad.md 第 8 节），
 // 按键设置、恢复默认不列。
@@ -69,6 +67,7 @@ constexpr const char* kSfxSaved = "save";
         case MenuScene::Page::Journal: return "ui.menu.journal";
         case MenuScene::Page::Save: return "ui.menu.save";
         case MenuScene::Page::Settings: return "ui.menu.settings";
+        case MenuScene::Page::Home: return "ui.menu.home";
         case MenuScene::Page::Back: return "ui.menu.back";
     }
     return "";
@@ -112,7 +111,8 @@ std::vector<std::string> MenuScene::menuStrings(const core::GameData& data, Pane
     for (int i = 0; i < kPageCount; ++i) out.push_back(pageLabel(data, stage, static_cast<Page>(i)));
     for (const char* key : {"ui.menu.items.empty", "ui.menu.journal.now", "ui.menu.journal.hint",
                             "ui.menu.save.hint", "ui.menu.save.ok", "ui.menu.save.failed",
-                            "ui.menu.settings.hint", "ui.menu.keys", "ui.menu.money", "ui.menu.date",
+                            "ui.menu.settings.hint", "ui.menu.home.warning", "ui.menu.home.cancel",
+                            "ui.menu.keys", "ui.menu.money", "ui.menu.date",
                             "ui.menu.place", "ui.status.attack", "ui.status.defence", "ui.status.speed"}) {
         out.push_back(data.lookupText(key));
     }
@@ -159,12 +159,17 @@ void MenuScene::onEnter(Application& app) {
     commands_.setItems(std::move(commands));
     for (int i = 0; i < static_cast<int>(initial_); ++i) commands_.moveDown();
 
+    homeChoices_.setPageSize(2);
+    homeChoices_.setItems({{app.text("ui.menu.home.cancel")}, {app.text("ui.menu.home")}});
+    homeChoices_.reset();
+
     rebuildLists(app);
     loadMembers(app);
     focus_ = Focus::Commands;
     journalOpen_ = false;
     if (focusList_ && initial_ == Page::Items && items_.hasSelectable()) focus_ = Focus::Items;
     if (focusList_ && initial_ == Page::Magic && magics_.hasSelectable()) focus_ = Focus::Magic;
+    if (focusList_ && initial_ == Page::Home) focus_ = Focus::Home;
     app.engine().playSfx(kSfxOpen);
 }
 
@@ -318,6 +323,11 @@ bool MenuScene::activate(Application& app) {
             app.pushScene(std::make_unique<SettingsScene>());
             settingsOpen_ = true;
             return true;
+        case Page::Home:
+            e.playSfx(kSfxConfirm);
+            homeChoices_.reset();
+            focus_ = Focus::Home;
+            return true;
         case Page::Back:
             close(app);
             return false;
@@ -353,15 +363,24 @@ bool MenuScene::update(Application& app, double) {
         return confirmed ? activate(app) : true;
     }
 
-    ui::ListView& list = focus_ == Focus::Items ? items_ : magics_;
+    ui::ListView& list = focus_ == Focus::Home ? homeChoices_
+                                            : focus_ == Focus::Items ? items_ : magics_;
     const int before = list.selection();
-    list.update(e);
+    const bool confirmed = list.update(e);
     if (list.selection() != before) e.playSfx(kSfxCursor);
     if (list.cancelled()) {
         // Esc 退一级：回到左栏，列表的光标一并复位（下次进来从第一件看起）。
         list.reset();
         focus_ = Focus::Commands;
         e.playSfx(kSfxCancel);
+    } else if (focus_ == Focus::Home && confirmed) {
+        if (list.selection() == 1) {
+            e.playSfx(kSfxConfirm);
+            app.returnToTitle();
+        } else {
+            focus_ = Focus::Commands;
+            e.playSfx(kSfxCancel);
+        }
     }
     return true;
 }
@@ -481,6 +500,9 @@ void MenuScene::drawPage(Application& app) const {
             break;
         case Page::Settings:
             drawSettings(app, area);
+            break;
+        case Page::Home:
+            drawHome(app, area);
             break;
         case Page::Back:
             break;
@@ -629,6 +651,17 @@ void MenuScene::drawSettings(Application& app, const engine::Rect& area) const {
         e.drawText(SettingsScene::valueText(app.data(), settings, row), x + 150, y, 20, theme.paper,
                    theme.bodyStyle);
         y += 32;
+    }
+}
+
+void MenuScene::drawHome(Application& app, const engine::Rect& area) const {
+    engine::Engine& e = app.engine();
+    const ui::Theme& theme = app.theme();
+    ui::drawTextBlock(e, app.text("ui.menu.home.warning"),
+                      engine::Rect{area.x, area.y, area.w, 120}, theme.bodyFontSize, theme);
+    if (focus_ == Focus::Home) {
+        homeChoices_.render(e, engine::Rect{area.x, area.y + 120, area.w,
+                                           ui::listAreaHeight(2, theme)}, theme);
     }
 }
 

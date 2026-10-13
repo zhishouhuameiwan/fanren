@@ -347,6 +347,7 @@ void WorldFrame::clear() {
     mapTitle.clear();
     dangerStars = 0;
     saveNotice.clear();
+    pathActionHint.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -1199,10 +1200,12 @@ void WorldView::drawObjectiveMarker(engine::Engine& engine, const ui::Theme& the
     const float dx = left + w / 2.f - sx;
     const float dy = top + h / 2.f - sy;
     constexpr float kMargin = 34.f;
+    const float bottom = kViewH - kMargin -
+                         (frame.pathActionHint.empty() ? 0.f : hud::kPathHintFooterHeight);
     float t = 1e9f;
     if (dx > 0.f) t = std::min(t, (kViewW - kMargin - sx) / dx);
     if (dx < 0.f) t = std::min(t, (kMargin - sx) / dx);
-    if (dy > 0.f) t = std::min(t, (kViewH - kMargin - sy) / dy);
+    if (dy > 0.f) t = std::min(t, (bottom - sy) / dy);
     if (dy < 0.f) t = std::min(t, (kMargin - sy) / dy);
     if (t >= 1e9f) return;
     t = std::max(t, 0.f);
@@ -1210,7 +1213,8 @@ void WorldView::drawObjectiveMarker(engine::Engine& engine, const ui::Theme& the
     const float targetY = fl(target->position.y) + fl(std::max(1, target->height)) / 2.f;
     const int cells = static_cast<int>(std::abs(targetX - (fl(lastCell_.x) + 0.5f)) +
                                        std::abs(targetY - (fl(lastCell_.y) + 0.5f)));
-    hud::drawEdgeArrow(engine, theme, geometry_, glowTexture_, sx + dx * t, sy + dy * t, dx, dy,
+    hud::drawEdgeArrow(engine, theme, geometry_, glowTexture_, sx + dx * t,
+                       std::min(sy + dy * t, bottom), dx, dy,
                        std::to_string(cells) + " 格");
 }
 
@@ -1237,6 +1241,7 @@ void WorldView::drawHud(engine::Engine& engine, const ui::Theme& theme, const Wo
     hud::drawObjectiveBox(engine, theme, geometry_, boxX, boxY, frame.objectiveText, frame.objectiveWhere,
                           covers(box) ? kCoveringAlpha : 1.f);
     hud::drawSaveNotice(engine, theme, geometry_, frame.saveNotice);
+    hud::drawPathActionHint(engine, theme, geometry_, frame.pathActionHint);
 }
 
 }  // namespace fanren::game

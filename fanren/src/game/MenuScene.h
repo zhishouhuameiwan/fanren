@@ -1,7 +1,7 @@
 #pragma once
 // 主菜单（施工图 docs/octopath-overhaul.md 1.5 / 第 4 节）：行走时 Tab / Esc 打开。
 //
-//   左栏：状态 · 物品 · 法术 · 记事 · 存盘 · 设置 · 返回，下面一块写盘缠、日期、所在。
+//   左栏：状态 · 物品 · 法术 · 记事 · 存盘 · 设置 · 返回首页 · 返回，下面一块写盘缠、日期、所在。
 //   右栏：光标停在哪一项就预览哪一页；物品、法术按确认进到右栏的列表里看说明。
 //   记事：直接翻开告示板那一套（BoardScene），不另写一份。
 //   存盘：与 F5 同一条路（Application::quickSave → saves/quick.sav），成败都说一句。
@@ -30,11 +30,11 @@ namespace fanren::game {
 
 class MenuScene : public Scene {
 public:
-    // 左栏的七项，次序即画面上的次序。「设置」插在「存盘」与「返回」之间（docs/settings.md 5.1）。
-    enum class Page { Status, Items, Magic, Journal, Save, Settings, Back };
+    // 次序即画面上的次序；返回首页需要确认，「返回」只关闭菜单。
+    enum class Page { Status, Items, Magic, Journal, Save, Settings, Home, Back };
 
     // initial：打开时光标停在哪一项；focusList：物品 / 法术页直接把光标放进右栏的列表，
-    // 记事页直接翻开告示板（截图口拍那几页用；游戏里按 Tab 打开时一律停在「状态」）。
+    // 记事页直接翻开告示板，首页页直接进入确认（截图口用；游戏里按 Tab 打开时停在「状态」）。
     explicit MenuScene(Page initial = Page::Status, bool focusList = false);
     ~MenuScene() override;
 
@@ -43,7 +43,7 @@ public:
     [[nodiscard]] static std::vector<std::string> menuStrings(const core::GameData& data,
                                                               PanelStage stage);
 
-    // 左栏七项的字。法术那一栏按阶段换说法。
+    // 左栏各项的字。法术那一栏按阶段换说法。
     [[nodiscard]] static std::string pageLabel(const core::GameData& data, PanelStage stage,
                                                Page page);
     // 画在屏上的那一份（左栏与右栏页眉都取它）：同上，另外物品那一栏按 ch06.chuwudai
@@ -64,7 +64,7 @@ public:
     [[nodiscard]] std::string name() const override { return "Menu"; }
 
 private:
-    enum class Focus { Commands, Items, Magic };
+    enum class Focus { Commands, Items, Magic, Home };
 
     // 一个在队的人：状态页一行。小像在打开菜单时就解析好（贴图句柄 + 取哪一帧），
     // 不在 render 里每帧去查索引、载图——缺图的那一行每帧都会打一次 WARNING。
@@ -97,6 +97,7 @@ private:
     void drawJournal(Application& app, const engine::Rect& area) const;
     void drawSave(Application& app, const engine::Rect& area) const;
     void drawSettings(Application& app, const engine::Rect& area) const;
+    void drawHome(Application& app, const engine::Rect& area) const;
 
     Page initial_;
     bool focusList_;
@@ -104,6 +105,7 @@ private:
     ui::ListView commands_;
     ui::ListView items_;
     ui::ListView magics_;
+    ui::ListView homeChoices_;
     std::vector<std::string> itemIds_;    // items_ 的第 i 行是哪件东西
     std::vector<Member> members_;
     std::string saveNote_;                // 最近一次存盘的结果

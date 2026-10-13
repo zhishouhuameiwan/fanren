@@ -164,6 +164,7 @@ struct WorldFrame {
     std::string mapTitle;                           // 地名横幅
     int dangerStars = 0;                            // 野外图的危险星级（0 = 这张图没有遭遇；算法见 docs/interfaces-octo-encounters.md）
     std::string saveNotice;                         // 空串 = 不显示
+    std::string pathActionHint;                     // 面向可交互 NPC 时的键位与行动名
 
     void clear();
 };

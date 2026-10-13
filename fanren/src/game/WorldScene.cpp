@@ -6,6 +6,7 @@
 
 #include "core/rules/Objectives.h"
 #include "game/Application.h"
+#include "game/PathActionScene.h"
 
 namespace fanren::game {
 namespace {
@@ -218,6 +219,25 @@ bool WorldScene::pathAction(Application& app) {
     return gPathActionOpener(app, *npc);
 }
 
+std::string WorldScene::pathActionHint(Application& app) const {
+    const core::TileMap* map = app.currentMap();
+    if (map == nullptr || gPathActionOpener == nullptr || app.topScene() != this) return {};
+    if (app.scripts().isRunning() || app.awaitingCommand()) return {};
+    const core::MapObject* npc = visibleNpcAt(app.state(), *map, facingCell(app.state()));
+    if (npc == nullptr) return {};
+
+    std::string labels;
+    core::PathActionKind previous = core::PathActionKind::Inquire;
+    // pathActionsFor 与菜单共用按种类排序的清单，同一种行动只提示一次。
+    for (const core::PathAction* action : app.pathActionsFor(npc->name)) {
+        if (!labels.empty() && action->kind == previous) continue;
+        if (!labels.empty()) labels += " / ";
+        labels += PathActionScene::rowFor(app.data(), *action).label;
+        previous = action->kind;
+    }
+    return labels.empty() ? std::string{} : app.text("ui.world.path.key") + " " + labels;
+}
+
 // 存盘提示停留多久。够看清，又不至于杵在屏幕上碍事。
 constexpr double kSaveNoticeSeconds = 3.0;
 
@@ -354,6 +374,7 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     frame_.dangerStars = app.dangerStars();
     // 存盘那一句：画在屏幕右上角，不跟目标框抢地方，几秒后自己消失。
     if (saveNoticeSeconds_ > 0.0) frame_.saveNotice = saveNotice_;
+    frame_.pathActionHint = pathActionHint(app);
 }
 
 const core::Objective* WorldScene::objectiveOf(Application& app) {

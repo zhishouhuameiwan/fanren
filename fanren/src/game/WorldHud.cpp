@@ -185,6 +185,22 @@ void drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& ge
     engine.drawText(text, static_cast<int>(x + 16.f), 25, kNoticeFont, theme.paper, theme.bodyStyle);
 }
 
+void drawPathActionHint(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
+                        const std::string& text) {
+    if (text.empty()) return;
+    constexpr int kFont = 20;
+    const engine::Point size = engine.measureText(text, kFont);
+    if (size.x <= 0) return;
+    const float width = static_cast<float>(size.x) + 32.f;
+    constexpr float kHeight = 48.f;
+    const float x = (static_cast<float>(engine::kLogicalWidth) - width) / 2.f;
+    const float y = static_cast<float>(engine::kLogicalHeight) - kHeight - 16.f;
+    drawPanel(engine, theme, geometry, {x, y, width, kHeight}, 1.f);
+    engine.drawText(text, static_cast<int>(x + 16.f),
+                    static_cast<int>(y + (kHeight - static_cast<float>(size.y)) / 2.f),
+                    kFont, theme.goldBright, theme.bodyStyle);
+}
+
 // ---------------------------------------------------------------------------
 // 目标标记
 // ---------------------------------------------------------------------------

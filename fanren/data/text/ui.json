@@ -37,7 +37,10 @@
   "ui.menu.journal": "记事",
   "ui.menu.save": "存盘",
   "ui.menu.settings": "设置",
+  "ui.menu.home": "返回首页",
   "ui.menu.back": "返回",
+  "ui.menu.home.warning": "返回首页后，未存盘的进度将丢失。",
+  "ui.menu.home.cancel": "取消",
   "ui.menu.items.empty": "（囊中空空）",
   "ui.menu.magic.empty.mortal": "（还没学会什么法门）",
   "ui.menu.magic.empty.immortal": "（尚未习得法术）",
@@ -67,6 +70,8 @@
   "ui.path.reveal.tail": "的破绽：",
 
   "ui.world.danger": "凶险",
+  "ui.world.path.key": "[{key.action}]",
+  "ui.world.path.key.pad": "[{pad.action}]",
   "ui.encounter.lost": "败下阵来，好歹脱了身。气血所剩无几，先寻个地方歇一歇。",
 
   "ui.status.attack": "攻",

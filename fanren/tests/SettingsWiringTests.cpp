@@ -145,7 +145,8 @@ TEST_F(SettingsWiring, TheMainMenusSettingsEntryOpensTheSamePanel) {
     app_.openMainMenu();
     tick();
     ASSERT_EQ(top(), "Menu");
-    // 左栏七项：状态 · 物品 · 法门 · 记事 · 存盘 · 设置 · 返回。从「状态」往上绕两格就是「设置」。
+    // 左栏八项：状态 · 物品 · 法门 · 记事 · 存盘 · 设置 · 返回首页 · 返回。
+    press(SDL_SCANCODE_UP);
     press(SDL_SCANCODE_UP);
     press(SDL_SCANCODE_UP);
     press(SDL_SCANCODE_RETURN);

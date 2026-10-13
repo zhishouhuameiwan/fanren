@@ -225,6 +225,7 @@ core::Result<bool> Application::init(const std::string& assetRoot, bool headless
     auto shops = io::loadShops(assetRoot_ + "/data/shops");
     if (!shops) return core::Result<bool>::failure(shops.error);
     shops_ = std::move(shops.value);
+    initialShops_ = shops_;
 
     // 配方。**必须排在 data_ 之后**：引用校验（材料 id / 产出 id 在不在物品册上）
     // 要拿 data_ 去查，见 io/RecipeLoader.h。
@@ -524,6 +525,21 @@ void Application::syncFullscreenFromEngine() {
 
 void Application::openMainMenu() {
     pushScene(std::make_unique<MenuScene>());
+}
+
+void Application::returnToTitle() {
+    scripts_->abortEvent("返回首页");
+    commandPending_ = false;
+    pendingPush_.clear();
+    pendingCards_.clear();
+    dialogueLog_.clear();
+    spokenKeys_.clear();
+    cardLog_.clear();
+    screenFade_ = 0.f;
+    bgmOverride_.clear();
+    itemsGiven_ = false;
+    shops_ = initialShops_;
+    replaceScene(std::make_unique<TitleScene>());
 }
 
 core::Result<bool> Application::startNewJourney() {

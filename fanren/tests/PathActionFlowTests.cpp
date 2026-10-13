@@ -15,9 +15,12 @@
 #include <string>
 #include <vector>
 
+#include <SDL3/SDL.h>
+
 #include "core/model/Types.h"
 #include "core/rules/Realm.h"
 #include "game/Application.h"
+#include "game/DialogueScene.h"
 #include "game/PathActionScene.h"
 #include "game/ShopScene.h"
 #include "game/WorldScene.h"
@@ -311,6 +314,111 @@ TEST_F(PathActionFlow, TheWorldSeesTheBubbleAndTheActionKeyOpensTheMenu) {
     ASSERT_EQ(scene->rows().size(), 2u);
     EXPECT_EQ(scene->rows()[0]->id, "maliu_dating") << "打探排在求购前面";
     EXPECT_EQ(scene->rows()[1]->id, "maliu_qiugou");
+}
+
+TEST_F(PathActionFlow, TheFacingHintNamesOnlyTheAvailableActionsAndFollowsRebinding) {
+    enter("ch02_wairentang");
+    auto* world = dynamic_cast<fanren::game::WorldScene*>(app_.topScene());
+    ASSERT_NE(world, nullptr);
+    app_.state().position = fanren::core::Point{29, 18};
+    app_.state().facing = 0;
+    EXPECT_TRUE(world->pathActionHint(app_).empty());
+
+    app_.state().setFlag("ch02.liao_maliu");
+    EXPECT_EQ(world->pathActionHint(app_), "[E] 打探");
+    app_.state().setFlag("ch02.path.maliu_dating");
+    EXPECT_EQ(world->pathActionHint(app_), "[E] 打探");
+    app_.state().setFlag("ch02.duan2_start");
+    app_.state().setFlag("ch02.duan3_start");
+    EXPECT_EQ(world->pathActionHint(app_), "[E] 打探 / 求购");
+
+    using Engine = fanren::engine::Engine;
+    auto keys = Engine::defaultKeyTable();
+    keys[static_cast<std::size_t>(Engine::Key::Action)][0] = SDL_SCANCODE_F;
+    ASSERT_TRUE(app_.engine().setCustomKeys(keys).ok);
+    EXPECT_EQ(world->pathActionHint(app_), "[F] 打探 / 求购");
+    app_.state().setFlag("ch02.path.maliu_qiugou");
+    EXPECT_EQ(world->pathActionHint(app_), "[F] 打探");
+    app_.state().setFlag("ch02.done");
+    EXPECT_TRUE(world->pathActionHint(app_).empty());
+}
+
+TEST_F(PathActionFlow, TheFacingHintDisappearsWhenFacingAwayOrCoveredByDialogue) {
+    enter("ch02_wairentang");
+    auto* world = dynamic_cast<fanren::game::WorldScene*>(app_.topScene());
+    ASSERT_NE(world, nullptr);
+    app_.state().setFlag("ch02.liao_maliu");
+    app_.state().position = fanren::core::Point{29, 18};
+    app_.state().facing = 0;
+    ASSERT_FALSE(world->pathActionHint(app_).empty());
+
+    app_.state().facing = 2;
+    EXPECT_TRUE(world->pathActionHint(app_).empty());
+    app_.state().facing = 0;
+    app_.state().position.y = 19;
+    EXPECT_TRUE(world->pathActionHint(app_).empty());
+    app_.state().position.y = 18;
+
+    app_.pushScene(std::make_unique<fanren::game::DialogueScene>("", "test"));
+    app_.tick(kFrame);
+    ASSERT_EQ(top(), "Dialogue");
+    EXPECT_TRUE(world->pathActionHint(app_).empty());
+    app_.popScene();
+    app_.tick(kFrame);
+    EXPECT_EQ(world->pathActionHint(app_), "[E] 打探");
+
+    ASSERT_TRUE(world->pathAction(app_));
+    app_.tick(kFrame);
+    ASSERT_EQ(top(), "PathAction");
+    EXPECT_TRUE(world->pathActionHint(app_).empty());
+}
+
+TEST_F(PathActionFlow, TheFacingHintFollowsGamepadAndSwitchesBackToKeyboard) {
+    enter("ch02_wairentang");
+    auto* world = dynamic_cast<fanren::game::WorldScene*>(app_.topScene());
+    ASSERT_NE(world, nullptr);
+    app_.state().setFlag("ch02.liao_maliu");
+    app_.state().position = fanren::core::Point{29, 18};
+    app_.state().facing = 0;
+    ASSERT_EQ(world->pathActionHint(app_), "[E] 打探");
+
+    SDL_Event event{};
+    event.type = SDL_EVENT_GAMEPAD_BUTTON_DOWN;
+    event.gbutton.which = 98765;
+    event.gbutton.button = SDL_GAMEPAD_BUTTON_WEST;
+    event.gbutton.down = true;
+    ASSERT_TRUE(SDL_PushEvent(&event)) << SDL_GetError();
+    app_.engine().pollEvents();
+    EXPECT_EQ(world->pathActionHint(app_), "[X] 打探");
+    EXPECT_TRUE(app_.engine().keyPressed(fanren::engine::Engine::Key::Action));
+
+    event = {};
+    event.type = SDL_EVENT_KEY_DOWN;
+    event.key.scancode = SDL_SCANCODE_E;
+    event.key.down = true;
+    ASSERT_TRUE(SDL_PushEvent(&event)) << SDL_GetError();
+    app_.engine().pollEvents();
+    EXPECT_EQ(world->pathActionHint(app_), "[E] 打探");
+}
+
+TEST_F(PathActionFlow, ANpcWithoutDialogueStillGetsActionHintsButAHiddenNpcDoesNot) {
+    enter("ch05_nancheng");
+    auto* world = dynamic_cast<fanren::game::WorldScene*>(app_.topScene());
+    ASSERT_NE(world, nullptr);
+    app_.state().position = fanren::core::Point{20, 16};
+    app_.state().facing = 0;
+    app_.state().setFlag("ch05.huayuan");
+    const auto* npc = world->visibleNpcAt(app_.state(), *app_.currentMap(), {20, 15});
+    ASSERT_NE(npc, nullptr);
+    ASSERT_EQ(npc->name, "npc_huyuan_a");
+    ASSERT_TRUE(npc->property("script").empty());
+    EXPECT_EQ(world->pathActionHint(app_), "[E] 打探");
+    app_.state().setFlag("ch05.duizhi");
+    EXPECT_EQ(world->pathActionHint(app_), "[E] 打探 / 切磋");
+
+    app_.state().setFlag("ch08.junling");
+    ASSERT_FALSE(app_.pathActionsFor(npc->name).empty());
+    EXPECT_TRUE(world->pathActionHint(app_).empty());
 }
 
 }  // namespace

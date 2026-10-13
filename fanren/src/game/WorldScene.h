@@ -44,6 +44,8 @@ public:
     // 与 interact 同一道闸：脚本在跑就不受理。没接 opener、面前没有人时返回 false。
     bool pathAction(Application& app);
 
+    [[nodiscard]] std::string pathActionHint(Application& app) const;
+
     // 两个纯判定：只看存档状态与地图对象，不碰渲染与输入。
     // 公开出来是为了能直接单测——它们实现的那几个地图属性此前正是
     // 因为藏在实现文件里没人测，才一路死到内容生产阶段。

@@ -107,7 +107,7 @@ std::vector<std::string> splitSpec(const std::string& spec, char separator) {
 // 八方旅人化改造（界面路）加的几个截图口。认得就压场景、定好空转帧数并返回 true。
 //   title                                   标题画面
 //   chapter:<n>[:end]                       第 n 章开篇卡 / 章末那一串（终卡接下一章）
-//   menu[:status|items|magic|board|settings] 在当前地图上打开主菜单（物品、法术两页光标进列表；
+//   menu[:status|items|magic|board|settings|home] 在当前地图上打开主菜单（物品、法术两页光标进列表；
 //                                           settings 是光标停在「设置」、右栏写摘要）
 //   settings[:keys]                         系统设置面板 / 改键面板，压在世界层上（docs/settings.md 5.5）
 //   talk:<文案 key>[:<说话人角色 id>]       对话框；带说话人就有名签
@@ -141,6 +141,7 @@ bool pushUiShot(fanren::game::Application& app, const std::string& kind, const s
         else if (page == "magic") app.pushScene(std::make_unique<game::MenuScene>(Page::Magic, true));
         else if (page == "board") app.pushScene(std::make_unique<game::MenuScene>(Page::Journal, true));
         else if (page == "settings") app.pushScene(std::make_unique<game::MenuScene>(Page::Settings));
+        else if (page == "home") app.pushScene(std::make_unique<game::MenuScene>(Page::Home, true));
         else {
             return false;
         }

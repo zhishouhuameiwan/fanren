@@ -554,7 +554,7 @@ TEST(KeyPrompts, PlaceholdersOnlyLiveInTheFourPromptsThatGoThroughText) {
     const auto loaded = fanren::io::loadGameData((root / "data").string());
     ASSERT_TRUE(loaded.ok) << loaded.error;
     const std::set<std::string> allowed{"ui.menu.keys", "ui.battle.hint.menu", "ui.battle.hint.watch", "ui.dialogue.keys",
-                                        "objective.ch09.n20_huicheng"};
+                                        "objective.ch09.n20_huicheng", "ui.world.path.key"};
 
     constexpr std::string_view kOpen = "{key.";
     std::set<std::string> carriers;
@@ -607,6 +607,7 @@ TEST(KeyPrompts, PadPlaceholdersOnlyLiveInTheElevenPadPrompts) {
         "ui.settings.hint.pad", "ui.keys.hint.pad",  "ui.keys.capture.pad",  "ui.keys.desc.pad",
         "ui.keys.desc.restore.pad", "ui.battle.hint.menu.pad", "ui.battle.hint.watch.pad",
         "objective.ch09.n20_huicheng.pad",
+        "ui.world.path.key.pad",
     };
     constexpr std::string_view kOpen = "{pad.";
     constexpr std::string_view kPadSuffix = ".pad";
@@ -646,7 +647,7 @@ TEST(KeyPrompts, PadPlaceholdersOnlyLiveInTheElevenPadPrompts) {
         for (std::size_t at = bytes.find(kOpen); at != std::string::npos; at = bytes.find(kOpen, at + 1)) ++viaBytes;
     }
     EXPECT_EQ(viaBytes, viaData);
-    EXPECT_EQ(viaData, 19u) << "Original 18 placeholders plus Chapter 9's one real menu prompt";
+    EXPECT_EQ(viaData, 20u) << "Original 18 placeholders plus Chapter 9's menu prompt and the world action hint";
 }
 
 // 复查 N1：抓键中按 Alt+F4 想退出——Alt 放过之后，同一下 SDL 还发 F4 的按下（带 Alt 修饰）。从前 F4 被抓走、配进当前格，
