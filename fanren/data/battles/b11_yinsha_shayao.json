@@ -1,0 +1,39 @@
+{
+  "id": "b11_yinsha_shayao",
+  "name": "礁岛煞妖",
+  "chapter": 11,
+  "terrain": "field",
+  "hero_absent": false,
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "yinsha_shayao",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "yinsha_shayao",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "yinsha_shayao",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "yinsha_shayao",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch11.battle.yinsha_shayao.intro",
+  "origin": "原著",
+  "note": "战斗 ③，n22 trigger_guiju。结丹初期第一仗：四敌第 2 个出手回合同时蓄劲「变身」，教蓄劲连击在变身前清掉几个；破绽剑、木。不可逃、致命、无掉落。施工图 8.2 初版规格；独立 BattleHand 与正式 ch10-end 通关未进行。"
+}

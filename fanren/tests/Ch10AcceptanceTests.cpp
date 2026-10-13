@@ -22,7 +22,9 @@ void verifyRun(Driver& driver,const char* fixture) {
     const auto& cards=driver.app().cardLog();
     ASSERT_GE(cards.size(),2u);
     EXPECT_EQ(cards[cards.size()-2],(game::CardRequest{game::CardKind::Closing,10}));
-    EXPECT_EQ(cards.back(),(game::CardRequest{game::CardKind::ToBeContinued,0}));
+    // Chapter 11 is now in data/chapters.json: ch10.done queues Closing(10) then Opening(11)
+    // (contract interfaces-p3-ch11.md 8.3); only the table's last chapter gets ToBeContinued.
+    EXPECT_EQ(cards.back(),(game::CardRequest{game::CardKind::Opening,11}));
     ASSERT_FALSE(::testing::Test::HasFailure());
     const test::TempDir temporary("fanren_ch10_actual_ending");
     const auto path=temporary.path()/"ending.sav";

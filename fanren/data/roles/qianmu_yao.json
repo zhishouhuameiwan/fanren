@@ -1,0 +1,25 @@
+{
+  "id": "qianmu_yao",
+  "name": "千目妖",
+  "realm": "CoreEarly",
+  "maxHp": 760,
+  "maxMp": 300,
+  "attack": 64,
+  "defence": 44,
+  "speed": 18,
+  "element": 4,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch396 五级海妖，滚圆带刺、数十只绿眼。战斗 ① 首领：蓄势「刺球光罩」每 3 个出手回合一次、全体，被破势即作废；破绽土（怕被埋住，路径行动 haoyuantian_dating_qianmu 揭）与剑（曲魂主攻）。初版数值待平衡路以 tests/BattleHand.h 量过再定。",
+  "toughness": 6,
+  "weaknesses": [
+    "土",
+    "剑"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 1.8,
+    "all": true,
+    "text_key": "ch11.battle.qianmu.charge"
+  }
+}

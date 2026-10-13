@@ -1,0 +1,13 @@
+{
+  "id": "magic_zhizhu_tuwang",
+  "name": "蛛网",
+  "descKey": "magic.desc.magic_zhizhu_tuwang",
+  "element": 4,
+  "needMp": 20,
+  "power": 34,
+  "needRealm": "FoundationLate",
+  "boost": "power",
+  "target": "single",
+  "origin": "改编（原著手段的数据化）",
+  "note": "ch408 血玉蜘蛛吐网困妖尸。战斗 ④ 友军 xueyu_zhizhu_ally 的手段，水类、单体；妖尸 killable_by 含水，这一击要得了它的命。我方不学（E17）。施工图 8.2 初版规格；独立 BattleHand 与正式 ch10-end 通关未进行。"
+}

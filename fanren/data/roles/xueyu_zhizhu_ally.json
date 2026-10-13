@@ -1,0 +1,16 @@
+{
+  "id": "xueyu_zhizhu_ally",
+  "name": "血玉蜘蛛",
+  "realm": "FoundationLate",
+  "maxHp": 460,
+  "maxMp": 240,
+  "attack": 42,
+  "defence": 30,
+  "speed": 24,
+  "element": 4,
+  "magics": [
+    "magic_zhizhu_tuwang"
+  ],
+  "origin": "原著",
+  "note": "ch345 得、ch398 四级顶峰、ch408 吐网困妖尸。战斗 ④ 写死的友军 ×2，「吐网」是水类法术 magic_zhizhu_tuwang。非人形，由 sprites_enemies.py 画。初版数值待平衡路以 tests/BattleHand.h 量过再定。"
+}

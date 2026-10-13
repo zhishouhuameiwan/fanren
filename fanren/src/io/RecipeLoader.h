@@ -30,8 +30,9 @@ namespace fanren::io {
 [[nodiscard]] const char* craftKindToString(rules::CraftKind kind);
 
 // 读取单张配方。**结构性**校验：id / name / kind / productId / productCount /
-// difficulty / requiredProficiency / inputs 一项不合规就判失败，error 写明是哪个
-// 文件的哪一项。不查物品表（见文件头）。
+// difficulty / requiredProficiency / requireFlag / guaranteed / inputs 一项不合规就判失败，
+// error 写明是哪个文件的哪一项。guaranteed 必须是 bool，且为真时必须配 requireFlag
+//（契约 docs/interfaces-p3-ch11.md 1.3）。不查物品表（见文件头）。
 [[nodiscard]] core::Result<rules::Recipe> loadRecipe(const std::string& path);
 
 // 扫描整个目录（递归），并**核对每一条引用**：inputs 的 itemId 与 productId 都

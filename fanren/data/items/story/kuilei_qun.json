@@ -1,0 +1,11 @@
+{
+  "id": "story_kuilei_qun",
+  "name": "傀儡群",
+  "descKey": "item.desc.story_kuilei_qun",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch392 两年造出的二百余只兽形傀儡，旁白里「群射」，不进编成。n06 give、n14 收手时 take。第十一章独立物品。实物变化由主线脚本控制，不出售关键资源。"
+}

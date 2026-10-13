@@ -1,0 +1,14 @@
+{
+  "id": "zi_ling_zhenrong",
+  "name": "紫灵",
+  "realm": "FoundationLate",
+  "maxHp": 480,
+  "maxMp": 320,
+  "attack": 44,
+  "defence": 30,
+  "speed": 18,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch409 真容。数值照 zi_ling 的写法按筑基后期取 Realm.h 锚点。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

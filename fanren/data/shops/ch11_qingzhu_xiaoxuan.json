@@ -1,0 +1,9 @@
+{
+  "id": "ch11_qingzhu_xiaoxuan",
+  "name": "青竹小轩",
+  "nameKey": "ch11.shop.name.qingzhu_xiaoxuan",
+  "buyRate": 1.0,
+  "sellRate": 0.6,
+  "entries": [],
+  "note": "玩家自己的店（契约 E4）：买入页空、卖出 0.6，只卖符与药材（B8）；入口是 trigger_guitai ＋ guitai.lua，不设 shop facility。 初版经济待正式起点验账。"
+}

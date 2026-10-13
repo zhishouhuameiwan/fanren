@@ -1,5 +1,5 @@
 {
-  "checksum": "55f380ff4107dbfe",
+  "checksum": "40a4a2b1c0703963",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -437,7 +437,7 @@
       "stepsUntilNext": 0,
       "triggeredToday": 0
     },
-    "facing": 3,
+    "facing": 0,
     "fields": [
       {
         "id": "field_baiyaoyuan",
@@ -1037,7 +1037,7 @@
       "magic_ji_xiaodao",
       "magic_ji_hongxianzhen"
     ],
-    "mapId": "ch10_xiaohuan",
+    "mapId": "ch11_fangshi",
     "maxHp": 480,
     "maxMp": 320,
     "mp": 320,
@@ -1051,8 +1051,8 @@
     "playSecondsGameplay": 594.9999999997875,
     "playSecondsSystem": 0.0,
     "position": {
-      "x": 50,
-      "y": 39
+      "x": 28,
+      "y": 38
     },
     "realm": 23,
     "realmCap": 23,

@@ -1,0 +1,11 @@
+{
+  "id": "material_yaodan_liuji",
+  "name": "六级妖丹",
+  "descKey": "item.desc.material_yaodan_liuji",
+  "kind": "material",
+  "grade": 6,
+  "price": 6000,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "妖丹等阶用原著 1-10 级尺度；六级≈结丹中期。价格锚点 ch389：六级妖丹够一位筑基修士一生修炼。只由战斗 ② b11_honghu_jiguanjiao 的 drops 掉（原著它徘徊离去，打赢给丹是改编）；tradeable true 才能在凝翠岛收购行卖掉（0.8 → 4800）。第 11 章不入药，是第 12 章的钩子（A73）。"
+}

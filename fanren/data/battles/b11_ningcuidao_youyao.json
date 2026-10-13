@@ -1,33 +1,40 @@
 {
   "id": "b11_ningcuidao_youyao",
-  "name": "凝翠岛诱妖",
+  "name": "红瑚岛诱妖",
   "chapter": 11,
   "terrain": "sea",
+  "hero_absent": false,
   "can_escape": true,
   "defeat_is_fatal": true,
   "units": [
     {
-      "role_id": "siji_haishou",
-      "faction": "enemy"
+      "role_id": "qianmu_yao",
+      "faction": "enemy",
+      "wave": 0
     },
     {
-      "role_id": "sanji_haishou",
-      "faction": "enemy"
+      "role_id": "siji_haishou",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "siji_haishou",
+      "faction": "enemy",
+      "wave": 1
     }
   ],
   "rewards": {
-    "cultivation": 700,
-    "spirit_stones": 150,
+    "cultivation": 120,
+    "spirit_stones": 0,
     "drops": [
       {
-        "item_id": "material_yaodan_siji",
+        "item_id": "material_yaodan_wuji",
         "count": 1,
         "rate": 100
       }
     ]
   },
   "intro_key": "ch11.battle.ningcuidao_youyao.intro",
-  "origin": "原著",
-  "rewritten_by_lore": true,
-  "note": "经天星城第 50 层星空殿传送阵赴外星海凝翠岛，以霓裳草诱妖、杀妖取丹（ch393-396）。无「猎妖令」，接单形式是商行订单与门派悬赏（大纲第 11 章）。"
+  "origin": "原著（第二波四级海兽为改编）",
+  "note": "战斗 ①，n12 trigger_youyao 的循环仗（至少打 3 次）。首领千目妖蓄势全体，破势优先；第二波四级海兽随草香而来（改编，给旧 role 一条「暗器」的路）。可逃、致命；胜扣草 1 株由脚本在 battle 返回后扣，逃不扣；妖丹只由 drops 给。本章唯一给修为的仗。施工图 8.2 初版规格；独立 BattleHand 与正式 ch10-end 通关未进行。"
 }

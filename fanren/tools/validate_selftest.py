@@ -1798,29 +1798,30 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
     # 韩立不在场的那一仗，手段只有编成里友军的兵刃：第 5 章的通表里有火，这里却不算。
     expect("夺帮那一夜的头目只怕火与刀 → 报（我方只有拳）", "data/roles/sipingbang_toumu.json",
            lambda p: p.__setitem__("weaknesses", ["火", "刀"]), "没有一样是这一场", "b05_duobang")
-    outside_role = "data/roles/siji_haishou.json"
-    outside_battle = "b11_ningcuidao_youyao"
-    expect_quiet("第 11 章的敌人不在规则 25 的范围 → 不报", outside_role,
+    # 第 11 章写实了 b11_ningcuidao_youyao（E19），探针挪到全仓唯一含 wu_chou 的第 12 章编成。
+    outside_role = "data/roles/wu_chou.json"
+    outside_battle = "b12_neidian_duoding"
+    expect_quiet("第 12 章的敌人不在规则 25 的范围 → 不报", outside_role,
                  lambda p: p.__setitem__("weaknesses", ["木"]), outside_battle)
     # A missing probe is a failure, not an empty successful filter; the same enemy must fail inside scope.
     outside_path = work / "data" / "battles" / (outside_battle + ".json")
     role_path = work / outside_role
-    case.check("第 11 章范围探针文件及角色确实存在", outside_path.is_file() and role_path.is_file())
+    case.check("第 12 章范围探针文件及角色确实存在", outside_path.is_file() and role_path.is_file())
     if outside_path.is_file() and role_path.is_file():
         battle_original, role_original = outside_path.read_bytes(), role_path.read_bytes()
         probe = json.loads(battle_original)
         role = json.loads(role_original)
-        case.check("第 11 章范围探针实际引用四级海兽",
-                   probe.get("chapter") == 11 and any(unit.get("role_id") == "siji_haishou" and
+        case.check("第 12 章范围探针实际引用乌丑",
+                   probe.get("chapter") == 12 and any(unit.get("role_id") == "wu_chou" and
                    unit.get("faction") == "enemy" for unit in probe.get("units", [])))
         role["weaknesses"] = ["毒"]
-        probe["chapter"] = 10
+        probe["chapter"] = 11
         probe["hero_absent"] = False
         try:
             role_path.write_text(json.dumps(role, ensure_ascii=False, indent=2), encoding="utf-8")
             outside_path.write_text(json.dumps(probe, ensure_ascii=False, indent=2), encoding="utf-8")
             errors = rule_errors()
-            case.check("同一四级海兽移入第10章且只怕毒 → 必报",
+            case.check("同一乌丑移入第11章且只怕毒 → 必报",
                        any(outside_battle in error and "没有一样是这一场" in error for error in errors),
                        chr(10).join(errors[:3]) or "（范围阴性未被抓住）")
         finally:
@@ -2461,8 +2462,8 @@ def selftest_ch10_means(case: Case, base: Path) -> None:
                     ("金", "learn", "magic_ji_jinfu", "ch07"), ("木", "learn", "magic_ji_qingjiao", "ch07"),
                     ("暗器", "give", "weapon_wuming_sixian", "ch07")]
         case.check("第10章七类手段按跌落后的合同逐项一致", validate.CHAPTER_MEANS.get(10) == expected)
-        case.check("第8/9章批准表已接且末章10", 8 in validate.CHAPTER_MEANS and
-                   9 in validate.CHAPTER_MEANS and validate.MEANS_LAST_CHAPTER == 10)
+        case.check("第8/9章批准表已接且末章11", 8 in validate.CHAPTER_MEANS and
+                   9 in validate.CHAPTER_MEANS and validate.MEANS_LAST_CHAPTER == 11)
         clean = source_errors()
         case.check("真实来源：learn/give/友军法术/兵刃均无错", not clean, chr(10).join(clean[:3]))
         for battle_id, categories in (("b10_liuliandian_weisha", {"拳", "剑", "火", "水", "木"}),
@@ -2499,32 +2500,32 @@ def selftest_ch10_means(case: Case, base: Path) -> None:
                "青算子不在编成 → 木消失且必报，不借本尊的祭青蛟")
 
         roles, magics = inputs()
-        future_id = "b11_ningcuidao_youyao"
+        future_id = "b12_neidian_duoding"
         path = work / "data/battles" / (future_id + ".json")
         future = json.loads(path.read_text(encoding="utf-8"))
         refs = [(p, json.loads(p.read_text(encoding="utf-8"))) for p in (work / "data/battles").glob("*.json")]
-        referenced = [p.stem for p, payload in refs if any(u.get("role_id") == "siji_haishou" and
+        referenced = [p.stem for p, payload in refs if any(u.get("role_id") == "wu_chou" and
                       u.get("faction") == "enemy" for u in payload.get("units", []))]
-        case.check("outside探针实际是第11章且角色只在指定一场", future.get("chapter") == 11 and referenced == [future_id])
+        case.check("outside探针实际是第12章且角色只在指定一场", future.get("chapter") == 12 and referenced == [future_id])
 
         def scoped(chapter):
-            original_role = (work / "data/roles/siji_haishou.json").read_bytes()
+            original_role = (work / "data/roles/wu_chou.json").read_bytes()
             original_battle = path.read_bytes()
             role = json.loads(original_role)
             role["weaknesses"] = ["毒"]
             probe = dict(future, chapter=chapter, hero_absent=False)
             try:
-                (work / "data/roles/siji_haishou.json").write_text(json.dumps(role), encoding="utf-8")
+                (work / "data/roles/wu_chou.json").write_text(json.dumps(role), encoding="utf-8")
                 path.write_text(json.dumps(probe), encoding="utf-8")
                 report = validate.Report()
                 validate.check_battle_break_data(report)
                 return [e for e in report.errors if future_id in e and "没有一样是这一场" in e]
             finally:
-                (work / "data/roles/siji_haishou.json").write_bytes(original_role)
+                (work / "data/roles/wu_chou.json").write_bytes(original_role)
                 path.write_bytes(original_battle)
 
-        case.check("第11章只怕毒：范围外确实不报", not scoped(11))
-        case.check("同一四级海兽移入第10章：确实必报", bool(scoped(10)))
+        case.check("第12章只怕毒：范围外确实不报", not scoped(12))
+        case.check("同一乌丑移入第11章：确实必报", bool(scoped(11)))
         case.check("所有反例后真实来源再次无错", not source_errors())
     finally:
         validate.ROOT = saved_root

@@ -517,8 +517,10 @@ public:
         EXPECT_EQ(state().day-start_.day,9212);
         EXPECT_EQ(state().flag("ch10.yuyan"),2);
         EXPECT_EQ(state().flag("ch10.shizi"),1);
-        EXPECT_EQ(state().mapId,"ch10_xiaohuan");
-        EXPECT_EQ(state().position,(Point{50,39}));
+        // ch11 contract 8.3 / design 3.1 n01: zhifadui.lua ends with teleport("ch11_fangshi"),
+        // landing on that map's default spawn chengmen (28,38 in ch11_fangshi.tmj).
+        EXPECT_EQ(state().mapId,"ch11_fangshi");
+        EXPECT_EQ(state().position,(Point{28,38}));
         const auto* field = state().findField("field_xiaohuan");
         EXPECT_NE(field,nullptr);
         if (field) EXPECT_EQ(field->slots.size(),4u);

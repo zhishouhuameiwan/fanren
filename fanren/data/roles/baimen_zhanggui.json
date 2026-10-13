@@ -1,0 +1,14 @@
+{
+  "id": "baimen_zhanggui",
+  "name": "白门阁掌柜",
+  "realm": "QiRefining9",
+  "maxHp": 132,
+  "maxMp": 90,
+  "attack": 17,
+  "defence": 9,
+  "speed": 11,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "ch393 坊市卖妖兽资料的阁子；掌柜之名为改编。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

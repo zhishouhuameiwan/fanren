@@ -1,0 +1,16 @@
+{
+  "id": "kuilei_yuan",
+  "name": "猿形傀儡",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 200,
+  "attack": 38,
+  "defence": 30,
+  "speed": 15,
+  "element": 8,
+  "magics": [
+    "magic_kuilei_zihuo"
+  ],
+  "origin": "原著",
+  "note": "ch399 三级傀儡 / ch408 一百多只青色巨猿傀儡喷紫火。战斗 ④ 写死的友军 ×2 代表「上百只」，「紫火」是火类法术 magic_kuilei_zihuo。初版数值待平衡路以 tests/BattleHand.h 量过再定。"
+}

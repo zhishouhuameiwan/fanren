@@ -1,0 +1,30 @@
+{
+  "id": "tiandu_shi",
+  "name": "妖尸",
+  "realm": "CoreEarly",
+  "maxHp": 1600,
+  "maxMp": 0,
+  "attack": 70,
+  "defence": 50,
+  "speed": 26,
+  "element": 8,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch408 不怕法宝、伤口自愈、空中瞬移。战斗 ④「困而不杀」：killable_by 水、火（契约 E3），其余类别最多压到 1；气血高写「打不死」，自愈用 charge 表达；多动。胜利文案写困住，不写杀死。初版数值待平衡路以 tests/BattleHand.h 量过再定。",
+  "toughness": 4,
+  "weaknesses": [
+    "水",
+    "火"
+  ],
+  "actions": 2,
+  "killable_by": [
+    "水",
+    "火"
+  ],
+  "charge": {
+    "every": 2,
+    "mult": 1.5,
+    "all": false,
+    "text_key": "ch11.battle.tiandu.charge"
+  }
+}

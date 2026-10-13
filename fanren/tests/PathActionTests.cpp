@@ -898,7 +898,9 @@ const std::map<int, Realm>& realmCapOfChapter() {
                                               // 第 6 章：九层（scripts/ch06/kuxiu.lua 节点 9b 的 realm.advance）。
                                               {6, Realm::QiRefining9},
                                               {7, Realm::QiRefining11}, {8, Realm::FoundationMid}, {9, Realm::FoundationMid},
-                                              {10, Realm::FoundationLate}};
+                                              {10, Realm::FoundationLate},
+                                              // 第 11 章：结丹初期（scripts/ch11/biguan.lua 的 realm.advance，与 ch11.done 不同脚本）。
+                                              {11, Realm::CoreEarly}};
     return kCap;
 }
 

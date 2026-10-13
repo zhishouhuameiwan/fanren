@@ -221,6 +221,10 @@ inline constexpr const char* kChapterTenEndingFirst = "ch10-end-first.sav";
 inline constexpr const char* kChapterTenEndingSecond = "ch10-end-second.sav";
 inline constexpr const char* kWriteChapterTenFixturesEnv = "FANREN_WRITE_CH10_FIXTURES";
 
+inline constexpr const char* kChapterElevenEndingFirst = "ch11-end-first.sav";
+inline constexpr const char* kChapterElevenEndingSecond = "ch11-end-second.sav";
+inline constexpr const char* kWriteChapterElevenFixturesEnv = "FANREN_WRITE_CH11_FIXTURES";
+
 // Chapter 9 design 3.1 / 3.3 / 3.4; the destination describes the script's exit.
 struct ChapterNineStep {
     const char* map;

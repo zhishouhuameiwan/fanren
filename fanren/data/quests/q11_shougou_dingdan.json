@@ -1,0 +1,48 @@
+{
+  "id": "q11_shougou_dingdan",
+  "name": "收购行订单",
+  "chapter": 11,
+  "kind": "side",
+  "title_key": "ch11.quest.shougou_dingdan.title",
+  "summary_key": "ch11.quest.shougou_dingdan.summary",
+  "accept": [
+    {
+      "flag": "ch11.ningcui",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch11.quest.shougou_dingdan.s1",
+      "done": [
+        {
+          "flag": "ch11.z1",
+          "op": ">=",
+          "value": 2
+        }
+      ],
+      "target_map": "ch11_ningcui_jie",
+      "target_object": "npc_fan_xiaozi"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch11.z1",
+      "op": ">=",
+      "value": 2
+    }
+  ],
+  "rewards": [],
+  "fail": [
+    {
+      "flag": "ch11.huicheng",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch11.quest.shougou_dingdan.fail",
+  "origin": "改编",
+  "note": "ch389 猎妖换灵石的流程无许可制度；接单形式是本作改编（替代大纲的「猎妖令」）。酬劳由脚本 give（中阶 10 ＋ material_lianqi_yao 2），不进 rewards。坊市 facility_xuanshang 也列它。"
+}

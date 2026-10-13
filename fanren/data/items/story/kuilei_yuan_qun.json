@@ -1,0 +1,11 @@
+{
+  "id": "story_kuilei_yuan_qun",
+  "name": "猿形傀儡群",
+  "descKey": "item.desc.story_kuilei_yuan_qun",
+  "kind": "story",
+  "grade": 5,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch399 出关后以全部灵石造的三级傀儡；ch408 以它们困妖尸。n18 give，不扣。第十一章独立物品。实物变化由主线脚本控制，不出售关键资源。"
+}

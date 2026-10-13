@@ -1,0 +1,11 @@
+{
+  "id": "material_tianleizhu",
+  "name": "天雷竹",
+  "descKey": "item.desc.material_tianleizhu",
+  "kind": "material",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch401 范夫人说出三大神木之一；ch410 紫灵以带根的一节聘名义长老。n25 give 1、n26 培竹到金色时 take 1。tradeable false：卖出页不列它。"
+}

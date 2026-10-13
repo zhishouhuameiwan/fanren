@@ -1,0 +1,350 @@
+{
+  "type": "map",
+  "version": "1.10",
+  "tiledversion": "1.10.2",
+  "orientation": "orthogonal",
+  "renderorder": "right-down",
+  "width": 20,
+  "height": 14,
+  "tilewidth": 32,
+  "tileheight": 32,
+  "infinite": false,
+  "nextlayerid": 7,
+  "nextobjectid": 8,
+  "tilesets": [
+    {
+      "firstgid": 1,
+      "source": "tilesets/terrain_ch11_xiaoxuan.tsj"
+    }
+  ],
+  "properties": [
+    {
+      "name": "map_id",
+      "type": "string",
+      "value": "ch11_xiaoxuan"
+    },
+    {
+      "name": "display_name_key",
+      "type": "string",
+      "value": "ch11.map.xiaoxuan.name"
+    },
+    {
+      "name": "region",
+      "type": "string",
+      "value": "luanxinghai_zhongbu"
+    },
+    {
+      "name": "bgm",
+      "type": "string",
+      "value": "bgm_town"
+    },
+    {
+      "name": "chapter",
+      "type": "int",
+      "value": 11
+    },
+    {
+      "name": "outdoor",
+      "type": "bool",
+      "value": false
+    },
+    {
+      "name": "can_leave_edge",
+      "type": "bool",
+      "value": false
+    }
+  ],
+  "layers": [
+    {
+      "name": "ground",
+      "type": "tilelayer",
+      "width": 20,
+      "height": 14,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1
+      ]
+    },
+    {
+      "name": "overlay",
+      "type": "tilelayer",
+      "width": 20,
+      "height": 14,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+      ]
+    },
+    {
+      "name": "building",
+      "type": "tilelayer",
+      "width": 20,
+      "height": 14,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,8,8,8,8,0,0,0,0,0,0,0,0,8,8,8,8,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,8,8,8,8,8,8,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,5,5,5,5,5,5,5,5,5,5,0,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,5,0,5,5,5,5,5,5,5,5,5,5
+      ]
+    },
+    {
+      "name": "front",
+      "type": "tilelayer",
+      "width": 20,
+      "height": 14,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+      ]
+    },
+    {
+      "name": "collision",
+      "type": "tilelayer",
+      "width": 20,
+      "height": 14,
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "data": [
+        1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,1
+      ]
+    },
+    {
+      "name": "objects",
+      "type": "objectgroup",
+      "x": 0,
+      "y": 0,
+      "visible": true,
+      "opacity": 1,
+      "objects": [
+        {
+          "id": 1,
+          "name": "dian",
+          "type": "spawn",
+          "x": 288,
+          "y": 320,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "dian"
+            },
+            {
+              "name": "default",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "up"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "name": "facility_cunji_xx",
+          "type": "facility",
+          "x": 512,
+          "y": 320,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "kind",
+              "type": "string",
+              "value": "save"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "name": "trigger_jiesuan",
+          "type": "trigger",
+          "x": 256,
+          "y": 224,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch11/jiesuan.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch11.kaidian"
+            }
+          ]
+        },
+        {
+          "id": 4,
+          "name": "trigger_guitai",
+          "type": "trigger",
+          "x": 352,
+          "y": 224,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch11/guitai.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "interact"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "guard_flag",
+              "type": "string",
+              "value": "ch11.kaidian"
+            }
+          ]
+        },
+        {
+          "id": 5,
+          "name": "npc_he_xianshi_2",
+          "type": "npc",
+          "x": 128,
+          "y": 288,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "down"
+            },
+            {
+              "name": "role_id",
+              "type": "string",
+              "value": "he_xianshi"
+            },
+            {
+              "name": "wander",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "visible_flag",
+              "type": "string",
+              "value": "ch11.kaidian"
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch11.liugen"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "name": "npc_linju_dianzhu",
+          "type": "npc",
+          "x": 448,
+          "y": 288,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "down"
+            },
+            {
+              "name": "role_id",
+              "type": "string",
+              "value": "linju_dianzhu"
+            },
+            {
+              "name": "wander",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "name": "visible_flag",
+              "type": "string",
+              "value": "ch11.kaidian"
+            },
+            {
+              "name": "hidden_flag",
+              "type": "string",
+              "value": "ch11.liugen"
+            }
+          ]
+        },
+        {
+          "id": 7,
+          "name": "portal_chudian",
+          "type": "portal",
+          "x": 288,
+          "y": 416,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "target_map",
+              "type": "string",
+              "value": "ch11_fangshi"
+            },
+            {
+              "name": "target_spawn",
+              "type": "string",
+              "value": "xiaoxuan_men"
+            },
+            {
+              "name": "transition",
+              "type": "string",
+              "value": "fade"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

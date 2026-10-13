@@ -1,0 +1,15 @@
+-- @hook ch11_dongfu trigger_zhuzhan interact once
+-- Facts and participants: docs/ch11-design.md 13.1 n21. 门内一格 interact，存档点在前。
+talk("", "ch11.zhuzhan.fu")
+talk("", "ch11.zhuzhan.menpai")
+talk("", "ch11.zhuzhan.wang")
+talk("", "ch11.zhuzhan.pay")
+talk("qu_hun_shadan", "ch11.zhuzhan.qu")
+talk("hanli", "ch11.zhuzhan.decide")
+advance_days(15)
+talk("", "ch11.zhuzhan.puppets")
+talk("", "ch11.zhuzhan.island")
+talk("", "ch11.zhuzhan.chihuo")
+talk("", "ch11.zhuzhan.dawn")
+flag.set("ch11.zhuzhan")
+teleport("ch11_yinsha_dao")

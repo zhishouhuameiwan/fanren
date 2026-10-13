@@ -1,0 +1,14 @@
+{
+  "id": "zahuo_nc",
+  "name": "杂货铺掌柜",
+  "realm": "QiRefining8",
+  "maxHp": 120,
+  "maxMp": 80,
+  "attack": 15,
+  "defence": 8,
+  "speed": 11,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch394 凝翠岛小街杂货铺。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

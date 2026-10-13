@@ -57,6 +57,12 @@ struct Recipe {
     // 「还没得到」，面板不列、也开不了工（recipeKnown）。空串 = 没有门闸。追加在末尾，
     // 按字段顺序写的聚合初始化不受影响。
     std::string requireFlag;
+    // 必成（P3 第 11 章增补，契约 docs/interfaces-p3-ch11.md 1.2）：successChance 恒 kGuaranteedSuccessChance，
+    // 不落进 [kMinSuccessChance, kMaxSuccessChance]。原著 ch413–415 七十二口青竹蜂云剑一次炼成、
+    // 无材料再试；炼器失败折损一半（failurePolicyOf(Forge)），六根金雷竹折掉三根就是死局。
+    // 加载器要求它配 requireFlag（io/RecipeLoader）：没有门闸的必成方子会从第 7 章起就列在面板上。
+    // 追加在末尾，按字段顺序写的聚合初始化不受影响。
+    bool guaranteed = false;
 };
 
 // 炼制一次的结果。失败时材料是否损毁由 kind 决定：
@@ -82,8 +88,13 @@ struct FailurePolicy {
 // ---- 成功率参数 ----
 
 // 永远留 5% 失手与 5% 侥幸：全成功或全失败都会让玩法失去张力。
+// 例外只有 Recipe::guaranteed（第 11 章契约 1.1）：那一张方子由剧情门闸给，successChance 恒 100。
 inline constexpr int kMinSuccessChance = 5;
 inline constexpr int kMaxSuccessChance = 95;
+
+// 必成方子的成功率。写成常量不写字面量：测试钉的是「恰等于它」，不是「大于 95」。
+inline constexpr int kGuaranteedSuccessChance = 100;
+static_assert(kGuaranteedSuccessChance > kMaxSuccessChance);
 
 // 底数。没有它，零熟练度的新手连最简单的丹方都只能靠 5% 的侥幸开张，
 // 而熟练度又只能靠开工来涨——那不是难度，是死锁。
@@ -122,7 +133,7 @@ inline constexpr int kProficiencyGainOnFailure = 1;
 // 熟练度折半计入：它的量程与难度一样大，若 1:1 计入，熟练度一满就把资质与炉鼎
 // 挤成装饰品，三条养成线塌成一条。
 // 四个入参先各自夹到设计量程内再参与运算，任何整数入参（含 INT_MIN / INT_MAX）
-// 都不会让返回值跑出 [5, 95]。
+// 都不会让返回值跑出 [5, 95]。recipe.guaranteed 为真时不算，恒返回 kGuaranteedSuccessChance。
 [[nodiscard]] int successChance(const Recipe& recipe, int proficiency, int aptitude,
                                 int toolGrade) noexcept;
 

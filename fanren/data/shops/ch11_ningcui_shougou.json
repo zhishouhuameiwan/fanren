@@ -1,0 +1,9 @@
+{
+  "id": "ch11_ningcui_shougou",
+  "name": "凝翠岛收购行",
+  "nameKey": "ch11.shop.name.ningcui_shougou",
+  "buyRate": 1.0,
+  "sellRate": 0.8,
+  "entries": [],
+  "note": "只收不卖（契约 E4）：entries 空，卖出页只列 tradeable 的；五级妖丹 760、六级 4800。丰乐盟名下。 初版经济待正式起点验账。"
+}

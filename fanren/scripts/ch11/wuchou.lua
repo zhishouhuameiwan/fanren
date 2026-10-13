@@ -1,0 +1,17 @@
+-- @hook ch11_yinsha_dao trigger_wuchou enter once
+-- Facts and participants: docs/ch11-design.md 13.1 n23. 「虚天残图」「虚天殿」全章只在这里各一处。
+talk("", "ch11.wuchou.appear")
+talk("wu_chou", "ch11.wuchou.confess")
+talk("wu_chou", "ch11.wuchou.map")
+talk("yinsha_menzhu", "ch11.wuchou.deny")
+bgm("bgm_night")
+talk("", "ch11.wuchou.fushen")
+talk("jiyin_fushen", "ch11.wuchou.third")
+talk("jiyin_fushen", "ch11.wuchou.pai")
+talk("", "ch11.wuchou.feng")
+talk("zi_ling", "ch11.wuchou.ban")
+talk("jiyin_fushen", "ch11.wuchou.ban_old")
+talk("", "ch11.wuchou.back")
+talk("", "ch11.wuchou.no")
+bgm("map")
+flag.set("ch11.jiyin")

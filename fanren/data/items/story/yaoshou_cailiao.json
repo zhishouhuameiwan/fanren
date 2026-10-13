@@ -1,0 +1,11 @@
+{
+  "id": "story_yaoshou_cailiao",
+  "name": "妖兽材料",
+  "descKey": "item.desc.story_yaoshou_cailiao",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch397 五年猎妖攒下的一包材料；n14 give、n20 茶馆交易 take。第十一章独立物品。实物变化由主线脚本控制，不出售关键资源。"
+}

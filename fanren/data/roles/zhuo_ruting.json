@@ -1,0 +1,14 @@
+{
+  "id": "zhuo_ruting",
+  "name": "卓如婷",
+  "realm": "FoundationLate",
+  "maxHp": 480,
+  "maxMp": 320,
+  "attack": 44,
+  "defence": 30,
+  "speed": 18,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch402 妙音门右使。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

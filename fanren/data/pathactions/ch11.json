@@ -1,0 +1,438 @@
+{
+  "id": "pathactions_ch11",
+  "name": "第11章路径行动",
+  "chapter": 11,
+  "note": "十四条全是打探，零阅历门槛，purchase / challenge 0 条（城内不准斗法）。两条 reveal：千目妖的土、鸡冠蛟的金。",
+  "entries": [
+    {
+      "id": "baiyi_guiju_dating",
+      "kind": "inquire",
+      "map": "ch11_fangshi",
+      "npc": "npc_baiyi_xiushi",
+      "when": [
+        {
+          "flag": "ch11.chudao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.zhihuan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.baiyi_guiju_dating",
+      "text_key": "ch11.path.baiyi_guiju_dating.text",
+      "origin": "原著（ch390 城规与指环）"
+    },
+    {
+      "id": "luer_shengshan_dating",
+      "kind": "inquire",
+      "map": "ch11_fangshi",
+      "npc": "npc_lu_er",
+      "when": [
+        {
+          "flag": "ch11.zhihuan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.anju",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.luer_shengshan_dating",
+      "text_key": "ch11.path.luer_shengshan_dating.text",
+      "origin": "原著（ch391 圣山八十一层）"
+    },
+    {
+      "id": "fengle_mulu_dating",
+      "kind": "inquire",
+      "map": "ch11_fangshi",
+      "npc": "npc_fengle_menmian",
+      "when": [
+        {
+          "flag": "ch11.kuilei",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.fengle_mulu_dating",
+      "text_key": "ch11.path.fengle_mulu_dating.text",
+      "origin": "原著（ch393 拍卖目录）"
+    },
+    {
+      "id": "chuwu_dai_dating",
+      "kind": "inquire",
+      "map": "ch11_fangshi",
+      "npc": "npc_chuwu_zhanggui",
+      "when": [
+        {
+          "flag": "ch11.kuilei",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.huicheng",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.chuwu_dai_dating",
+      "text_key": "ch11.path.chuwu_dai_dating.text",
+      "origin": "原著（ch393 大储物袋）"
+    },
+    {
+      "id": "baimen_zhaixing_dating",
+      "kind": "inquire",
+      "map": "ch11_fangshi",
+      "npc": "npc_baimen_zhanggui",
+      "when": [
+        {
+          "flag": "ch11.kuilei",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.ziliao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.baimen_zhaixing_dating",
+      "text_key": "ch11.path.baimen_zhaixing_dating.text",
+      "origin": "原著（ch389 摘星大会）"
+    },
+    {
+      "id": "haoyuantian_waihai_dating",
+      "kind": "inquire",
+      "map": "ch11_ningcui_jie",
+      "npc": "npc_hao_yuantian",
+      "when": [
+        {
+          "flag": "ch11.ningcui",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.huicheng",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.path.haoyuantian_waihai_dating",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.haoyuantian_waihai_dating",
+      "text_key": "ch11.path.haoyuantian_waihai_dating.text",
+      "origin": "原著（ch394 外星海规矩）"
+    },
+    {
+      "id": "haoyuantian_qianmu_dating",
+      "kind": "inquire",
+      "map": "ch11_ningcui_jie",
+      "npc": "npc_hao_yuantian",
+      "when": [
+        {
+          "flag": "ch11.ningcui",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.path.haoyuantian_waihai_dating",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.huicheng",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.haoyuantian_qianmu_dating",
+      "text_key": "ch11.path.haoyuantian_qianmu_dating.text",
+      "origin": "改编（怕被埋住是本作给的破绽理由）",
+      "reveal": [
+        {
+          "role": "qianmu_yao",
+          "category": "土"
+        }
+      ],
+      "note": "同一 NPC 两条打探：门禁规则 26 要求时段证明不重叠，故本条 when 要求先打探过外海规矩。"
+    },
+    {
+      "id": "fanxiaozi_jiage_dating",
+      "kind": "inquire",
+      "map": "ch11_ningcui_jie",
+      "npc": "npc_fan_xiaozi",
+      "when": [
+        {
+          "flag": "ch11.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.ningcui",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.huicheng",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.fanxiaozi_jiage_dating",
+      "text_key": "ch11.path.fanxiaozi_jiage_dating.text",
+      "origin": "原著（ch389、394 妖丹价）"
+    },
+    {
+      "id": "zahuo_haiyu_dating",
+      "kind": "inquire",
+      "map": "ch11_ningcui_jie",
+      "npc": "npc_zahuo_nc",
+      "when": [
+        {
+          "flag": "ch11.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.ningcui",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.huicheng",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.zahuo_haiyu_dating",
+      "text_key": "ch11.path.zahuo_haiyu_dating.text",
+      "origin": "原著（ch394 海域图）"
+    },
+    {
+      "id": "zaohong_jiguan_dating",
+      "kind": "inquire",
+      "map": "ch11_xingkong",
+      "npc": "npc_zaohong_laozhe",
+      "when": [
+        {
+          "flag": "ch11.nichang",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.zaohong_jiguan_dating",
+      "text_key": "ch11.path.zaohong_jiguan_dating.text",
+      "origin": "改编（六级蛟类鳞甲只惧金刃是本作给的破绽理由）",
+      "reveal": [
+        {
+          "role": "jiguan_jiao",
+          "category": "金"
+        }
+      ],
+      "note": "可错过：n09 首演前才打探得到。"
+    },
+    {
+      "id": "linju_miaoyin_dating",
+      "kind": "inquire",
+      "map": "ch11_dongfu",
+      "npc": "npc_jiedan_linju_a",
+      "when": [
+        {
+          "flag": "ch11.zhaolan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.chaguan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.zhuzhan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.linju_miaoyin_dating",
+      "text_key": "ch11.path.linju_miaoyin_dating.text",
+      "origin": "原著（ch402 妙音门底细）"
+    },
+    {
+      "id": "linju_dingyan_dating",
+      "kind": "inquire",
+      "map": "ch11_dongfu",
+      "npc": "npc_jiedan_linju_b",
+      "when": [
+        {
+          "flag": "ch11.zhaolan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.linju_dingyan_dating",
+      "text_key": "ch11.path.linju_dingyan_dating.text",
+      "origin": "原著（ch399 邻居想要定颜丹）"
+    },
+    {
+      "id": "hexianshi_fanren_dating",
+      "kind": "inquire",
+      "map": "ch11_xiaoxuan",
+      "npc": "npc_he_xianshi_2",
+      "when": [
+        {
+          "flag": "ch11.kaidian",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.liugen",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.hexianshi_fanren_dating",
+      "text_key": "ch11.path.hexianshi_fanren_dating.text",
+      "origin": "原著（ch412 凡人店主的活法）"
+    },
+    {
+      "id": "jinqing_luanxing_dating",
+      "kind": "inquire",
+      "map": "ch11_dongfu",
+      "npc": "npc_jin_qing",
+      "when": [
+        {
+          "flag": "ch11.lianjian",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch11.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch11.path.jinqing_luanxing_dating",
+      "text_key": "ch11.path.jinqing_luanxing_dating.text",
+      "origin": "原著（ch415 叛乱谣言）"
+    }
+  ]
+}

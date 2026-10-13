@@ -1,0 +1,25 @@
+{
+  "id": "jiguan_jiao",
+  "name": "鸡冠蛟",
+  "realm": "CoreMid",
+  "maxHp": 1000,
+  "maxMp": 400,
+  "attack": 80,
+  "defence": 60,
+  "speed": 22,
+  "element": 4,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch396 六级蛟类，原著徘徊离去、本作一场可逃不致命的仗（改编）。多动、鳞甲护体，破绽只有金（路径行动 zaohong_dating_jiguan 揭）；蓄势每 2 个出手回合一次、全体，伤害明显高于五级。初版数值待平衡路以 tests/BattleHand.h 量过再定。",
+  "toughness": 8,
+  "weaknesses": [
+    "金"
+  ],
+  "actions": 2,
+  "charge": {
+    "every": 2,
+    "mult": 2.2,
+    "all": true,
+    "text_key": "ch11.battle.jiguan.charge"
+  }
+}

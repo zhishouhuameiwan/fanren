@@ -1,0 +1,30 @@
+{
+  "id": "b11_honghu_jiguanjiao",
+  "name": "红瑚岛六级蛟",
+  "chapter": 11,
+  "terrain": "sea",
+  "hero_absent": false,
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "jiguan_jiao",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": [
+      {
+        "item_id": "material_yaodan_liuji",
+        "count": 1,
+        "rate": 100
+      }
+    ]
+  },
+  "intro_key": "ch11.battle.honghu_jiguanjiao.intro",
+  "origin": "改编（原著它徘徊离去）",
+  "note": "战斗 ②，n13（ch11.lieyao == 4 且 ch11.jiguan == 0）。筑基后期第一次照面六级，逃是正解之一；破绽只有金。可逃、不致命；胜掉六级妖丹 1（脚本 0 处 give）。施工图 8.2 初版规格；独立 BattleHand 与正式 ch10-end 通关未进行。"
+}

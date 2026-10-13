@@ -1,0 +1,14 @@
+{
+  "id": "herb_nichang_cao",
+  "name": "霓裳草",
+  "descKey": "item.desc.herb_nichang_cao",
+  "kind": "herb",
+  "grade": 4,
+  "price": 10,
+  "tradeable": true,
+  "herbAge": 0,
+  "maxAge": 400,
+  "restoreMp": 0,
+  "origin": "原著",
+  "note": "ch395 诱妖草的正名。年份越高引来的妖兽越高阶；本作以株数计，不走 herbAge 曲线（诱妖一次扣一株）。n08 必给 3 株，坊市与凝翠岛杂货都卖、价 10。"
+}

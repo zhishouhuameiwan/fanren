@@ -1,0 +1,14 @@
+{
+  "id": "jiyin_fushen",
+  "name": "极阴祖师",
+  "realm": "CoreLate",
+  "maxHp": 1300,
+  "maxMp": 800,
+  "attack": 102,
+  "defence": 82,
+  "speed": 30,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch382 名号 / ch405 附身乌丑。只说话，realm 写 CoreLate 只供名牌。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

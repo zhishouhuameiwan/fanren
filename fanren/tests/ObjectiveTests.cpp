@@ -665,7 +665,14 @@ constexpr ScriptTransfer kScriptTransfers[] = {
     {"ch10.taoli", "scripts/ch10/zhenmen.lua", "ch10_jinhai"},
     {"ch10.zhangu", "scripts/ch10/ruzhen.lua", "ch10_haiyuandao"},
     {"ch10.shadan", "scripts/ch10/linshi.lua", "ch10_xiaohuan"},
-    {"ch10.done", "scripts/ch10/zhifadui.lua", "ch10_xiaohuan"},
+    {"ch10.done", "scripts/ch10/zhifadui.lua", "ch11_fangshi"},
+    // Chapter 11 design 3.1 (transfer table) / contract 8.3: five story exits plus one repeatable return.
+    {"ch11.zufu", "scripts/ch11/zufu.lua", "ch11_dongfu"},
+    {"ch11.chuansong", "scripts/ch11/xingkong.lua", "ch11_ningcui_jie"},
+    {"ch11.huicheng", "scripts/ch11/huicheng.lua", "ch11_dongfu"},
+    {"ch11.zhuzhan", "scripts/ch11/zhuzhan.lua", "ch11_yinsha_dao"},
+    {"ch11.yaoshi", "scripts/ch11/daoge.lua", "ch11_dongfu"},
+    {"ch11.chuansong", "scripts/ch11/huicheng_chuansong.lua", "ch11_xingkong", "trigger_huicheng_chuansong", "ch11_ningcui_jie"},
 };
 
 // 门的钥匙里不在目标链上的：哪个脚本置它、紧跟在链上哪一步之后到手。

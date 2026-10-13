@@ -2329,6 +2329,16 @@ CHAPTER_MEANS = {
          ("金", "learn", "magic_ji_jinfu", "ch07"),
          ("木", "learn", "magic_ji_qingjiao", "ch07"),
          ("暗器", "give", "weapon_wuming_sixian", "ch07")],
+    # 第 11 章（docs/ch11-design.md 8.2、笔记 E19）：起点筑基后期（n17 结丹），青元剑芒（筑基初期可施展）回表；
+    # 剑是第 6 章 scripts/ch06/lingqu.lua 给的烈阳剑（weapon「剑」），一直揣在身上；青竹蜂云剑走面板炼成，不登。
+    11: [("拳", "hand", "", ""),
+         ("火", "learn", "magic_huodan_shu", "ch04"),
+         ("土", "learn", "magic_liusha_shu", "ch06"),
+         ("水", "learn", "magic_bingdong_shu", "ch06"),
+         ("金", "learn", "magic_ji_jinfu", "ch07"),
+         ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
+         ("暗器", "give", "weapon_wuming_sixian", "ch07"),
+         ("剑", "give", "weapon_lieyang_jian", "ch06")],
 }
 # 某一场仗额外必有的：蚀心散在节点 7 备毒时由 scripts/ch03/beidu.lua 给出（两包起），
 # 暗道那一仗是节点 8。谷外遇狼（节点 1）那会儿还没有，所以不进第 3 章的通表。
@@ -2364,8 +2374,15 @@ BATTLE_EXTRA_MEANS = {
                      ("火", "role_magic", "magic_xuelian_guangzhu", "qu_hun_shadan"),
                      ("火", "role_magic", "magic_xuelian_ziyan", "qu_hun_shadan"),
                      ("金", "role_magic", "magic_ji_jinjian", "qu_hun_shadan")],
+    # 第 11 章四场韩立都在场（hero_absent false），曲魂（qu_hun_shadan）是队员、由 BattleScene::addPartyUnits
+    # 带进战斗，编成里没有它这一行——role_means_available 只认编成里写死的 ally，登它这里就自相矛盾地红，
+    # 所以不登（与第 10 章 b10_gu_zhanglao / b10_gujia_bidou 两场在队不登同一口径）；它的 剑 / 火 / 金
+    # 第 11 章通表本来就有。④ 妖尸那一场写死的友军：血玉蜘蛛的吐网（水）、猿傀的紫火（火）——困住它靠的
+    # 就是这两样（契约 E3），登成 role_magic 由来源检查核编成与境界。
+    "b11_tiandu_shi": [("水", "role_magic", "magic_zhizhu_tuwang", "xueyu_zhizhu_ally"),
+                       ("火", "role_magic", "magic_kuilei_zihuo", "kuilei_yuan")],
 }
-MEANS_LAST_CHAPTER = 10
+MEANS_LAST_CHAPTER = 11
 
 
 def check_category_list(where, payload, field, allowed, report) -> list[str]:

@@ -1,0 +1,199 @@
+{
+ "map": "ch11_dongfu",
+ "tile": 16,
+ "width": 34,
+ "height": 26,
+ "theme": "indoor_stone",
+ "time": "indoor",
+ "season": "summer",
+ "ambient": [
+  132,
+  116,
+  98
+ ],
+ "dof": 0.4,
+ "bloom": 0.5,
+ "vignette": 0.45,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.3
+  },
+  {
+   "kind": "mist",
+   "rate": 0.12
+  }
+ ],
+ "lights": [
+  {
+   "x": 15.5,
+   "y": 20.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  },
+  {
+   "x": 14.5,
+   "y": 6.5,
+   "r": 4.5,
+   "color": [
+    207,
+    116,
+    66
+   ],
+   "intensity": 1.0,
+   "flicker": 0.35,
+   "kind": "furnace"
+  },
+  {
+   "x": 8.5,
+   "y": 18.5,
+   "r": 4.5,
+   "color": [
+    207,
+    116,
+    66
+   ],
+   "intensity": 1.0,
+   "flicker": 0.35,
+   "kind": "furnace"
+  },
+  {
+   "x": 13.5,
+   "y": 4.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 18.5,
+   "y": 4.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 22.5,
+   "y": 6.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 7.5,
+   "y": 11.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 12.5,
+   "y": 11.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 27.5,
+   "y": 11.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 12.5,
+   "y": 21.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 17.5,
+   "y": 21.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 22.5,
+   "y": 21.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "ember",
+   "x": 14.5,
+   "y": 6.0
+  },
+  {
+   "kind": "ember",
+   "x": 8.5,
+   "y": 18.0
+  }
+ ],
+ "backdrop": "secret_room"
+}

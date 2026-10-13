@@ -48,9 +48,10 @@ using fanren::rules::Realm;
 //
 // 「留空 = 战场登记的法术都会」这条老口径在登记表恒为空的时候没有代价 ——
 // 全会一场空。登记表一旦真的有东西，它就会反过来决定杂兵能放什么：同场只要有人
-// 挂着一条法术，所有 magics 留空又有法力的单位都跟着会了。data 里真有这种编成
-// （b11_ningcuidao_youyao：maxMp 120 却一条法术没声明的三级海兽，和会海潮诀的
-// 四级海兽同场）。Unit::magicsExhaustive 就是为这件事加的，game 层一律置位。
+// 挂着一条法术，所有 magics 留空又有法力的单位都跟着会了。data 里曾有这种编成
+// （b11_ningcuidao_youyao 的占位版：maxMp 120 却一条法术没声明的三级海兽，和会海潮诀的
+// 四级海兽同场；该编成已在第 11 章写实，三级海兽已去掉）。Unit::magicsExhaustive 就是为
+// 这件事加的，game 层一律置位。
 // ---------------------------------------------------------------------------
 
 Unit makeUnit(const std::string& name, bool ally, int speed) {

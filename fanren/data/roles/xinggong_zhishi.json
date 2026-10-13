@@ -1,0 +1,14 @@
+{
+  "id": "xinggong_zhishi",
+  "name": "星宫执事",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 220,
+  "attack": 37,
+  "defence": 26,
+  "speed": 16,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch391 圣山脚下管洞府租赁的执事。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

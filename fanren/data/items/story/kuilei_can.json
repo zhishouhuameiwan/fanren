@@ -1,0 +1,11 @@
+{
+  "id": "story_kuilei_can",
+  "name": "傀儡残件",
+  "descKey": "item.desc.story_kuilei_can",
+  "kind": "story",
+  "grade": 2,
+  "price": 0,
+  "tradeable": false,
+  "origin": "改编",
+  "note": "五年海上消耗之后傀儡群剩下的残件，n14 以它换下 story_kuilei_qun（改编：原著只说傀儡损耗）。第十一章独立物品。实物变化由主线脚本控制，不出售关键资源。"
+}

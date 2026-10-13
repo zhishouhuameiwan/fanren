@@ -1,0 +1,14 @@
+{
+  "id": "lian_er",
+  "name": "莲儿",
+  "realm": "QiRefining3",
+  "maxHp": 60,
+  "maxMp": 30,
+  "attack": 6,
+  "defence": 3,
+  "speed": 8,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch399 坊市街上拦路的少女，妙音门弟子。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

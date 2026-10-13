@@ -1,0 +1,13 @@
+{
+  "id": "magic_kuilei_zihuo",
+  "name": "紫火",
+  "descKey": "magic.desc.magic_kuilei_zihuo",
+  "element": 8,
+  "needMp": 18,
+  "power": 36,
+  "needRealm": "FoundationMid",
+  "boost": "power",
+  "target": "single",
+  "origin": "改编（原著手段的数据化）",
+  "note": "ch408 青色巨猿傀儡喷紫火。战斗 ④ 友军 kuilei_yuan 的手段，火类、单体。我方不学（E17）。施工图 8.2 初版规格；独立 BattleHand 与正式 ch10-end 通关未进行。"
+}

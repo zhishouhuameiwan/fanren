@@ -110,12 +110,27 @@ constexpr OffChainFlag kOffChainFlags[] = {
     // 墨大夫之死：与 ch03.yuzitong_chujue 同在 chujue.lua，但先于它置——所以插在处决那一步
     // 之前（夺舍 ch03.shihai_done 之后），理由见文件头第 2 条。
     {"ch03.mo_siwang", "ch03.shihai_done", "ch03.yuzitong_chujue", "scripts/ch03/chujue.lua"},
+    // 第 11 章（契约 interfaces-p3-ch11.md 8.3、施工图 3.1 末与第 11 节）：目标链外的分支 / 计数旗标。
+    // 两个支线各插在接单旗标那一步之后（Z1 accept ch11.ningcui、Z2 accept ch11.zhaolan）。
+    {"ch11.z1", "ch11.ningcui", "ch11.buzhen", "scripts/ch11/shougou_dingdan.lua"},
+    // 闭关：biguan.lua 先写 dan_fu（第 6 行），realm.advance 之后才置 ch11.jiedan（第 31 行）。
+    {"ch11.dan_fu", "ch11.sangong", "ch11.jiedan", "scripts/ch11/biguan.lua"},
+    {"ch11.z2", "ch11.zhaolan", "ch11.lianer", "scripts/ch11/linju_z2.lua"},
+    // 培竹：zhu 累加到 3 时先置 zhu_gen = 1（第一根），再置 ch11.jinlei——两条都插在 jinlei 之前。
+    {"ch11.zhu", "ch11.zhanglao", "ch11.jinlei", "scripts/ch11/peizhu.lua"},
+    {"ch11.zhu_gen", "ch11.zhanglao", "ch11.jinlei", "scripts/ch11/peizhu.lua"},
+    {"ch11.jiesuan", "ch11.kaidian", "ch11.liugen", "scripts/ch11/jiesuan.lua"},
+    {"ch11.lianjian_qian", "ch11.liugen", "ch11.lianjian", "scripts/ch11/lianjian.lua"},
+    // ch11.jiguan（youyao.lua，语义上在 ch11.lieyao 与 ch11.huicheng 之间）没登：offChainProblems 按
+    // 脚本原文的先后核「之后」那一步，而 youyao.lua 的 ② 分支（flag.set("ch11.jiguan")，第 14 行）写在
+    // 累加 ch11.lieyao（第 31 行）之前——它要 lieyao == 4 才走得到，原文次序却反着，登上去必报
+    // 「先于 ch11.lieyao 置」。它不挂任何 NPC 的在场旗标，覆盖先验用不着它。
 };
 
 // 目标链至少要覆盖到的章：少了一章，那一章的 NPC 就没被考到。第 6 章目标链 2026-09-29 落地（data/objectives/ch06.json），
 // 第 7 章同日落地（data/objectives/ch07.json）。
 constexpr int kFirstChapter = 1;
-constexpr int kLastChapter = 9;
+constexpr int kLastChapter = 11;  // 第 10、11 章目标链（data/objectives/ch1{0,1}.json）都已落地
 
 TEST(NpcPresence, ChapterEightDepartureAndArrivalFlagsMatchTheDesign) {
     struct Presence { const char* map; const char* npc; const char* show; const char* hide; };

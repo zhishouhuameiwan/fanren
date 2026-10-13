@@ -1,0 +1,34 @@
+{
+  "id": "ch11_fangshi_zahuo",
+  "name": "坊市杂货铺",
+  "nameKey": "ch11.shop.name.fangshi_zahuo",
+  "buyRate": 1.0,
+  "sellRate": 0.4,
+  "entries": [
+    {
+      "itemId": "herb_nichang_cao",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 5,
+      "restockAmount": 5,
+      "maxStock": 10
+    },
+    {
+      "itemId": "material_fuzhi",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 10
+    },
+    {
+      "itemId": "material_dansha",
+      "price": 0,
+      "stock": 10,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 10
+    }
+  ],
+  "note": "施工图 9 第 12 条：霓裳草价 10、stock 10 / restockDays 5 / restockAmount 5 / maxStock 10；设施 require_flag ch11.nichang。 初版经济待正式起点验账。"
+}

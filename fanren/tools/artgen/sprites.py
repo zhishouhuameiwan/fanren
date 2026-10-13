@@ -49,7 +49,9 @@ FACILITY_OBJECTS = {
 }
 
 # 识海之战里韩立不是人形，是光球（b03_shihai_duoshe）
-BATTLE_OVERRIDES = {"b03_shihai_duoshe": {"hanli": "hanli_yuanshen"}}
+BATTLE_OVERRIDES = {"b03_shihai_duoshe": {"hanli": "hanli_yuanshen"},
+                    # 第 11 章③：隐煞门弟子在地图上是人形，进了战斗现出煞妖变身态（docs/ch11-design.md 第 18 节 A7）
+                    "b11_yinsha_shayao": {"yinsha_shayao": "yinsha_shayao_bianshen"}}
 
 # 第 6 章以后与既有敌人同类的兽/傀，借用现成的图（没有的就不列，运行时退回旧画法）
 ENEMY_ALIASES = {"heishajiao_shigui": "mofu_shigui"}

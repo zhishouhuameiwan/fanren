@@ -1,0 +1,40 @@
+{
+  "id": "b11_tiandu_shi",
+  "name": "礁岛妖尸",
+  "chapter": 11,
+  "terrain": "field",
+  "hero_absent": false,
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "xueyu_zhizhu_ally",
+      "faction": "ally"
+    },
+    {
+      "role_id": "xueyu_zhizhu_ally",
+      "faction": "ally"
+    },
+    {
+      "role_id": "kuilei_yuan",
+      "faction": "ally"
+    },
+    {
+      "role_id": "kuilei_yuan",
+      "faction": "ally"
+    },
+    {
+      "role_id": "tiandu_shi",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch11.battle.tiandu_shi.intro",
+  "origin": "原著",
+  "note": "战斗 ④，n24 trigger_daoge。「困而不杀」：妖尸 killable_by 水、火，友军蛛网（水）与紫火（火）是要得了它命的手段；胜在引擎里仍是气血归零，文案写困住（契约 E3）。不可逃、致命、无掉落。施工图 8.2 初版规格；独立 BattleHand 与正式 ch10-end 通关未进行。"
+}

@@ -157,3 +157,21 @@ write switch写入后已取消，逐字段比对和Application继续入口恢复
 `FANREN_WRITE_CH09_FIXTURES=1` 才允许写 `tests/fixtures/ch09-end-{first,second}.sav`。
 默认未设开关时必须真实走完并逐字段对交接档，不能用文件存在代替通关；当前准备阶段不预造终档。
 测试使用独立 `resume9test` 槽，内容与共享门禁串行冻结后才执行完整 `build_logged.bat resume9test`。
+
+## 第 10 章交接存档（第 11 章开工后重生成）
+
+`tests/fixtures/ch10-end-{first,second}.sav` 是第 11 章通关测试的起点。第 11 章给 `scripts/ch10/zhifadui.lua`
+末尾补了一行 `teleport("ch11_fangshi")`（契约 `docs/interfaces-p3-ch11.md` 8.3），终局从小环岛挪到天星城坊市城门
+（default spawn `chengmen`，28,38，朝上），所以 2026-10-13 按 `tests/ChapterFixture.h` 重生成：
+
+```powershell
+$env:FANREN_WRITE_CH10_FIXTURES = '1'
+.\build-ch11test\fanren_tests.exe --gtest_filter=Ch10Walkthrough.*
+$env:FANREN_WRITE_CH10_FIXTURES = $null
+.\build-ch11test\fanren_tests.exe --gtest_filter=Ch10*
+```
+
+新旧两份逐字段比（JSON payload）：两侧都只差 `mapId`（`ch10_xiaohuan` → `ch11_fangshi`）、`position`（50,39 → 28,38）、
+`facing`（3 → 0，spawn 朝上）与随之变的 `checksum`；`ch10.done == 1`，日期、灵石、背包、法术、队伍、旗标一项不变。
+`Ch10Driver.h` 的终点断言与 `Ch10AcceptanceTests` 的章节卡断言（「第十章　终」接第十一章开篇）同时改了。
+第 11 章的终局写到 `ch11-end-{first,second}.sav`，开关是 `FANREN_WRITE_CH11_FIXTURES`。

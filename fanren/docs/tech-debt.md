@@ -795,3 +795,25 @@ R-3（一炉不炼、攻防战必败、全章没有提示）已修：目标链�
    与第 9 节的账，Ledger 测试 `sellPrice == 7` 那一条跟着改。
 3. **账有人收**：第 7 章 ch179 卖符少女再出场时按 `ch06.qianyao` 收账（协调者已通知第 7 章内容路）；草帽青年免掉的那 5 瓶收不回来，
    是这条路的残余。
+
+## 第 11 章（2026-10-13）审查与集成留下的几条
+
+### G-29：规则 25 对韩立自学的法术不核境界与法力（门禁审查 G-1，MEDIUM）
+
+`tools/validate.py` 的 `check_means_sources` 走 `learn` 分支时，只在第 10 章特判里核过 `needRealm`，`needMp` 对韩立的 `maxMp` 任何一章都不核；友军走 `role_means_available` 两样都查，两边口径不一致。第 11 章 ② 唯一的破绽「金」压在祭金符上，现数据下打得到，所以不阻断。**将来怎么修**：`learn` 来路按「本章起点境界」查 `needRealm ≤ realm`、按 `realmMaxMp(realm) ≥ needMp` 查法力，与友军分支同一套函数；selftest 配一条「把祭金符 needMp 改到超出 → 必报」。
+
+### G-30：规则 25 看不到队员（集成偏差，第 11 章 18.4）
+
+`role_means_available` 只认编成里写死的 `ally`，在队的 `qu_hun_shadan` 由 `addPartyUnits` 加入、门禁看不到。第 10、11 章在队的场次都不登曲魂（照登会让来源检查红），结果是门禁低估了我方手段——偏严，不会放过打不到的仗。**将来怎么修**：门禁读章末 / 章内 party 的口径要有来源（目标链上的 party.add / remove），代价是给 validate 加一套队伍时间线；收益只在「只有队员打得到」的编成上。
+
+### G-31：`continueJourney` 读档后不恢复朝向（门禁审查 G-7、测试路 B 第 3 条，LOW）
+
+`Application::continueJourney`（`src/game/Application.cpp` 约第 561–577 行）只放回 `position`，`loadMap` 第 323–327 行随后用出生点的 `facing` 覆盖。玩家读档后可能背对着刚才说话的人。第 11 章终档把落点选在面朝北也对得上的格子（14,24）绕过。**修法**：`continueJourney` 在 `loadMap` 之后把存档里的 `facing` 写回；补一条读档前后朝向逐字相同的用例。
+
+### G-32：`ShopScene` 没有只读的主菜单访问器（引擎路契约 4.2-4 偏差，LOW）
+
+空 `entries` 商店「买入那一行 enabled == false」钉不到原话，用例改钉 `buildBuyItems` 只剩「返回」。要钉原话需给 `ShopScene` 加一行 `mainItems()`。
+
+### G-33：Lua `field.unlock` 没有返回值（内容路 C 偏差，LOW）
+
+`scripts/common/api.lua` 的 `field.unlock` 不回 ok / code，脚本无从核返回值（第 11 章 `anju.lua`）。其余 `give` / `take` / `bottle.*` 都回。**修法**：照 `give` 的写法回 `ok, code`，各章调用处不必改（多一个返回值无害）。

@@ -229,6 +229,9 @@ FailurePolicy failurePolicyOf(CraftKind kind) noexcept {
 }
 
 int successChance(const Recipe& recipe, int proficiency, int aptitude, int toolGrade) noexcept {
+    // 必成的方子（第 11 章契约 1.2）：放在夹量程之前，否则会被下面的 std::clamp 夹回 95。
+    // craft 掷的 d100 ∈ [1, 100] 必 ≤ 100，失败分支由此不可达，craft 本身一字不改。
+    if (recipe.guaranteed) return kGuaranteedSuccessChance;
     // 先各自夹到设计量程再参与运算：夹过之后这串乘加的取值范围是 [-60, 135]，
     // 无论入参多离谱都不可能溢出，最终的 [5, 95] 才是结构性成立的。
     const int prof = std::clamp(proficiency, 0, kMaxProficiency);

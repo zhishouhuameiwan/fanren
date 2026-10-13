@@ -1,0 +1,11 @@
+{
+  "id": "story_waihai_tu",
+  "name": "外海精细图",
+  "descKey": "item.desc.story_waihai_tu",
+  "kind": "story",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch393–394 另买的精细海图，凝翠岛杂货可买（n10 可选）。第十一章独立物品。实物变化由主线脚本控制，不出售关键资源。"
+}

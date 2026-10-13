@@ -1,0 +1,14 @@
+{
+  "id": "tongxing_xiushi",
+  "name": "同行修士",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 520,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch393 与妇人同行的两名结丹修士，本作合为一个对象。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

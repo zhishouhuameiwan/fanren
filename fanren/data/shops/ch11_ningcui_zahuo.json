@@ -1,0 +1,26 @@
+{
+  "id": "ch11_ningcui_zahuo",
+  "name": "凝翠岛杂货铺",
+  "nameKey": "ch11.shop.name.ningcui_zahuo",
+  "buyRate": 1.2,
+  "sellRate": 0.3,
+  "entries": [
+    {
+      "itemId": "herb_nichang_cao",
+      "price": 0,
+      "stock": 5,
+      "restockDays": 5,
+      "restockAmount": 3,
+      "maxStock": 5
+    },
+    {
+      "itemId": "material_fuzhi",
+      "price": 0,
+      "stock": 5,
+      "restockDays": 10,
+      "restockAmount": 2,
+      "maxStock": 5
+    }
+  ],
+  "note": "外海小街物价高两成；霓裳草 stock 5 / restockDays 5 / restockAmount 3 / maxStock 5。 初版经济待正式起点验账。"
+}

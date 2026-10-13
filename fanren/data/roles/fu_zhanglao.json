@@ -1,0 +1,14 @@
+{
+  "id": "fu_zhanglao",
+  "name": "符长老",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 520,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch404–405 妙音门客卿、中年儒生模样。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

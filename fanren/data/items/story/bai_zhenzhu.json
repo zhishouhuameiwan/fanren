@@ -1,0 +1,11 @@
+{
+  "id": "story_bai_zhenzhu",
+  "name": "白珍珠",
+  "descKey": "item.desc.story_bai_zhenzhu",
+  "kind": "story",
+  "grade": 5,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch415 金青登门所赠。n31 give，本章最后一件物品；用处留给后章。第十一章独立物品。实物变化由主线脚本控制，不出售关键资源。"
+}

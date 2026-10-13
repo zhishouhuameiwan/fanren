@@ -1,0 +1,25 @@
+{
+  "id": "yinsha_shayao",
+  "name": "隐煞门煞妖",
+  "realm": "FoundationLate",
+  "maxHp": 470,
+  "maxMp": 260,
+  "attack": 46,
+  "defence": 32,
+  "speed": 20,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch404 礁岛上化为煞妖的筑基后期邪修，战斗 ③ ×4。第 2 个出手回合「变身」全体蓄劲（charge），变身前普攻单体；破绽剑、木。变身态由 sprites_enemies.py 画。初版数值待平衡路以 tests/BattleHand.h 量过再定。",
+  "toughness": 3,
+  "weaknesses": [
+    "剑",
+    "木"
+  ],
+  "charge": {
+    "every": 2,
+    "mult": 1.7,
+    "all": true,
+    "text_key": "ch11.battle.shayao.charge"
+  }
+}

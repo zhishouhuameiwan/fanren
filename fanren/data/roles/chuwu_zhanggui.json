@@ -1,0 +1,14 @@
+{
+  "id": "chuwu_zhanggui",
+  "name": "储物袋铺掌柜",
+  "realm": "QiRefining10",
+  "maxHp": 144,
+  "maxMp": 100,
+  "attack": 19,
+  "defence": 10,
+  "speed": 12,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "ch393 坊市储物袋铺；掌柜为改编。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

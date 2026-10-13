@@ -3,17 +3,20 @@
   "name": "青竹蜂云剑图",
   "kind": "forge",
   "productId": "weapon_qingzhu_fengyun_jian",
-  "productCount": 12,
-  "difficulty": 90,
-  "requiredProficiency": 80,
+  "productCount": 1,
+  "difficulty": 0,
+  "requiredProficiency": 0,
+  "requireFlag": "ch11.liugen",
+  "guaranteed": true,
   "inputs": [
     {
       "itemId": "material_jinleizhu",
-      "count": 4
+      "count": 6
     },
     {
-      "itemId": "material_lingshi",
-      "count": 20
+      "itemId": "material_lianjian_fuliao",
+      "count": 1
     }
-  ]
+  ],
+  "note": "契约 interfaces-p3-ch11.md 1.4 / E1：金雷竹 6 ＋ 辅料 1、无灵石、必成。一件代表七十二口；炼器熟练 0 时 difficulty 0 只有 65%，必成靠 guaranteed。"
 }

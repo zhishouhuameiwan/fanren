@@ -300,6 +300,26 @@
       "backdrop": "dock_river",
       "map": "ch10_xiaohuan",
       "why": "批准用现有水面背景"
+    },
+    "b11_ningcuidao_youyao": {
+      "backdrop": "cliff_top",
+      "map": "ch11_honghu",
+      "why": "第11章施工图第8节：红瑚岛环心诱妖（trigger_youyao），白天的珊瑚礁，不新做背景"
+    },
+    "b11_honghu_jiguanjiao": {
+      "backdrop": "cliff_top",
+      "map": "ch11_honghu",
+      "why": "第11章施工图第8节：n12 的分支，同一处珊瑚礁"
+    },
+    "b11_yinsha_shayao": {
+      "backdrop": "cliff_top",
+      "map": "ch11_yinsha_dao",
+      "why": "第11章施工图第8节：隐煞门礁岛登岛即开打（trigger_guiju），白天的礁石"
+    },
+    "b11_tiandu_shi": {
+      "backdrop": "cliff_top",
+      "map": "ch11_yinsha_dao",
+      "why": "第11章施工图第8节：礁岛上妖尸拦路（trigger_daoge），同一处礁石"
     }
   }
 }

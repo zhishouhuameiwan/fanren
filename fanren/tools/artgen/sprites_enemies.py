@@ -1463,7 +1463,174 @@ def _chapter10_yingli():
 
 
 CHAPTER10_YINGLI = _chapter10_yingli()
-BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN) + CHAPTER8_BEASTS + (CHAPTER10_YINGLI,)
+
+
+def _chapter11_rows(kind, pose, w, h):
+    """第 11 章五个非人形（docs/ch11-design.md 第 5、8 节）：剪影各不相同，出招帧整体前移两列，倒下帧压扁。
+
+    qianmu_yao 千目妖：滚圆带刺的球，数十只绿眼 —— 刺球光罩的样子
+    jiguan_jiao 鸡冠蛟：长身的蛟，头顶一簇红冠，鳞甲护体
+    yinsha_shayao_bianshen 煞妖变身态：身形暴涨的魔物，双臂拖地，眼是红的
+    tiandu_shi 妖尸：直立的死物，灰白、僵直、双臂前伸，脚下一圈尸气
+    xueyu_zhizhu_ally 血玉蜘蛛（友军）：第 8 章血蜘蛛的同类，玉红的壳、腹上一点光
+    """
+    rows = [["."] * w for _ in range(h)]
+
+    def dot(x, y, code="B"):
+        if 0 <= x < w and 0 <= y < h:
+            rows[y][x] = code
+
+    def line(x0, y0, x1, y1, code="C"):
+        n = max(abs(x1 - x0), abs(y1 - y0), 1)
+        for step in range(n + 1):
+            dot(round(x0 + (x1 - x0) * step / n), round(y0 + (y1 - y0) * step / n), code)
+
+    def ellipse(cx, cy, rx, ry, code="B", top="A"):
+        for y in range(max(0, cy - ry), min(h, cy + ry + 1)):
+            for x in range(max(0, cx - rx), min(w, cx + rx + 1)):
+                if ((x - cx) / max(rx, 1)) ** 2 + ((y - cy) / max(ry, 1)) ** 2 <= 1:
+                    dot(x, y, top if y < cy - ry // 2 else code)
+
+    def rect(x0, y0, x1, y1, code):
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                dot(x, y, code)
+
+    down = pose == 2
+    shift = 2 if pose == 1 else 0
+    if kind == "qianmu_yao":
+        cx, cy, ry = 19 + shift, (26 if down else 17), (4 if down else 11)
+        ellipse(cx, cy, 13, ry)
+        if not down:
+            for k in range(14):                      # 一圈硬刺，出招时朝右的几根拉长发光
+                ang = k / 14 * 6.2832
+                ex, ey = cx + 13 * math.cos(ang), cy + 11 * math.sin(ang)
+                reach = 4 if (pose == 1 and math.cos(ang) > 0.3) else 2
+                line(round(ex), round(ey), round(ex + reach * math.cos(ang)),
+                     round(ey + reach * math.sin(ang)), "Y" if reach == 4 else "k")
+            for ex, ey in ((12, 13), (17, 11), (22, 12), (26, 14), (11, 18), (16, 16), (21, 17),
+                           (26, 19), (13, 22), (19, 21), (24, 23), (17, 25)):
+                dot(ex + shift, ey, "e")
+        else:
+            for ex in (10, 16, 22, 28):
+                dot(ex, 26, "n")
+    elif kind == "jiguan_jiao":
+        by = 27 if down else 20
+        for x in range(4, 36):                       # 长身：一道起伏的脊
+            yy = by + (0 if down else round(3 * math.sin(x / 4.5)))
+            for d in range(-2, 3):
+                dot(x + shift, yy + d, "A" if d == -2 else "B" if d < 1 else "C")
+            if x % 5 == 0 and not down:
+                dot(x + shift, yy - 3, "k")           # 背鳍
+        hx, hy = 40 + shift, (26 if down else 12)
+        ellipse(hx, hy, 6, 4 if down else 5)
+        if not down:
+            for d in range(0, 5):
+                line(hx - 4 + d * 2, hy - 5, hx - 3 + d * 2, hy - 8 + (d % 2), "R")   # 鸡冠
+            dot(hx + 2, hy - 1, "e")
+            rect(hx + 3, hy + 2, hx + 6, hy + 2, "W" if pose == 1 else "r")
+            line(4, by, 1, by - 4, "C")               # 尾
+        else:
+            dot(hx + 2, hy, "n")
+    elif kind == "yinsha_shayao_bianshen":
+        if down:
+            ellipse(16, 27, 11, 3)
+            dot(24, 26, "n")
+            return tuple("".join(row) for row in rows)
+        ellipse(15 + shift, 16, 7, 8)                   # 躯干
+        ellipse(18 + shift, 6, 4, 4)                    # 头
+        dot(19 + shift, 5, "e")
+        dot(21 + shift, 5, "e")
+        rect(18 + shift, 8, 21 + shift, 8, "W")
+        line(9 + shift, 12, 3 + shift, 24, "A")         # 拖地的双臂
+        line(22 + shift, 12, 28 + shift + (3 if pose == 1 else 0), 22, "A")
+        for x in (3, 28 + (3 if pose == 1 else 0)):
+            rect(x + shift - 1, 24 if x == 3 else 22, x + shift + 1, 24 if x == 3 else 22, "k")
+        line(12 + shift, 23, 10 + shift, 30, "C")       # 腿
+        line(18 + shift, 23, 20 + shift, 30, "C")
+        rect(8 + shift, 30, 22 + shift, 30, "Z")        # 脚下煞气
+    elif kind == "tiandu_shi":
+        if down:
+            ellipse(16, 27, 10, 3, "G", "F")
+            dot(23, 26, "n")
+            return tuple("".join(row) for row in rows)
+        rect(12 + shift, 9, 18 + shift, 22, "G")        # 僵直的身子
+        rect(12 + shift, 9, 18 + shift, 10, "F")
+        ellipse(15 + shift, 5, 3, 3, "G", "F")
+        dot(16 + shift, 5, "e")
+        dot(14 + shift, 5, "e")
+        line(18 + shift, 11, 26 + shift + (2 if pose == 1 else 0), 11, "F")   # 前伸的双臂
+        line(18 + shift, 13, 25 + shift + (2 if pose == 1 else 0), 13, "F")
+        rect(12 + shift, 23, 13 + shift, 29, "G")
+        rect(17 + shift, 23, 18 + shift, 29, "G")
+        for x in range(8, 24, 3):
+            dot(x + shift, 30, "Z")                     # 脚下尸火
+            dot(x + shift + 1, 31, "Z")
+    else:                                               # xueyu_zhizhu_ally
+        ellipse(14 + shift, 11 if not down else 19, 8, 6 if not down else 2)
+        ellipse(23 + shift, 12 if not down else 19, 4, 4 if not down else 2, "C")
+        dot(14 + shift, 11 if not down else 19, "Y")    # 腹上一点玉光
+        if not down:
+            for x in (8, 13, 18, 22):
+                line(x, 12, x - 5, 16)
+                line(x - 5, 16, x - 6, 21)
+                line(x, 12, x + 3, 5)
+                line(x + 3, 5, x + 6, 3)
+            dot(26 + shift, 11, "e")
+            if pose == 1:
+                line(27, 13, 31, 13, "W")
+        else:
+            dot(26, 19, "n")
+    return tuple("".join(row) for row in rows)
+
+
+def _chapter11_beast(kind, name, w, h, leg_top, ramps, note):
+    base = dict(WOLF.ramps)
+    base.update(ramps)
+    codes = _codes({"Y": ("glow", 3), "R": ("crest", 2), "Z": ("haze", 1)})
+    return Beast(kind, name, w, h, _chapter11_rows(kind, 0, w, h), _chapter11_rows(kind, 1, w, h),
+                 _chapter11_rows(kind, 2, w, h), base, codes, leg_top, note)
+
+
+CHAPTER11_BEASTS = tuple(_chapter11_beast(*entry) for entry in (
+    ("qianmu_yao", "千目妖", 40, 32, 29,
+     {"fur": [P.mix("jade0", "ink1", .5), P.mix("jade1", "ink2", .4), P.c("jade2"), P.mix("jade3", "paper", .2)],
+      "eyeglow": [P.c("jade1"), P.c("jade2"), P.c("jade3"), P.mix("jade4", "paper", .4)],
+      "glow": [P.c("jade2"), P.c("jade3"), P.c("jade4"), P.mix("jade4", "paper", .5)],
+      "crest": [P.c("red1"), P.c("red2"), P.c("red3"), P.c("red3")],
+      "haze": [P.c("ink0"), P.c("ink1"), P.c("ink2"), P.c("ink3")]},
+     "第 11 章五级妖兽：滚圆带刺、数十只绿眼；出招帧朝右的刺拉长发光（刺球光罩）。"),
+    ("jiguan_jiao", "鸡冠蛟", 48, 32, 29,
+     {"fur": [P.mix("water0", "ink1", .5), P.c("water1"), P.c("water2"), P.mix("water3", "paper", .2)],
+      "eyeglow": [P.c("gold1"), P.c("gold2"), P.c("gold3"), P.mix("gold4", "paper", .3)],
+      "glow": [P.c("gold2"), P.c("gold3"), P.c("gold4"), P.mix("gold4", "paper", .5)],
+      "crest": [P.c("red1"), P.c("red2"), P.c("red3"), P.mix("red3", "paper", .3)],
+      "haze": [P.c("ink0"), P.c("ink1"), P.c("ink2"), P.c("ink3")]},
+     "第 11 章六级妖兽：长身青鳞、头顶红冠、背鳍一排；出招是张口前探。"),
+    ("yinsha_shayao_bianshen", "隐煞门煞妖（变身）", 32, 32, 30,
+     {"fur": [P.c("ink0"), P.mix("violet0", "ink1", .5), P.mix("violet1", "ink2", .4), P.c("violet2")],
+      "eyeglow": [P.c("red1"), P.c("red2"), P.c("red3"), P.mix("red3", "paper", .3)],
+      "glow": [P.c("violet2"), P.c("violet3"), P.c("violet3"), P.mix("violet3", "paper", .4)],
+      "crest": [P.c("red1"), P.c("red2"), P.c("red3"), P.c("red3")],
+      "haze": [P.c("ink0"), P.mix("violet0", "ink1", .6), P.mix("violet1", "ink2", .5), P.c("violet1")]},
+     "第 11 章战斗③的煞妖变身态：身形暴涨、双臂拖地、红眼，脚下一圈煞气；人形态走人物表（arch_demonic_m）。"),
+    ("tiandu_shi", "妖尸", 32, 32, 30,
+     {"belly": [P.mix("stone1", "ink2", .5), P.c("stone2"), P.c("stone3"), P.mix("stone4", "paper", .3)],
+      "eyeglow": [P.c("red1"), P.c("red2"), P.c("red3"), P.mix("red3", "paper", .3)],
+      "glow": [P.c("red2"), P.c("red3"), P.c("gold3"), P.mix("gold4", "paper", .4)],
+      "crest": [P.c("red1"), P.c("red2"), P.c("red3"), P.c("red3")],
+      "haze": [P.mix("jade0", "ink1", .5), P.mix("jade1", "ink1", .4), P.c("jade2"), P.c("jade3")]},
+     "第 11 章战斗④的妖尸：直立、灰白、僵直，双臂前伸，脚下一圈青色尸火；困而不杀，倒下帧只是倒地。"),
+    ("xueyu_zhizhu_ally", "血玉蜘蛛", 32, 24, 19,
+     {"fur": [P.mix("red1", "ink1", .5), P.mix("red2", "ink2", .3), P.c("red3"), P.mix("red3", "paper", .3)],
+      "eyeglow": [P.c("jade2"), P.c("jade3"), P.c("jade4"), P.mix("jade4", "paper", .4)],
+      "glow": [P.c("red3"), P.mix("red3", "paper", .3), P.mix("red3", "paper", .5), P.mix("red3", "paper", .7)],
+      "crest": [P.c("red1"), P.c("red2"), P.c("red3"), P.c("red3")],
+      "haze": [P.c("ink0"), P.c("ink1"), P.c("ink2"), P.c("ink3")]},
+     "第 11 章战斗④的友军：第 8 章血蜘蛛的同类，玉红的壳、腹上一点光；出招是吐网（同第 8 章的张口）。"),
+))
+
+BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN) + CHAPTER8_BEASTS + (CHAPTER10_YINGLI,) + CHAPTER11_BEASTS
 
 
 def _canvas_from(rows: tuple[str, ...], beast: Beast) -> Canvas:

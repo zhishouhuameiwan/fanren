@@ -1,0 +1,14 @@
+{
+  "id": "jiedan_linju_yi",
+  "name": "右舍结丹修士",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 520,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch399 三十九层上传音贺喜的结丹邻居之一（npc_jiedan_linju_b，挂支线 Z2 linju_z2.lua 与打探 linju_dingyan_dating）。规则 30 不许同图两个对象同 role 同旗标，按施工图 16.1 第 4 条（O-4）拆成 _jia / _yi 两个 role，外观共用 ch11_jiedan_linju。第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}

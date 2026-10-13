@@ -151,6 +151,19 @@ core::Result<rules::Recipe> loadRecipe(const std::string& path) {
         }
     }
 
+    // 必成（契约 docs/interfaces-p3-ch11.md 1.3）：缺省 false；写了就得是 bool——"guaranteed": "yes"
+    // 与 "difficulty": "很难" 同一口径，该当场喊出来，而不是被 readBool 悄悄退成 false。
+    if (root.contains("guaranteed") && !root["guaranteed"].is_boolean()) {
+        return Out::failure("配方 " + recipe.id + " 的 guaranteed 必须是 true/false：" + path);
+    }
+    recipe.guaranteed = readBool(root, "guaranteed", false);
+    // 必成必配门闸：recipeKnown 只看 requireFlag，没有门闸的必成方子会从第 7 章起就列在面板上，
+    // 等于一张白送的产物。全仓眼下只许 recipe_qingzhu_fengyun_jian 一张（tests/Ch11EngineTests.cpp 钉）。
+    if (recipe.guaranteed && recipe.requireFlag.empty()) {
+        return Out::failure("配方 " + recipe.id +
+                            " 写了 guaranteed 却没有 requireFlag 门闸（必成的方子必须由剧情给）：" + path);
+    }
+
     if (!root.contains("inputs") || !root["inputs"].is_array()) {
         return Out::failure("配方 " + recipe.id + " 缺少 inputs 数组：" + path);
     }

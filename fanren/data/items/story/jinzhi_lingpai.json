@@ -1,0 +1,11 @@
+{
+  "id": "story_jinzhi_lingpai",
+  "name": "禁制令牌",
+  "descKey": "item.desc.story_jinzhi_lingpai",
+  "kind": "story",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch391 租下三十九层洞府后执事所给，开洞府禁制之用。n04 give。第十一章独立物品。实物变化由主线脚本控制，不出售关键资源。"
+}

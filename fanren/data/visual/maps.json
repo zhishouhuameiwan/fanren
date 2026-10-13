@@ -2331,6 +2331,126 @@
           "why": "临时洞府荒山石壁"
         }
       ]
+    },
+    "ch11_fangshi": {
+      "theme": "town",
+      "time": "day",
+      "backdrop": "town_street",
+      "why": "第11章施工图第4节：天星城坊市用现成的 town/day/town_street，粒子 dust；三区一张图。",
+      "particles": [{"kind": "dust", "rate": 0.25}],
+      "dof": 0.6,
+      "dof_why": "开阔的室外大图（56×44），屋顶群上下糊开",
+      "zones": [
+        {"rect": [43, 4, 52, 10], "ground": "wood_floor", "why": "东北角茶馆雅间（室内 zone）"},
+        {"rect": [1, 36, 54, 42], "ground": "earth", "why": "城门外的土坪"}
+      ],
+      "structures": [
+        {"rect": [1, 1, 15, 8], "kind": "rock", "style": "cliff", "why": "西北角圣山山脚岩体"},
+        {"rect": [31, 1, 40, 2], "kind": "rock", "style": "cliff", "why": "北缘岩体"}
+      ]
+    },
+    "ch11_dongfu": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "backdrop": "secret_room",
+      "why": "第11章施工图第4节：圣山第三十九层洞府用现成的 indoor_stone/indoor/secret_room。",
+      "particles": [{"kind": "dust", "rate": 0.3}, {"kind": "mist", "rate": 0.12}],
+      "dof": 0.4,
+      "dof_why": "室内（34×26），取室内的常用值",
+      "zones": [
+        {"rect": [24, 17, 31, 23], "ground": "earth", "why": "药园：洞中辟出的一片泥地"},
+        {"rect": [25, 18, 27, 19], "ground": "tilled", "why": "六槽灵田（field_tianxing_39）"},
+        {"rect": [24, 12, 30, 16], "ground": "cave_floor", "why": "虫室：未铺砖的洞底"},
+        {"rect": [11, 22, 22, 24], "ground": "flagstone", "why": "门外小径（山壁上的平台）"}
+      ],
+      "props": [
+        {"at": [6, 12], "kind": "stone_bed", "why": "密室石榻（闭关）"},
+        {"at": [13, 5], "kind": "cabinet", "why": "丹房药柜"},
+        {"at": [24, 12], "kind": "cage", "why": "虫室的虫笼"},
+        {"at": [27, 15], "kind": "cage", "why": "虫室的虫笼"}
+      ]
+    },
+    "ch11_xingkong": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "backdrop": "secret_room",
+      "why": "第11章施工图第4节：星空殿用 indoor_stone，大理石殿靠 ambient 提亮。",
+      "particles": [{"kind": "dust", "rate": 0.25}],
+      "ambient": [178, 172, 164],
+      "dof": 0.4,
+      "dof_why": "室内（24×18），取室内的常用值",
+      "zones": [
+        {"rect": [3, 3, 20, 14], "ground": "stone_floor", "why": "大理石殿面"}
+      ]
+    },
+    "ch11_ningcui_jie": {
+      "theme": "dock",
+      "time": "day",
+      "backdrop": "dock_river",
+      "why": "第11章施工图第4节：凝翠岛小街用现成的 dock/day/dock_river，粒子 mist。",
+      "particles": [{"kind": "mist", "rate": 0.5}],
+      "dof": 0.6,
+      "dof_why": "室外海岛，远近两头糊开",
+      "zones": [
+        {"rect": [28, 10, 29, 11], "road": "plank", "why": "东口栈桥"},
+        {"rect": [2, 13, 27, 16], "ground": "sand", "why": "街南的沙岸"},
+        {"rect": [4, 7, 7, 10], "ground": "stone_floor", "why": "传送石屋地面"}
+      ],
+      "decals": [
+        {"at": [28, 13], "w": 2, "h": 2, "kind": "boat", "why": "东口外拴着的小船（挡路的水格）"}
+      ]
+    },
+    "ch11_honghu": {
+      "theme": "cliff",
+      "time": "day",
+      "backdrop": "cliff_top",
+      "why": "第11章施工图第4节：红瑚岛用现成的 cliff/day/cliff_top，粒子 mist；① ② 两场的背景。",
+      "particles": [{"kind": "mist", "rate": 0.5}],
+      "dof": 0.6,
+      "dof_why": "室外环礁，远近两头糊开",
+      "zones": [
+        {"rect": [5, 4, 31, 25], "ground": "gravel", "why": "环形珊瑚礁面"},
+        {"rect": [16, 13, 19, 16], "ground": "scree", "why": "环心孤礁"}
+      ],
+      "structures": [
+        {"rect": [12, 5, 14, 7], "kind": "rock", "style": "cliff", "why": "环礁上的礁石（不是房子）"},
+        {"rect": [27, 20, 29, 23], "kind": "rock", "style": "cliff", "why": "礁石"},
+        {"rect": [8, 21, 10, 23], "kind": "rock", "style": "cliff", "why": "礁石"},
+        {"rect": [22, 6, 23, 7], "kind": "rock", "style": "cliff", "why": "礁石"},
+        {"rect": [6, 9, 7, 10], "kind": "rock", "style": "cliff", "why": "礁石"}
+      ]
+    },
+    "ch11_yinsha_dao": {
+      "theme": "wild",
+      "time": "day",
+      "backdrop": "cliff_top",
+      "why": "第11章施工图第4节：隐煞门礁岛用现成的 wild/day/cliff_top，粒子 mist；③ ④ 两场的背景。",
+      "particles": [{"kind": "mist", "rate": 0.4}],
+      "dof": 0.6,
+      "dof_why": "室外礁岛，远近两头糊开",
+      "zones": [
+        {"rect": [6, 3, 21, 15], "ground": "gravel", "why": "礁石小岛的岩面"}
+      ],
+      "structures": [
+        {"rect": [7, 4, 8, 5], "kind": "rock", "style": "cliff", "why": "岛上的礁石（不是房子）"},
+        {"rect": [18, 4, 20, 5], "kind": "rock", "style": "cliff", "why": "礁石"},
+        {"rect": [6, 12, 7, 14], "kind": "rock", "style": "cliff", "why": "礁石"},
+        {"rect": [19, 13, 21, 15], "kind": "rock", "style": "cliff", "why": "礁石"}
+      ]
+    },
+    "ch11_xiaoxuan": {
+      "theme": "indoor_wood",
+      "time": "indoor",
+      "backdrop": "inn_hall",
+      "why": "第11章施工图第4节：青竹小轩用现成的 indoor_wood/indoor/inn_hall。",
+      "particles": [{"kind": "dust", "rate": 0.3}],
+      "dof": 0.35,
+      "dof_why": "窄的室内（20×14），只糊一点边",
+      "props": [
+        {"at": [3, 3], "kind": "bed", "why": "后宅的床"},
+        {"at": [15, 3], "kind": "desk", "why": "后宅书案（记账）"},
+        {"at": [9, 3], "kind": "bookshelf", "why": "后宅货架"}
+      ]
     }
   }
 }

@@ -1,0 +1,14 @@
+{
+  "id": "li_dianzhu",
+  "name": "李氏杂货店主",
+  "realm": "Mortal",
+  "maxHp": 45,
+  "maxMp": 0,
+  "attack": 10,
+  "defence": 8,
+  "speed": 9,
+  "element": 0,
+  "magics": [],
+  "origin": "改编",
+  "note": "ch412 坊市凡人店主，店后改作青竹小轩；人物为改编。 第十一章独立角色，不上场。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10 章路人写法。"
+}
