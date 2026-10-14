@@ -1,0 +1,12 @@
+{
+  "id": "magic_shijin_chongqun",
+  "name": "噬金虫群",
+  "descKey": "magic.desc.magic_shijin_chongqun",
+  "element": 1,
+  "needMp": 16,
+  "power": 22,
+  "needRealm": "FoundationLate",
+  "boost": "hits",
+  "origin": "原著（手段的数据化）",
+  "note": "ch419–421 看守怪人一段，数万噬金虫当众出袋；此后鬼雾、蚁群、器灵几仗的主手段都是它（施工图第 7 节）。n03 magic.learn 看返回值，全仓恰 1 处；物品 story_shijin_chong 不动。金、连发（boost hits：蓄劲多放出几群），是 ② 蚁群与 ③ 银形器灵 killable_by 里「金」的来路之一。数值是内容初值，归平衡路按 tests/BattleHand.h 量。"
+}

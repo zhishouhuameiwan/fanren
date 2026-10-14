@@ -798,9 +798,11 @@ R-3（一炉不炼、攻防战必败、全章没有提示）已修：目标链�
 
 ## 第 11 章（2026-10-13）审查与集成留下的几条
 
-### G-29：规则 25 对韩立自学的法术不核境界与法力（门禁审查 G-1，MEDIUM）
+### ~~G-29~~：规则 25 对韩立自学的法术不核境界与法力（门禁审查 G-1，MEDIUM；**已解决，2026-10-13 第 12 章整改第 1 轮·测试与门禁路**）
 
 `tools/validate.py` 的 `check_means_sources` 走 `learn` 分支时，只在第 10 章特判里核过 `needRealm`，`needMp` 对韩立的 `maxMp` 任何一章都不核；友军走 `role_means_available` 两样都查，两边口径不一致。第 11 章 ② 唯一的破绽「金」压在祭金符上，现数据下打得到，所以不阻断。**将来怎么修**：`learn` 来路按「本章起点境界」查 `needRealm ≤ realm`、按 `realmMaxMp(realm) ≥ needMp` 查法力，与友军分支同一套函数；selftest 配一条「把祭金符 needMp 改到超出 → 必报」。
+
+**落在哪**：`tools/validate.py` 新表 `CHAPTER_START`（第 4–12 章起点境界与法力上限，取自上一章终档 `tests/fixtures/ch{N-1}-end-*.sav`，两侧相同：第 12 章 `CoreEarly` / 470；第 10 章即跌落后的 `QiRefining3` / 30）与 `check_learned_castable`：整章表与按场登记的 `learn` 来路一律按本章起点核 `needRealm ≤ 起点境界`、`needMp ≤ 起点法力上限`（缺省 `QiRefining1` / 5，同友军分支）；原第 10 章特判并进这里。第 3 章表里没有 `learn` 来路、也没有第 2 章终档可读，不登、不核。上线时第 4–12 章现数据 0 错（前面章节没有报出真实问题）。`tools/validate_selftest.py` 新段 `selftest_ch12_means`（`--ch12-means` 可单跑）：两门金术 `needRealm` 改 CoreMid、`needMp` 改 999，青元剑芒 `needRealm` 改 CoreLate → 第 12 章都必报；噬金虫群 `needMp` 恰 470 / `needRealm` 恰 CoreEarly 不报、471 必报（边界）；第 10 章那条旧负向的判据改成新措辞。
 
 ### G-30：规则 25 看不到队员（集成偏差，第 11 章 18.4）
 
@@ -817,3 +819,19 @@ R-3（一炉不炼、攻防战必败、全章没有提示）已修：目标链�
 ### G-33：Lua `field.unlock` 没有返回值（内容路 C 偏差，LOW）
 
 `scripts/common/api.lua` 的 `field.unlock` 不回 ok / code，脚本无从核返回值（第 11 章 `anju.lua`）。其余 `give` / `take` / `bottle.*` 都回。**修法**：照 `give` 的写法回 `ok, code`，各章调用处不必改（多一个返回值无害）。
+
+## 第 12 章（2026-10-13）审查与整改留下的几条
+
+三条都是测试路 B（平衡路）交出的引擎观察，门禁审查 G-7 要求登记；都不是本章改的，也不挡本章。
+
+### G-34：敌方 AI 有一门伤人法术合法就只放法术，不跟普攻比（MEDIUM）
+
+`BattleState::enemyDecision`（`src/core/battle/BattleAi.cpp` 第 65–89 行）对每个目标先在 `magics_` 里挑「估算伤害最高」的合法法术，**只有一门都不合法时才考虑普攻**——法术再弱也压过普攻。弱法术 ＋ 大法力的首领会被这条废掉：第 12 章玄骨只配魔火（power 12），对韩立防 46 一手 1–2 点，860 法力够放 71 手，④ 成了打不疼的仗（调前 29 回合 129→79）。本章靠把 `xuan_gu.maxMp` 压到 96（放八手后落到拳脚，仍 ≥ 魔火 `needMp` 12、守规则 25）绕过去，见施工图 18.5 第 2 条；下一个「施法首领」还会踩。**修法方向**：同一目标上法术与普攻一起比估算伤害（`estimateHitDamage × hitCount`），法术期望伤害 ≥ 普攻才放；改了要重量各章带法术的敌方编成（规则层动 AI 等于动全部平衡），所以不在章节施工里顺手改。
+
+### G-35：战后只写回气血，不写回法力（LOW）
+
+`BattleScene::settle`（`src/game/BattleScene.cpp` 第 995–1004 行）把 `units[0]` 与在队同伴的气血写回存档，法力一律不写；下一场开打韩立的法力还是战前那个数（平常即满）。第 12 章所有战后存档的 `mp` 恒为 470，施工图 8.2 ② 的「三波不回法、把法力留到第二、三波」只在一场之内成立，跨场的法力压力根本不存在，平衡路也量不出来（18.5 第 5 条）。**修法**：`settle` 同样写回 `units[0].mp`（夹在 `[0, maxMp]`）；之后要重量各章串起来的血线 / 法力线，意图手与最低合法起点用例可能要补「战前静养」。
+
+### G-36：`BattleHand` 不会用单体 `castMagic` 道具（LOW，测试工具）
+
+`tests/BattleHand.h` 只认 `policy.pills` 与 `policy.poisons`；单体 `castMagic` 的符（第 12 章辟邪神雷、第 7 章天雷子这一类）它当毒药估（实打 0）、从来不放。所以第 12 章四场的平衡一律不靠神雷，施工图「④ 只有木要命、神雷 2 发 ＋ 青元剑芒收得了尾」「① 神雷两发收尾」那一半，这只手量不到。整改第 1 轮已补一条切片 `Ch12Slice.TwelveTheWoodThunder…`：④ 里经真菜单放神雷，钉住「这一击是木、能把被压在 1 的玄骨打到 0、剑只压得到 1」，并分「用掉 1 发 / 2 发」两版跑完 n31；门禁一侧由 `tools/validate.py::check_given_spell` 核施法符的五行（门禁审查 G-2）。**修法**：`BattleHand::scoredOptions` 把 `castMagic` 指向伤人法术的道具当一手法术估（伤害按那门法术、不耗法力、扣一件），并给 `HandPolicy` 一个「施法符」白名单（免得它顺手扔掉剧情要用的符）；改了以后各章用到这类符的仗要重量。

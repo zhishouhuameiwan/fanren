@@ -1,0 +1,11 @@
+{
+  "id": "story_zhiyang_huazhou",
+  "name": "红光画轴",
+  "descKey": "item.desc.story_zhiyang_huazhou",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch421 怪人遗物，原著此处只叫红光画轴（16.1 第 42 条；「脂阳鸟」首见 425，n03 给时不带这三字）。n03 give 1、n05 take 1（看返回值）。"
+}

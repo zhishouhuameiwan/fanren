@@ -1,0 +1,12 @@
+{
+  "id": "magic_bixie_shenlei",
+  "name": "辟邪神雷",
+  "descKey": "magic.desc.magic_bixie_shenlei",
+  "element": 2,
+  "needMp": 0,
+  "power": 70,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "原著（手段的数据化）",
+  "note": "只供道具 talisman_bixie_shenlei 施放（castMagic），全仓 magic.learn 0 处（施工图 16.1 第 19 条、契约第 4 节）。原著是青竹蜂云剑上攒下的雷，ch444 鬼物一战耗尽、ch494 再次荡然无存。木（element 2）：三首鬼物与玄骨的 killable_by 都含木。道具施法不吃蓄劲，boost 写 power 只是与 magic_tianleizi 同一个缺省。power 70 是初值，归平衡路。"
+}

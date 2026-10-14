@@ -1,0 +1,14 @@
+{
+  "id": "wen_qiang_zhuji",
+  "name": "文樯",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 250,
+  "attack": 37,
+  "defence": 26,
+  "speed": 16,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch369 魁星岛旧识、ch430 已筑基中期、两鬓斑白；旧 wen_qiang 不动（施工图 B 表 11）。tushan canyuan → lidao；路径行动 wenqiang_kuixing_dating。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

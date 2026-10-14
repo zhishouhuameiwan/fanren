@@ -408,6 +408,25 @@ def plank_orientation(sc: Scene) -> np.ndarray:
     return vert
 
 
+GRASS_TINTS = {"fire": mm.grass_fire}
+
+
+def tint_grass(sc: Scene, *canvases: pix.Canvas) -> None:
+    """maps.json 写 "grass_tint": "fire" 的图（冰火道）：全部画完之后，把用了本图草地渐层的像素
+    整体换成红草渐层——地面、路沿草叶、草丛、崖顶散草、苔都跟着换；明度级不动，只换颜色。
+    没写这一项的图什么都不做（不登记任何渐层），产物逐字节不变。写错名字当场报错。"""
+    kind = sc.preset.get("grass_tint")
+    if kind is None:
+        return
+    if kind not in GRASS_TINTS:
+        raise ValueError("data/visual/maps.json 里 %s 的 grass_tint 只能是 %s，写的是 %r"
+                         % (sc.md.map_id, "/".join(GRASS_TINTS), kind))
+    src = mm.grass(sc.season)
+    dst = GRASS_TINTS[kind]()
+    for cv in canvases:
+        cv.rid[cv.rid == src] = dst
+
+
 def paint_ground(sc: Scene, cv: pix.Canvas) -> np.ndarray:
     seed = pix.seed_of(sc.md.map_id, "ground")
     H, W = sc.H * T, sc.W * T

@@ -1,0 +1,14 @@
+{
+  "id": "shi_die",
+  "name": "石蝶",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 250,
+  "attack": 37,
+  "defence": 26,
+  "speed": 16,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch416 红月岛阵法世家之女，其父对金青有恩，所以先挑一件；n04 独奔台阶、倒下。在场同胡月；路径行动 shidie_hongyue_dating。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

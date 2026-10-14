@@ -1,0 +1,11 @@
+{
+  "id": "story_baixi_pei",
+  "name": "白犀佩",
+  "descKey": "item.desc.story_baixi_pei",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch458–459 极阴暂借，防火也防寒；n19 give 1，熔岩路与寒骊台的旁白用它。本章不还、不扣（原著也未写归还）。"
+}

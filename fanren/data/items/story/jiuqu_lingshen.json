@@ -1,0 +1,11 @@
+{
+  "id": "story_jiuqu_lingshen",
+  "name": "九曲灵参",
+  "descKey": "item.desc.story_jiuqu_lingshen",
+  "kind": "story",
+  "grade": 9,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch448–453 小空间里捕得的灵参本体（长约半尺、土黄）。n16 give 1。凝婴之物，本篇不炼、不建配方（16.1 第 31 条）。"
+}

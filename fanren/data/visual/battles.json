@@ -320,6 +320,26 @@
       "backdrop": "cliff_top",
       "map": "ch11_yinsha_dao",
       "why": "第11章施工图第8节：礁岛上妖尸拦路（trigger_daoge），同一处礁石"
+    },
+    "b12_guiwu_guiwang": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch12_guiwu",
+      "why": "第12章施工图第8.2节：① 鬼雾里鬼物截人（trigger_guiwang），用现有 mountain_forest_dusk"
+    },
+    "b12_heishamo_tiehuoyi": {
+      "backdrop": "cliff_top",
+      "map": "ch12_binghuo",
+      "why": "第12章施工图第8.2节：② 黑沙漠铁火蚁（冰火道东段），用现有 cliff_top"
+    },
+    "b12_neidian_duoding": {
+      "backdrop": "secret_room",
+      "map": "ch12_hanlitai",
+      "why": "第12章施工图第8.2节：③ 寒骊台抢狼形器灵（殿内），用现有 secret_room"
+    },
+    "b12_hanlitai_xuangu": {
+      "backdrop": "secret_room",
+      "map": "ch12_hanlitai",
+      "why": "第12章施工图第8.2节：④ 寒骊台独战玄骨（殿内），用现有 secret_room"
     }
   }
 }

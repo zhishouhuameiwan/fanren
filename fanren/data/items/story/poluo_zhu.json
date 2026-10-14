@@ -1,0 +1,11 @@
+{
+  "id": "story_poluo_zhu",
+  "name": "婆罗珠",
+  "descKey": "item.desc.story_poluo_zhu",
+  "kind": "story",
+  "grade": 7,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch468 石殿里借来的定神之珠；n25 极妙幻境里灼热示警。n23 give 1（一件代表借来的那几颗）。"
+}

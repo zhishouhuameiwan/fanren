@@ -1,0 +1,400 @@
+{
+  "id": "pathactions_ch12",
+  "name": "第12章路径行动",
+  "chapter": 12,
+  "note": "十三条全是打探，零阅历门槛，purchase / challenge 0 条（殿内禁斗、无店）；0 条 reveal（16.1 第 41 条：reveal 提示会拼出role 名牌，鬼雾那两条在 tupo 阶段就会露出鬼物的名目）。when 都含 NPC 对象的 visible_flag，until 都含 hidden_flag 与 ch12.done；同一 NPC 对象只挂一条。",
+  "entries": [
+    {
+      "id": "jinqing_yizhi_dating",
+      "kind": "inquire",
+      "map": "ch12_tushan",
+      "npc": "npc_jin_qing",
+      "when": [
+        {
+          "flag": "ch12.dengdao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.pozhen",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.tuizhu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.jinqing_yizhi_dating",
+      "text_key": "ch12.path.jinqing_yizhi_dating.text",
+      "origin": "原著（ch416 二珠合图、荒岛无灵脉）"
+    },
+    {
+      "id": "shidie_hongyue_dating",
+      "kind": "inquire",
+      "map": "ch12_tushan",
+      "npc": "npc_shi_die",
+      "when": [
+        {
+          "flag": "ch12.dengdao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.tuizhu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.shidie_hongyue_dating",
+      "text_key": "ch12.path.shidie_hongyue_dating.text",
+      "origin": "原著（ch416 红月岛阵法世家、其父对金青有恩）"
+    },
+    {
+      "id": "huyue_sanxiu_dating",
+      "kind": "inquire",
+      "map": "ch12_tushan",
+      "npc": "npc_hu_yue",
+      "when": [
+        {
+          "flag": "ch12.dengdao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.tuizhu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.huyue_sanxiu_dating",
+      "text_key": "ch12.path.huyue_sanxiu_dating.text",
+      "origin": "原著（ch416 散修结丹之难）"
+    },
+    {
+      "id": "wenqiang_kuixing_dating",
+      "kind": "inquire",
+      "map": "ch12_tushan",
+      "npc": "npc_wen_qiang",
+      "when": [
+        {
+          "flag": "ch12.canyuan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.lidao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.wenqiang_kuixing_dating",
+      "text_key": "ch12.path.wenqiang_kuixing_dating.text",
+      "origin": "原著（ch430 魁星岛之后的数十年）"
+    },
+    {
+      "id": "xuangu_jinzhi_dating",
+      "kind": "inquire",
+      "map": "ch12_dadian",
+      "npc": "npc_xuan_gu",
+      "when": [
+        {
+          "flag": "ch12.rudian",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.jiumeng",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.xuangu_jinzhi_dating",
+      "text_key": "ch12.path.xuangu_jinzhi_dating.text",
+      "origin": "原著（ch433 殿内禁制只容小法术）"
+    },
+    {
+      "id": "ziling_canyuan_dating",
+      "kind": "inquire",
+      "map": "ch12_dadian",
+      "npc": "npc_zi_ling",
+      "when": [
+        {
+          "flag": "ch12.rudian",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.ziling_canyuan_dating",
+      "text_key": "ch12.path.ziling_canyuan_dating.text",
+      "origin": "原著（ch436 高价买图、只打算闯第一关）"
+    },
+    {
+      "id": "zhifa_guiju_dating",
+      "kind": "inquire",
+      "map": "ch12_dadian",
+      "npc": "npc_zhifa_ci",
+      "when": [
+        {
+          "flag": "ch12.qunxiang",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.zhifa_guiju_dating",
+      "text_key": "ch12.path.zhifa_guiju_dating.text",
+      "origin": "原著（ch435 星宫只管外殿）"
+    },
+    {
+      "id": "ziling_guiwang_dating",
+      "kind": "inquire",
+      "map": "ch12_guiwu",
+      "npc": "npc_zi_ling",
+      "when": [
+        {
+          "flag": "ch12.tupo",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.guiwang",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.ziling_guiwang_dating",
+      "text_key": "ch12.path.ziling_guiwang_dating.text",
+      "origin": "原著（ch437 鬼王灭队）＋改编（鬼物畏雷）；不设 reveal（16.1 第 41 条）"
+    },
+    {
+      "id": "geli_guiwu_dating",
+      "kind": "inquire",
+      "map": "ch12_guiwu",
+      "npc": "npc_ge_li",
+      "when": [
+        {
+          "flag": "ch12.tupo",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.guiwang",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.geli_guiwu_dating",
+      "text_key": "ch12.path.geli_guiwu_dating.text",
+      "origin": "改编（迷路提示：白骨与淡雾标出正路）；不设 reveal"
+    },
+    {
+      "id": "xuangu_lingshen_dating",
+      "kind": "inquire",
+      "map": "ch12_xiaojie",
+      "npc": "npc_xuan_gu",
+      "when": [
+        {
+          "flag": "ch12.xiaojie",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.lingshen",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.xuangu_lingshen_dating",
+      "text_key": "ch12.path.xuangu_lingshen_dating.text",
+      "origin": "原著（ch448 灵参只认纯金之物）"
+    },
+    {
+      "id": "qingyi_binghuo_dating",
+      "kind": "inquire",
+      "map": "ch12_xiaojie",
+      "npc": "npc_qingyi_xg",
+      "when": [
+        {
+          "flag": "ch12.baishi",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.xiagu",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.qingyi_binghuo_dating",
+      "text_key": "ch12.path.qingyi_binghuo_dating.text",
+      "origin": "改编（ch458–459 冰火道的规矩借青易之口说）"
+    },
+    {
+      "id": "wuchou_canyuan_dating",
+      "kind": "inquire",
+      "map": "ch12_taqian",
+      "npc": "npc_wu_chou_tq",
+      "when": [
+        {
+          "flag": "ch12.huanjing",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.neidian",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.wuchou_canyuan_dating",
+      "text_key": "ch12.path.wuchou_canyuan_dating.text",
+      "origin": "原著（ch475 一图一室、结丹只取一层）"
+    },
+    {
+      "id": "qingyi_qianlan_dating",
+      "kind": "inquire",
+      "map": "ch12_hanlitai",
+      "npc": "npc_qingyi_hl",
+      "when": [
+        {
+          "flag": "ch12.cengjie",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch12.ruyi",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.butian",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch12.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch12.path.qingyi_qianlan_dating",
+      "text_key": "ch12.path.qingyi_qianlan_dating.text",
+      "origin": "改编（ch480 鼎外冰焰之说借青易之口）"
+    }
+  ]
+}

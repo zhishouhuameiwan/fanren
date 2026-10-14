@@ -1,0 +1,23 @@
+{
+  "id": "tiehuo_yiqun",
+  "name": "铁火蚁群",
+  "realm": "CoreEarly",
+  "maxHp": 220,
+  "maxMp": 0,
+  "attack": 36,
+  "defence": 36,
+  "speed": 20,
+  "element": 8,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "水",
+    "金"
+  ],
+  "killable_by": [
+    "水",
+    "金"
+  ],
+  "origin": "原著",
+  "note": "ch462 黑沙漠铁火蚁，不惧大部分法术，水、冰属性中阶以上法术伤得了（A73）。② 第 0 波 ×2、第 1 波 ×3。killable_by 水、金 ⊆ weaknesses：剑、拳、火最多压到 1，要命的只有冰冻术与噬金虫。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_heishamo_tiehuoyi 的 note）。"
+}

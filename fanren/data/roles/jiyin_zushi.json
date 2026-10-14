@@ -1,0 +1,14 @@
+{
+  "id": "jiyin_zushi",
+  "name": "极阴祖师",
+  "realm": "CoreLate",
+  "maxHp": 1300,
+  "maxMp": 860,
+  "attack": 102,
+  "defence": 82,
+  "speed": 34,
+  "element": 4,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch382 起的极阴岛之主；本章在大厅、花园、小空间、石殿、塔前、寒骊台群像里，n18 挂点收他为记名弟子；旧 jiyin_fushen 不动。元婴修士，本作境界上限只到结丹后期，名牌一律 CoreLate（施工图 16.1 第 9 条），文案说「看不透」。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "xuangu_lvying",
+  "name": "绿影",
+  "realm": "CoreLate",
+  "maxHp": 1300,
+  "maxMp": 860,
+  "attack": 102,
+  "defence": 82,
+  "speed": 34,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch446 / ch452 扑来的一道绿影，n17 被金色电弧击碎（旁白）。无地图对象。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

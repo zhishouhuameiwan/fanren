@@ -1,0 +1,19 @@
+{
+  "id": "gui_yecha",
+  "name": "鬼夜叉",
+  "realm": "CoreEarly",
+  "maxHp": 520,
+  "maxMp": 0,
+  "attack": 62,
+  "defence": 40,
+  "speed": 24,
+  "element": 0,
+  "magics": [],
+  "toughness": 4,
+  "weaknesses": [
+    "木",
+    "火"
+  ],
+  "origin": "原著",
+  "note": "ch440 手持骨叉的鬼物。① 第 0 波 ×1。破绽木、火。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_guiwu_guiwang 的 note）。"
+}

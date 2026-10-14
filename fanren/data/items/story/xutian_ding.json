@@ -1,0 +1,11 @@
+{
+  "id": "story_xutian_ding",
+  "name": "虚天鼎",
+  "descKey": "item.desc.story_xutian_ding",
+  "kind": "story",
+  "grade": 9,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch491 隔焰收得的古鼎；鼎盖如生铸，结丹期打不开（ch499），本篇不开。n31 give 1。"
+}

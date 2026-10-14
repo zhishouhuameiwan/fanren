@@ -900,7 +900,9 @@ const std::map<int, Realm>& realmCapOfChapter() {
                                               {7, Realm::QiRefining11}, {8, Realm::FoundationMid}, {9, Realm::FoundationMid},
                                               {10, Realm::FoundationLate},
                                               // 第 11 章：结丹初期（scripts/ch11/biguan.lua 的 realm.advance，与 ch11.done 不同脚本）。
-                                              {11, Realm::CoreEarly}};
+                                              {11, Realm::CoreEarly},
+                                              // 第 12 章：仍是结丹初期（施工图验收第 5 条：realm.advance / cap / demote 本章各 0 处）。
+                                              {12, Realm::CoreEarly}};
     return kCap;
 }
 

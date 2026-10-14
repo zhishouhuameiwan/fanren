@@ -1,0 +1,11 @@
+{
+  "id": "story_jiuqu_danfang",
+  "name": "九曲灵参丹方",
+  "descKey": "item.desc.story_jiuqu_danfang",
+  "kind": "story",
+  "grade": 8,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch490 玄骨交出的丹方玉简，两三种辅药他从未听说。n31 give 1。0 配方（16.1 第 31 条）。"
+}

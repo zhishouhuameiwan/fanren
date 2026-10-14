@@ -1,0 +1,19 @@
+{
+  "id": "hui_ying",
+  "name": "灰影",
+  "realm": "CoreMid",
+  "maxHp": 600,
+  "maxMp": 0,
+  "attack": 44,
+  "defence": 44,
+  "speed": 30,
+  "element": 0,
+  "magics": [],
+  "toughness": 5,
+  "weaknesses": [
+    "金",
+    "火"
+  ],
+  "origin": "原著",
+  "note": "ch441 来去无形的灰影。① 第 1 波 ×1；噬金虫咬得动它。破绽金、火。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_guiwu_guiwang 的 note）。"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "hu_yue",
+  "name": "胡月",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch416 金青约来的散修结丹，石屋前迎客；n04 倒下（只写倒下，16.1 第 22 条）。在场 tushan dengdao → tuizhu、dixue tuizhu → qixialian；路径行动 huyue_sanxiu_dating。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

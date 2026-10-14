@@ -49,6 +49,17 @@ assert len(SFX) == len(sfx_ui.SFX) + len(sfx_battle.SFX) + len(sfx_jingle.SFX), 
 # ch11_honghu -> bgm_cliff
 # ch11_yinsha_dao -> bgm_wild
 # ch11_xiaoxuan -> bgm_town
+# 第 12 章十张图全用已有的曲子（docs/ch12-design.md 第 4.2 节）：
+# ch12_tushan -> bgm_wild
+# ch12_dixue -> bgm_cave
+# ch12_dadian -> bgm_indoor
+# ch12_guiwu -> bgm_night
+# ch12_xiaojie -> bgm_valley
+# ch12_binghuo -> bgm_cliff
+# ch12_baoguang -> bgm_indoor
+# ch12_taqian -> bgm_cave
+# ch12_hanlitai -> bgm_cliff
+# ch12_lingquan -> bgm_cave
 MAP_BGM = ("bgm_village", "bgm_town", "bgm_mountain_path", "bgm_cliff", "bgm_qixuanmen", "bgm_valley",
            "bgm_indoor", "bgm_sect", "bgm_cave", "bgm_wild", "bgm_river", "bgm_inn", "bgm_manor", "bgm_night")
 

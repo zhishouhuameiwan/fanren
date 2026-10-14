@@ -1,0 +1,14 @@
+{
+  "id": "xinggong_zhifa_leng",
+  "name": "冷脸长老",
+  "realm": "CoreLate",
+  "maxHp": 1300,
+  "maxMp": 860,
+  "attack": 102,
+  "defence": 82,
+  "speed": 34,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch435「冷脸老者」，星宫另一名执法长老；与 xinggong_zhifa_ci 同框三处，名牌分开（规则 30）。元婴修士，本作境界上限只到结丹后期，名牌一律 CoreLate（施工图 16.1 第 9 条），文案说「看不透」。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

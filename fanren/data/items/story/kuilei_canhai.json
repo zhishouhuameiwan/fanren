@@ -1,0 +1,11 @@
+{
+  "id": "story_kuilei_canhai",
+  "name": "傀儡残骸",
+  "descKey": "item.desc.story_kuilei_canhai",
+  "kind": "story",
+  "grade": 5,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch475–476 内殿傀儡被蛮胡子砸碎后他收起的残骸。Z2 收则 give 1（n27 cengjie.lua 里的抉择），第 13 章傀儡研究用。"
+}

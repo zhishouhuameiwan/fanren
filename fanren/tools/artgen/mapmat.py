@@ -50,6 +50,13 @@ def grass(season: str) -> int:
     return ramp_id("grass_" + season, cols)
 
 
+def grass_fire() -> int:
+    """冰火道的红草（maps.json 写 "grass_tint": "fire" 的图）：烤红的草茎、焦黄的草尖。
+    与 grass() 同为 6 级、同一套明度用法，所以画完整体换渐层即可，草的形状一笔不动。"""
+    return ramp_id("grass_fire", [mix("red0", "ink1", 0.35), mix("red1", "soil1", 0.3), mix("red2", "soil2", 0.4),
+                                  mix("red3", "soil3", 0.4), mix("red4", "gold2", 0.45), mix("gold3", "red4", 0.3)])
+
+
 def dirt() -> int:
     """土路 / 夯土。常用中间级 2–3。"""
     return ramp_id("dirt", [c("soil0"), c("soil1"), _g("soil2", 0.2), _g("soil3", 0.22, "stone3"),
@@ -190,6 +197,12 @@ def gold() -> int:
 def water() -> int:
     """水面。深处 0–1，浅处 2–3，泡沫 5。"""
     return ramp_id("water", [c("water0"), c("water1"), c("water2"), c("water3"), c("water4"), c("water5")])
+
+
+def lava() -> int:
+    """熔岩（maps.json 写 "liquid": "lava" 的图）。冷凝的硬壳 0–1，流动面暗红到橙 2–4，壳缝与流光 5–6。"""
+    return ramp_id("lava", [mix("ink0", "red0", 0.45), mix("red0", "ink1", 0.25), c("red1"), c("red2"),
+                            mix("red3", "gold2", 0.45), c("gold3"), mix("gold4", "paper", 0.35)])
 
 
 def foliage(kind: str) -> int:

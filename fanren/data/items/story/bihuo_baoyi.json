@@ -1,0 +1,11 @@
+{
+  "id": "story_bihuo_baoyi",
+  "name": "辟火宝衣",
+  "descKey": "item.desc.story_bihuo_baoyi",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch438–439 鬼雾路旁遗骸身上的宝衣，冰蚕丝所炼。Z1 取衣一支 give 1；n20 旁白多一句挡热浪。不做防具。"
+}

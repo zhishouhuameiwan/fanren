@@ -1,0 +1,14 @@
+{
+  "id": "xuangu_shaonian",
+  "name": "少年",
+  "realm": "CoreLate",
+  "maxHp": 1300,
+  "maxMp": 860,
+  "attack": 102,
+  "defence": 82,
+  "speed": 34,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch427 白骨融入后炼成的少年之躯；dixue npc_shaonian duoshe → canyuan，n06 挂点。名牌不含「玄」字、不写他自报的名号（施工图 12.2）；外观与 xuan_gu 同一张脸（looks 归内容路 A）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

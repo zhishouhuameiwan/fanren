@@ -1,0 +1,19 @@
+{
+  "id": "shuangtou_guihu",
+  "name": "双头怪虎",
+  "realm": "CoreMid",
+  "maxHp": 600,
+  "maxMp": 0,
+  "attack": 49,
+  "defence": 40,
+  "speed": 26,
+  "element": 0,
+  "magics": [],
+  "toughness": 5,
+  "weaknesses": [
+    "剑",
+    "木"
+  ],
+  "origin": "原著",
+  "note": "ch442 双头怪虎。① 第 1 波 ×1；剑与剑芒对它。破绽剑、木。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_guiwu_guiwang 的 note）。"
+}

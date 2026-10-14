@@ -1,0 +1,14 @@
+{
+  "id": "man_huzi",
+  "name": "蛮胡子",
+  "realm": "CoreLate",
+  "maxHp": 1300,
+  "maxMp": 860,
+  "attack": 102,
+  "defence": 82,
+  "speed": 34,
+  "element": 16,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch432 起；n23 借出皇鳞甲、转赠寒冰珠，n26 斩一名结丹修士（只写倒下），补天丹落入他手（ch488）。元婴修士，本作境界上限只到结丹后期，名牌一律 CoreLate（施工图 16.1 第 9 条），文案说「看不透」。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

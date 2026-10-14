@@ -1,0 +1,11 @@
+{
+  "id": "story_jinlei_xiaojian",
+  "name": "金雷竹小箭",
+  "descKey": "item.desc.story_jinlei_xiaojian",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch494 与肋骨一同留下的小箭，残魂藏身其中、n32 被啼魂兽吞尽。n31 ④ 后 give 1；描述不写残魂（n31 给时他还不知道）。"
+}

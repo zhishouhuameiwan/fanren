@@ -316,8 +316,9 @@ TEST_F(Ch07BattleData, RuleTwentyFiveKnowsTheMeansOfChapterSeven) {
                 validate.find("\nMEANS_LAST_CHAPTER = 8\n") != std::string::npos ||
                 validate.find("\nMEANS_LAST_CHAPTER = 9\n") != std::string::npos ||
                 validate.find("\nMEANS_LAST_CHAPTER = 10\n") != std::string::npos ||
-                validate.find("\nMEANS_LAST_CHAPTER = 11\n") != std::string::npos)
-        << "E6: Chapter 7 remains covered after the Chapter 11 table extension";
+                validate.find("\nMEANS_LAST_CHAPTER = 11\n") != std::string::npos ||
+                validate.find("\nMEANS_LAST_CHAPTER = 12\n") != std::string::npos)
+        << "E6: Chapter 7 remains covered after the Chapter 12 table extension";
     const std::size_t chapterMeans = validate.find("\nCHAPTER_MEANS = {");
     ASSERT_NE(chapterMeans, std::string::npos);
     const std::size_t seven = validate.find("\n    7: [", chapterMeans);

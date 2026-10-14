@@ -1630,7 +1630,241 @@ CHAPTER11_BEASTS = tuple(_chapter11_beast(*entry) for entry in (
      "第 11 章战斗④的友军：第 8 章血蜘蛛的同类，玉红的壳、腹上一点光；出招是吐网（同第 8 章的张口）。"),
 ))
 
-BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN) + CHAPTER8_BEASTS + (CHAPTER10_YINGLI,) + CHAPTER11_BEASTS
+def _chapter12_rows(kind, pose, w, h):
+    """第 12 章九个非人形（docs/ch12-design.md 第 5.3、5.4、8.2 节）：剪影各不相同，出招帧前移两列，倒下帧压扁。
+
+    weiwu_hanggui 炜吾：佝偻的悍鬼，长臂利爪，脚下一缕鬼气
+    gui_yecha 鬼夜叉：头生两角，手持一柄骨叉
+    hui_ying 灰影：来去无形的一团灰，没有腿，下身拖成一缕烟
+    shuangtou_guihu 双头怪虎：四足、背上黑纹、并排两颗虎头
+    sanshou_guiwu 三首鬼物：首领，身躯庞大、三颗头、脚下鬼气
+    tiehuo_yiqun / tiehuo_yiqun_da 铁火蚁群 / 大群：一片黑红的小蚁，大群堆成一座、顶上一层黑炎
+    langxing_qiling / _yin 狼形器灵：火色双头狼 / 银色独角狼
+    """
+    rows = [["."] * w for _ in range(h)]
+
+    def dot(x, y, code="B"):
+        if 0 <= x < w and 0 <= y < h:
+            rows[y][x] = code
+
+    def line(x0, y0, x1, y1, code="C"):
+        n = max(abs(x1 - x0), abs(y1 - y0), 1)
+        for step in range(n + 1):
+            dot(round(x0 + (x1 - x0) * step / n), round(y0 + (y1 - y0) * step / n), code)
+
+    def ellipse(cx, cy, rx, ry, code="B", top="A"):
+        for y in range(max(0, cy - ry), min(h, cy + ry + 1)):
+            for x in range(max(0, cx - rx), min(w, cx + rx + 1)):
+                if ((x - cx) / max(rx, 1)) ** 2 + ((y - cy) / max(ry, 1)) ** 2 <= 1:
+                    dot(x, y, top if y < cy - ry // 2 else code)
+
+    def rect(x0, y0, x1, y1, code):
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                dot(x, y, code)
+
+    def head(cx, cy, r, open_mouth):
+        ellipse(cx, cy, r, r)
+        dot(cx + 1, cy - 1, "e")
+        rect(cx + 1, cy + r - 1, cx + r, cy + r - 1, "W" if open_mouth else "r")
+
+    def ant(x, y, lit):
+        dot(x - 1, y, "C")
+        dot(x, y, "B")
+        dot(x + 1, y, "A")
+        dot(x + 2, y, "Y" if lit else "e")
+        dot(x - 1, y + 1, "k")
+        dot(x + 1, y + 1, "k")
+
+    def flat(cx, cy, rx, eye_x):
+        ellipse(cx, cy, rx, 3)
+        dot(eye_x, cy - 1, "n")
+        return tuple("".join(row) for row in rows)
+
+    down = pose == 2
+    atk = pose == 1
+    s = 2 if atk else 0
+    reach = 3 if atk else 0
+    if kind == "weiwu_hanggui":
+        if down:
+            return flat(16, 27, 11, 24)
+        ellipse(14 + s, 16, 6, 7)                       # 佝偻的身子
+        head(20 + s, 9, 4, atk)
+        line(19 + s, 13, 24 + s + reach, 18, "A")       # 前伸的长臂
+        line(24 + s + reach, 18, 26 + s + reach, 20, "k")
+        line(9 + s, 13, 6 + s, 22, "A")
+        dot(6 + s, 23, "k")
+        line(12 + s, 22, 10 + s, 29, "C")
+        line(17 + s, 22, 19 + s, 29, "C")
+        for x in range(7, 24, 3):
+            dot(x + s, 30, "Z")
+    elif kind == "gui_yecha":
+        if down:
+            line(4, 29, 28, 26, "F")
+            return flat(15, 27, 10, 22)
+        ellipse(13 + s, 17, 5, 8)
+        head(15 + s, 7, 4, atk)
+        dot(13 + s, 2, "k")
+        dot(17 + s, 2, "k")
+        line(7 + s, 26, 25 + s + reach, 6, "F")         # 骨叉
+        for d in (-2, 0, 2):
+            line(25 + s + reach + d, 6 + d, 28 + s + reach + d, 3 + d, "F")
+        line(17 + s, 13, 20 + s + reach, 14, "A")
+        line(11 + s, 24, 9 + s, 30, "C")
+        line(15 + s, 24, 17 + s, 30, "C")
+    elif kind == "hui_ying":
+        if down:
+            ellipse(16, 28, 10, 2, "C", "C")
+            return tuple("".join(row) for row in rows)
+        ellipse(17 + s, 12, 7, 8)
+        ellipse(14 + s, 22, 5, 3, "C", "C")             # 下身拖成一缕烟
+        ellipse(10 + s, 27, 3, 2, "D", "D")
+        dot(19 + s, 10, "e")
+        dot(22 + s, 10, "e")
+        line(23 + s, 14, 28 + s + reach, 18, "C")
+        for x, y in ((6, 20), (4, 24), (8, 30), (25, 25), (27, 22)):
+            dot(x + s, y, "Z")
+    elif kind == "shuangtou_guihu":
+        if down:
+            return flat(19, 27, 15, 33)
+        ellipse(17 + s, 17, 11, 6)
+        for x in range(9, 27, 4):                       # 背上黑纹
+            line(x + s, 12, x + 1 + s, 16, "D")
+        for x in (9, 12, 22, 25):
+            rect(x + s, 22, x + 1 + s, 29, "C")
+            dot(x + 1 + s, 29, "k")
+        line(28 + s, 15, 30 + s, 11, "B")
+        line(28 + s, 18, 31 + s, 19, "B")
+        head(31 + s + reach // 2, 9, 4, atk)            # 并排两颗虎头
+        head(31 + s + reach, 19, 4, atk)
+        line(6 + s, 15, 1 + s, 9, "C")
+    elif kind == "sanshou_guiwu":
+        if down:
+            return flat(22, 35, 17, 34)
+        ellipse(20 + s, 23, 12, 10)
+        head(25 + s, 7, 4, atk)                         # 三颗头
+        head(35 + s, 11, 5, atk)
+        head(37 + s + reach, 21, 4, atk)
+        line(28 + s, 12, 31 + s, 13, "B")
+        line(30 + s, 20, 33 + s, 21, "B")
+        line(29 + s, 27, 41 + s + reach, 31, "A")       # 巨臂
+        line(41 + s + reach, 31, 44 + s + reach, 33, "k")
+        rect(13 + s, 32, 16 + s, 37, "C")
+        rect(24 + s, 32, 27 + s, 37, "C")
+        for x in range(6, 36, 3):
+            dot(x + s, 38, "Z")
+            dot(x + 1 + s, 39, "Z")
+    elif kind in ("tiehuo_yiqun", "tiehuo_yiqun_da"):
+        big = kind == "tiehuo_yiqun_da"
+        spots = ((4, 20), (10, 21), (16, 20), (22, 21), (7, 17), (13, 16), (19, 17), (25, 18),
+                 (10, 13), (17, 12), (23, 14), (28, 21))
+        if big:
+            spots = tuple((x + dx, y + dy) for x, y in spots for dx, dy in ((0, 8), (12, 8), (6, 2)))
+        for i, (x, y) in enumerate(spots):
+            if down:
+                dot(x, min(h - 2, y + (3 if not big else 4)), "n" if i % 3 == 0 else "C")
+                continue
+            ant(x + s, y, atk and i % 2 == 0)
+        if big and not down:
+            for x in range(14, 36, 2):                  # 蚁山顶上一层黑炎
+                line(x + s, 13 - (x % 4), x + s, 15, "Z")
+    else:                                               # langxing_qiling / langxing_qiling_yin
+        silver = kind == "langxing_qiling_yin"
+        if down:
+            return flat(18, 27, 14, 30)
+        ellipse(16 + s, 17, 10, 5)
+        for x in (9, 12, 20, 23):
+            rect(x + s, 21, x + 1 + s, 29, "C")
+            dot(x + 1 + s, 29, "k")
+        line(6 + s, 15, 1 + s, 11 if silver else 9, "C")
+        if silver:
+            line(25 + s, 15, 28 + s, 13, "B")
+            head(30 + s + reach, 12, 4, atk)
+            line(31 + s + reach, 8, 34 + s + reach, 2, "Y")          # 独角
+        else:
+            line(25 + s, 14, 28 + s, 10, "B")
+            line(25 + s, 18, 29 + s, 18, "B")
+            head(29 + s + reach // 2, 8, 3, atk)                     # 双头
+            head(30 + s + reach, 17, 4, atk)
+            for x in range(8, 25, 2):
+                dot(x + s, 11 - (x % 4) // 2, "Y")                    # 背上一溜火
+    return tuple("".join(row) for row in rows)
+
+
+def _chapter12_beast(kind, name, w, h, leg_top, ramps, note):
+    base = dict(WOLF.ramps)
+    base.update(ramps)
+    codes = _codes({"Y": ("glow", 3), "R": ("crest", 2), "Z": ("haze", 1)})
+    return Beast(kind, name, w, h, _chapter12_rows(kind, 0, w, h), _chapter12_rows(kind, 1, w, h),
+                 _chapter12_rows(kind, 2, w, h), base, codes, leg_top, note)
+
+
+_HAZE_GHOST = [P.c("ink0"), P.mix("jade0", "ink1", .6), P.mix("jade1", "ink2", .5), P.c("jade2")]
+_HAZE_DARK = [P.c("ink0"), P.c("ink1"), P.c("ink2"), P.c("ink3")]
+_CREST = [P.c("red1"), P.c("red2"), P.c("red3"), P.c("red3")]
+_BONE = [P.c("stone3"), P.c("plaster1"), P.c("plaster2"), P.c("plaster3")]
+
+CHAPTER12_BEASTS = tuple(_chapter12_beast(*entry) for entry in (
+    ("weiwu_hanggui", "炜吾", 32, 32, 22,
+     {"fur": [P.c("ink1"), P.mix("stone0", "ink2", .4), P.c("stone1"), P.c("stone2")],
+      "eyeglow": [P.c("jade1"), P.c("jade2"), P.c("jade3"), P.mix("jade4", "paper", .4)],
+      "glow": [P.c("jade2"), P.c("jade3"), P.c("jade4"), P.mix("jade4", "paper", .5)],
+      "crest": _CREST, "haze": _HAZE_GHOST},
+     "第 12 章战斗①第 0 波：佝偻的悍鬼，青灰、长臂利爪、绿眼，脚下一缕鬼气。"),
+    ("gui_yecha", "鬼夜叉", 32, 32, 24,
+     {"fur": [P.mix("violet0", "ink1", .5), P.mix("violet1", "ink2", .4), P.c("violet2"), P.c("violet3")],
+      "belly": _BONE,
+      "eyeglow": [P.c("red1"), P.c("red2"), P.c("red3"), P.mix("red3", "paper", .3)],
+      "glow": [P.c("red2"), P.c("red3"), P.c("gold3"), P.mix("gold4", "paper", .4)],
+      "crest": _CREST, "haze": _HAZE_DARK},
+     "第 12 章战斗①第 0 波：头生两角的鬼物，紫黑皮色、红眼，双手一柄骨叉（role note「手持骨叉」）。"),
+    ("hui_ying", "灰影", 32, 32, 26,
+     {"fur": [P.c("stone0"), P.c("stone1"), P.c("stone2"), P.c("stone3")],
+      "eyeglow": [P.c("plaster1"), P.c("plaster2"), P.c("plaster3"), P.c("paper")],
+      "glow": [P.c("stone3"), P.c("stone4"), P.c("stone5"), P.c("paper")],
+      "crest": _CREST, "haze": [P.c("ink1"), P.c("stone0"), P.c("stone1"), P.c("stone2")]},
+     "第 12 章战斗①第 1 波：一团来去无形的灰影，没有腿，下身拖成一缕烟，两点白眼。"),
+    ("shuangtou_guihu", "双头怪虎", 40, 32, 22,
+     {"fur": [P.mix("gold0", "ink1", .5), P.c("gold1"), P.c("gold2"), P.mix("gold3", "paper", .2)],
+      "eyeglow": [P.c("jade1"), P.c("jade2"), P.c("jade3"), P.mix("jade4", "paper", .4)],
+      "glow": [P.c("gold2"), P.c("gold3"), P.c("gold4"), P.mix("gold4", "paper", .5)],
+      "crest": _CREST, "haze": _HAZE_DARK},
+     "第 12 章战斗①第 1 波：四足的怪虎，暗金皮毛、背上一道道黑纹，并排两颗虎头。"),
+    ("sanshou_guiwu", "三首鬼物", 48, 40, 32,
+     {"fur": [P.c("ink0"), P.mix("violet0", "ink1", .5), P.mix("stone1", "violet1", .4), P.c("stone2")],
+      "eyeglow": [P.c("red1"), P.c("red2"), P.c("red3"), P.mix("red3", "paper", .3)],
+      "glow": [P.c("red2"), P.c("red3"), P.c("gold3"), P.mix("gold4", "paper", .4)],
+      "crest": _CREST, "haze": _HAZE_GHOST},
+     "第 12 章战斗①第 2 波首领：身躯庞大的鬼物，三颗头、一条巨臂，脚下一圈鬼气；比前两波都大一号（48×40）。"),
+    ("tiehuo_yiqun", "铁火蚁群", 32, 24, 22,
+     {"fur": [P.c("ink0"), P.mix("red0", "ink1", .5), P.c("red1"), P.c("red2")],
+      "eyeglow": [P.c("red2"), P.c("red3"), P.c("gold3"), P.mix("gold4", "paper", .3)],
+      "glow": [P.c("gold2"), P.c("gold3"), P.c("gold4"), P.mix("gold4", "paper", .5)],
+      "claw": [P.c("ink0"), P.c("ink1"), P.c("ink2"), P.c("ink3")],
+      "crest": _CREST, "haze": _HAZE_DARK},
+     "第 12 章战斗②：一片黑红的铁火蚁，铁黑的身子、火红的头；出招帧一半的蚁口冒火星。"),
+    ("tiehuo_yiqun_da", "铁火蚁大群", 48, 32, 30,
+     {"fur": [P.c("ink0"), P.mix("red0", "ink1", .5), P.c("red1"), P.c("red2")],
+      "eyeglow": [P.c("red2"), P.c("red3"), P.c("gold3"), P.mix("gold4", "paper", .3)],
+      "glow": [P.c("gold2"), P.c("gold3"), P.c("gold4"), P.mix("gold4", "paper", .5)],
+      "claw": [P.c("ink0"), P.c("ink1"), P.c("ink2"), P.c("ink3")],
+      "crest": _CREST, "haze": [P.c("ink0"), P.c("ink0"), P.c("ink1"), P.mix("violet0", "ink1", .5)]},
+     "第 12 章战斗②第 2 波首领：铁火蚁堆成一座蚁山，顶上一层黑炎（蓄势「黑炎」）；48×32。"),
+    ("langxing_qiling", "狼形器灵", 40, 32, 21,
+     {"fur": [P.c("red0"), P.c("red1"), P.c("red2"), P.mix("gold3", "red3", .5)],
+      "eyeglow": [P.c("gold2"), P.c("gold3"), P.c("gold4"), P.mix("gold4", "paper", .5)],
+      "glow": [P.c("gold2"), P.c("gold3"), P.c("gold4"), P.mix("gold4", "paper", .6)],
+      "crest": _CREST, "haze": _HAZE_DARK},
+     "第 12 章战斗③第 0 波：鼎中古宝化出的火色双头狼（施工图 5.4、A99），背上一溜火。"),
+    ("langxing_qiling_yin", "狼形器灵", 40, 32, 21,
+     {"fur": [P.c("stone2"), P.c("stone3"), P.c("stone4"), P.c("stone5")],
+      "eyeglow": [P.c("water2"), P.c("water3"), P.c("water4"), P.mix("water5", "paper", .4)],
+      "glow": [P.c("stone5"), P.c("plaster3"), P.c("paper"), P.c("paper")],
+      "crest": _CREST, "haze": _HAZE_DARK},
+     "第 12 章战斗③第 1 波首领：化银的独角狼（施工图 5.4、A101），银白皮毛、额上一支发亮的角。"),
+))
+
+BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN) + CHAPTER8_BEASTS + (CHAPTER10_YINGLI,) + CHAPTER11_BEASTS + CHAPTER12_BEASTS
 
 
 def _canvas_from(rows: tuple[str, ...], beast: Beast) -> Canvas:

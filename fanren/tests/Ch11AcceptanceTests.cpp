@@ -48,11 +48,12 @@ void verifyRun(Driver& driver, const Side& side) {
     // ④：编成里写死的四友军排在韩立之后、队员曲魂之前（BattleScene 先摆编成、再 addPartyUnits）。
     EXPECT_EQ(driver.fights()[6].allies, (std::vector<std::string>{"hanli", "xueyu_zhizhu_ally",
         "xueyu_zhizhu_ally", "kuilei_yuan", "kuilei_yuan", "qu_hun_shadan"}));
-    // 验收第 21 条：第 11 章是表里最后一章——「第十一章　终」接「未完待续」。
+    // 验收第 21 条：第 12 章进了 data/chapters.json 之后，ch11.done 排「第十一章　终」再接 Opening(12)
+    // （第 12 章契约 5.3）；「未完待续」只跟表里最后一章。
     const auto& cards = driver.app().cardLog();
     ASSERT_GE(cards.size(), 2u);
     EXPECT_EQ(cards[cards.size() - 2], (game::CardRequest{game::CardKind::Closing, 11}));
-    EXPECT_EQ(cards.back(), (game::CardRequest{game::CardKind::ToBeContinued, 0}));
+    EXPECT_EQ(cards.back(), (game::CardRequest{game::CardKind::Opening, 12}));
     ASSERT_FALSE(::testing::Test::HasFailure());
     const test::TempDir temporary("fanren_ch11_actual_ending");
     const auto path = temporary.path() / "ending.sav";

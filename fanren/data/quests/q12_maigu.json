@@ -1,0 +1,48 @@
+{
+  "id": "q12_maigu",
+  "name": "埋骨",
+  "chapter": 12,
+  "kind": "side",
+  "title_key": "ch12.quest.maigu.title",
+  "summary_key": "ch12.quest.maigu.summary",
+  "accept": [
+    {
+      "flag": "ch12.tupo",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch12.quest.maigu.s1",
+      "done": [
+        {
+          "flag": "ch12.z1",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch12_guiwu",
+      "target_object": "trigger_yihai"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch12.z1",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "rewards": [],
+  "fail": [
+    {
+      "flag": "ch12.guiwang",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch12.quest.maigu.fail",
+  "origin": "原著",
+  "note": "ch438–439 鬼雾路旁的遗骸（玉真人）：取衣而后埋骨 / 只埋骨，两支都置 ch12.z1，取衣一支 give story_bihuo_baoyi。挂 trigger_yihai（interact、once、guard ch12.tupo、set_flag ch12.z1）；yihai.lua 开头判 ch12.guiwang 已置则旁白 return、不置 z1（完成压过失败，Quests.cpp 先判 complete）。可选，0 必经（施工图第 6 节）。"
+}

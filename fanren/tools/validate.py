@@ -2339,6 +2339,17 @@ CHAPTER_MEANS = {
          ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
          ("暗器", "give", "weapon_wuming_sixian", "ch07"),
          ("剑", "give", "weapon_lieyang_jian", "ch06")],
+    # 第 12 章（docs/interfaces-p3-ch12.md 5.2）：起点结丹初期，第 11 章八类照旧；金另加噬金虫群
+    # （scripts/ch12/guairen.lua 学会），两条金来路任一被删另一条仍在。
+    12: [("拳", "hand", "", ""),
+         ("火", "learn", "magic_huodan_shu", "ch04"),
+         ("土", "learn", "magic_liusha_shu", "ch06"),
+         ("水", "learn", "magic_bingdong_shu", "ch06"),
+         ("金", "learn", "magic_ji_jinfu", "ch07"),
+         ("金", "learn", "magic_shijin_chongqun", "ch12"),
+         ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
+         ("暗器", "give", "weapon_wuming_sixian", "ch07"),
+         ("剑", "give", "weapon_lieyang_jian", "ch06")],
 }
 # 某一场仗额外必有的：蚀心散在节点 7 备毒时由 scripts/ch03/beidu.lua 给出（两包起），
 # 暗道那一仗是节点 8。谷外遇狼（节点 1）那会儿还没有，所以不进第 3 章的通表。
@@ -2381,8 +2392,35 @@ BATTLE_EXTRA_MEANS = {
     # 就是这两样（契约 E3），登成 role_magic 由来源检查核编成与境界。
     "b11_tiandu_shi": [("水", "role_magic", "magic_zhizhu_tuwang", "xueyu_zhizhu_ally"),
                        ("火", "role_magic", "magic_kuilei_zihuo", "kuilei_yuan")],
+    # 第 12 章四场（契约 5.2）：辟邪神雷（木，castMagic magic_bixie_shenlei）由 guiwang.lua / xuangu.lua
+    # 开战前 give；友军一行都核过是编成里写死的 ally、法术在 magics 里、五行与境界 / 法力施展得出。
+    "b12_guiwu_guiwang": [("木", "give", "talisman_bixie_shenlei", "ch12"),
+                          ("剑", "role_weapon", "剑", "zi_ling_xutian"),
+                          ("火", "role_magic", "magic_moyan_huo", "yuan_yao_heipao")],
+    "b12_heishamo_tiehuoyi": [("火", "role_magic", "magic_qinghuo_lei", "yuan_yao_jiedan")],
+    "b12_neidian_duoding": [("水", "role_magic", "magic_bingjian_shu", "wu_chou"),
+                            ("火", "role_magic", "magic_moyan_huo", "xuan_gu")],
+    "b12_hanlitai_xuangu": [("木", "give", "talisman_bixie_shenlei", "ch12")],
 }
-MEANS_LAST_CHAPTER = 11
+MEANS_LAST_CHAPTER = 12
+# learn 来路的施展门槛（技术债 G-29，第 12 章门禁审查 G-3）：韩立自学的那门法术要在**本章起点**就施展得出——
+# needRealm ≤ 起点境界、needMp ≤ 起点法力上限，与友军那一支 role_means_available 同一口径（缺省 needRealm
+# QiRefining1、needMp 5）。章内境界只升不降（第 9 章的跌落在本章几场仗之后），起点就是全章最低的那一刻，
+# 所以整章表与按场登记的 learn 都拿它核。起点 ＝ 上一章终档 tests/fixtures/ch{N-1}-end-{first,second}.sav
+# 的 realm / maxMp（两侧相同，2026-10-13 实读）；第 10 章起点即跌落后的炼气三层（原先那条第 10 章特判并进这里）。
+# 第 3 章表里没有 learn 来路、也没有第 2 章终档可读，不登。有 learn 来路的章漏登起点直接报错（G-8）；
+# 表里的数与上一章终档是否一致，由 validate_selftest.py 的 CH12 段逐章读 tests/fixtures 核。
+CHAPTER_START = {
+    4: ("QiRefining3", 30),
+    5: ("QiRefining8", 80),
+    6: ("QiRefining8", 80),
+    7: ("QiRefining9", 90),
+    8: ("FoundationEarly", 180),
+    9: ("FoundationMid", 250),
+    10: ("QiRefining3", 30),
+    11: ("FoundationLate", 320),
+    12: ("CoreEarly", 470),
+}
 
 
 def check_category_list(where, payload, field, allowed, report) -> list[str]:
@@ -2498,13 +2536,59 @@ def role_means_available(entry: tuple, battle: dict, roles: dict, magics: dict) 
             REALM_ORDER.index(realm) >= REALM_ORDER.index(required))
 
 
+def check_learned_castable(report, where: str, owner: str, chapter, source: str, magic: dict) -> None:
+    """learn 来路：本章起点（CHAPTER_START）的境界与法力上限施展得出这门法术（G-29）。
+
+    有 learn 来路的章必须登起点（第 12 章门禁复核 G-8）：漏登一行，这道门就对整章静默失效。"""
+    if not is_plain_int(chapter):
+        return
+    start = CHAPTER_START.get(chapter)
+    if start is None:
+        report.error(where, f"{owner}：{source} 是第 {chapter} 章的 learn 来路，CHAPTER_START 却没登第 {chapter} 章起点，"
+                            "施展门槛核不了（照上一章终档的 realm / maxMp 补一行）")
+        return
+    realm, capacity = start
+    required = magic.get("needRealm", "QiRefining1")
+    if required not in REALM_ORDER or REALM_ORDER.index(required) > REALM_ORDER.index(realm):
+        report.error(where, f"{owner}：{source} 要 {required!s}，第 {chapter} 章起点 {realm} 施展不了，"
+                            "不是玩家必有的手段")
+    cost = magic.get("needMp", 5)
+    if not is_plain_int(cost) or cost > capacity:
+        report.error(where, f"{owner}：{source} 耗法力 {cost!r}，第 {chapter} 章起点法力上限 {capacity} 付不起，"
+                            "不是玩家必有的手段")
+
+
+def check_given_spell(report, where: str, owner: str, category: str, source: str, item: dict,
+                      magics: dict) -> None:
+    """give 一件施法符登记五行类别（第 12 章门禁审查 G-2）：符上的 castMagic 得指向一门真伤人的这一类法术。
+
+    道具施法照那门法术结算（类别取它的五行、伤害取它的 power）：指向的法术不存在、五行不含这一类、
+    power 不大于 0、挂着 effect（看破 / 削架势不是一击），这件符就打不出「这一类」的要命一击。"""
+    cast = item.get("castMagic")
+    spell = magics.get(cast) if isinstance(cast, str) else None
+    if spell is None:
+        report.error(where, f"{owner}：「{category}」的来路 {source} 的 castMagic {cast!r} 不是一门存在的法术，"
+                            f"打不出「{category}」")
+        return
+    element = spell.get("element", 0)
+    names = {name for bit, name in ELEMENT_BITS.items() if is_plain_int(element) and element & bit}
+    if category not in names:
+        report.error(where, f"{owner}：{source} 施展的 {cast} 五行不是「{category}」，打不出这一类")
+    power = spell.get("power", 10)
+    if not (is_plain_int(power) and power > 0):
+        report.error(where, f"{owner}：{source} 施展的 {cast} 不伤人（power {power!r}），不算「{category}」类一击")
+    if "effect" in spell:
+        report.error(where, f"{owner}：{source} 施展的 {cast} 挂着 effect {spell.get('effect')!r}，不是伤人的一击")
+
+
 def check_means_sources(report, roles: dict | None = None) -> None:
     """规则 25 的那张表自己得站得住：每一条来路都真的在脚本与数据里。
 
     表是人写的，而人写的表会漂：哪天火弹术挪到第 5 章才教，这张表还写着第 4 章必有火，
     规则 25 就会放过一整章打不出破绽的敌人。所以逐条去核：learn 的那门法术存在、
-    它的五行真是这一类、那一章的脚本里真有 magic.learn；give 的那件东西存在、真的带毒
-    （兵刃类：weapon 字段真是那一类）、那一章的脚本里真有 give。"""
+    它的五行真是这一类、本章起点施展得出（CHAPTER_START）、那一章的脚本里真有 magic.learn；
+    give 的那件东西存在、真的带毒（兵刃类：weapon 字段真是那一类；五行类：castMagic 那门法术
+    真是这一类、伤人、不挂 effect）、那一章的脚本里真有 give。"""
     magics: dict[str, dict] = {}
     for path in sorted((ROOT / "data" / "magics").rglob("*.json")):
         payload = read_json(path, report)
@@ -2516,13 +2600,14 @@ def check_means_sources(report, roles: dict | None = None) -> None:
         if isinstance(payload, dict) and payload.get("id"):
             items[str(payload["id"])] = payload
 
-    entries = [(f"第 {ch} 章", e) for ch, lst in CHAPTER_MEANS.items() for e in lst]
-    entries += [(battle_id, e) for battle_id, lst in BATTLE_EXTRA_MEANS.items() for e in lst]
     where = "tools/validate.py 的我方手段表"
     if roles is None:
         roles = load_break_roles(report)
     battles = load_battle_payloads(report)
-    for owner, (category, kind, source, chapter_dir) in entries:
+    entries = [(f"第 {ch} 章", ch, e) for ch, lst in CHAPTER_MEANS.items() for e in lst]
+    entries += [(battle_id, battles.get(battle_id, {}).get("chapter"), e)
+                for battle_id, lst in BATTLE_EXTRA_MEANS.items() for e in lst]
+    for owner, chapter, (category, kind, source, chapter_dir) in entries:
         if kind in ("role_magic", "role_weapon"):
             battle = battles.get(owner, {})
             if not role_means_available((category, kind, source, chapter_dir), battle, roles, magics):
@@ -2543,10 +2628,7 @@ def check_means_sources(report, roles: dict | None = None) -> None:
             names = {name for bit, name in ELEMENT_BITS.items() if isinstance(element, int) and element & bit}
             if category not in names:
                 report.error(where, f"{owner}：{source} 的五行不是「{category}」，它打不出这一类")
-            if owner == "第 10 章":
-                required = magic.get("needRealm", "QiRefining1")
-                if required not in REALM_ORDER or REALM_ORDER.index(required) > REALM_ORDER.index("QiRefining3"):
-                    report.error(where, f"{owner}：{source} 跌落到炼气三层后不可施展，不是整章必有手段")
+            check_learned_castable(report, where, owner, chapter, source, magic)
             if not re.search(r'magic\.learn\s*\(\s*["\']' + re.escape(source) + r'["\']', code):
                 report.error(where, f"{owner}：scripts/{chapter_dir}/ 里没有 magic.learn(\"{source}\")，"
                                     f"「{category}」就不是玩家必有的手段")
@@ -2562,6 +2644,8 @@ def check_means_sources(report, roles: dict | None = None) -> None:
             if category in GIVEN_WEAPON_CATEGORIES and item.get("weapon") != category:
                 report.error(where, f"{owner}：{source} 的 weapon 不是「{category}」（实际是 {item.get('weapon')!r}），"
                                     f"揣在身上也打不出这一类")
+            if category in ELEMENT_CATEGORIES:
+                check_given_spell(report, where, owner, category, source, item, magics)
             if not re.search(r'give\s*\(\s*["\']' + re.escape(source) + r'["\']', code):
                 report.error(where, f"{owner}：scripts/{chapter_dir}/ 里没有 give(\"{source}\")，"
                                     f"「{category}」就不是玩家必有的手段")

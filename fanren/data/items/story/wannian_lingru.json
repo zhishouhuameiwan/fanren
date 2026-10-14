@@ -1,0 +1,11 @@
+{
+  "id": "story_wannian_lingru",
+  "name": "万年灵乳",
+  "descKey": "item.desc.story_wannian_lingru",
+  "kind": "story",
+  "grade": 9,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch497 元瑶以它换他放弃阵后之宝。只作 story、不做回法（16.1 第 30 条）。n33 give 1。"
+}

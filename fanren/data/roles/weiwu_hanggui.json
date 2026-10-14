@@ -1,0 +1,19 @@
+{
+  "id": "weiwu_hanggui",
+  "name": "炜吾",
+  "realm": "FoundationLate",
+  "maxHp": 420,
+  "maxMp": 0,
+  "attack": 40,
+  "defence": 28,
+  "speed": 18,
+  "element": 0,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "火",
+    "剑"
+  ],
+  "origin": "原著",
+  "note": "ch441 鬼雾里扑来的悍鬼。① 第 0 波 ×2，交给友军也压得住。破绽火、剑。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_guiwu_guiwang 的 note）。"
+}

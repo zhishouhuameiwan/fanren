@@ -1,0 +1,11 @@
+{
+  "id": "story_xuese_pifeng",
+  "name": "血色披风",
+  "descKey": "item.desc.story_xuese_pifeng",
+  "kind": "story",
+  "grade": 7,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch470 宝光阁二层所取；名字到 ch499 才出现，所以物品名之外，quba / huanjing 两段文案只写「暗红披风」（施工图 12.2）。n24 give 1（先取或结甲多取的那一件），第 13 章逃命用。"
+}

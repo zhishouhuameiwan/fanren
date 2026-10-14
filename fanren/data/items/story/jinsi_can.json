@@ -1,0 +1,11 @@
+{
+  "id": "story_jinsi_can",
+  "name": "金丝蚕",
+  "descKey": "item.desc.story_jinsi_can",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch479–482 拉鼎崩断的废蚕，他讨要了来（ch12.jincan）。n29 抉择 give 3。第 13 章 ch522 演完喂霓裳草一段即收回（契约第 3 节）。"
+}

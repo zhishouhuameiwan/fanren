@@ -1,33 +1,37 @@
 {
   "id": "b12_neidian_duoding",
-  "name": "内殿夺鼎混战",
+  "name": "器灵出鼎",
   "chapter": 12,
   "terrain": "secret",
+  "hero_absent": false,
   "can_escape": false,
   "defeat_is_fatal": true,
   "units": [
     {
       "role_id": "wu_chou",
-      "faction": "enemy"
+      "faction": "ally"
     },
     {
-      "role_id": "duoding_xiushi",
-      "faction": "enemy"
+      "role_id": "xuan_gu",
+      "faction": "ally"
+    },
+    {
+      "role_id": "langxing_qiling",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "langxing_qiling_yin",
+      "faction": "enemy",
+      "wave": 1
     }
   ],
   "rewards": {
-    "cultivation": 1600,
-    "spirit_stones": 400,
-    "drops": [
-      {
-        "item_id": "pill_dingyan_dan",
-        "count": 1,
-        "rate": 100
-      }
-    ]
+    "cultivation": 300,
+    "spirit_stones": 0,
+    "drops": []
   },
   "intro_key": "ch12.battle.neidian_duoding.intro",
   "origin": "原著",
-  "rewritten_by_lore": true,
-  "note": "旧原型的「殿灵」查无（虚天鼎逸出的是狼形器灵，且其名在本篇不得使用）。改为内殿正魔混战中与乌丑一方的交手（ch472-499）。所得为虚天鼎与乾蓝冰珠，不是紫罗极火。"
+  "note": "战斗 ③，n29 ruyi.lua（trigger_taijie）。就地改写旧占位（16.1 第 18 条：乌丑改友军，旧 duoding_xiushi 与旧掉落一并去掉）。多方混战的缩影：乌丑、玄骨是争夺者（友军，契约 E2），两人都不配金类法术；第 0 波双头火形（破绽水、金），第 1 波独角银形（killable_by 金，银光弹蓄势横扫），收服只能是玩家的金。元婴大战只在开场白。hero_absent false、can_escape false、defeat_is_fatal true、spirit_stones 0、drops []（物品一律由脚本 give），友军写死、wave 缺省（第 0 波开场就在）；空队伍下我方 ＝ 韩立 ＋ 编成友军（契约 E1）。平衡路实测（同 ① 口径，起点 n28 之后）：调前胜 5 回合，韩立 345→129（之后 ④ 不回血）。调后两侧同为胜 10 回合，韩立 619→553，银形的银光弹被破势打断。调了 langxing_qiling 攻 74→50、langxing_qiling_yin 攻 76→58；友军 xuan_gu 随 ④ 一起调，wu_chou 一个字不动。韩立只防、两名友军照打 → 败（银形压在 1 打不死）。最低合法起点（台下静养十日、无丹药）：胜 10 回合，700→634。"
 }

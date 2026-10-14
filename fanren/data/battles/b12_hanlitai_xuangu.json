@@ -1,0 +1,24 @@
+{
+  "id": "b12_hanlitai_xuangu",
+  "name": "修罗圣火",
+  "chapter": 12,
+  "terrain": "secret",
+  "hero_absent": false,
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "xuan_gu",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 480,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch12.battle.hanlitai_xuangu.intro",
+  "origin": "原著",
+  "note": "战斗 ④，n31 xuangu.lua（trigger_dongkou）。独战：玄骨 actions 2、每三回合修罗圣火蓄势（只在 charge.text_key），killable_by 木——青元剑芒与神雷要得了命，神雷用早了圣火压上来就没有收尾的。胜利文案写圣火反噬，不写成他亲手了结（施工图 12.2 那条禁写）。意图玩家 ③ 后不回血（台下打坐设施兜底）。hero_absent false、can_escape false、defeat_is_fatal true、spirit_stones 0、drops []（物品一律由脚本 give），友军写死、wave 缺省（第 0 波开场就在）；空队伍下我方 ＝ 韩立 ＋ 编成友军（契约 E1）。平衡路实测（同 ① 口径，起点 n30 之后、③ 打完不回血）：调前胜 29 回合，韩立 129→79——敌方 AI 有够用的法力就只放法术（BattleState::enemyDecision），魔火威力 12 对结丹初期一手只打 1 到 2 点，独战没有威胁。调后两侧同为胜 8 回合，韩立 553→404。xuan_gu 气血 1400→450、法力 860→96（只够八手魔火，之后拳脚；不低于 12，守住规则 25 的 role_magic）、攻 88→36、防 64→40、架势 8→4（actions 2、every 3、×2.0 不动）。捂住木则赢不下来；人人只防则败。最低合法起点（台下静养十日、无丹药）：胜 8 回合，700→551。"
+}

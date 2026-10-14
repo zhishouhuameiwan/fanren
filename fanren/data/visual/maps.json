@@ -2451,6 +2451,128 @@
         {"at": [15, 3], "kind": "desk", "why": "后宅书案（记账）"},
         {"at": [9, 3], "kind": "bookshelf", "why": "后宅货架"}
       ]
+    },
+    "ch12_tushan": {
+      "theme": "wild",
+      "time": "dusk",
+      "backdrop": "mountain_forest_dusk",
+      "why": "第12章施工图第4节：土山荒岛用现成的 wild/dusk/mountain_forest_dusk；岛上无灵脉、草木不生，碎石枯土为主。",
+      "particles": [{"kind": "dust", "rate": 0.35}],
+      "dof": 0.6,
+      "dof_why": "室外荒岛（48×36），远近两头糊开",
+      "zones": [
+        {"rect": [3, 11, 44, 27], "ground": "earth", "why": "草木不生的枯土（A3）"},
+        {"rect": [36, 13, 44, 27], "ground": "gravel", "why": "东岸礁滩"},
+        {"rect": [12, 29, 36, 32], "ground": "sand", "why": "南岸登岛的沙滩"}
+      ],
+      "structures": [
+        {"rect": [3, 3, 44, 10], "kind": "rock", "style": "cliff", "why": "北坡土山岩体（不是房子），地洞口开在当中"},
+        {"rect": [12, 28, 21, 28], "kind": "rock", "style": "cliff", "why": "南岸一道矮岩坎"},
+        {"rect": [27, 28, 36, 28], "kind": "rock", "style": "cliff", "why": "南岸一道矮岩坎"},
+        {"rect": [41, 15, 42, 16], "kind": "rock", "style": "cliff", "why": "东岸礁石"},
+        {"rect": [38, 20, 39, 21], "kind": "rock", "style": "cliff", "why": "东岸礁石"},
+        {"rect": [43, 23, 44, 24], "kind": "rock", "style": "cliff", "why": "东岸礁石"}
+      ]
+    },
+    "ch12_dixue": {
+      "theme": "cave",
+      "time": "indoor",
+      "backdrop": "cave_tunnel",
+      "why": "第12章施工图第4节：封灵柱地洞用现成的 cave/indoor/cave_tunnel；洞中有一池水。",
+      "particles": [{"kind": "dust", "rate": 0.25}, {"kind": "mist", "rate": 0.12}],
+      "dof": 0.4,
+      "dof_why": "室内地洞（30×24），取室内的常用值"
+    },
+    "ch12_dadian": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "backdrop": "secret_room",
+      "why": "第12章施工图第4节：虚天殿外殿大厅用现成的 indoor_stone/indoor/secret_room。",
+      "particles": [{"kind": "dust", "rate": 0.25}],
+      "dof": 0.4,
+      "dof_why": "室内长厅（44×40），取室内的常用值"
+    },
+    "ch12_guiwu": {
+      "theme": "mountain_path",
+      "time": "night",
+      "backdrop": "mountain_forest",
+      "why": "第12章施工图第4节：鬼雾用 mountain_path/night/mountain_forest 加 mist，与 ch09_milin 同一组合；雾比密林浓一档。",
+      "particles": [{"kind": "mist", "rate": 0.5}],
+      "dof": 0.6,
+      "dof_why": "室外大图（56×48），远近两头糊开"
+    },
+    "ch12_xiaojie": {
+      "theme": "valley",
+      "time": "day",
+      "backdrop": "herb_valley",
+      "why": "第12章施工图第4节：小空间用现成的 valley/day/herb_valley；西端草原、灵药丛。",
+      "particles": [{"kind": "petal", "rate": 0.3}, {"kind": "dust", "rate": 0.2}],
+      "dof": 0.6,
+      "dof_why": "开阔的室外大图（64×40），远近两头糊开",
+      "structures": [
+        {"rect": [42, 30, 48, 35], "kind": "rock", "style": "cliff", "why": "东南小石山的巨石（不是房子）"},
+        {"rect": [30, 33, 39, 37], "kind": "rock", "style": "cliff", "why": "小石山山脚岩体"}
+      ]
+    },
+    "ch12_binghuo": {
+      "theme": "cliff",
+      "time": "dusk",
+      "backdrop": "cliff_top_dusk",
+      "why": "第12章施工图第4节：冰火道·熔岩路用现成的 cliff/dusk/cliff_top_dusk；熔岩夹道飘火星。",
+      "liquid": "lava",
+      "liquid_why": "熔岩夹道与沼泽泥潭是熔岩不是水（ch12-review.md C-11）：mapwater 画熔岩变体，maplights 不把这些格写进 water、改放暗红的光与火星",
+      "grass_tint": "fire",
+      "grass_tint_why": "熔岩路上的草木本是烤红的（ch12-review.md R2-6，原著 ch459、文案「红草」）：mapground.tint_grass 画完后把本图的草地渐层整体换成红草渐层，草的形状不动",
+      "particles": [{"kind": "ember", "rate": 0.35}, {"kind": "dust", "rate": 0.25}],
+      "dof": 0.55,
+      "dof_why": "狭长的室外长道（80×28），上下窄，只糊一点",
+      "zones": [
+        {"rect": [1, 10, 24, 17], "ground": "scorched", "why": "熔岩夹道两侧烧焦的地面"},
+        {"rect": [56, 10, 70, 17], "ground": "scorched", "why": "黑沙漠"}
+      ]
+    },
+    "ch12_baoguang": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "backdrop": "secret_room",
+      "why": "第12章施工图第4节：宝光阁用现成的 indoor_stone/indoor/secret_room，靠 ambient 提亮一档（宝光）。",
+      "particles": [{"kind": "dust", "rate": 0.2}],
+      "ambient": [176, 170, 160],
+      "dof": 0.4,
+      "dof_why": "室内（36×28），取室内的常用值",
+      "zones": [
+        {"rect": [17, 17, 19, 23], "road": "flagstone", "why": "玉桥是石砌的，不是栈桥木板"}
+      ]
+    },
+    "ch12_taqian": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "backdrop": "secret_room",
+      "why": "第12章施工图第4节：内殿塔前用现成的 indoor_stone/indoor/secret_room。",
+      "particles": [{"kind": "dust", "rate": 0.25}],
+      "dof": 0.4,
+      "dof_why": "室内（44×32），取室内的常用值"
+    },
+    "ch12_hanlitai": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "backdrop": "secret_room",
+      "why": "第12章施工图第4节：寒骊台用现成的 indoor_stone/indoor/secret_room；台上寒气，加一点 mist。",
+      "particles": [{"kind": "dust", "rate": 0.2}, {"kind": "mist", "rate": 0.15}],
+      "dof": 0.4,
+      "dof_why": "室内（40×36），取室内的常用值",
+      "structures": [
+        {"rect": [11, 8, 12, 9], "kind": "rock", "style": "cliff", "why": "台面上的洞口岩隙（不是屋子）"}
+      ]
+    },
+    "ch12_lingquan": {
+      "theme": "indoor_stone",
+      "time": "indoor",
+      "backdrop": "secret_room",
+      "why": "第12章施工图第4节：灵泉密室用现成的 indoor_stone/indoor/secret_room；泉上水汽。",
+      "particles": [{"kind": "mist", "rate": 0.25}],
+      "dof": 0.35,
+      "dof_why": "窄的室内（24×20），只糊一点边"
     }
   }
 }

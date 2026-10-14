@@ -1,0 +1,11 @@
+{
+  "id": "material_lianjing",
+  "name": "炼晶",
+  "descKey": "item.desc.material_lianjing",
+  "kind": "material",
+  "grade": 8,
+  "price": 6000,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch466 铁火蚁后吞矿反吐之物，加强法宝的辅料；n22 give 1。tradeable false：殿内无店，第 13 章 ch519–520 重炼飞剑用（契约第 3 节）。"
+}

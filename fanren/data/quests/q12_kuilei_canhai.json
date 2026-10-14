@@ -1,0 +1,48 @@
+{
+  "id": "q12_kuilei_canhai",
+  "name": "傀儡残骸",
+  "chapter": 12,
+  "kind": "side",
+  "title_key": "ch12.quest.kuilei_canhai.title",
+  "summary_key": "ch12.quest.kuilei_canhai.summary",
+  "accept": [
+    {
+      "flag": "ch12.neidian",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch12.quest.kuilei_canhai.s1",
+      "done": [
+        {
+          "flag": "ch12.z2",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch12_taqian",
+      "target_object": "trigger_tamen"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch12.z2",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "rewards": [],
+  "fail": [
+    {
+      "flag": "ch12.cengjie",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch12.quest.kuilei_canhai.fail",
+  "origin": "原著",
+  "note": "ch475–476 内殿傀儡被蛮胡子砸碎，他把残骸收进储物袋。无独立挂点：n27 cengjie.lua（trigger_tamen）里一处抉择，收则 give story_kuilei_canhai 1、flag.set(\"ch12.z2\") 写在 flag.set(\"ch12.cengjie\") 之前。文案不点傀儡的名目（狼首傀儡、蛇卫在 cengjie 之前不出，施工图 12.2）。可选，0 必经。"
+}

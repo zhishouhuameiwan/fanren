@@ -1798,31 +1798,32 @@ def selftest_n_battle_break(case: Case, base: Path) -> None:
     # 韩立不在场的那一仗，手段只有编成里友军的兵刃：第 5 章的通表里有火，这里却不算。
     expect("夺帮那一夜的头目只怕火与刀 → 报（我方只有拳）", "data/roles/sipingbang_toumu.json",
            lambda p: p.__setitem__("weaknesses", ["火", "刀"]), "没有一样是这一场", "b05_duobang")
-    # 第 11 章写实了 b11_ningcuidao_youyao（E19），探针挪到全仓唯一含 wu_chou 的第 12 章编成。
-    outside_role = "data/roles/wu_chou.json"
-    outside_battle = "b12_neidian_duoding"
-    expect_quiet("第 12 章的敌人不在规则 25 的范围 → 不报", outside_role,
+    # 第 12 章写实了 b12_neidian_duoding（乌丑改友军，契约 5.2），探针挪到全仓唯一含 wuji_haishou 的第 13 章编成。
+    outside_role = "data/roles/wuji_haishou.json"
+    outside_battle = "b13_waixinghai_lieyao"
+    expect_quiet("第 13 章的敌人不在规则 25 的范围 → 不报", outside_role,
                  lambda p: p.__setitem__("weaknesses", ["木"]), outside_battle)
     # A missing probe is a failure, not an empty successful filter; the same enemy must fail inside scope.
     outside_path = work / "data" / "battles" / (outside_battle + ".json")
     role_path = work / outside_role
-    case.check("第 12 章范围探针文件及角色确实存在", outside_path.is_file() and role_path.is_file())
+    case.check("第 13 章范围探针文件及角色确实存在", outside_path.is_file() and role_path.is_file())
     if outside_path.is_file() and role_path.is_file():
         battle_original, role_original = outside_path.read_bytes(), role_path.read_bytes()
         probe = json.loads(battle_original)
         role = json.loads(role_original)
-        case.check("第 12 章范围探针实际引用乌丑",
-                   probe.get("chapter") == 12 and any(unit.get("role_id") == "wu_chou" and
+        case.check("第 13 章范围探针实际引用无极海兽",
+                   probe.get("chapter") == 13 and any(unit.get("role_id") == "wuji_haishou" and
                    unit.get("faction") == "enemy" for unit in probe.get("units", [])))
         role["weaknesses"] = ["毒"]
-        probe["chapter"] = 11
+        probe["chapter"] = 12
         probe["hero_absent"] = False
         try:
             role_path.write_text(json.dumps(role, ensure_ascii=False, indent=2), encoding="utf-8")
             outside_path.write_text(json.dumps(probe, ensure_ascii=False, indent=2), encoding="utf-8")
             errors = rule_errors()
-            case.check("同一乌丑移入第11章且只怕毒 → 必报",
-                       any(outside_battle in error and "没有一样是这一场" in error for error in errors),
+            case.check("同一海兽移入第12章且只怕毒 → 必报",
+                       any(outside_battle in error and "wuji_haishou" in error and "没有一样是这一场" in error
+                           for error in errors),
                        chr(10).join(errors[:3]) or "（范围阴性未被抓住）")
         finally:
             outside_path.write_bytes(battle_original)
@@ -2462,8 +2463,8 @@ def selftest_ch10_means(case: Case, base: Path) -> None:
                     ("金", "learn", "magic_ji_jinfu", "ch07"), ("木", "learn", "magic_ji_qingjiao", "ch07"),
                     ("暗器", "give", "weapon_wuming_sixian", "ch07")]
         case.check("第10章七类手段按跌落后的合同逐项一致", validate.CHAPTER_MEANS.get(10) == expected)
-        case.check("第8/9章批准表已接且末章11", 8 in validate.CHAPTER_MEANS and
-                   9 in validate.CHAPTER_MEANS and validate.MEANS_LAST_CHAPTER == 11)
+        case.check("第8/9章批准表已接且末章12", 8 in validate.CHAPTER_MEANS and
+                   9 in validate.CHAPTER_MEANS and validate.MEANS_LAST_CHAPTER == 12)
         clean = source_errors()
         case.check("真实来源：learn/give/友军法术/兵刃均无错", not clean, chr(10).join(clean[:3]))
         for battle_id, categories in (("b10_liuliandian_weisha", {"拳", "剑", "火", "水", "木"}),
@@ -2474,7 +2475,8 @@ def selftest_ch10_means(case: Case, base: Path) -> None:
                        validate.battle_means(payload, roles, magics) == categories)
 
         mutate("data/magics/ji_qingjiao.json", lambda p: p.update(needRealm="FoundationEarly"),
-               lambda: any("跌落到炼气三层后不可施展" in e for e in source_errors()),
+               lambda: any("第 10 章" in e and "magic_ji_qingjiao" in e and "第 10 章起点 QiRefining3 施展不了" in e
+                           for e in source_errors()),
                "常驻木提高到筑基 → 必报，不能照抄第9章高境界手段")
         mutate("data/magics/ch10_mufu.json", lambda p: p.update(element=8),
                lambda: any("magic_ch10_mufu" in e for e in source_errors()), "友军木法改成火 → 来源必报")
@@ -2500,32 +2502,33 @@ def selftest_ch10_means(case: Case, base: Path) -> None:
                "青算子不在编成 → 木消失且必报，不借本尊的祭青蛟")
 
         roles, magics = inputs()
-        future_id = "b12_neidian_duoding"
+        future_id = "b13_waixinghai_lieyao"
         path = work / "data/battles" / (future_id + ".json")
         future = json.loads(path.read_text(encoding="utf-8"))
         refs = [(p, json.loads(p.read_text(encoding="utf-8"))) for p in (work / "data/battles").glob("*.json")]
-        referenced = [p.stem for p, payload in refs if any(u.get("role_id") == "wu_chou" and
+        referenced = [p.stem for p, payload in refs if any(u.get("role_id") == "wuji_haishou" and
                       u.get("faction") == "enemy" for u in payload.get("units", []))]
-        case.check("outside探针实际是第12章且角色只在指定一场", future.get("chapter") == 12 and referenced == [future_id])
+        case.check("outside探针实际是第13章且角色只在指定一场", future.get("chapter") == 13 and referenced == [future_id])
 
         def scoped(chapter):
-            original_role = (work / "data/roles/wu_chou.json").read_bytes()
+            original_role = (work / "data/roles/wuji_haishou.json").read_bytes()
             original_battle = path.read_bytes()
             role = json.loads(original_role)
             role["weaknesses"] = ["毒"]
             probe = dict(future, chapter=chapter, hero_absent=False)
             try:
-                (work / "data/roles/wu_chou.json").write_text(json.dumps(role), encoding="utf-8")
+                (work / "data/roles/wuji_haishou.json").write_text(json.dumps(role), encoding="utf-8")
                 path.write_text(json.dumps(probe), encoding="utf-8")
                 report = validate.Report()
                 validate.check_battle_break_data(report)
-                return [e for e in report.errors if future_id in e and "没有一样是这一场" in e]
+                return [e for e in report.errors
+                        if future_id in e and "wuji_haishou" in e and "没有一样是这一场" in e]
             finally:
-                (work / "data/roles/wu_chou.json").write_bytes(original_role)
+                (work / "data/roles/wuji_haishou.json").write_bytes(original_role)
                 path.write_bytes(original_battle)
 
-        case.check("第12章只怕毒：范围外确实不报", not scoped(12))
-        case.check("同一乌丑移入第11章：确实必报", bool(scoped(11)))
+        case.check("第13章只怕毒：范围外确实不报", not scoped(13))
+        case.check("同一海兽移入第12章：确实必报", bool(scoped(12)))
         case.check("所有反例后真实来源再次无错", not source_errors())
     finally:
         validate.ROOT = saved_root
@@ -2602,6 +2605,120 @@ def selftest_ch10_ally_mp(case: Case, base: Path) -> None:
         validate.ROOT, sys.argv = saved_root, saved_argv
 
 
+def selftest_ch12_means(case: Case, base: Path) -> None:
+    """第 12 章门禁审查 G-2、G-3（技术债 G-29）：施法符登记的五行与伤害、自学法术在章起点施展得出。
+
+    ④ 玄骨只怕木、③ 银形只怕金：木的来路一条是施法符（辟邪神雷）、一条是自学的青元剑芒，金的来路是两门自学法术。
+    逐条写坏（副本里改字节、跑来源检查、原样改回），每一条都必须报、还原后必须静。"""
+    print()
+    print("CH12. 规则 25 来路：施法符的五行与伤害、自学法术的起点境界与法力")
+    work = base / "ch12_means"
+    for name in ("scripts", "data/magics", "data/items", "data/roles", "data/battles"):
+        shutil.copytree(ROOT / name, work / name)
+    saved_root = validate.ROOT
+    validate.ROOT = work
+
+    def source_errors() -> list[str]:
+        report = validate.Report()
+        validate.check_means_sources(report)
+        return report.errors
+
+    def mutate(name: str, edits: list, check) -> None:
+        originals = {work / relative: (work / relative).read_bytes() for relative, _ in edits}
+        for relative, change in edits:
+            value = json.loads(originals[work / relative])
+            change(value)
+            (work / relative).write_text(json.dumps(value, ensure_ascii=False), encoding="utf-8")
+        try:
+            found = source_errors()
+            case.check(name, check(found), chr(10).join(found[:3]) or "（一条也没报）")
+        finally:
+            for path, original in originals.items():
+                path.write_bytes(original)
+        case.check(name + "：还原后来源通过", not source_errors())
+
+    def says(*needles: str):
+        return lambda found: any(all(n in e for n in needles) for e in found)
+
+    def quiet(*needles: str):
+        return lambda found: not any(all(n in e for n in needles) for e in found)
+
+    thunder, shenlei = "data/items/talismans/bixie_shenlei.json", "data/magics/bixie_shenlei.json"
+    jinfu, shijin = "data/magics/ji_jinfu.json", "data/magics/shijin_chongqun.json"
+    jianmang = "data/magics/qingyuan_jianmang.json"
+    try:
+        clean = source_errors()
+        case.check("真实来源无错（含施法符与起点门槛）", not clean, chr(10).join(clean[:3]))
+        item = json.loads((work / thunder).read_text(encoding="utf-8"))
+        case.check("先验：第12章起点结丹初期470、神雷登在①④、castMagic是辟邪神雷",
+                   validate.CHAPTER_START.get(12) == ("CoreEarly", 470) and
+                   item.get("castMagic") == "magic_bixie_shenlei" and
+                   all(("木", "give", "talisman_bixie_shenlei", "ch12") in validate.BATTLE_EXTRA_MEANS.get(b, [])
+                       for b in ("b12_guiwu_guiwang", "b12_hanlitai_xuangu")))
+        for path in (jinfu, shijin, jianmang):
+            case.check("探针文件存在：" + path, (work / path).is_file())
+        # ---- G-2：give 一件施法符登记「木」----
+        mutate("神雷 castMagic 改成火弹术 → ④ 必报", [(thunder, lambda p: p.update(castMagic="magic_huodan_shu"))],
+               says("b12_hanlitai_xuangu", "talisman_bixie_shenlei", "magic_huodan_shu", "五行不是「木」"))
+        mutate("magic_bixie_shenlei 五行改成火 → ① 必报", [(shenlei, lambda p: p.update(element=8))],
+               says("b12_guiwu_guiwang", "magic_bixie_shenlei", "五行不是「木」"))
+        mutate("magic_bixie_shenlei power 改成 0 → 必报", [(shenlei, lambda p: p.update(power=0))],
+               says("b12_hanlitai_xuangu", "magic_bixie_shenlei", "不伤人"))
+        mutate("magic_bixie_shenlei 挂 effect → 必报", [(shenlei, lambda p: p.update(effect="reveal"))],
+               says("b12_hanlitai_xuangu", "magic_bixie_shenlei", "挂着 effect"))
+        mutate("神雷去掉 castMagic → 必报", [(thunder, lambda p: p.pop("castMagic"))],
+               says("b12_hanlitai_xuangu", "talisman_bixie_shenlei", "不是一门存在的法术"))
+        # ---- G-3：learn 来路在第 12 章起点（结丹初期、法力 470）施展得出 ----
+        core_mid = lambda p: p.update(needRealm="CoreMid")  # noqa: E731
+        mutate("两门金术 needRealm 改成 CoreMid → 第12章必报", [(jinfu, core_mid), (shijin, core_mid)],
+               lambda found: says("第 12 章", "magic_ji_jinfu", "施展不了")(found) and
+               says("第 12 章", "magic_shijin_chongqun", "施展不了")(found))
+        mp999 = lambda p: p.update(needMp=999)  # noqa: E731
+        mutate("两门金术 needMp 改成 999 → 第12章必报", [(jinfu, mp999), (shijin, mp999)],
+               lambda found: says("第 12 章", "magic_ji_jinfu", "付不起")(found) and
+               says("第 12 章", "magic_shijin_chongqun", "付不起")(found))
+        mutate("青元剑芒 needRealm 改成 CoreLate → 第12章必报", [(jianmang, lambda p: p.update(needRealm="CoreLate"))],
+               says("第 12 章", "magic_qingyuan_jianmang", "施展不了"))
+        # 边界：噬金虫群只登在第 12 章，恰等于起点（CoreEarly / 470）不报、越一档 / 一点就报。
+        mutate("噬金虫群 needRealm 恰 CoreEarly → 不报", [(shijin, lambda p: p.update(needRealm="CoreEarly"))],
+               quiet("magic_shijin_chongqun"))
+        mutate("噬金虫群 needMp 恰 470 → 不报", [(shijin, lambda p: p.update(needMp=470))],
+               quiet("magic_shijin_chongqun"))
+        mutate("噬金虫群 needMp 471 → 必报", [(shijin, lambda p: p.update(needMp=471))],
+               says("第 12 章", "magic_shijin_chongqun", "付不起"))
+        # G-8：起点表漏登一章 → 那一章的 learn 来路必报，不许整章静默跳过。
+        saved_start = validate.CHAPTER_START.pop(12)
+        try:
+            found = source_errors()
+            case.check("CHAPTER_START 删掉第12章 → 必报", says("第 12 章", "CHAPTER_START")(found),
+                       chr(10).join(found[:3]) or "（一条也没报）")
+        finally:
+            validate.CHAPTER_START[12] = saved_start
+        case.check("所有反例后真实来源再次无错", not source_errors())
+    finally:
+        validate.ROOT = saved_root
+    # G-8：表里的起点是从上一章终档手抄的——终档重生成后数变了，这里必须红。
+    realm_names = {0: "Mortal", 21: "FoundationEarly", 22: "FoundationMid", 23: "FoundationLate",
+                   31: "CoreEarly", 32: "CoreMid", 33: "CoreLate"}
+    realm_names.update({n: "QiRefining%d" % n for n in range(1, 14)})
+
+    def fixture_start(chapter: int, side: str):
+        path = ROOT / "tests" / "fixtures" / ("ch%02d-end-%s.sav" % (chapter - 1, side))
+        if not path.is_file():
+            return None
+        save = json.loads(path.read_bytes().decode("utf-8"))
+        payload = save.get("payload", save)
+        return realm_names.get(payload.get("realm")), payload.get("maxMp")
+
+    case.check("对照：第12章起点法力改成 471 必与终档不一致",
+               fixture_start(12, "first") not in (None, ("CoreEarly", 471)))
+    for chapter, start in sorted(validate.CHAPTER_START.items()):
+        for side in ("first", "second"):
+            got = fixture_start(chapter, side)
+            case.check("CHAPTER_START[%d] 与 ch%02d-end-%s 一致" % (chapter, chapter - 1, side),
+                       got == tuple(start), "终档 %r，表 %r" % (got, tuple(start)))
+
+
 def selftest_magic_targets(case: Case, base: Path) -> None:
     """Exercise E3 in temporary unit inputs, independent of unfinished chapter content."""
     work = base / "magic_target_probe"
@@ -2673,6 +2790,12 @@ def main() -> int:
         print("用例 %d 条，未如期抓住 %d 条" % (case.total, case.failed))
         print("CH10_MEANS_SELFTEST_OK" if not case.failed else "CH10_MEANS_SELFTEST_FAIL")
         return 0 if not case.failed else 1
+    if sys.argv[1:] == ["--ch12-means"]:
+        with tempfile.TemporaryDirectory(prefix="fanren_ch12_means_selftest_") as tmp:
+            selftest_ch12_means(case, Path(tmp))
+        print("用例 %d 条，未如期抓住 %d 条" % (case.total, case.failed))
+        print("CH12_MEANS_SELFTEST_OK" if not case.failed else "CH12_MEANS_SELFTEST_FAIL")
+        return 0 if not case.failed else 1
     if sys.argv[1:] == ["--magic-targets"]:
         with tempfile.TemporaryDirectory(prefix="fanren_magic_target_selftest_") as tmp:
             selftest_magic_targets(case, Path(tmp))
@@ -2702,6 +2825,7 @@ def main() -> int:
         selftest_n_battle_break(case, base)
         selftest_ch10_means(case, base)
         selftest_ch10_ally_mp(case, base)
+        selftest_ch12_means(case, base)
         selftest_t_recipe_only_flag(case, base)
         selftest_u_meditate_effectiveness(case, base)
         selftest_magic_targets(case, base)

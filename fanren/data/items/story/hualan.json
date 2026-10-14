@@ -1,0 +1,11 @@
+{
+  "id": "story_hualan",
+  "name": "花篮古宝",
+  "descKey": "item.desc.story_hualan",
+  "kind": "story",
+  "grade": 7,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch419–421 看守怪人的洪荒古宝，困过众人的法宝；n03 give 1。③ 收服银形器灵的文案用它，第 13 章可用。只作 story，不施法。"
+}

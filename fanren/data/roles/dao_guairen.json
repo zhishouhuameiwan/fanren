@@ -1,0 +1,14 @@
+{
+  "id": "dao_guairen",
+  "name": "怪人",
+  "realm": "CoreMid",
+  "maxHp": 900,
+  "maxMp": 620,
+  "attack": 76,
+  "defence": 58,
+  "speed": 28,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch419–421 遗址看守的怪人，自封岛主；只在 n03 talk，噬金虫收场后倒下（旁白），不进编成（施工图 8.3，id b12_tushan_guairen 预留不建）。无地图对象。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

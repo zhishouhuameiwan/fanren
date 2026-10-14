@@ -1,0 +1,16 @@
+{
+  "id": "yuan_yao_jiedan",
+  "name": "元瑶",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 24,
+  "element": 8,
+  "magics": [
+    "magic_qinghuo_lei"
+  ],
+  "origin": "原著",
+  "note": "ch444 起的元瑶（结丹初期），旧 yuan_yao（第 10 章）不动（B 表 10）。② b12_heishamo_tiehuoyi 友军，青火雷打不到蚁群破绽（只有水、金），只分担伤害；并肩打大群是改编（ch463 原著他独自打的）。地图上花园、峡谷口、石殿、塔前、灵泉。数值由平衡路以 BattleHand 量过、未调（见 b12_heishamo_tiehuoyi 的 note）。"
+}

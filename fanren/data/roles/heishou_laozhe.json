@@ -1,0 +1,14 @@
+{
+  "id": "heishou_laozhe",
+  "name": "黑瘦老者",
+  "realm": "CoreLate",
+  "maxHp": 1300,
+  "maxMp": 860,
+  "attack": 102,
+  "defence": 82,
+  "speed": 34,
+  "element": 2,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch434 与天悟子同行的元婴，原著不报名号；在场同天悟子。元婴修士，本作境界上限只到结丹后期，名牌一律 CoreLate（施工图 16.1 第 9 条），文案说「看不透」。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

@@ -1,0 +1,19 @@
+{
+  "id": "langxing_qiling",
+  "name": "狼形器灵",
+  "realm": "CoreMid",
+  "maxHp": 900,
+  "maxMp": 0,
+  "attack": 50,
+  "defence": 54,
+  "speed": 30,
+  "element": 8,
+  "magics": [],
+  "toughness": 5,
+  "weaknesses": [
+    "水",
+    "金"
+  ],
+  "origin": "原著",
+  "note": "ch483 鼎中古宝化出的双头火狼，③ 第 0 波 ×1；归零在文案里是被缚、化银。破绽水、金；killable_by 不写（施工图 8.2）。器灵永远叫「狼形器灵」，不用别的名字（施工图 5.3）。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_neidian_duoding 的 note）。"
+}

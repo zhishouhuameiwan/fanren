@@ -1,0 +1,12 @@
+{
+  "id": "talisman_bixie_shenlei",
+  "name": "辟邪神雷",
+  "descKey": "item.desc.talisman_bixie_shenlei",
+  "kind": "talisman",
+  "grade": 7,
+  "price": 0,
+  "tradeable": false,
+  "castMagic": "magic_bixie_shenlei",
+  "origin": "原著（手段的数据化）",
+  "note": "青竹蜂云剑上攒下的神雷，做成道具施法（16.2 第 9 条 O-6：kind talisman）：用一件 = 以 magic_bixie_shenlei 施展一次、不耗法力、扣一件。n13 guiwang.lua、n31 xuangu.lua 战前各 give 2，战后按 item.count 收余数（余数为 0 不调 take），章末 0。tradeable false、price 0。"
+}

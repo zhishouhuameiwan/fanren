@@ -1,0 +1,30 @@
+{
+  "id": "xuan_gu",
+  "name": "玄骨",
+  "realm": "CoreLate",
+  "maxHp": 450,
+  "maxMp": 96,
+  "attack": 36,
+  "defence": 40,
+  "speed": 34,
+  "element": 0,
+  "magics": [
+    "magic_moyan_huo"
+  ],
+  "toughness": 4,
+  "weaknesses": [
+    "木"
+  ],
+  "actions": 2,
+  "killable_by": [
+    "木"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 2.0,
+    "all": false,
+    "text_key": "ch12.battle.hanlitai_xuangu.charge"
+  },
+  "origin": "原著",
+  "note": "ch428 起的玄骨上人（自报名号只在 n06 台词里一次，名牌只写玄骨）。同一份文件先友后敌（契约 E2）：③ b12_neidian_duoding 友军（ally 不吃架势、破绽、蓄势、要命类别；actions 照样两手），④ b12_hanlitai_xuangu 唯一敌人。magics 只放魔火（16.1 第 40 条，修罗圣火只在 ④ 蓄势文案）；不配金类（③ 收服留给玩家）。killable_by 木 ⊆ weaknesses 木：剑与噬金虫只压到 1，青元剑芒与神雷要得了命；五色铜环套不住他，不进破绽（ch492）。气血攻防远低于结丹后期锚点（1300 / 102 / 82），法力只够八手魔火：④ 是结丹初期独战、他一回合两手，意图玩家 ③ 之后不回血。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_hanlitai_xuangu 的 note）。"
+}

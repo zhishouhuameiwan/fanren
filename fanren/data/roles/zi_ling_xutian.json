@@ -1,0 +1,17 @@
+{
+  "id": "zi_ling_xutian",
+  "name": "紫灵",
+  "realm": "FoundationLate",
+  "maxHp": 480,
+  "maxMp": 320,
+  "attack": 44,
+  "defence": 30,
+  "speed": 20,
+  "element": 0,
+  "weapons": [
+    "剑"
+  ],
+  "magics": [],
+  "origin": "原著",
+  "note": "ch436 起本章的紫灵是假丹（施工图 A44），另建、旧 zi_ling 不动（B 表 8）。① b12_guiwu_guiwang 写死友军；weapons 含「剑」是规则 25 BATTLE_EXTRA_MEANS ① 的 role_weapon。地图上 dadian、guiwu 土坡 / 花园三个对象。数值由平衡路以 BattleHand 量过、未调（见 b12_guiwu_guiwang 的 note）。"
+}

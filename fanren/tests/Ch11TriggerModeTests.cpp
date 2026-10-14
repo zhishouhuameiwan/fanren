@@ -4,7 +4,7 @@
 //   第 16 条 必打 4 场的调用点与目标链（只扫脚本 + 读目标链；通关两侧实打的编成归通关用例）。
 //   第 17 条 只有四对门、礁岛无门、不通第 10 章（读地图那一半；切片归切片用例）。
 //   第 21 条 zhuzhong.lua 最后置 ch11.done、不 ending()；zhifadui.lua 与第 10 章集成版只差末尾一行；
-//            第 11 章是章节表最后一章（读数据那一半；headless 卡片队列归 Ch10Acceptance 与第 11 章通关）。
+//            第 11 章是章节表第 11 项（第 12 章进表后改；headless 卡片队列归 Ch10Acceptance 与第 11 章通关）。
 // 每一条判据都有「在内存里改坏 → 必须报」的负向（Mutations*）。
 #include <gtest/gtest.h>
 #include <algorithm>
@@ -377,7 +377,9 @@ constexpr std::uint64_t kChapterTenFinaleHash = 0x1cbd3fc84917131eull;
 
 Errors finaleErrors(const std::string& zhuzhong, const std::string& zhifadui, const Json& chapters) {
     Errors out;
-    const auto lines = liveLines(zhuzhong);
+    auto lines = liveLines(zhuzhong);
+    // 第 12 章契约 5.3 / 施工图 3.1 C1：末尾在 ch11.done 之后补了一行 teleport("ch12_tushan")（逐字节归 Ch12TriggerMode）。
+    if (!lines.empty() && lines.back() == "teleport(\"ch12_tushan\")") lines.pop_back();
     if (lines.empty() || lines.back() != "flag.set(\"ch11.done\")") out.push_back("zhuzhong.lua does not end with ch11.done");
     if (executableLines(zhuzhong).find("ending(") != std::string::npos) out.push_back("zhuzhong.lua calls ending()");
     const std::string patch = "teleport(\"ch11_fangshi\")\n";
@@ -388,8 +390,9 @@ Errors finaleErrors(const std::string& zhuzhong, const std::string& zhifadui, co
         out.push_back("zhifadui.lua changed before the patched line");
     }
     const auto& table = chapters.at("chapters");
-    if (table.empty() || table.back().at("number") != 11 || table.back().at("done_flag") != "ch11.done")
-        out.push_back("chapter 11 is not the last chapter of data/chapters.json");
+    // 第 12 章进表之后，第 11 章是第 11 项、done_flag 仍是 ch11.done（谁是最后一章归 UiStyle 的 ChapterTableData）。
+    if (table.size() < 11 || table[10].at("number") != 11 || table[10].at("done_flag") != "ch11.done")
+        out.push_back("chapter 11 is not the eleventh entry of data/chapters.json with done_flag ch11.done");
     return out;
 }
 
@@ -413,8 +416,13 @@ TEST(Ch11TriggerMode, MutationsOfTheFinaleAreCaught) {
     EXPECT_FALSE(finaleErrors(zhuzhong, edited, chapters).empty());
     auto noPatch = zhifadui.substr(0, kChapterTenFinaleBytes);
     EXPECT_FALSE(finaleErrors(zhuzhong, noPatch, chapters).empty());
-    auto more = chapters;
-    more["chapters"].push_back({{"number", 12}, {"done_flag", "ch12.done"}});
-    EXPECT_FALSE(finaleErrors(zhuzhong, zhifadui, more).empty());
+    auto renamed = chapters;
+    renamed["chapters"][10]["done_flag"] = "ch11.end";
+    EXPECT_FALSE(finaleErrors(zhuzhong, zhifadui, renamed).empty());
+    auto shorter = chapters;
+    shorter["chapters"].erase(std::size_t{10});
+    EXPECT_FALSE(finaleErrors(zhuzhong, zhifadui, shorter).empty());
+    EXPECT_FALSE(finaleErrors(zhuzhong + "teleport(\"ch12_tushan\")\n", zhifadui, chapters).empty())
+        << "两行 teleport 不能都被剥掉";
 }
 } // namespace

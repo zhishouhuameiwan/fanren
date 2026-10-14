@@ -3,6 +3,10 @@
 深浅按离岸距离：岸边浅（亮）、中间深（暗），抖动过渡；水面上零星几道横向波光；
 岸线一道白沫、岸上一线湿土。渡口的岸边长芦苇，谷里的水潭浮几片荷叶。
 水面格另列进 meta.json 的 water，运行时再加动态波光——烘焙图里的是静止的底。
+
+熔岩变体：data/visual/maps.json 那张图写 "liquid": "lava"（缺省 "water"），同样的格画成熔岩——
+岸是冷凝的黑岩壳，面上是顺着夹道流的暗红到橙的条带，漂着硬壳、壳缝透亮。熔岩格不进 meta.json 的
+water（运行时的波光是蓝白的），改由 maplights 在熔岩上放火星与暗红的光。
 """
 
 from __future__ import annotations
@@ -14,6 +18,16 @@ import mapmat as mm
 import pix
 
 T = 16
+LIQUIDS = ("water", "lava")
+
+
+def liquid_of(sc) -> str:
+    """这张图的水面画成什么：maps.json 的 liquid，缺省 water；写错名字当场报错，免得静默画成水。"""
+    kind = sc.preset.get("liquid", "water")
+    if kind not in LIQUIDS:
+        raise ValueError("data/visual/maps.json 里 %s 的 liquid 只能是 %s，写的是 %r"
+                         % (sc.md.map_id, "/".join(LIQUIDS), kind))
+    return kind
 
 
 def shore_distance(wpx: np.ndarray, limit: int = 24) -> np.ndarray:
@@ -35,6 +49,9 @@ def paint_water(ctx) -> None:
     seed = pix.seed_of(sc.md.map_id, "water")
     H, W = cv.h, cv.w
     cells = pix.upsample_cells(sc.water, T, smooth=False) > 0.5
+    if liquid_of(sc) == "lava":
+        paint_lava(ctx, cells, seed)
+        return
     # 岸：水格边缘 1–3px 画成湿泥与卵石（仍在挡路的水格里，不会让能走的地方看着像水），
     # 凸角处岸更宽——方池子因此是圆角的，江岸是弯的。图边之外当作水。
     land = ~np.pad(cells, 4, mode="edge")
@@ -75,6 +92,50 @@ def paint_water(ctx) -> None:
         reeds(ctx, wpx, d, seed + 5)
     elif sc.theme in ("valley", "manor"):
         lotus(ctx, wpx, d, seed + 7)
+
+
+def paint_lava(ctx, cells: np.ndarray, seed: int) -> None:
+    """熔岩：岸取水岸同一套圆角算法，画成冷凝的黑岩壳；面上是横向拉长、被低频噪声扭过的流动条带
+    （夹道是东西向的，熔岩顺着它流），离岸越远越热越亮；再漂几块暗色硬壳，壳缝一线亮黄；
+    零星几道短横的流光。贴岸一两像素是刚冷下来的暗边，岸外地面烤焦一圈。"""
+    cv = ctx.below
+    H, W = cv.h, cv.w
+    land = ~np.pad(cells, 4, mode="edge")
+    landfrac = pix.box_blur(land.astype(np.float32), 3)[4:-4, 4:-4]
+    wob = pix.value_noise(H, W, 7.0, seed + 11) * 0.16
+    bank = cells & (landfrac > 0.2 + wob)
+    lpx = cells & ~bank
+    blv = np.full((H, W), 1.2, np.float32)
+    xs, ys = mg.jitter_points(H, W, 3, 0.45, seed + 12)
+    blv[ys, xs] = 2.4   # 岩壳上零星几处棱角反光
+    cv.paint(0, 0, bank, mm.rock("cave"), blv)
+    d = shore_distance(lpx)
+    yy, xx = np.mgrid[0:H, 0:W].astype(np.float32)
+    warp = pix.value_noise(H, W, 14.0, seed + 1)
+    band = 0.5 + 0.5 * np.sin(yy * 0.7 + xx * 0.05 + warp * 7.0)
+    lv = 2.0 + band * 1.6 + np.minimum(d, 10.0) / 10.0 * 0.8
+    # 硬壳与壳缝：同一张噪声取两段阈值，壳缝恰好围着壳
+    crust_n = pix.value_noise(H, W, 6.0, seed + 2)
+    crust = lpx & (crust_n > 0.64) & (d > 2)
+    seam = lpx & (crust_n > 0.58) & ~crust & (d > 1)
+    lv = np.where(crust, 1.0 + band * 0.6, lv)
+    lv = np.where(seam, 5.6, lv)
+    # 流光：短横线，避开硬壳
+    xs, ys = mg.jitter_points(H, W, 6, 0.6, seed + 3)
+    keep = lpx[ys, xs] & (d[ys, xs] > 2) & ~crust[ys, xs]
+    xs, ys = xs[keep], ys[keep]
+    for k in range(3):
+        x = np.clip(xs + k, 0, W - 1)
+        lv[ys, x] = np.maximum(lv[ys, x], 5.2 if k == 1 else 4.6)
+    # 贴岸冷凝的暗边
+    lv = np.where(lpx & (d <= 1), 0.6, lv)
+    lv = np.where(lpx & (d == 2), np.minimum(lv, 1.8), lv)
+    cv.paint(0, 0, lpx, mm.lava(), lv.astype(np.float32))
+    # 岸外烤焦：熔岩格外第一圈地面暗一档、第二圈暗半档
+    scorch = pix.dilate(cells, 1) & ~cells
+    cv.shade(0, 0, -1.0, scorch)
+    scorch2 = pix.dilate(cells, 2) & ~pix.dilate(cells, 1)
+    cv.shade(0, 0, -0.5, scorch2)
 
 
 def reeds(ctx, wpx: np.ndarray, d: np.ndarray, seed: int) -> None:

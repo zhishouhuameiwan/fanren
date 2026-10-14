@@ -1,0 +1,14 @@
+{
+  "id": "ge_li",
+  "name": "葛笠",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch437 土坡上遇到的结丹修士，只为寿元果而来、n13 开头原路返回；guiwu tupo → guiwang，路径行动 geli_guiwu_dating（迷路提示，改编）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

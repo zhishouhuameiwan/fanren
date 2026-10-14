@@ -175,3 +175,22 @@ $env:FANREN_WRITE_CH10_FIXTURES = $null
 `facing`（3 → 0，spawn 朝上）与随之变的 `checksum`；`ch10.done == 1`，日期、灵石、背包、法术、队伍、旗标一项不变。
 `Ch10Driver.h` 的终点断言与 `Ch10AcceptanceTests` 的章节卡断言（「第十章　终」接第十一章开篇）同时改了。
 第 11 章的终局写到 `ch11-end-{first,second}.sav`，开关是 `FANREN_WRITE_CH11_FIXTURES`。
+
+## 第 11 章交接存档（第 12 章开工后重生成）
+
+`tests/fixtures/ch11-end-{first,second}.sav` 是第 12 章通关测试的起点。第 12 章给 `scripts/ch11/zhuzhong.lua`
+末尾（`flag.set("ch11.done")` 之后）补了一行 `teleport("ch12_tushan")`（契约 `docs/interfaces-p3-ch12.md` 5.3），
+终局从洞府门外挪到土山荒岛南岸（default spawn `andeng`，24,31，朝上），所以 2026-10-13 按 `tests/ChapterFixture.h` 重生成：
+
+```powershell
+$env:FANREN_WRITE_CH11_FIXTURES = '1'
+.\build-ch12test\fanren_tests.exe --gtest_filter=Ch11Walkthrough.*
+$env:FANREN_WRITE_CH11_FIXTURES = $null
+.\build-ch12test\fanren_tests.exe --gtest_filter=Ch11*
+```
+
+新旧两份逐字段比（JSON payload）：两侧都只差 `mapId`（`ch11_dongfu` → `ch12_tushan`）、`position`（14,24 → 24,31）、
+`playSecondsGameplay`（多一帧，+0.0167 秒，teleport 那一拍）与随之变的 `checksum`；`facing` 不变（两处都朝上），
+`ch11.done == 1`，日期、灵石、背包、法术、队伍、旗标一项不变。`Ch11Driver.h` 的终点断言、`Ch11AcceptanceTests` 的章节卡断言
+（「第十一章　终」接第十二章开篇）与 `Ch11TriggerModeTests` 的章末断言同时改了。
+第 12 章的终局写到 `ch12-end-{first,second}.sav`，开关是 `FANREN_WRITE_CH12_FIXTURES`。

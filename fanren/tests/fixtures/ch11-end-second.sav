@@ -1,5 +1,5 @@
 {
-  "checksum": "ebb50b94f4013cc3",
+  "checksum": "21b50036cb015090",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -1166,7 +1166,7 @@
       "magic_ji_xiaodao",
       "magic_ji_hongxianzhen"
     ],
-    "mapId": "ch11_dongfu",
+    "mapId": "ch12_tushan",
     "maxHp": 700,
     "maxMp": 470,
     "mp": 470,
@@ -1177,11 +1177,11 @@
         "roleId": "qu_hun_shadan"
       }
     ],
-    "playSecondsGameplay": 617.0166666664342,
+    "playSecondsGameplay": 617.0333333331008,
     "playSecondsSystem": 0.0,
     "position": {
-      "x": 14,
-      "y": 24
+      "x": 24,
+      "y": 31
     },
     "realm": 31,
     "realmCap": 31,

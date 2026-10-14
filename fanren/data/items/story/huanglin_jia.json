@@ -1,0 +1,11 @@
+{
+  "id": "story_huanglin_jia",
+  "name": "皇鳞甲",
+  "descKey": "item.desc.story_huanglin_jia",
+  "kind": "story",
+  "grade": 8,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch468 蛮胡子借出的护身异宝；ch487 白虹斩来时救了他一命（n30 旁白）。n23 give 1，不做防具。"
+}

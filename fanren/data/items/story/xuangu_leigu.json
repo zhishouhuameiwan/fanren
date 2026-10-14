@@ -1,0 +1,11 @@
+{
+  "id": "story_xuangu_leigu",
+  "name": "玄骨肋骨",
+  "descKey": "item.desc.story_xuangu_leigu",
+  "kind": "story",
+  "grade": 7,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch494 玄骨灰烬里留下的一截肋骨；第 13 章 ch518 起才从中破出功法，名字到那时才许点出。n31 ④ 后 give 1。"
+}

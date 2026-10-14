@@ -1,0 +1,16 @@
+{
+  "id": "yuan_yao_heipao",
+  "name": "黑袍人",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 8,
+  "magics": [
+    "magic_moyan_huo"
+  ],
+  "origin": "原著",
+  "note": "ch436–444 鬼雾里的黑袍人，n14 现为女修之后换 yuan_yao_jiedan；名牌不含「元」字（施工图 12.2）。只在 ① 编成里做友军、无地图对象；魔火是规则 25 ① 的 role_magic（火，12 / 12，FoundationEarly）。数值由平衡路以 BattleHand 量过、未调（见 b12_guiwu_guiwang 的 note）。"
+}

@@ -15,6 +15,7 @@
     {"number": 8, "numeral_key": "ui.chapter.08.numeral", "title_key": "ui.chapter.08.title", "done_flag": "ch08.done"},
     {"number":9,"numeral_key":"ui.chapter.09.numeral","title_key":"ui.chapter.09.title","done_flag":"ch09.done"},
     {"number":10,"numeral_key":"ui.chapter.10.numeral","title_key":"ui.chapter.10.title","done_flag":"ch10.done"},
-    {"number":11,"numeral_key":"ui.chapter.11.numeral","title_key":"ui.chapter.11.title","done_flag":"ch11.done"}
+    {"number":11,"numeral_key":"ui.chapter.11.numeral","title_key":"ui.chapter.11.title","done_flag":"ch11.done"},
+    {"number":12,"numeral_key":"ui.chapter.12.numeral","title_key":"ui.chapter.12.title","done_flag":"ch12.done"}
   ]
 }

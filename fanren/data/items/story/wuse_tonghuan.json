@@ -1,0 +1,11 @@
+{
+  "id": "story_wuse_tonghuan",
+  "name": "五色铜环",
+  "descKey": "item.desc.story_wuse_tonghuan",
+  "kind": "story",
+  "grade": 7,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch469 宝光阁二层所取，ch485 套住银形器灵（③ 文案）；套不住玄骨（ch492，不进 ④ 破绽）。n24 give 1。只作 story。"
+}

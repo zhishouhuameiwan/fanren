@@ -1,0 +1,301 @@
+{
+ "map": "ch12_dadian",
+ "tile": 16,
+ "width": 44,
+ "height": 40,
+ "theme": "indoor_stone",
+ "time": "indoor",
+ "season": "summer",
+ "ambient": [
+  132,
+  116,
+  98
+ ],
+ "dof": 0.4,
+ "bloom": 0.5,
+ "vignette": 0.45,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.25
+  }
+ ],
+ "lights": [
+  {
+   "x": 20.5,
+   "y": 37.5,
+   "r": 1.8,
+   "color": [
+    124,
+    191,
+    163
+   ],
+   "intensity": 0.5,
+   "flicker": 0.0,
+   "kind": "save"
+  },
+  {
+   "x": 14.0,
+   "y": 7.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 29.0,
+   "y": 7.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 14.0,
+   "y": 11.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 29.0,
+   "y": 11.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 14.0,
+   "y": 15.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 29.0,
+   "y": 15.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 14.0,
+   "y": 19.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 29.0,
+   "y": 19.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 14.0,
+   "y": 23.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 29.0,
+   "y": 23.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 14.0,
+   "y": 27.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 29.0,
+   "y": 27.4,
+   "r": 2.5,
+   "color": [
+    247,
+    230,
+    166
+   ],
+   "intensity": 0.7,
+   "flicker": 0.25,
+   "kind": "candle"
+  },
+  {
+   "x": 22.5,
+   "y": 1.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 5.5,
+   "y": 5.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 10.5,
+   "y": 5.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 15.5,
+   "y": 5.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 20.5,
+   "y": 5.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 25.5,
+   "y": 5.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 30.5,
+   "y": 5.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  },
+  {
+   "x": 35.5,
+   "y": 5.6,
+   "r": 3.0,
+   "color": [
+    230,
+    174,
+    98
+   ],
+   "intensity": 0.7,
+   "flicker": 0.2,
+   "kind": "sconce"
+  }
+ ],
+ "water": [],
+ "emitters": [],
+ "backdrop": "secret_room"
+}

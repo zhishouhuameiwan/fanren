@@ -1,0 +1,53 @@
+{
+  "id": "b12_heishamo_tiehuoyi",
+  "name": "黑沙漠蚁群",
+  "chapter": 12,
+  "terrain": "field",
+  "hero_absent": false,
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "yuan_yao_jiedan",
+      "faction": "ally"
+    },
+    {
+      "role_id": "tiehuo_yiqun",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "tiehuo_yiqun",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "tiehuo_yiqun",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "tiehuo_yiqun",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "tiehuo_yiqun",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "tiehuo_yiqun_da",
+      "faction": "enemy",
+      "wave": 2
+    }
+  ],
+  "rewards": {
+    "cultivation": 360,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch12.battle.heishamo_tiehuoyi.intro",
+  "origin": "原著",
+  "note": "战斗 ②，n21 tihun.lua（trigger_shamo）。耐久：三波、波间不回血不回法；两种蚁群 killable_by 水、金，大群 actions 2、黑炎蓄势横扫。友军元瑶（青火雷，打不到破绽）。啼魂兽、鸣魂珠在战前给（16.1 第 47 条）。hero_absent false、can_escape false、defeat_is_fatal true、spirit_stones 0、drops []（物品一律由脚本 give），友军写死、wave 缺省（第 0 波开场就在）；空队伍下我方 ＝ 韩立 ＋ 编成友军（契约 E1）。平衡路实测（同 ① 口径，起点 n20 之后）：调前败（9 回合，敌余气血 3231）。调后两侧同为胜 10 回合，韩立 700→479（① 之后两日静养已回满）。调了 tiehuo_yiqun 气血 560→220、攻 58→36、防 54→36、架势 4→3；tiehuo_yiqun_da 气血 1200→500、攻 72→40、防 58→42、架势 7→3（actions 2、蓄势 ×1.6 不动）；元瑶未调。捂住水、金两类法术则赢不下来（剑拳火只压到 1）。最低合法起点（中阶灵石 0、无丹药、光壁旁静养十日）：胜 10 回合，700→479。"
+}

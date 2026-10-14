@@ -1,0 +1,11 @@
+{
+  "id": "story_qianlan_zhu",
+  "name": "乾蓝冰珠",
+  "descKey": "item.desc.story_qianlan_zhu",
+  "kind": "story",
+  "grade": 9,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch494 圣火散尽后冰焰凝成的珠子；第 14 章 ch544 破结丹后期才用，本章不做药效。n31 ④ 后 give 1。"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "story_minghun_zhu",
+  "name": "鸣魂珠",
+  "descKey": "item.desc.story_minghun_zhu",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch464 控制啼魂兽之物，炼化即认主。n21 give 1（与啼魂兽同一处）。"
+}

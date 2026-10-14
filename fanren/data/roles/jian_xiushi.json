@@ -1,0 +1,14 @@
+{
+  "id": "jian_xiushi",
+  "name": "简姓修士",
+  "realm": "CoreMid",
+  "maxHp": 900,
+  "maxMp": 620,
+  "attack": 76,
+  "defence": 58,
+  "speed": 28,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch416 同行的结丹修士，原著只称简姓；n04 急取池中之物落池、倒下。在场同胡月。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

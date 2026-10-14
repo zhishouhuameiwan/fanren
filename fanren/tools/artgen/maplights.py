@@ -10,6 +10,7 @@
   石灯                      ·     ✓      ✓      ✓
   室内：桌案上的烛台、墙上的壁灯                    ✓
   洞里：崖面上的火把                               ✓
+  熔岩（maps.json liquid=lava）  ✓     ✓      ✓      ✓      暗红一团、慢慢起伏，另放火星；熔岩格不进 water
 
 坐标一律以格为单位（格中心 = x+0.5）。颜色取自主色板（palette.c / mix）。
 """
@@ -18,6 +19,7 @@ from __future__ import annotations
 
 from palette import c, mix
 
+import mapwater
 import pix
 
 # dof（移轴）：0.3 上下几乎看不出糊，室外取 0.6 左右才读得出「桌面模型」；夜里暗，糊多了
@@ -41,6 +43,7 @@ LIGHT_KINDS = {
     "candle": (2.5, c("gold4"), 0.7, 0.25),
     "sconce": (3.0, mix("gold3", "red4", 0.3), 0.7, 0.2),
     "save": (1.8, c("jade3"), 0.5, 0.0),
+    "lava": (3.0, mix("red3", "gold2", 0.4), 0.7, 0.15),   # 熔岩面上暗红的一团，慢慢起伏
 }
 
 
@@ -95,7 +98,12 @@ def meta(ctx, preset: dict) -> dict:
     if sc.theme == "wild" and time == "night":
         guard_torches(ctx, lights, emitters)
 
-    water = [[int(x), int(y)] for y, x in zip(*sc.water.nonzero())]
+    cells = [[int(x), int(y)] for y, x in zip(*sc.water.nonzero())]
+    lava = mapwater.liquid_of(sc) == "lava"
+    # 熔岩格不进 water：运行时的波光是蓝白的，落在熔岩上就成了水
+    water = [] if lava else cells
+    if lava:
+        lava_glow(cells, salt, lights, emitters)
     # 水面起雾：每隔几格一个发射点（运行时按 kind=mist 往上飘）
     if water and time in ("dusk", "night") or (water and sc.theme in ("valley", "dock")):
         for i, (x, y) in enumerate(water):
@@ -123,6 +131,15 @@ def meta(ctx, preset: dict) -> dict:
         "backdrop": preset["backdrop"],
     }
     return out
+
+
+def lava_glow(cells: list, salt: int, lights: list, emitters: list) -> None:
+    """熔岩：约每八格一团暗红的光、一处往上飘的火星（不起雾、不放萤火）。"""
+    for x, y in cells:
+        if pix.hash01(x, y, salt + 7) < 0.125:
+            lights.append(light("lava", x + 0.5, y + 0.5))
+        if pix.hash01(x, y, salt + 9) < 0.125:
+            emitters.append({"kind": "ember", "x": x + 0.5, "y": y + 0.3})
 
 
 def dedupe(lights: list[dict]) -> list[dict]:

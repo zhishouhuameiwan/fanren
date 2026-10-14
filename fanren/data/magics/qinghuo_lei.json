@@ -1,0 +1,12 @@
+{
+  "id": "magic_qinghuo_lei",
+  "name": "青火雷",
+  "descKey": "magic.desc.magic_qinghuo_lei",
+  "element": 8,
+  "needMp": 24,
+  "power": 30,
+  "needRealm": "CoreEarly",
+  "boost": "power",
+  "origin": "原著（手段的数据化）",
+  "note": "ch464 元瑶开价时拿出的魔道秘制火雷；本作只给 ② 友军 yuan_yao_jiedan（role magics），我方不学、不给物品（她留着自用，施工图第 7 节）。规则 25 BATTLE_EXTRA_MEANS ② 的火：power > 0、无 effect、needRealm CoreEarly ≤ 元瑶、needMp 24 ≤ 她的 maxMp 470。蚁群破绽只有水、金，这一门只分担伤害、压血。数值初值，归平衡路。"
+}

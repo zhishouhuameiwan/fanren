@@ -1,0 +1,14 @@
+{
+  "id": "wen_siyue",
+  "name": "文思月",
+  "realm": "FoundationEarly",
+  "maxHp": 260,
+  "maxMp": 180,
+  "attack": 32,
+  "defence": 20,
+  "speed": 14,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch430 妙音门弟子，认出他是名义长老；n07 挂点，tushan 东岸 canyuan → lidao（地点改编，16.1 第 33 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

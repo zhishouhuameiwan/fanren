@@ -1,0 +1,29 @@
+{
+  "id": "sanshou_guiwu",
+  "name": "三首鬼物",
+  "realm": "CoreLate",
+  "maxHp": 800,
+  "maxMp": 0,
+  "attack": 60,
+  "defence": 54,
+  "speed": 28,
+  "element": 0,
+  "magics": [],
+  "toughness": 6,
+  "weaknesses": [
+    "木",
+    "火"
+  ],
+  "killable_by": [
+    "木",
+    "火"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 1.8,
+    "all": true,
+    "text_key": "ch12.battle.guiwu_guiwang.charge"
+  },
+  "origin": "原著",
+  "note": "ch443–444 吞了灰影长出第三首的鬼物，① 第 2 波首领。怪笑蓄势横扫全场（附灵，文案在 ch12_battle.json），破势打断；killable_by 木、火 ⊆ weaknesses，神雷两发收尾，鬼物飞灰。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_guiwu_guiwang 的 note）。"
+}

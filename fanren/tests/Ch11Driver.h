@@ -637,8 +637,11 @@ public:
         EXPECT_EQ(state().itemCount("pill_dingyan_dan"), start_.itemCount("pill_dingyan_dan") - 1);
         EXPECT_EQ(state().itemCount("material_lianqi_yao"), start_.itemCount("material_lianqi_yao") + 5);
         EXPECT_EQ(state().day - start_.day, 33375);
-        EXPECT_EQ(state().mapId, "ch11_dongfu");
-        EXPECT_EQ(state().position, kEndCell);
+        // 第 12 章契约 5.3 / 施工图 3.1 C1：zhuzhong.lua 末尾补了 teleport("ch12_tushan")，
+        // 落 default spawn andeng（maps/ch12_tushan.tmj 的 768,992 → 格 (24,31)，facing up → 0）。
+        EXPECT_EQ(state().mapId, "ch12_tushan");
+        EXPECT_EQ(state().position, (Point{24,31}));
+        EXPECT_EQ(state().facing, 0);
         for (const char* key : {"ch11.youyao.no_drop", "ch11.peizhu.wait", "ch11.nichang.wait", "ch11.youyao.no_herb"})
             EXPECT_FALSE(spoke(key)) << key;
         std::vector<std::string> ids;

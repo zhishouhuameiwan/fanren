@@ -1,0 +1,27 @@
+{
+  "id": "langxing_qiling_yin",
+  "name": "狼形器灵",
+  "realm": "CoreMid",
+  "maxHp": 1000,
+  "maxMp": 0,
+  "attack": 58,
+  "defence": 58,
+  "speed": 32,
+  "element": 0,
+  "magics": [],
+  "toughness": 6,
+  "weaknesses": [
+    "金"
+  ],
+  "killable_by": [
+    "金"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 1.8,
+    "all": true,
+    "text_key": "ch12.battle.neidian_duoding.charge"
+  },
+  "origin": "原著",
+  "note": "ch485 化银的独角狼，③ 第 1 波首领；只有金要得了命（killable_by 金 ⊆ weaknesses），两名友军不配金类法术，收服只能是玩家（文案写五色铜环套住）。银光弹蓄势横扫。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_neidian_duoding 的 note）。"
+}

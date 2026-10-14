@@ -1,0 +1,57 @@
+{
+  "id": "b12_guiwu_guiwang",
+  "name": "鬼雾三波",
+  "chapter": 12,
+  "terrain": "forest",
+  "hero_absent": false,
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "zi_ling_xutian",
+      "faction": "ally"
+    },
+    {
+      "role_id": "yuan_yao_heipao",
+      "faction": "ally"
+    },
+    {
+      "role_id": "weiwu_hanggui",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "weiwu_hanggui",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "gui_yecha",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "hui_ying",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "shuangtou_guihu",
+      "faction": "enemy",
+      "wave": 1
+    },
+    {
+      "role_id": "sanshou_guiwu",
+      "faction": "enemy",
+      "wave": 2
+    }
+  ],
+  "rewards": {
+    "cultivation": 360,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch12.battle.guiwu_guiwang.intro",
+  "origin": "原著",
+  "note": "战斗 ①，n13 guiwang.lua（trigger_guiwang）。ch440–444：越打越大——第 0 波炜吾 ×2、鬼夜叉；第 1 波灰影、双头怪虎；第 2 波三首鬼物（killable_by 木、火，怪笑蓄势横扫）。友军紫灵（剑）、黑袍人（魔火）。神雷由脚本战前 give 2、战后收余数。hero_absent false、can_escape false、defeat_is_fatal true、spirit_stones 0、drops []（物品一律由脚本 give），友军写死、wave 缺省（第 0 波开场就在）；空队伍下我方 ＝ 韩立 ＋ 编成友军（契约 E1）。平衡路实测（2026-10-13；tests/BattleHand.h 意图手、不吃药；起点是 ch11-end 两侧真走到 n12 之后的那一刻）：调前败（15 回合，敌余气血 1854）。调后两侧同为胜 16 回合，韩立 700→580，第 3 波怪笑被破势打断。调了 weiwu_hanggui 攻 44→40；gui_yecha 气血 640→520、攻 60→62；hui_ying 气血 720→600、攻 70→44、防 48→44；shuangtou_guihu 气血 840→600、攻 76→49、防 52→40；sanshou_guiwu 气血 1500→800、攻 88→60、防 62→54、架势 8→6（蓄势 ×1.8 不动）；两名友军未调。神雷意图手不用（那只手只认药与毒），胜负不靠它。"
+}

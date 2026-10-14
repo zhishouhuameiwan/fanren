@@ -1,0 +1,14 @@
+{
+  "id": "tianwuzi",
+  "name": "天悟子",
+  "realm": "CoreLate",
+  "maxHp": 1300,
+  "maxMp": 860,
+  "attack": 102,
+  "defence": 82,
+  "speed": 34,
+  "element": 4,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch434 正道元婴之一；大厅、峡谷口、石殿、塔前、寒骊台群像（guiwu 不在）。元婴修士，本作境界上限只到结丹后期，名牌一律 CoreLate（施工图 16.1 第 9 条），文案说「看不透」。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–11 章路人写法。不上阵。"
+}

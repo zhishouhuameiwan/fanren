@@ -68,6 +68,7 @@ def render(map_id: str, preset: dict):
     mapeaves.paint_eaves(ctx)
     mapeaves.paint_decos(ctx)
     mapprops.paint_decals(ctx)
+    mapground.tint_grass(sc, below, above)   # 只对写了 grass_tint 的图（冰火道的红草）
 
     meta = maplights.meta(ctx, preset)
     return below.to_array(False), above.to_array(True), meta, sc

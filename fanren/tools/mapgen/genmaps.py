@@ -921,6 +921,7 @@ def check():
     import genmaps_ch09
     import genmaps_ch10
     import genmaps_ch11
+    import genmaps_ch12
 
     for chapter in (genmaps_ch02, genmaps_ch03, genmaps_ch04, genmaps_ch05, genmaps_ch06, genmaps_ch07, genmaps_ch08):
         for map_id, payload in chapter.build_all().items():
@@ -940,6 +941,7 @@ def check():
         built[map_id] = genmaps_ch09.apply_shared(map_id, built[map_id])
     built.update(genmaps_ch10.build_all())
     built.update(genmaps_ch11.build_all())
+    built.update(genmaps_ch12.build_all())
     return check_maps(built)
 
 

@@ -673,6 +673,21 @@ constexpr ScriptTransfer kScriptTransfers[] = {
     {"ch11.zhuzhan", "scripts/ch11/zhuzhan.lua", "ch11_yinsha_dao"},
     {"ch11.yaoshi", "scripts/ch11/daoge.lua", "ch11_dongfu"},
     {"ch11.chuansong", "scripts/ch11/huicheng_chuansong.lua", "ch11_xingkong", "trigger_huicheng_chuansong", "ch11_ningcui_jie"},
+    // Chapter 12 design 3.1 (transfer table, 12 rows) / contract 5.3: zhuzhong.lua's patched last line is the
+    // ch11 -> ch12 hand-over; nine one-way story exits, then three repeatable wrong-turn hooks that send the
+    // player back to a fork on the same map (each script hard-codes its own fork, 0 flag.set).
+    {"ch11.done", "scripts/ch11/zhuzhong.lua", "ch12_tushan"},
+    {"ch12.lidao", "scripts/ch12/lidao.lua", "ch12_dadian"},
+    {"ch12.chuansong", "scripts/ch12/chuansong.lua", "ch12_guiwu"},
+    {"ch12.xiaojie", "scripts/ch12/xiaojie.lua", "ch12_xiaojie"},
+    {"ch12.xiagu", "scripts/ch12/xiagu.lua", "ch12_binghuo"},
+    {"ch12.shidian", "scripts/ch12/shidian.lua", "ch12_baoguang"},
+    {"ch12.quba", "scripts/ch12/quba.lua", "ch12_taqian"},
+    {"ch12.cengjie", "scripts/ch12/cengjie.lua", "ch12_hanlitai"},
+    {"ch12.canhun", "scripts/ch12/canhun.lua", "ch12_lingquan"},
+    {"ch12.tupo", "scripts/ch12/zoupian_a.lua", "ch12_guiwu", "trigger_zoupian_a", "ch12_guiwu"},
+    {"ch12.tupo", "scripts/ch12/zoupian_b.lua", "ch12_guiwu", "trigger_zoupian_b", "ch12_guiwu"},
+    {"ch12.tupo", "scripts/ch12/zoupian_c.lua", "ch12_guiwu", "trigger_zoupian_c", "ch12_guiwu"},
 };
 
 // 门的钥匙里不在目标链上的：哪个脚本置它、紧跟在链上哪一步之后到手。

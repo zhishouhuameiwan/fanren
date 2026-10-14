@@ -1,0 +1,30 @@
+{
+  "id": "tiehuo_yiqun_da",
+  "name": "铁火蚁大群",
+  "realm": "CoreMid",
+  "maxHp": 500,
+  "maxMp": 0,
+  "attack": 40,
+  "defence": 42,
+  "speed": 22,
+  "element": 8,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "水",
+    "金"
+  ],
+  "actions": 2,
+  "killable_by": [
+    "水",
+    "金"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 1.6,
+    "all": true,
+    "text_key": "ch12.battle.heishamo_tiehuoyi.charge"
+  },
+  "origin": "原著",
+  "note": "ch463 万只级的蚁群，② 第 2 波首领；多动、黑炎蓄势横扫。破绽与 killable_by 同蚁群（水、金）。原著这一群是他遇元瑶之前独自打的，并肩是改编（施工图 8.3）。数值由平衡路以 BattleHand 量过后调过（调前调后见 b12_heishamo_tiehuoyi 的 note）。"
+}

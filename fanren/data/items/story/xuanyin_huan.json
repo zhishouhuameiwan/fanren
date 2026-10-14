@@ -1,0 +1,11 @@
+{
+  "id": "story_xuanyin_huan",
+  "name": "玄阴环",
+  "descKey": "item.desc.story_xuanyin_huan",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch456 极阴收记名弟子所赐指环；玄骨传音说它本名阴阳环、被阳环所克。n18 give 1。记名弟子不给任何特权。"
+}
