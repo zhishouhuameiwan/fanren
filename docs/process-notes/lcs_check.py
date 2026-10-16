@@ -20,8 +20,11 @@ import re
 import sys
 from pathlib import Path
 
-NOVEL_INDEX = Path("H:/Work/Kys/tools/novel/chapters.json")
-NOVEL_DIR = Path("H:/Work/Kys/novel")
+# 仓库根取自本文件位置（docs/process-notes/lcs_check.py），Windows 与 macOS 两边都对；
+# 原先写死 H:/Work/Kys（2026-10-15 移植 macOS 时改）。
+REPO_ROOT = Path(__file__).resolve().parents[2]
+NOVEL_INDEX = REPO_ROOT / "tools" / "novel" / "chapters.json"
+NOVEL_DIR = REPO_ROOT / "novel"
 HAN = re.compile(r"[\u4e00-\u9fff]")
 RANGE_LIMIT = 6
 WHOLE_LIMIT = 7

@@ -4,7 +4,7 @@
 
 C++20 + SDL3；剧情脚本用 Lua（sol2 协程），数据用 JSON，地图用 Tiled 格式。地图、美术、音乐音效都由仓库里的生成器程序产出，字体除外。
 
-进度：第 1–10 章已完成，玩法与画面按《八方旅人》的路子改造过（横版「破势与蓄劲」战斗、像素美术烘焙地图、路径行动）；第11–14章未开工。第10章独立整体验收4.5/5，主树1768项测试与四道门禁全通过。当前状态与接手须知见 [fanren/docs/handoff.md](fanren/docs/handoff.md)。
+进度：第 1–12 章已完成，玩法与画面按《八方旅人》的路子改造过（横版「破势与蓄劲」战斗、像素美术烘焙地图、路径行动）；第 13 章已完成（内容初审 3.0 → 整改 → 独立复验 3.8 后按清单收口，原创性机器口径 495 条 0 超）；第 14 章施工图已出、未开工。当前状态与接手须知见 [fanren/docs/handoff.md](fanren/docs/handoff.md)。
 
 ## 目录
 
@@ -16,7 +16,7 @@ C++20 + SDL3；剧情脚本用 Lua（sol2 协程），数据用 JSON，地图用
 
 ## 构建
 
-需要 Windows、Visual Studio（含 C++ 工具集；本机用 VS 2026 / MSVC v145）、CMake 3.25 以上、Ninja，以及 Python 3（内容门禁和生成器要 `numpy`、`Pillow`、`scipy`）。
+Windows 上需要 Visual Studio（含 C++ 工具集；本机用 VS 2026 / MSVC v145）、CMake 3.25 以上、Ninja，以及 Python 3（内容门禁和生成器要 `numpy`、`Pillow`、`scipy`）。
 
 ```powershell
 pip install numpy pillow scipy
@@ -33,6 +33,19 @@ cd fanren
 
 产物在 `build\`。给一个参数就换一个构建目录：`.\build.bat myslot` 构建到 `build-myslot\`，几个人同时构建时不会互相踩。
 
+### macOS
+
+2026-10-15 起也能在 macOS 上构建（Intel Mac、macOS 15、Apple clang 17 实测；Apple Silicon 未测）。需要 Xcode 命令行工具、Python 3（同样要 `numpy`、`Pillow`、`scipy`），以及 cmake 3.25 以上和 Ninja：
+
+```bash
+pip3 install --user numpy pillow scipy cmake ninja
+export PATH="$HOME/Library/Python/3.12/bin:$PATH"
+cd fanren
+./build.sh
+```
+
+`build.sh` 的四步和 `build.bat` 一样。SDL3 系列没有 macOS 预编译包，`bootstrap.py` 会用同样锁定的版本从源码构建（首次约十几分钟）。`./build.sh myslot` 换构建目录，`./build.sh --log myslot` 把输出写进 `build-myslot.log`，末行是 `EXITCODE=n`。随机数和背包排序都按 MSVC 的算法实现，跑出的存档与 Windows 逐字节相同（Intel Mac 实测）。细节见 [docs/deps.md](docs/deps.md) 第六节。
+
 ## 运行
 
 构建完直接双击 `fanren\build\fanren.exe` 即可：不给 `--assets` 时，它从当前目录和 exe 所在目录各往上找几层，找到同时有 `data/` 与 `maps/` 的那一层就当游戏目录；找不到或起不来会弹框说原因。命令行照旧可用：
@@ -41,6 +54,8 @@ cd fanren
 cd fanren
 .\build\fanren.exe --assets .
 ```
+
+macOS 上是 `./build/fanren`（`cd fanren` 之后直接跑就行）。
 
 默认键位：方向键 / WASD 移动，Enter / Z / 空格 确认，Esc / X / Tab 主菜单，E / Q 路径行动，Ctrl 快进，F5 存盘，Alt+Enter 切全屏。除方向键、Enter、Esc 以外，其余按键都能在「设置 → 按键设置」里改。
 

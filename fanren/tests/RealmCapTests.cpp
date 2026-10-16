@@ -273,7 +273,7 @@ TEST(RealmCapWording, NeitherLineSaysAWordTheLexiconTableHasNotReleased) {
 
     for (PanelStage stage : {PanelStage::Mortal, PanelStage::Immortal}) {
         const auto& words = fanren::game::cultivationLexicon(stage);
-        for (const std::string text : {std::string(words.pushAtStoryCap), std::string(words.atStoryCap),
+        for (const std::string& text : {std::string(words.pushAtStoryCap), std::string(words.atStoryCap),
                                       std::string(words.pushAtStoryCapReclimb),
                                       std::string(words.atStoryCapReclimb)}) {
             EXPECT_TRUE(firstHit(text).empty()) << "上限提示里出现了「" << firstHit(text) << "」：" << text;

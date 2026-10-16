@@ -458,7 +458,10 @@ protected:
         const char* roleId = nullptr;
     };
 
-    Result fight(const char* battleId, const GameState& start, Opener opener = {}) {
+    // 不用默认实参 `Opener opener = {}`：Opener 带默认成员初始化，clang 不许在外围类定义完之前拿它当默认实参。
+    Result fight(const char* battleId, const GameState& start) { return fight(battleId, start, Opener{}); }
+
+    Result fight(const char* battleId, const GameState& start, Opener opener) {
         app_.state() = start;
         BattleScene scene(battleId);
         scene.onEnter(app_);

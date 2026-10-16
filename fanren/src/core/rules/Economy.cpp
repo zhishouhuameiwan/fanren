@@ -7,6 +7,7 @@
 
 // 灵草按年份计价的唯一出处。见下面 basePriceFor 上方的说明。
 #include "core/rules/Bottle.h"
+#include "core/rules/UniformInt.h"
 
 namespace fanren::rules {
 namespace {
@@ -113,13 +114,13 @@ AuctionRound bidStep(const AuctionLot& lot, AuctionRound round, int playerBid, i
     }
 
     std::mt19937 rng(seed);
-    std::uniform_int_distribution<int> chaseRoll(0, 99);
+    UniformInt chaseRoll(0, 99);
     const int chaseChance = kAuctionChaseBaseChance + heat * kAuctionChaseHeatSpan / 100;
 
     if (chaseRoll(rng) < chaseChance) {
         const double rate = kAuctionBumpMinRate +
                              (kAuctionBumpMaxRate - kAuctionBumpMinRate) * heat / 100.0;
-        std::uniform_int_distribution<int> variance(50, 150);   // 幅度上下浮动，避免可预测
+        UniformInt variance(50, 150);   // 幅度上下浮动，避免可预测
         const int bump = std::max(1, static_cast<int>(round.currentBid * rate * variance(rng) / 100.0));
         round.rivalBid = round.currentBid + bump;
         round.currentBid = round.rivalBid;

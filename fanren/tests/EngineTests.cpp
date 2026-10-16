@@ -373,8 +373,8 @@ TEST_F(HeadlessEngine, AudioCallsAreSilentNoOps) {
 TEST_F(HeadlessEngine, LayoutWorksOnTopOfTheRealFontMetrics) {
     // 排版模块的单测用假测量函数；这里补上「真字体也能跑通」的那一环。
     const int size = 24;
-    const auto measure = [this, size](const std::string& s) {
-        return engine.measureText(s, size).x;
+    const auto measure = [this, fontSize = size](const std::string& s) {
+        return engine.measureText(s, fontSize).x;
     };
     const std::string speech =
         "韩立站在院中，望着三叔递来的那封信，半晌没有说话。他知道这一去，"

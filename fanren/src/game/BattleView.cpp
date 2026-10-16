@@ -86,10 +86,6 @@ constexpr Color kDownTint{150, 150, 162, 255};
     return c;
 }
 
-[[nodiscard]] float approach(float value, float target, float step) {
-    return value < target ? std::min(target, value + step) : std::max(target, value - step);
-}
-
 [[nodiscard]] std::uint32_t seedOf(const std::string& text) {
     std::uint32_t seed = 2166136261u;
     for (const char ch : text) seed = (seed ^ static_cast<std::uint8_t>(ch)) * 16777619u;

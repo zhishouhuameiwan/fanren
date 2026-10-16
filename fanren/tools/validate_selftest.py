@@ -436,7 +436,17 @@ def selftest_d_world_reachability(case: Case, base: Path) -> None:
     # 而且红得没道理——第 3 章挂在第 2 章后面，掐掉第 2 章的入口，第 3 章跟着
     # 走不到才是对的，检查器变好了，断言却把它判成失败。
     # 钉内容的形状（有几张图、叫什么名字）是债，第 1 章的审查就点过这一条。
-    named = {e.split(chr(92))[-1].split(".tmj")[0] for e in broken}
+    # 图名取报错里 .tmj 前那一段，两种路径分隔符都认：这里原先只按反斜杠切（Windows 的写法），
+    # 在 macOS 上报错写的是 maps/ch02_jusuo.tmj，切出来是整段「maps/ch02_jusuo」，下游一张也对不上、
+    # 上游那条「一张没误伤」却恒真——两条一起失了牙（2026-10-15 移植 macOS 时发现）。
+    def map_named(error: str) -> str:
+        found = re.search(r"([^\\/\s]+)\.tmj", error)
+        return found.group(1) if found else ""
+
+    case.check("报错里的图名取得出来（两种分隔符）",
+               map_named("[error] maps/ch02_jusuo.tmj: x") == "ch02_jusuo" and
+               map_named("[error] maps" + chr(92) + "ch02_yabi.tmj: x") == "ch02_yabi")
+    named = {map_named(e) for e in broken}
     downstream = {"ch02_yaopu", "ch02_jusuo", "ch02_yabi", "ch02_wairentang"}
     upstream = {"ch01_hanjiacun", "ch01_qingniuzhen", "ch01_caixiashan",
                 "ch01_qixuanmen", "ch01_liangu_ya", "ch01_shenshougu"}
@@ -2687,6 +2697,19 @@ def selftest_ch12_means(case: Case, base: Path) -> None:
                quiet("magic_shijin_chongqun"))
         mutate("噬金虫群 needMp 471 → 必报", [(shijin, lambda p: p.update(needMp=471))],
                says("第 12 章", "magic_shijin_chongqun", "付不起"))
+        # 第 13 章门禁审查 G-1：learn 来路也要真伤人——power 0、挂 effect 的必报；五行环登进第 13 章的「金」必报。
+        mutate("祭金蚨 power 改成 0 → 必报", [(jinfu, lambda p: p.update(power=0))],
+               says("magic_ji_jinfu", "不伤人"))
+        mutate("祭金蚨挂 effect stagger → 必报", [(jinfu, lambda p: p.update(effect="stagger", stagger=3))],
+               says("magic_ji_jinfu", "挂着 effect"))
+        ring = ("金", "learn", "magic_ji_wuxinghuan", "ch13")
+        validate.CHAPTER_MEANS[13].append(ring)
+        try:
+            found = source_errors()
+            case.check("五行环登进第13章的「金」→ 必报", says("magic_ji_wuxinghuan", "不伤人")(found) and
+                       says("magic_ji_wuxinghuan", "挂着 effect")(found), chr(10).join(found[:3]) or "（一条也没报）")
+        finally:
+            validate.CHAPTER_MEANS[13].remove(ring)
         # G-8：起点表漏登一章 → 那一章的 learn 来路必报，不许整章静默跳过。
         saved_start = validate.CHAPTER_START.pop(12)
         try:

@@ -835,3 +835,7 @@ R-3（一炉不炼、攻防战必败、全章没有提示）已修：目标链�
 ### G-36：`BattleHand` 不会用单体 `castMagic` 道具（LOW，测试工具）
 
 `tests/BattleHand.h` 只认 `policy.pills` 与 `policy.poisons`；单体 `castMagic` 的符（第 12 章辟邪神雷、第 7 章天雷子这一类）它当毒药估（实打 0）、从来不放。所以第 12 章四场的平衡一律不靠神雷，施工图「④ 只有木要命、神雷 2 发 ＋ 青元剑芒收得了尾」「① 神雷两发收尾」那一半，这只手量不到。整改第 1 轮已补一条切片 `Ch12Slice.TwelveTheWoodThunder…`：④ 里经真菜单放神雷，钉住「这一击是木、能把被压在 1 的玄骨打到 0、剑只压得到 1」，并分「用掉 1 发 / 2 发」两版跑完 n31；门禁一侧由 `tools/validate.py::check_given_spell` 核施法符的五行（门禁审查 G-2）。**修法**：`BattleHand::scoredOptions` 把 `castMagic` 指向伤人法术的道具当一手法术估（伤害按那门法术、不耗法力、扣一件），并给 `HandPolicy` 一个「施法符」白名单（免得它顺手扔掉剧情要用的符）；改了以后各章用到这类符的仗要重量。
+
+### G-37：`BattleHand` 不按 effect 类法术（LOW，测试工具）
+
+`tests/BattleHand.h` 的 `scoredOptions` 只列 power > 0 或带毒的法术；power 0、挂 `effect`（`stagger` 削架势、`reveal` 看破）的一门它永远不按。第 13 章的头号新手段五行环（`magic_ji_wuxinghuan`，金、stagger 3）因此在两侧通关、四场仗里出手 0 次，施工图 8.2「① 五行环一下打穿儒生的架势」「② 靠五行环削势或剑破势打断巨虾的蓄势」这两句意图，平衡路量不到（测试质量审查 T-3）。整改已补切片 `Ch13Slice.FourTheRingFromTheMenu…`：① 开场经真菜单放五行环，钉住「类别金、儒生架势 3 → 0 当场破势、不伤人、法力 −30」，对照组祭金蚨只削 1；② 的打断仍没有运行时证据（两侧四场 `interrupted` 全 0，平衡目标本不要求）。**修法**：`scoredOptions` 给 stagger 类法术估一个「削到破势」的价值（目标架势 ≤ stagger 且未破势时，按下一回合受伤 ×2 折算），`HandPolicy` 给一个开关；改了以后各章带 effect 法术的仗要重量。

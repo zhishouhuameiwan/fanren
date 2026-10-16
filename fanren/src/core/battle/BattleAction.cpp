@@ -11,6 +11,7 @@
 #include <string>
 
 #include "core/battle/Damage.h"
+#include "core/rules/UniformInt.h"
 
 namespace fanren::core::battle {
 namespace {
@@ -786,7 +787,7 @@ std::string BattleState::applyDefend(const Action& a) {
 
 std::string BattleState::applyEscape(const Action& a) {
     const Unit& u = unitRef(a.actorIndex);
-    std::uniform_int_distribution<int> roll(0, 99);
+    fanren::rules::UniformInt roll(0, 99);
     const bool away = roll(rng_) < escapeChance(u);
     emit(BattleEvent{BattleEventKind::Escape, a.actorIndex, -1, away ? 1 : 0});
     if (away) {
