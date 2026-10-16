@@ -1,0 +1,14 @@
+{
+  "id": "nanming_zhanggui",
+  "name": "原料铺掌柜",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 250,
+  "attack": 37,
+  "defence": 26,
+  "speed": 16,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch501 南明岛坊市原料铺掌柜，不识千叶露（境界估）。ch13_nanming npc_yuanliao_zhanggui：ch13.wenxun 起、章末不撤，n02 挂点（caigou.lua 开 ch13_nanming_fangshi，gongdao 后只一句封市）；节点挂点不挂路径行动。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

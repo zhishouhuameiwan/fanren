@@ -1,0 +1,11 @@
+{
+  "id": "story_liuqi_cailiao",
+  "name": "六七级妖兽材料",
+  "descKey": "item.desc.story_liuqi_cailiao",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch527 深海数年攒下的高阶妖兽皮骨，按比例收成一件。n25 chongmo.lua give 1、n31 mishi.lua 换文思月自由时 take 1。"
+}

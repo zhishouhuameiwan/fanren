@@ -1,0 +1,14 @@
+{
+  "id": "ming_furen",
+  "name": "明夫人",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 250,
+  "attack": 37,
+  "defence": 26,
+  "speed": 16,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch513 明珠轩的女主人，收购海外所得。ch13_waihai npc_ming_furen：ch13.chuansong → ch13.shouchao，n14 挂点（开 ch13_mingzhu_shougou；Z1 订单）；名牌例外（16.1 第 44 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

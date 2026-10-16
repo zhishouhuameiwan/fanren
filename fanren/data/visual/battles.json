@@ -340,6 +340,16 @@
       "backdrop": "secret_room",
       "map": "ch12_hanlitai",
       "why": "第12章施工图第8.2节：④ 寒骊台独战玄骨（殿内），用现有 secret_room"
+    },
+    "b13_nanming_zhuibing": {
+      "backdrop": "dock_river",
+      "map": "ch13_nanming",
+      "why": "第13章施工图第8.2节：① 南明岛出海口外两名银衫修士追来（trigger_chugang），海边，用现有 dock_river"
+    },
+    "b13_waixinghai_lieyao": {
+      "backdrop": "cliff_top",
+      "map": "ch13_wuzhong",
+      "why": "第13章施工图第8.2节：② 雾中岛西海珊瑚礁诱妖（trigger_youyao），白天的礁石，用现有 cliff_top（第11章红瑚岛同组）"
     }
   }
 }

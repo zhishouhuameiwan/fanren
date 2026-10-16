@@ -1100,7 +1100,7 @@
 | 17 | **NPC 在场链**：H 表每个对象「前一段的 hidden 恰是后一段的 visible」；同图同 role 的对象（鬼雾两个紫灵恰接于 `guiwang`、小空间两组恰接于 `baishi`）一个的 hidden 恰等于另一个的 visible；塔前与寒骊台两组、两个元瑶分属 `ch12_taqian` / `ch12_hanlitai` / `ch12_lingquan`；两名执法长老名牌不同；寒骊台乌丑、玄骨退场为 `ch12.xuangu` | 规则 30 ＋ `NpcPresenceTests` ＋ 读地图 |
 | 18 | **支线 Z1、Z2** 谓词与笔记 N.3 字面量相符：`q12_maigu` `accept ch12.tupo / complete ch12.z1 / fail ch12.guiwang`；`q12_kuilei_canhai` `accept ch12.neidian / complete ch12.z2 / fail ch12.cengjie`；两条 `origin "原著"` | 读 `data/quests/q12_*.json` |
 | 19 | **路径行动 13 条**：全部 `inquire`、`realm 0`、id 以 `_dating` 结尾、`when` 含该 NPC 的 visible_flag、`until` 含 `ch12.done` 与该对象的 hidden_flag（K1、K13 另含更早收的话题旗标）；13 条都不设 `reveal`（16.1 第 41 条） | `PathActionTests` ＋ 读 `data/pathactions/ch12.json` |
-| 20 | **章末与开局**：`lingquan.lua` 最后置 `ch12.done`、不 `ending()`、不 teleport；`zhuzhong.lua` 与第 11 章集成版 diff 只末尾一行；章节卡两段队列见 10.2 C1 | 扫脚本 ＋ 真实入口 |
+| 20 | **章末与开局**：`lingquan.lua` 置 `ch12.done`、不 `ending()`，仅末行一处 `teleport("ch13_nanming")`（第 13 章 patch，第 13 章施工图 16.1 第 58 条）；`zhuzhong.lua` 与第 11 章集成版 diff 只末尾一行；章节卡两段队列见 10.2 C1 | 扫脚本 ＋ 真实入口 |
 | 21 | **禁词**：表一含 12.1 的 83 词与「紫罗极火」；12.2 的章内先后按 key 前缀逐条断言；分母先验 > 250 条 | `LexiconTests` ＋ 专项 |
 | 22 | **暗场与死亡口径**（13 第 7、11、12 条）逐 key 核；12.2 末两行的词 0 处 | 独立校对 ＋ 12.2 专项 |
 | 23 | 独立校对：笔记 A 表 126 条硬约束逐条核；13.1 逐段并排；原创性人工复核（13 第 10 条那二十余处） | 校对报告 |
@@ -1253,7 +1253,7 @@
 
 59. **曲魂只离一次、队伍留空**：`party.remove("qu_hun_shadan")` 只在 `duoshe.lua`、看返回值；`party.add` 本章 0 处；临时同伴只以写死友军进编成；`qu_hun_shadan.json`、`wu_chou.json`、`jin_qing.json`、`miao_zhanglao.json` 一个字不动。
 60. **境界不动、名牌封顶**：`realm.advance / cap / demote` 本章 0 处；元婴与玄骨名牌只到 `CoreLate`，文案写「看不透」；他对谁境界的判断只许写成他的猜测（如 A40 他猜万天明是元婴中期）。
-61. **脚本 `teleport` 只传图 id 或图 id ＋ 坐标**：跨图落 default spawn（每张图脚本落点那个 spawn 标 default）；只有鬼雾三处岔口用坐标，坐标照抄进 `zoupian_a/b/c.lua` 与 `kScriptTransfers` 注释；不写 spawn 名；`lingquan.lua` 不 teleport。
+61. **脚本 `teleport` 只传图 id 或图 id ＋ 坐标**：跨图落 default spawn（每张图脚本落点那个 spawn 标 default）；只有鬼雾三处岔口用坐标，坐标照抄进 `zoupian_a/b/c.lua` 与 `kScriptTransfers` 注释；不写 spawn 名；`lingquan.lua` 仅末行一处 `teleport("ch13_nanming")`（第 13 章 patch，第 13 章施工图 16.1 第 58 条）。
 62. **门闸只读旗标与必给物品、不花钱、不放在单向落点上**：锦帕门闸在 n07 送人之前；portal / facility 只用 `require_flag ＋ deny_text_key`（key 按规则 20 命名 `ch12.block.<短名>`）；每一处 `take` 看返回值、零块走得通（n24、n32 三支）。
 63. **不制造死局**：冰火道永不超时；幻境、拜师、玄晶道错选只换一句再选；宝光阁两件都到手；走偏只回岔口。
 64. **同格不叠、once 必有旗标**：走偏三处、`trigger_yutai`、`trigger_caiyao`、`trigger_yihai` 各占一格，与主线挂点、spawn、落点错开；`once=true` 的每一个都有 `set_flag`；NPC 挂点不设 once、脚本开头判 done_flag。

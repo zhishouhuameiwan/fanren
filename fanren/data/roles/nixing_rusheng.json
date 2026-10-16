@@ -1,0 +1,25 @@
+{
+  "id": "nixing_rusheng",
+  "name": "白面儒生",
+  "realm": "CoreEarly",
+  "maxHp": 360,
+  "maxMp": 96,
+  "attack": 34,
+  "defence": 38,
+  "speed": 24,
+  "element": 2,
+  "magics": [
+    "magic_mihuan_guniao"
+  ],
+  "toughness": 3,
+  "weaknesses": [
+    "金",
+    "剑"
+  ],
+  "killable_by": [
+    "金",
+    "剑"
+  ],
+  "origin": "原著",
+  "note": "ch503–504 追来的两名结丹初期之一，驱一团黑雾怪鸟。① b13_nanming_zhuibing 第 0 波。破绽金、剑，killable_by 金、剑（⊆ weaknesses）：五行环削架势 3 一下打穿他的架势（原著锁住真元），破势窗口里用剑或祭金蚨收掉（施工图 8.2）。element 取木：金克木，祭金蚨对他有加成，与破绽一致。法力只够放四次黑雾怪鸟（96 / 24）：enemyDecision 有法力就只放法术（技术债 G-34），怪鸟一发约 25、与他的普攻相当，放完落回拳脚。平衡路（测试路 B，按 tests/BattleHand.h 量）气血 480→360：意图手蓄满的祭小刀符宝一发 391 收得掉他，余下一整场留给大汉的蓄势（notes/ch13/balance.md）。"
+}

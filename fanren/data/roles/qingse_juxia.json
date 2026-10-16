@@ -1,0 +1,33 @@
+{
+  "id": "qingse_juxia",
+  "name": "青色巨虾",
+  "realm": "CoreMid",
+  "maxHp": 700,
+  "maxMp": 54,
+  "attack": 30,
+  "defence": 48,
+  "speed": 26,
+  "element": 4,
+  "magics": [
+    "magic_haichao_jue"
+  ],
+  "toughness": 5,
+  "weaknesses": [
+    "金",
+    "木",
+    "剑"
+  ],
+  "killable_by": [
+    "木",
+    "剑"
+  ],
+  "actions": 2,
+  "charge": {
+    "every": 3,
+    "mult": 1.8,
+    "all": true,
+    "text_key": "ch13.battle.waixinghai_lieyao.charge"
+  },
+  "origin": "原著",
+  "note": "ch523 裹着黑气扑来的六级妖兽，三四丈长、六只碧绿的眼（非人形，美术进 sprites_enemies.py）。② b13_waixinghai_lieyao第 1 波首领。破绽金、木、剑，killable_by 木、剑：五行环削势、剑破势，收尾只有剑与蜂云合剑（施工图 8.2）。行动 2；蓄势（黑气漩涡）每 3 个出手回合一次、全体 ×1.8。magics 用现有海潮诀；法力只够三发（54 / 18），海潮诀一发约 26、与普攻相当（G-34）。攻防远低于结丹中期锚点（76 / 58）：本场是结丹初期独战、它一回合两手，且排在第 0 波两只之后不回血。平衡路（测试路 B，按 tests/BattleHand.h 量）气血 820→700、攻 36→30：意图玩家两轮之间只隔三日（回三成），第二轮带着残血上也要打得完（notes/ch13/balance.md）。"
+}

@@ -1,0 +1,14 @@
+{
+  "id": "qiu_laozhe",
+  "name": "鸠面老者",
+  "realm": "CoreMid",
+  "maxHp": 900,
+  "maxMp": 620,
+  "attack": 76,
+  "defence": 58,
+  "speed": 28,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch524–526 窥伺他的三名结丹之首。无地图对象，n25 chongmo.lua 的 talk 用；只写三人当面所说（施工图 13 第 8 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

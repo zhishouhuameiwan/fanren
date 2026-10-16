@@ -59,11 +59,12 @@ void verifyRun(Driver& driver, const Side& side) {
     EXPECT_EQ(driver.fights()[1].allies, allyIds("yuan_yao_jiedan"));
     EXPECT_EQ(driver.fights()[2].allies, allyIds("wu_chou", "xuan_gu"));
     EXPECT_EQ(driver.fights()[3].allies, allyIds());
-    // 验收第 20 条（真实入口那一半）：ch12.done 排「第十二章　终」，第 12 章是表里最后一章，接「未完待续」。
+    // 验收第 20 条（真实入口那一半）：ch12.done 排「第十二章　终」；第 13 章进表之后接第十三章开篇
+    //（契约 interfaces-p3-ch13.md 5.3：章节卡断言改 Opening(13)）。
     const auto& cards = driver.app().cardLog();
     ASSERT_GE(cards.size(), 2u);
     EXPECT_EQ(cards[cards.size() - 2], (game::CardRequest{game::CardKind::Closing, 12}));
-    EXPECT_EQ(cards.back(), (game::CardRequest{game::CardKind::ToBeContinued, 0}));
+    EXPECT_EQ(cards.back(), (game::CardRequest{game::CardKind::Opening, 13}));
     ASSERT_FALSE(::testing::Test::HasFailure());
     const test::TempDir temporary("fanren_ch12_actual_ending");
     const auto path = temporary.path() / "ending.sav";
@@ -318,6 +319,9 @@ TEST(Ch12Acceptance, TheEndingAndTheNodeLedgerCatchEachSingleMutation) {
         {"one bit of the heart", [](GameState& s) { s.setFlag("ch12.xinjing", 1); }, "ch12.xinjing"},
         {"the companion kept", [](GameState& s) { s.party.push_back({"qu_hun_shadan", 820, true}); }, "party"},
         {"standing beside her", [](GameState& s) { s.position = Point{14, 9}; }, "position"},
+        // 第 13 章契约 5.3：终点是 teleport 落下的 ch13_nanming；还留在灵泉那张图上恰报 mapId 那一条。
+        {"still on the spring map", [](GameState& s) { s.mapId = "ch12_lingquan"; }, "ch13_nanming"},
+        {"one step into chapter 13", [](GameState& s) { s.position = Point{6, 28}; }, "position"},
     };
     for (const auto& m : mutations) {
         SCOPED_TRACE(m.what);

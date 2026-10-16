@@ -1,0 +1,14 @@
+{
+  "id": "qiyuan_kanhu",
+  "name": "看护修士",
+  "realm": "FoundationEarly",
+  "maxHp": 260,
+  "maxMp": 180,
+  "attack": 32,
+  "defence": 20,
+  "speed": 14,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch511 外海传送阵石屋的看护（境界估）。无地图对象，n13 daoqiyuan.lua 的 talk 用。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

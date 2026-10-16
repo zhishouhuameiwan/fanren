@@ -1,0 +1,13 @@
+{
+  "id": "pill_zhiyuan_dan",
+  "name": "至元丹",
+  "descKey": "item.desc.pill_zhiyuan_dan",
+  "kind": "pill",
+  "grade": 4,
+  "price": 1500,
+  "tradeable": true,
+  "restoreHp": 300,
+  "restoreMp": 0,
+  "origin": "原著",
+  "note": "ch532 以妖丹炼成、给公孙杏之父疗伤的丹药。recipe_zhiyuan_dan 每炉 3 粒；n29 gongsun.lua 第一支 take 3。restoreHp 300 与 price 1500 是笔记 L.1 的估值，归平衡路。"
+}

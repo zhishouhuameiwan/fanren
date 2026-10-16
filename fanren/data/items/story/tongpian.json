@@ -1,0 +1,11 @@
+{
+  "id": "story_tongpian",
+  "name": "铜片",
+  "descKey": "item.desc.story_tongpian",
+  "kind": "story",
+  "grade": 5,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch537 交换会上的铜片，古文与兽皮书相近；ch541 判为妖修功法、他不修。物品名只叫「铜片」（施工图 12.1 禁词）。n31 mishi.lua 三支必得 give 1；第 14 章接口。"
+}

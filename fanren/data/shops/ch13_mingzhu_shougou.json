@@ -1,0 +1,9 @@
+{
+  "id": "ch13_mingzhu_shougou",
+  "name": "明珠轩",
+  "nameKey": "ch13.shop.name.mingzhu_shougou",
+  "buyRate": 1.0,
+  "sellRate": 0.8,
+  "entries": [],
+  "note": "只收不卖（第 11 章收购行同率）：entries 空，卖出页只列 tradeable 的；五级妖丹 760、六级 4800。ch513 明珠轩收购海外所得。由 n14 mingzhu.lua shop() 打开；兽潮（ch13.shouchao）后随明夫人撤。"
+}

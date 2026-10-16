@@ -1,0 +1,14 @@
+{
+  "id": "li_xun",
+  "name": "离寻",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch515 寸金阁管事。ch13_waihai npc_li_xun：ch13.chuansong → ch13.shouchao，n15 挂点（cunjin.lua 开头判 ch13.mingzhu，再谈开 ch13_cunjin_ge）；名牌例外（16.1 第 44 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

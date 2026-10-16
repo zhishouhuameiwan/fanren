@@ -124,7 +124,7 @@
 | 接口 | 本章留下什么 | 第 13 章怎么用 |
 | --- | --- | --- |
 | **开局** | 章末在 `ch12_lingquan` 灵泉密室（spawn `quanbian`，n33 `lingquan.lua`），`ch12.done` 已置；不 `ending()`、不 teleport；第 12 章是 `data/chapters.json` 最后一章，「未完待续」自动接 | patch `scripts/ch12/lingquan.lua` 末尾补一行 `teleport("ch13_…")`（照本章 `zhuzhong.lua` 先例，只传图 id、落 default spawn）；ch499「天星城出了大事」只许在第 13 章开场说 |
-| **境界** | 31 / 31，`formerRealm 22`；本章 `realm.*` 0 处 | ch529 结丹中期：`realm.advance(realm.CORE_MID)` 一处（第 13 章定）；`realm.cap` 本章没动 |
+| **境界** | 31 / 31，`formerRealm 22`；本章 `realm.*` 0 处 | ch529 结丹中期：`realm.cap(realm.CORE_MID)` 一处（第 13 章 n27 `biguan.lua`）＋ 玩家在雾中岛静室按面板自冲，`realm.advance` 0 处——原著是十五六年闭关坐出来的（2026-10-13 协调者按第 13 章研究笔记 B20、`docs/interfaces-p3-ch13.md` 第 4 节更正，原写 `realm.advance(realm.CORE_MID)` 一处）；`realm.cap` 本章没动 |
 | **队伍** | **空**（E1）；`party.add` 0 处 | 第 13 章独行；曲魂之躯已在 ch493 随玄骨化灰，只许旁白提 |
 | **法术** | 起点 11 门 ＋ `magic_shijin_chongqun`（金） | 第 13 章若加剑阵法术，自己定 |
 | **炼晶** | `material_lianjing` ×1（`tradeable false`） | ch519–520 掺入重炼七十二剑（第 13 章定配方或剧情；要必成先改第 11 章契约 1.1「只许一张」） |

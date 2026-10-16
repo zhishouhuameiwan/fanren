@@ -1,0 +1,405 @@
+{
+  "id": "pathactions_ch13",
+  "name": "第13章路径行动",
+  "chapter": 13,
+  "note": "十三条全是打探，零阅历门槛，purchase / challenge 0 条（黑石城严禁斗法，买卖走商店）；0 条 reveal（reveal 提示会拼出role 名牌，本章敌人全不在图上）。when 都含 NPC 对象的 visible_flag，until 都含 hidden_flag 与 ch13.done；同一 NPC 对象只挂一条；八个节点挂点 NPC 0 条（施工图 16.3）。",
+  "entries": [
+    {
+      "id": "sanxian_tianxingling_dating",
+      "kind": "inquire",
+      "map": "ch13_nanming",
+      "npc": "npc_sanxian_laozhe",
+      "when": [
+        {
+          "flag": "ch13.wenxun",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.gongdao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.sanxian_tianxingling_dating",
+      "text_key": "ch13.path.sanxian_tianxingling_dating.text",
+      "origin": "原著（ch500 天星令与逆星令，A3、A6）"
+    },
+    {
+      "id": "liuhufa_shaozhu_dating",
+      "kind": "inquire",
+      "map": "ch13_nanming",
+      "npc": "npc_liu_hufa",
+      "when": [
+        {
+          "flag": "ch13.gongdao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.panzha",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.liuhufa_shaozhu_dating",
+      "text_key": "ch13.path.liuhufa_shaozhu_dating.text",
+      "origin": "原著（ch502 第 37 段，少主是圣祖唯一传人；不出名）"
+    },
+    {
+      "id": "xinming_xinwu_dating",
+      "kind": "inquire",
+      "map": "ch13_nanming",
+      "npc": "npc_xin_ming",
+      "when": [
+        {
+          "flag": "ch13.gongdao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.panzha",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.xinming_xinwu_dating",
+      "text_key": "ch13.path.xinming_xinwu_dating.text",
+      "origin": "原著（ch502 出示信物或功法即放行，A17–A18）"
+    },
+    {
+      "id": "qianxiushi_chuansong_dating",
+      "kind": "inquire",
+      "map": "ch13_tianxing",
+      "npc": "npc_qian_xiushi",
+      "when": [
+        {
+          "flag": "ch13.yirong",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.qianxiushi_chuansong_dating",
+      "text_key": "ch13.path.qianxiushi_chuansong_dating.text",
+      "origin": "原著（ch509 一人一符、一次七人，A42）"
+    },
+    {
+      "id": "zhaohufa_jieyan_dating",
+      "kind": "inquire",
+      "map": "ch13_tianxing",
+      "npc": "npc_zhao_hufa",
+      "when": [
+        {
+          "flag": "ch13.yinjian",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.zhaohufa_jieyan_dating",
+      "text_key": "ch13.path.zhaohufa_jieyan_dating.text",
+      "origin": "原著（ch506 第 7 段，腰牌与画像对验，A29）"
+    },
+    {
+      "id": "yuhufa_chuansong_dating",
+      "kind": "inquire",
+      "map": "ch13_tianxing",
+      "npc": "npc_yu_hufa",
+      "when": [
+        {
+          "flag": "ch13.yinjian",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.rucheng",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.yuhufa_chuansong_dating",
+      "text_key": "ch13.path.yuhufa_chuansong_dating.text",
+      "origin": "原著（ch506 传送阵新条件，A31–A32）"
+    },
+    {
+      "id": "zhangxiushi_jiama_dating",
+      "kind": "inquire",
+      "map": "ch13_tianxing",
+      "npc": "npc_zhang_xiushi",
+      "when": [
+        {
+          "flag": "ch13.yirong",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.zhangxiushi_jiama_dating",
+      "text_key": "ch13.path.zhangxiushi_jiama_dating.text",
+      "origin": "原著（ch507 五千一人、三千不行，A37）"
+    },
+    {
+      "id": "yijing_waihai_dating",
+      "kind": "inquire",
+      "map": "ch13_waihai",
+      "npc": "npc_yi_jing",
+      "when": [
+        {
+          "flag": "ch13.chuansong",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.shouchao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.yijing_waihai_dating",
+      "text_key": "ch13.path.yijing_waihai_dating.text",
+      "origin": "原著（ch508 结伙出海、猎妖补灵石）"
+    },
+    {
+      "id": "xuyun_qiyuan_dating",
+      "kind": "inquire",
+      "map": "ch13_waihai",
+      "npc": "npc_xu_yun",
+      "when": [
+        {
+          "flag": "ch13.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.daoqiyuan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.shouchao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.xuyun_qiyuan_dating",
+      "text_key": "ch13.path.xuyun_qiyuan_dating.text",
+      "origin": "原著（ch512–515 众势力共管、元婴坐镇、联合大拍卖，A51–A53、A58）"
+    },
+    {
+      "id": "paimaishi_shouluan_dating",
+      "kind": "inquire",
+      "map": "ch13_waihai",
+      "npc": "npc_paimaishi",
+      "when": [
+        {
+          "flag": "ch13.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.mingzhu",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.shouchao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.paimaishi_shouluan_dating",
+      "text_key": "ch13.path.paimaishi_shouluan_dating.text",
+      "origin": "原著（ch514 兽卵过不了传送阵，A57）"
+    },
+    {
+      "id": "guyu_shanggu_dating",
+      "kind": "inquire",
+      "map": "ch13_waihai",
+      "npc": "npc_gu_yu",
+      "when": [
+        {
+          "flag": "ch13.chuansong",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.cunjin",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.shouchao",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.guyu_shanggu_dating",
+      "text_key": "ch13.path.guyu_shanggu_dating.text",
+      "origin": "原著（ch515 第 39 段、ch516 第 2 段，A61–A63）"
+    },
+    {
+      "id": "sunshishu_shouchao_dating",
+      "kind": "inquire",
+      "map": "ch13_wuzhong",
+      "npc": "npc_sun_shishu",
+      "when": [
+        {
+          "flag": "ch13.chuguan",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.gongsun",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.sunshishu_shouchao_dating",
+      "text_key": "ch13.path.sunshishu_shouchao_dating.text",
+      "origin": "原著（ch531 兽潮旧事，A118–A119）"
+    },
+    {
+      "id": "huangmingli_mishi_dating",
+      "kind": "inquire",
+      "map": "ch13_waihai",
+      "npc": "npc_huang_mingli",
+      "when": [
+        {
+          "flag": "ch13.lidao",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "until": [
+        {
+          "flag": "ch13.jiaohuan",
+          "op": ">=",
+          "value": 1
+        },
+        {
+          "flag": "ch13.done",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "realm": 0,
+      "done_flag": "ch13.path.huangmingli_mishi_dating",
+      "text_key": "ch13.path.huangmingli_mishi_dating.text",
+      "origin": "原著（ch534–535 秘市规矩与听风阁，A127–A128）"
+    }
+  ]
+}

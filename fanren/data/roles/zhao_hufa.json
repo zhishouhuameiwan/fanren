@@ -1,0 +1,14 @@
+{
+  "id": "zhao_hufa",
+  "name": "赵护法",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch506 天星城外验腰牌的星宫护法。ch13_tianxing npc_zhao_hufa：ch13.yinjian → ch13.chuansong；路径行动 zhaohufa_jieyan_dating（文案编在 yinjian，不自报名号）。名牌例外（16.1 第 44 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

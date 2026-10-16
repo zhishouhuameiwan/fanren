@@ -1,0 +1,14 @@
+{
+  "id": "gongsun_xing",
+  "name": "公孙杏",
+  "realm": "QiRefining10",
+  "maxHp": 144,
+  "maxMp": 100,
+  "attack": 19,
+  "defence": 10,
+  "speed": 12,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch531–533 为瘫父求药的青灵门弟子。原文只说炼气期，取十层（施工图 5.1 由内容路定，不影响判据）。ch13_wuzhong npc_gongsun_xing：ch13.chuguan → ch13.gongsun，n29 挂点；名牌例外（16.1 第 44 条）。文案尺度照施工图 13 第 9 条：入阵为仆是唯一的约。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

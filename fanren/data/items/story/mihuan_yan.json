@@ -1,0 +1,11 @@
+{
+  "id": "story_mihuan_yan",
+  "name": "迷幻砚",
+  "descKey": "item.desc.story_mihuan_yan",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch504 白面儒生的法宝。战利品，不做手段；n05 zhuibing.lua 胜后 give 1。名字只自这一处 give 起（施工图 12.2）。"
+}

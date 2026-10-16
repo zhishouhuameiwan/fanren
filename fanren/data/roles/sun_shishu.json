@@ -1,0 +1,14 @@
+{
+  "id": "sun_shishu",
+  "name": "孙师叔",
+  "realm": "FoundationEarly",
+  "maxHp": 260,
+  "maxMp": 180,
+  "attack": 32,
+  "defence": 20,
+  "speed": 14,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch529–531 带四名炼气弟子逃进雾海的青灵门修士。ch13_wuzhong npc_sun_shishu：ch13.chuguan → ch13.gongsun；路径行动 sunshishu_shouchao_dating。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

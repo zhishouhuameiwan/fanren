@@ -1,0 +1,48 @@
+{
+  "id": "q13_haishou_xuanshang",
+  "name": "海兽悬赏",
+  "chapter": 13,
+  "kind": "side",
+  "title_key": "ch13.quest.haishou_xuanshang.title",
+  "summary_key": "ch13.quest.haishou_xuanshang.summary",
+  "accept": [
+    {
+      "flag": "ch13.daoqiyuan",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch13.quest.haishou_xuanshang.s1",
+      "done": [
+        {
+          "flag": "ch13.z2",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch13_waihai",
+      "target_object": "trigger_xuanshang"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch13.z2",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "rewards": [],
+  "fail": [
+    {
+      "flag": "ch13.biguan",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch13.quest.haishou_xuanshang.fail",
+  "origin": "改编（黑石城告示墙）",
+  "note": "可选（Z2）。xuanshang.lua：ch13.shouchao 已置一句 return、ch13.z2 已置一句 return；五级妖丹 ≥ 3 → take 3、give material_lingshi_zhong 15 与 herb_nichang_cao 3、置 ch13.z2。失败于 ch13.biguan。文案编在 daoqiyuan。"
+}

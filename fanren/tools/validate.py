@@ -2350,6 +2350,18 @@ CHAPTER_MEANS = {
          ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
          ("暗器", "give", "weapon_wuming_sixian", "ch07"),
          ("剑", "give", "weapon_lieyang_jian", "ch06")],
+    # 第 13 章（docs/interfaces-p3-ch13.md 5.2）：起点结丹初期，第 12 章九条照旧。五行环（magic_ji_wuxinghuan，
+    # scripts/ch13/wenxun.lua 学会）不登：它 power 0、挂 effect stagger，只削势不伤人，登上去规则 25 就会对
+    # killable_by 含金的敌人放水（施工图 8.2、16.1 第 46 条）。
+    13: [("拳", "hand", "", ""),
+         ("火", "learn", "magic_huodan_shu", "ch04"),
+         ("土", "learn", "magic_liusha_shu", "ch06"),
+         ("水", "learn", "magic_bingdong_shu", "ch06"),
+         ("金", "learn", "magic_ji_jinfu", "ch07"),
+         ("金", "learn", "magic_shijin_chongqun", "ch12"),
+         ("木", "learn", "magic_qingyuan_jianmang", "ch08"),
+         ("暗器", "give", "weapon_wuming_sixian", "ch07"),
+         ("剑", "give", "weapon_lieyang_jian", "ch06")],
 }
 # 某一场仗额外必有的：蚀心散在节点 7 备毒时由 scripts/ch03/beidu.lua 给出（两包起），
 # 暗道那一仗是节点 8。谷外遇狼（节点 1）那会儿还没有，所以不进第 3 章的通表。
@@ -2401,8 +2413,11 @@ BATTLE_EXTRA_MEANS = {
     "b12_neidian_duoding": [("水", "role_magic", "magic_bingjian_shu", "wu_chou"),
                             ("火", "role_magic", "magic_moyan_huo", "xuan_gu")],
     "b12_hanlitai_xuangu": [("木", "give", "talisman_bixie_shenlei", "ch12")],
+    # 第 13 章 ②（契约 5.2、E 表 30）：蜂云合剑（木）在 n20 scripts/ch13/chonglian.lua 学会，② 要到 n20 之后才开；
+    # 编成里没有友军（韩立独战），needRealm CoreEarly、needMp 40 守第 13 章起点（CHAPTER_START[13]）。
+    "b13_waixinghai_lieyao": [("木", "learn", "magic_fengyun_heji", "ch13")],
 }
-MEANS_LAST_CHAPTER = 12
+MEANS_LAST_CHAPTER = 13
 # learn 来路的施展门槛（技术债 G-29，第 12 章门禁审查 G-3）：韩立自学的那门法术要在**本章起点**就施展得出——
 # needRealm ≤ 起点境界、needMp ≤ 起点法力上限，与友军那一支 role_means_available 同一口径（缺省 needRealm
 # QiRefining1、needMp 5）。章内境界只升不降（第 9 章的跌落在本章几场仗之后），起点就是全章最低的那一刻，
@@ -2420,6 +2435,7 @@ CHAPTER_START = {
     10: ("QiRefining3", 30),
     11: ("FoundationLate", 320),
     12: ("CoreEarly", 470),
+    13: ("CoreEarly", 470),
 }
 
 

@@ -1,0 +1,11 @@
+{
+  "id": "story_guyu_yujian",
+  "name": "上古典籍玉简",
+  "descKey": "item.desc.story_guyu_yujian",
+  "kind": "story",
+  "grade": 4,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch516 以丹药与符宝从古玉处换来，载明千叶露的真身；ch518 里另有一幅五色珠图（名字到 n18 才点）。n15 cunjin.lua 首谈 give 1。"
+}

@@ -131,6 +131,16 @@ constexpr OffChainFlag kOffChainFlags[] = {
     {"ch12.xinjing", "ch12.quba", "ch12.huanjing", "scripts/ch12/huanjing.lua"},
     {"ch12.z2", "ch12.neidian", "ch12.cengjie", "scripts/ch12/cengjie.lua"},
     {"ch12.jincan", "ch12.juanzhou", "ch12.ruyi", "scripts/ch12/ruyi.lua"},
+    // 第 13 章（契约 interfaces-p3-ch13.md 5.3、施工图第 11 节末表、16.1 第 54 条）：链外 7 面，窗口照抄末表。
+    // toudu、shouchao、zhiyuan、tongpian 在本节点脚本里先于该节点的 done_flag 置；Z 三面插在接单那一步之后
+    //（Z1 mingzhu、Z2 daoqiyuan、Z3 buzhen）。mingzhu.lua 的首谈分支（置 ch13.mingzhu）须写在 Z1 分支之前。
+    {"ch13.toudu", "ch13.yirong", "ch13.chuansong", "scripts/ch13/chuansong.lua"},
+    {"ch13.z2", "ch13.daoqiyuan", "ch13.mingzhu", "scripts/ch13/xuanshang.lua"},
+    {"ch13.z1", "ch13.mingzhu", "ch13.cunjin", "scripts/ch13/mingzhu.lua"},
+    {"ch13.z3", "ch13.buzhen", "ch13.lieyao", "scripts/ch13/yanghun.lua"},
+    {"ch13.shouchao", "ch13.chuguan", "ch13.gongsun", "scripts/ch13/gongsun.lua"},
+    {"ch13.zhiyuan", "ch13.chuguan", "ch13.gongsun", "scripts/ch13/gongsun.lua"},
+    {"ch13.tongpian", "ch13.lidao", "ch13.jiaohuan", "scripts/ch13/mishi.lua"},
     // ch11.jiguan（youyao.lua，语义上在 ch11.lieyao 与 ch11.huicheng 之间）没登：offChainProblems 按
     // 脚本原文的先后核「之后」那一步，而 youyao.lua 的 ② 分支（flag.set("ch11.jiguan")，第 14 行）写在
     // 累加 ch11.lieyao（第 31 行）之前——它要 lieyao == 4 才走得到，原文次序却反着，登上去必报
@@ -140,7 +150,7 @@ constexpr OffChainFlag kOffChainFlags[] = {
 // 目标链至少要覆盖到的章：少了一章，那一章的 NPC 就没被考到。第 6 章目标链 2026-09-29 落地（data/objectives/ch06.json），
 // 第 7 章同日落地（data/objectives/ch07.json）。
 constexpr int kFirstChapter = 1;
-constexpr int kLastChapter = 12;  // 第 10–12 章目标链（data/objectives/ch1{0,1,2}.json）都已落地
+constexpr int kLastChapter = 13;  // 第 10–13 章目标链（data/objectives/ch1{0,1,2,3}.json）都已落地
 
 TEST(NpcPresence, ChapterEightDepartureAndArrivalFlagsMatchTheDesign) {
     struct Presence { const char* map; const char* npc; const char* show; const char* hide; };

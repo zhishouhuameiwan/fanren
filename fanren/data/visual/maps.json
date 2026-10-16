@@ -2573,6 +2573,109 @@
       "particles": [{"kind": "mist", "rate": 0.25}],
       "dof": 0.35,
       "dof_why": "窄的室内（24×20），只糊一点边"
+    },
+    "ch13_nanming": {
+      "theme": "dock",
+      "time": "day",
+      "backdrop": "dock_river",
+      "why": "第13章施工图第4节：南明岛用现成的 dock/day/dock_river，粒子 mist；西南礁、港口小城、码头、港后丘陵、东出海口，四面是海。",
+      "particles": [{"kind": "mist", "rate": 0.5}],
+      "dof": 0.6,
+      "dof_why": "室外海岛（48×36），远近两头糊开",
+      "zones": [
+        {"rect": [5, 19, 7, 28], "road": "gravel", "why": "西南礁直上小城的礁路：礁石，不是栈桥"},
+        {"rect": [3, 29, 9, 33], "ground": "gravel", "why": "西南礁盘（haishang）"},
+        {"rect": [43, 11, 46, 17], "ground": "gravel", "why": "出海口外礁头"}
+      ],
+      "structures": [
+        {"rect": [10, 7, 36, 7], "kind": "rock", "style": "cliff", "why": "港后丘陵的坡坎（不是房子），只留 trigger_qiuling 那三格坡口"},
+        {"rect": [13, 5, 13, 5], "kind": "rockery", "why": "丘陵坡上的单格实心（生成器注作「树」，但树干格上没有 front，mapinfer 认不成树）：画成一块山石，免得认成一格的小屋"},
+        {"rect": [17, 3, 17, 3], "kind": "rockery", "why": "同上"},
+        {"rect": [31, 2, 31, 2], "kind": "rockery", "why": "同上"},
+        {"rect": [34, 4, 34, 4], "kind": "rockery", "why": "同上"}
+      ]
+    },
+    "ch13_tianxing": {
+      "theme": "town",
+      "time": "dusk",
+      "backdrop": "dock_river",
+      "why": "第13章施工图第4节：戒严的天星城用现成的 town/dusk/dock_river，粒子 dust；南端码头、城门、闭户的空街，圣山一层层凿上去直到星空殿传送大厅。",
+      "particles": [{"kind": "dust", "rate": 0.3}],
+      "dof": 0.6,
+      "dof_why": "开阔的室外大图（56×44），上下糊开",
+      "structures": [
+        {"rect": [36, 16, 43, 19], "kind": "built", "wall": "brick", "roof": "grey", "compound": true, "why": "第四层宅院：院墙一圈、不画院内（trigger_zhaiyuan 在院墙西面一格）"},
+        {"rect": [6, 22, 16, 24], "kind": "built", "wall": "brick", "roof": "grey", "why": "圣山脚坊市门（闭门；trigger_fangshi_bimen 在南墙上），贴着山脚但不是山"},
+        {"rect": [1, 1, 54, 21], "kind": "rock", "style": "cliff", "why": "圣山山体（不是房子）：第三十九层洞府与静室、四十九层石阶、五十层外廊都凿在山上"},
+        {"rect": [1, 22, 1, 31], "kind": "wall", "style": "brick", "why": "西城墙"},
+        {"rect": [54, 22, 54, 31], "kind": "wall", "style": "brick", "why": "东城墙"},
+        {"rect": [1, 32, 54, 32], "kind": "wall", "style": "brick", "why": "南城墙，城门开在当中"}
+      ],
+      "zones": [
+        {"rect": [14, 1, 38, 4], "ground": "flagstone", "why": "星空殿传送大厅（山顶的石坪）"},
+        {"rect": [24, 5, 26, 6], "ground": "flagstone", "why": "第五十层外廊"},
+        {"rect": [24, 7, 26, 9], "road": "steps", "why": "第四十九层石阶"},
+        {"rect": [23, 15, 24, 15], "road": "steps", "why": "第四层上第三十九层的石阶"},
+        {"rect": [26, 20, 28, 21], "road": "steps", "why": "城中上山的石阶"}
+      ]
+    },
+    "ch13_waihai": {
+      "theme": "dock",
+      "time": "day",
+      "backdrop": "dock_river",
+      "why": "第13章施工图第4节：外星海用现成的 dock/day/dock_river，粒子 mist；一图三区——北区黑石城、西南秘市荒岛、东南小岛，中部礁路相连。",
+      "particles": [{"kind": "mist", "rate": 0.5}],
+      "dof": 0.6,
+      "dof_why": "开阔的室外大图（72×56），远近两头糊开",
+      "structures": [
+        {"rect": [28, 1, 40, 10], "kind": "rock", "style": "cliff", "why": "祭坛高台（不是房子）：石屋凿在台顶，门朝南、门外一道台阶"},
+        {"rect": [10, 1, 50, 1], "kind": "wall", "style": "fortress", "why": "黑石城北城墙（黑石砌的）"},
+        {"rect": [10, 21, 50, 21], "kind": "wall", "style": "fortress", "why": "黑石城南城墙，南门开在当中"},
+        {"rect": [10, 1, 10, 21], "kind": "wall", "style": "fortress", "why": "黑石城西城墙，西门开在当中"},
+        {"rect": [50, 1, 50, 21], "kind": "wall", "style": "fortress", "why": "黑石城东城墙"},
+        {"rect": [20, 40, 24, 42], "kind": "rock", "style": "cliff", "why": "秘市荒岛的乱石堆（trigger_mishi 在石壁上）"},
+        {"rect": [27, 43, 31, 48], "kind": "rock", "style": "valley", "why": "绿山（文思月的小洞府门开在西面）"},
+        {"rect": [50, 40, 64, 48], "kind": "rock", "style": "cliff", "why": "东南小岛的半山与平台上的巨石（洞口 trigger_dongkou 在平台东壁）"}
+      ],
+      "zones": [
+        {"rect": [31, 3, 37, 7], "ground": "stone_floor", "why": "祭坛石屋的地面（shiwu 在屋内）"},
+        {"rect": [33, 8, 35, 10], "road": "steps", "why": "石屋门与门外台阶"},
+        {"rect": [3, 11, 9, 13], "road": "gravel", "why": "西门外礁头"},
+        {"rect": [14, 22, 56, 37], "road": "gravel", "why": "中部礁路：礁石，不是栈桥"},
+        {"rect": [13, 38, 31, 52], "ground": "sand", "why": "秘市荒岛的沙岸"},
+        {"rect": [46, 37, 66, 52], "ground": "gravel", "why": "东南小岛的外礁与礁滩"}
+      ]
+    },
+    "ch13_wuzhong": {
+      "theme": "valley",
+      "time": "day",
+      "backdrop": "herb_valley",
+      "why": "第13章施工图第4节：雾中岛用现成的 valley/day/herb_valley，粒子 mist；山脉凹谷里的洞府照第10章小寰山的画法（山体 rock、洞府地面用室内底图块）。",
+      "lotus": false,
+      "lotus_why": "valley 主题缺省给所有水面撒荷叶（mapwater.paint_water），雾中岛四面是外海、礁间水潭也是海水：不撒（协调者 2026-10-14 拍板，主题仍是 valley）",
+      "particles": [{"kind": "mist", "rate": 0.55}],
+      "dof": 0.6,
+      "dof_why": "开阔的室外大图（64×48），远近两头糊开",
+      "structures": [
+        {"rect": [17, 2, 46, 21], "kind": "rock", "style": "valley", "why": "山脉（不是房子）：凹谷洞府六扇石门开在北壁与东壁上，甬道南出谷外"},
+        {"rect": [37, 23, 41, 26], "kind": "rock", "style": "valley", "why": "光幕外那片林子（生成器画成实心块，画成灌木坡）"},
+        {"rect": [19, 37, 52, 43], "kind": "rock", "style": "valley", "why": "岛南密林（实心块，画成灌木坡）"},
+        {"rect": [19, 23, 20, 24], "kind": "rockery", "why": "谷外 2×2 实心块（生成器注作「散树」，树干格上没有 front，mapinfer 认不成树）：画成一堆山石，免得认成小屋"},
+        {"rect": [22, 26, 23, 27], "kind": "rockery", "why": "同上"},
+        {"rect": [44, 23, 45, 24], "kind": "rockery", "why": "同上"},
+        {"rect": [47, 26, 48, 27], "kind": "rockery", "why": "同上"},
+        {"rect": [40, 30, 41, 31], "kind": "rockery", "why": "同上"},
+        {"rect": [24, 31, 25, 32], "kind": "rockery", "why": "同上"}
+      ],
+      "zones": [
+        {"rect": [20, 4, 43, 12], "ground": "cave_floor", "why": "凹谷洞府的院子：山体里凿出来的，用室内底图块（第10章小寰山的画法）"},
+        {"rect": [30, 13, 32, 21], "road": "cave_path", "why": "洞府甬道"},
+        {"rect": [2, 22, 11, 42], "ground": "gravel", "why": "西海珊瑚礁"},
+        {"rect": [12, 30, 16, 32], "road": "gravel", "why": "西海礁路：礁石，不是栈桥"},
+        {"rect": [47, 2, 54, 21], "ground": "gravel", "why": "东岸礁滩"},
+        {"rect": [55, 33, 60, 36], "road": "gravel", "why": "东南礁道：礁石，不是栈桥"},
+        {"rect": [57, 37, 61, 41], "ground": "gravel", "why": "东岸登岸礁（andeng）"}
+      ]
     }
   }
 }

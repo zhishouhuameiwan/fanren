@@ -1,0 +1,42 @@
+{
+  "id": "ch13_cunjin_ge",
+  "name": "寸金阁",
+  "nameKey": "ch13.shop.name.cunjin_ge",
+  "buyRate": 1.0,
+  "sellRate": 0.5,
+  "entries": [
+    {
+      "itemId": "herb_nichang_cao",
+      "price": 0,
+      "stock": 5,
+      "restockDays": 5,
+      "restockAmount": 3,
+      "maxStock": 5
+    },
+    {
+      "itemId": "herb_huangjing_cao",
+      "price": 0,
+      "stock": 5,
+      "restockDays": 5,
+      "restockAmount": 3,
+      "maxStock": 5
+    },
+    {
+      "itemId": "story_manao_jiao",
+      "price": 0,
+      "stock": 1,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": 1
+    },
+    {
+      "itemId": "pill_huiqi_dan",
+      "price": 0,
+      "stock": 3,
+      "restockDays": 10,
+      "restockAmount": 1,
+      "maxStock": 3
+    }
+  ],
+  "note": "ch515 黑石城最大的原料铺。霓裳草每 5 日补 3、上限 5、价 10（施工图 7.1 诱妖门闸的兜底来路）；黄精同；玛瑙角 1 件限量（5000，可选）。由 n15 cunjin.lua 再谈 shop() 打开；兽潮后随离寻撤。"
+}

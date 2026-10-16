@@ -506,12 +506,13 @@ public:
         return state().day == day+days || fail("Meditation did not advance the calendar");
     }
 
-    // 章末站回灵泉落点（quanbian (12,11)，朝上——与 spawn 同朝向，读档前后对得上）。
-    // n33 挂在元瑶身上，搭话必站在她身旁；验收第 2 条写「站在 quanbian」，所以说完话走回来。
-    static constexpr Point kEndCell{12,11};
-    bool settleAtSpring() {
-        if (!walk(Point{kEndCell.x, kEndCell.y + 1}) || !move(Point{0,-1}) || state().position != kEndCell)
-            return fail("Cannot walk back to quanbian");
+    // 章末落点：第 13 章给 lingquan.lua 末尾补了 teleport("ch13_nanming")（契约 interfaces-p3-ch13.md 5.3、
+    // ch13 施工图 3.1 #1、16.1 第 1 条），落 default spawn haishang（maps/ch13_nanming.tmj 的 192,928 → 格 (6,29)，
+    // facing up → 0）。teleport 之后不触发脚下 enter；第 13 章 n01 的横贯带在它北面一格，这里不迈步。
+    static constexpr Point kEndCell{6,29};
+    bool landedOnNanming() {
+        if (state().mapId != "ch13_nanming" || state().position != kEndCell)
+            return fail("lingquan.lua did not hand over to ch13_nanming haishang");
         return true;
     }
 
@@ -551,7 +552,7 @@ public:
         case 30: return enter("trigger_jitan");
         case 31: return press("trigger_dongkou");
         case 32: return press("trigger_xiaojian");
-        case 33: return press("npc_yuan_yao_lq") && settleAtSpring();
+        case 33: return press("npc_yuan_yao_lq") && landedOnNanming();
         default: return fail("No such node");
         }
     }
@@ -605,7 +606,8 @@ public:
             {"ch12.jincan", 1}, {"ch12.z1", 1}, {"ch12.z2", 1}, {"ch12.caiyao", 1}};
         for (const auto& [flag, value] : flags) EXPECT_EQ(state().flag(flag), value) << flag;
         EXPECT_EQ(state().day - side.day, 182);
-        EXPECT_EQ(state().mapId, "ch12_lingquan");
+        // 第 13 章契约 5.3：lingquan.lua 末行 teleport("ch13_nanming")，落 haishang (6,29) 朝上。
+        EXPECT_EQ(state().mapId, "ch13_nanming");
         EXPECT_EQ(state().position, kEndCell);
         EXPECT_EQ(state().facing, 0);
         // 意图玩家一路付得起、一路有东西可扣：兜底与「不足」的旁白一句也不该出现。

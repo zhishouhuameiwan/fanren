@@ -1,0 +1,14 @@
+{
+  "id": "sun_heifu",
+  "name": "孙姓修士",
+  "realm": "CoreMid",
+  "maxHp": 900,
+  "maxMp": 620,
+  "attack": 76,
+  "defence": 58,
+  "speed": 28,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch537 交换会上拿出铜片的修士。无地图对象，n31 talk 用；与雾中岛的「孙师叔」不同图、不同时。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "story_qiyuan_haitu",
+  "name": "奇渊海图",
+  "descKey": "item.desc.story_qiyuan_haitu",
+  "kind": "story",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch517 黑石城杂货铺买的海图与妖兽情报，照它往西找灵脉荒岛。n16 chucheng.lua give 1。"
+}

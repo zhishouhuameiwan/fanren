@@ -7,7 +7,8 @@
 //   第 15 条 只有荒岛 ↔ 地洞一对门；portal_dixue 的 require_flag / deny_text_key；不通第 11 章任何图（读地图那一半）。
 //   第 16 条 走偏三触发器与三份脚本（读地图 ＋ 扫脚本那一半；kScriptTransfers 五元三条归 ObjectiveTests）。
 //   第 17 条 同图同 role 的 NPC 首尾恰接；两名执法长老名牌不同；寒骊台乌丑、玄骨退场为 ch12.xuangu（读地图那一半）。
-//   第 20 条 lingquan.lua 最后置 ch12.done、不 ending()、不 teleport；zhuzhong.lua 与第 11 章集成版只差末尾一行。
+//   第 20 条 lingquan.lua 置 ch12.done、不 ending()；第 13 章之后仅末行一处 teleport("ch13_nanming")、此前活代码与
+//            第 12 章集成版相同（ch13 施工图 16.1 第 58 条、契约 interfaces-p3-ch13.md 5.3）；zhuzhong.lua 与第 11 章集成版只差末尾一行。
 // 每一条判据都有「在内存里改坏 → 必须报」的负向（Mutations*）。切片 / 通关那一半归测试路 B。
 #include <gtest/gtest.h>
 #include <algorithm>
@@ -539,13 +540,32 @@ std::vector<std::string> liveLines(const std::string& source) {
 constexpr std::size_t kChapterElevenFinaleBytes = 687;
 constexpr std::uint64_t kChapterElevenFinaleHash = 0x461b9e962c20c54dull;
 
+// 第 12 章集成版 scripts/ch12/lingquan.lua（HEAD 46f6d37）的活代码（executableLines，注释一律剥掉）：815 字节，
+// FNV-1a 64 = 0xdaa92bbe0608775f。第 13 章只在 flag.set("ch12.done") 之后补一行 teleport，头注释那半句改成现状
+//（契约 interfaces-p3-ch13.md 5.3、6.4；ch13 施工图 16.1 第 1、58 条）——所以钉活代码，不钉整份字节。
+constexpr std::size_t kChapterTwelveFinaleCodeBytes = 815;
+constexpr std::uint64_t kChapterTwelveFinaleCodeHash = 0xdaa92bbe0608775full;
+constexpr const char* kChapterThirteenHandOver = "teleport(\"ch13_nanming\")";
+
 Errors finaleErrors(const std::string& lingquan, const std::string& zhuzhong, const Json& chapters) {
     Errors out;
+    // 16.1 第 58 条：仅末行一处 teleport("ch13_nanming")，紧挨在 flag.set("ch12.done") 之后。
     const auto lines = liveLines(lingquan);
-    if (lines.empty() || lines.back() != "flag.set(\"ch12.done\")") out.push_back("lingquan.lua does not end with ch12.done");
+    if (lines.size() < 2 || lines.back() != kChapterThirteenHandOver)
+        out.push_back("lingquan.lua does not end with teleport(\"ch13_nanming\")");
+    else if (lines[lines.size() - 2] != "flag.set(\"ch12.done\")")
+        out.push_back("lingquan.lua does not set ch12.done right before the hand-over");
     const std::string code = executableLines(lingquan);
     if (code.find("ending(") != std::string::npos) out.push_back("lingquan.lua calls ending()");
-    if (code.find("teleport(") != std::string::npos) out.push_back("lingquan.lua teleports (chapter 13 patches it)");
+    if (countMatches(code, std::regex(R"lua(\bteleport\s*\()lua")) != 1)
+        out.push_back("lingquan.lua teleports somewhere besides its one closing line");
+    const std::string handOver = std::string(kChapterThirteenHandOver) + "\n";
+    if (code.size() != kChapterTwelveFinaleCodeBytes + handOver.size() ||
+        code.compare(kChapterTwelveFinaleCodeBytes, std::string::npos, handOver) != 0) {
+        out.push_back("lingquan.lua is not the chapter-12 code plus exactly one closing teleport line");
+    } else if (fnv1a(code.substr(0, kChapterTwelveFinaleCodeBytes)) != kChapterTwelveFinaleCodeHash) {
+        out.push_back("lingquan.lua code changed before the patched line");
+    }
     const std::string patch = "teleport(\"ch12_tushan\")\n";
     if (zhuzhong.size() != kChapterElevenFinaleBytes + patch.size() ||
         zhuzhong.compare(kChapterElevenFinaleBytes, std::string::npos, patch) != 0) {
@@ -553,10 +573,11 @@ Errors finaleErrors(const std::string& lingquan, const std::string& zhuzhong, co
     } else if (fnv1a(zhuzhong.substr(0, kChapterElevenFinaleBytes)) != kChapterElevenFinaleHash) {
         out.push_back("zhuzhong.lua changed before the patched line");
     }
+    // 第 13 章进表之后，第 12 章是第 12 项、done_flag 仍是 ch12.done（谁是最后一章归 UiStyle 的 ChapterTableData）。
     const auto& table = chapters.at("chapters");
-    if (table.size() != 12 || table.back().at("number") != 12 || table.back().at("done_flag") != "ch12.done" ||
-        table.back().value("numeral_key", "") != "ui.chapter.12.numeral" || table.back().value("title_key", "") != "ui.chapter.12.title")
-        out.push_back("chapter 12 is not the last entry of data/chapters.json as contract 5.2 wrote it");
+    if (table.size() < 12 || table[11].at("number") != 12 || table[11].at("done_flag") != "ch12.done" ||
+        table[11].value("numeral_key", "") != "ui.chapter.12.numeral" || table[11].value("title_key", "") != "ui.chapter.12.title")
+        out.push_back("chapter 12 is not the twelfth entry of data/chapters.json as contract 5.2 wrote it");
     return out;
 }
 
@@ -574,14 +595,42 @@ TEST(Ch12TriggerMode, MutationsOfTheFinaleAreCaught) {
     ASSERT_TRUE(finaleErrors(lingquan, zhuzhong, chapters).empty());
     EXPECT_FALSE(finaleErrors(lingquan + "ending(\"t\", \"b\")\n", zhuzhong, chapters).empty());
     EXPECT_FALSE(finaleErrors(lingquan + "teleport(\"ch12_tushan\")\n", zhuzhong, chapters).empty());
+    EXPECT_FALSE(finaleErrors(lingquan + "teleport(\"ch13_nanming\")\n", zhuzhong, chapters).empty()) << "两处 teleport";
     EXPECT_FALSE(finaleErrors(lingquan + "talk(\"\", \"ch12.lingquan.after\")\n", zhuzhong, chapters).empty());
     EXPECT_FALSE(finaleErrors(lingquan, zhuzhong + "advance_days(1)\n", chapters).empty());
+    // 第 13 章那一行：拿掉（第 12 章原样）、挪到 flag.set 之前、换个落点，都报。
+    const std::size_t handOver = lingquan.rfind("teleport(\"ch13_nanming\")");
+    ASSERT_NE(handOver, std::string::npos);
+    const std::string unpatched = lingquan.substr(0, handOver);
+    EXPECT_FALSE(finaleErrors(unpatched, zhuzhong, chapters).empty()) << "没补 teleport";
+    const std::size_t done = unpatched.rfind("flag.set(\"ch12.done\")");
+    ASSERT_NE(done, std::string::npos);
+    EXPECT_FALSE(finaleErrors(unpatched.substr(0, done) + "teleport(\"ch13_nanming\")\nflag.set(\"ch12.done\")\n",
+                              zhuzhong, chapters).empty()) << "teleport 写在置旗之前";
+    EXPECT_FALSE(finaleErrors(unpatched + "teleport(\"ch13_tianxing\")\n", zhuzhong, chapters).empty()) << "落错图";
+    // 补丁之前的活代码动一个字也报；只改注释的字（行数不变）不报——对照，证明钉的是活代码。
+    auto days = lingquan;
+    const std::size_t three = days.find("\nadvance_days(3)");   // 顶格那一句（头注释里也写着 advance_days(3)）
+    ASSERT_NE(three, std::string::npos);
+    days[three + 14] = '4';
+    EXPECT_FALSE(finaleErrors(days, zhuzhong, chapters).empty()) << "advance_days(4)";
+    auto remark = lingquan;
+    const std::size_t note = remark.find("-- ");
+    ASSERT_NE(note, std::string::npos);
+    remark.insert(note + 3, "x");
+    EXPECT_TRUE(finaleErrors(remark, zhuzhong, chapters).empty()) << joined(finaleErrors(remark, zhuzhong, chapters));
     auto edited = zhuzhong;
     edited[10] = edited[10] == 'a' ? 'b' : 'a';
     EXPECT_FALSE(finaleErrors(lingquan, edited, chapters).empty());
     EXPECT_FALSE(finaleErrors(lingquan, zhuzhong.substr(0, kChapterElevenFinaleBytes), chapters).empty());
+    auto renamed = chapters;
+    renamed["chapters"][11]["done_flag"] = "ch12.end";
+    EXPECT_FALSE(finaleErrors(lingquan, zhuzhong, renamed).empty());
+    auto shorter = chapters;
+    shorter["chapters"].erase(std::size_t{11});
+    EXPECT_FALSE(finaleErrors(lingquan, zhuzhong, shorter).empty());
     auto more = chapters;
-    more["chapters"].push_back({{"number", 13}, {"done_flag", "ch13.done"}});
-    EXPECT_FALSE(finaleErrors(lingquan, zhuzhong, more).empty());
+    more["chapters"].push_back({{"number", 14}, {"done_flag", "ch14.done"}});
+    EXPECT_TRUE(finaleErrors(lingquan, zhuzhong, more).empty()) << "对照：表往后长不牵动第 12 章这一项";
 }
 }  // namespace

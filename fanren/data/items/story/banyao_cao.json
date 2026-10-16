@@ -1,0 +1,11 @@
+{
+  "id": "story_banyao_cao",
+  "name": "伴妖草",
+  "descKey": "item.desc.story_banyao_cao",
+  "kind": "story",
+  "grade": 8,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch516 查明千叶露即其汁；ch541–542 八级妖兽巢穴旁的是黑色。做 story 不做 herb，免得被种进灵田。n34 banyao.lua give 1；第 14 章接口。"
+}

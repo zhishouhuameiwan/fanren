@@ -1,0 +1,11 @@
+{
+  "id": "story_manao_jiao",
+  "name": "玛瑙角",
+  "descKey": "item.desc.story_manao_jiao",
+  "kind": "story",
+  "grade": 6,
+  "price": 5000,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch501 掌柜说是玛瑙兽的独角；ch516 寸金阁有货、按五千收进照进价出。九曲灵参丹方的辅料，本篇不炼。不由脚本给：寸金阁库存 1、限量不补（可选），price 5000 即买价（buyRate 1.0），不可转卖。"
+}

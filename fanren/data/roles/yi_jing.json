@@ -1,0 +1,14 @@
+{
+  "id": "yi_jing",
+  "name": "易敬",
+  "realm": "FoundationLate",
+  "maxHp": 480,
+  "maxMp": 320,
+  "attack": 44,
+  "defence": 30,
+  "speed": 18,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch508 起七人里拍板的锦衣大汉，ch511 自报全名。同一 role 两个对象分属两张图：ch13_tianxing npc_yi_jing_tx（ch13.yirong → ch13.chuansong）、ch13_waihai npc_yi_jing（ch13.chuansong → ch13.shouchao），首尾相接（施工图 5.5）；路径行动 yijing_waihai_dating 挂外海那个。名牌例外（16.1 第 44 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

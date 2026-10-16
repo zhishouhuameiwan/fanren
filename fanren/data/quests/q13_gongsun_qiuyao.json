@@ -1,0 +1,40 @@
+{
+  "id": "q13_gongsun_qiuyao",
+  "name": "公孙杏之求",
+  "chapter": 13,
+  "kind": "side",
+  "title_key": "ch13.quest.gongsun_qiuyao.title",
+  "summary_key": "ch13.quest.gongsun_qiuyao.summary",
+  "accept": [
+    {
+      "flag": "ch13.chuguan",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch13.quest.gongsun_qiuyao.s1",
+      "done": [
+        {
+          "flag": "ch13.gongsun",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch13_wuzhong",
+      "target_object": "npc_gongsun_xing"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch13.gongsun",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "rewards": [],
+  "origin": "原著（改编：公孙杏之约改为她自己提的「入阵为仆」，施工图 16.1 第 21 条）",
+  "note": "必经。ch531–533 为瘫父求药，即 n29（无独立挂点）。接取在 chuguan、早于 gongsun，任务文案里 0 处「公孙杏」（施工图 12.2：gongsun.* 之前不含），标题写「雾海来客」；name 字段照施工图第 6 节。"
+}

@@ -7,6 +7,9 @@
 熔岩变体：data/visual/maps.json 那张图写 "liquid": "lava"（缺省 "water"），同样的格画成熔岩——
 岸是冷凝的黑岩壳，面上是顺着夹道流的暗红到橙的条带，漂着硬壳、壳缝透亮。熔岩格不进 meta.json 的
 water（运行时的波光是蓝白的），改由 maplights 在熔岩上放火星与暗红的光。
+
+荷叶开关：valley / manor 主题缺省给水面撒荷叶；data/visual/maps.json 那张图写 "lotus": false 就不撒
+（雾中岛 ch13_wuzhong 是 valley，可四面是海）。没写的图行为不变、产物逐字节不变。
 """
 
 from __future__ import annotations
@@ -28,6 +31,16 @@ def liquid_of(sc) -> str:
         raise ValueError("data/visual/maps.json 里 %s 的 liquid 只能是 %s，写的是 %r"
                          % (sc.md.map_id, "/".join(LIQUIDS), kind))
     return kind
+
+
+def lotus_of(sc) -> bool:
+    """这张图的水面撒不撒荷叶：maps.json 的 lotus，缺省 true（只对 valley / manor 主题起作用）；
+    写成布尔以外的值当场报错，免得 "false" 这种字符串静默当成真。"""
+    v = sc.preset.get("lotus", True)
+    if not isinstance(v, bool):
+        raise ValueError("data/visual/maps.json 里 %s 的 lotus 只能是 true/false，写的是 %r"
+                         % (sc.md.map_id, v))
+    return v
 
 
 def shore_distance(wpx: np.ndarray, limit: int = 24) -> np.ndarray:
@@ -90,7 +103,7 @@ def paint_water(ctx) -> None:
     cv.shade(0, 0, -0.5, wet2)
     if sc.theme == "dock":
         reeds(ctx, wpx, d, seed + 5)
-    elif sc.theme in ("valley", "manor"):
+    elif sc.theme in ("valley", "manor") and lotus_of(sc):
         lotus(ctx, wpx, d, seed + 7)
 
 

@@ -1864,7 +1864,131 @@ CHAPTER12_BEASTS = tuple(_chapter12_beast(*entry) for entry in (
      "第 12 章战斗③第 1 波首领：化银的独角狼（施工图 5.4、A101），银白皮毛、额上一支发亮的角。"),
 ))
 
-BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN) + CHAPTER8_BEASTS + (CHAPTER10_YINGLI,) + CHAPTER11_BEASTS + CHAPTER12_BEASTS
+def _chapter13_rows(kind, pose, w, h):
+    """第 13 章两个非人形（docs/ch13-design.md 第 5.3、5.4、8.2 节）：出招帧前探、倒下帧压扁。
+
+    wuji_haishou 五级海兽：伏低的海兽，背上一排鳍刺，四只鳍足，张口露牙（② 第 0 波 ×2）
+    qingse_juxia 青色巨虾：三四丈长、六只碧绿的眼（ch523），弓背分节、尾扇、长须、一对螯，
+                           裹一团黑气（蓄势「黑气」）；首领，比海兽大一号（48×40）
+    """
+    rows = [["."] * w for _ in range(h)]
+
+    def dot(x, y, code="B"):
+        if 0 <= x < w and 0 <= y < h:
+            rows[y][x] = code
+
+    def line(x0, y0, x1, y1, code="C"):
+        n = max(abs(x1 - x0), abs(y1 - y0), 1)
+        for step in range(n + 1):
+            dot(round(x0 + (x1 - x0) * step / n), round(y0 + (y1 - y0) * step / n), code)
+
+    def ellipse(cx, cy, rx, ry, code="B", top="A"):
+        for y in range(max(0, cy - ry), min(h, cy + ry + 1)):
+            for x in range(max(0, cx - rx), min(w, cx + rx + 1)):
+                if ((x - cx) / max(rx, 1)) ** 2 + ((y - cy) / max(ry, 1)) ** 2 <= 1:
+                    dot(x, y, top if y < cy - ry // 2 else code)
+
+    def rect(x0, y0, x1, y1, code):
+        for y in range(y0, y1 + 1):
+            for x in range(x0, x1 + 1):
+                dot(x, y, code)
+
+    def flat(cx, cy, rx, eye_x):
+        ellipse(cx, cy, rx, 3)
+        dot(eye_x, cy - 1, "n")
+        return tuple("".join(row) for row in rows)
+
+    down = pose == 2
+    atk = pose == 1
+    s = 2 if atk else 0
+    reach = 3 if atk else 0
+    if kind == "wuji_haishou":
+        if down:
+            line(3, 27, 9, 25, "R")
+            return flat(19, 27, 15, 31)
+        ellipse(18 + s, 19, 12, 6)                       # 伏低的身子
+        for x in range(9, 28):
+            dot(x + s, 23, "F")                          # 浅色的腹
+            dot(x + s, 24, "F" if 11 <= x <= 25 else ".")
+        for i, x in enumerate(range(10, 28, 3)):         # 背上一排鳍刺
+            line(x + s, 13, x + 1 + s, 9 - (i % 2), "R")
+        ellipse(31 + s + reach // 2, 17, 6, 5)           # 头
+        dot(33 + s + reach // 2, 15, "e")
+        rect(32 + s + reach // 2, 20, 36 + s + reach, 20, "W" if atk else "r")
+        if atk:
+            rect(33 + s + reach // 2, 21, 37 + s + reach, 21, "W")
+        line(6 + s, 19, 1 + s, 14, "C")                  # 尾与尾鳍
+        line(1 + s, 14, 0 + s, 11, "R")
+        line(1 + s, 14, 3 + s, 11, "R")
+        for x0, x1 in ((10, 7), (16, 15), (22, 23), (27, 30)):   # 四只鳍足
+            line(x0 + s, 24, x1 + s, 28, "C")
+            dot(x1 + s, 29, "k")
+            dot(x1 + 1 + s, 29, "k")
+    else:                                                # qingse_juxia
+        if down:
+            line(2, 36, 9, 33, "C")
+            line(37, 33, 46, 31, "C")
+            return flat(22, 35, 17, 34)
+        for x, y in ((3, 37), (10, 38), (17, 37), (24, 38), (31, 37), (38, 38), (1, 31),
+                     (4, 12), (26, 7), (43, 34)):
+            line(x + s, y, x + 2 + s, y - 1, "Z")        # 裹在身上的黑气，一缕缕
+            dot(x + 3 + s, y - 1, "Z")
+        for x in (19, 24, 29, 34):                       # 几只细足（先画，身子压在上面）
+            line(x + s, 22, x - 2 + s, 30, "k")
+        for cx, cy, rx, ry in ((23, 18, 5, 5), (17, 18, 4, 5), (12, 20, 4, 4), (8, 24, 3, 4)):
+            ellipse(cx + s, cy, rx, ry)                  # 分节的腹，往尾巴卷下去
+            line(cx + rx + s, cy - ry + 1, cx + rx + s, cy, "D")
+        for tx, ty in ((1, 31), (3, 33), (6, 34), (0, 28)):
+            line(7 + s, 27, tx + s, ty, "A")             # 尾扇
+        ellipse(34 + s, 19, 8, 5)                        # 头胸甲
+        line(41 + s, 18, 46 + s + reach, 16, "A")        # 额角
+        for ex, ey in ((36, 15), (38, 15), (40, 16), (37, 17), (39, 17), (41, 18)):
+            dot(ex + s, ey, "e")                         # 六只碧绿的眼
+            dot(ex - 1 + s, ey, "n")
+        line(42 + s, 18, 47, 13, "C")                    # 一根长须先往前，再往回甩过背
+        line(47, 13, 43, 4, "C")
+        line(43, 4, 27 + s, 1, "C")
+        line(42 + s, 20, 47, 23, "C")                    # 另一根往前下方
+        line(38 + s, 23, 42 + s + reach, 27, "B")        # 一对螯，出招时张开前探
+        line(42 + s + reach, 27, 46 + s + reach, 25 - (2 if atk else 0), "k")
+        line(42 + s + reach, 27, 46 + s + reach, 29 + (2 if atk else 0), "k")
+        line(36 + s, 24, 39 + s + reach, 30, "B")
+        dot(40 + s + reach, 31, "k")
+    return tuple("".join(row) for row in rows)
+
+
+def _chapter13_beast(kind, name, w, h, leg_top, ramps, note):
+    base = dict(WOLF.ramps)
+    base.update(ramps)
+    codes = _codes({"Y": ("glow", 3), "R": ("crest", 2), "Z": ("haze", 1)})
+    return Beast(kind, name, w, h, _chapter13_rows(kind, 0, w, h), _chapter13_rows(kind, 1, w, h),
+                 _chapter13_rows(kind, 2, w, h), base, codes, leg_top, note)
+
+
+_SEA_EYE = [P.c("jade1"), P.c("jade2"), P.c("jade3"), P.c("jade4")]
+
+CHAPTER13_BEASTS = tuple(_chapter13_beast(*entry) for entry in (
+    ("wuji_haishou", "五级海兽", 40, 32, 24,
+     {"fur": [P.mix("water0", "ink1", .5), P.mix("water1", "jade0", .3), P.mix("water2", "jade1", .3),
+              P.mix("water3", "jade2", .3)],
+      "belly": [P.c("stone2"), P.c("stone3"), P.mix("stone4", "water4", .3), P.c("stone5")],
+      "eyeglow": [P.c("gold1"), P.c("gold2"), P.c("gold3"), P.mix("gold4", "paper", .3)],
+      "glow": [P.c("water3"), P.c("water4"), P.c("water5"), P.mix("water5", "paper", .4)],
+      "crest": [P.mix("water1", "ink1", .3), P.c("water2"), P.c("water3"), P.c("water4")],
+      "haze": _HAZE_DARK},
+     "第 13 章战斗②第 0 波：伏低的五级海兽，青黑鳞皮、背上一排鳍刺、四只鳍足、金眼；出招是张口前扑。"),
+    ("qingse_juxia", "青色巨虾", 48, 40, 31,
+     {"fur": [P.mix("water1", "ink1", .4), P.mix("water2", "jade1", .5), P.mix("water3", "jade2", .5),
+              P.mix("water4", "jade3", .4)],
+      "eyeglow": _SEA_EYE,
+      "glow": [P.c("jade2"), P.c("jade3"), P.c("jade4"), P.mix("jade4", "paper", .5)],
+      "claw": [P.mix("water0", "ink1", .5), P.c("water1"), P.c("water2"), P.c("water3")],
+      "crest": _CREST, "haze": [P.c("ink0"), P.c("ink0"), P.c("ink1"), P.c("ink2")]},
+     "第 13 章战斗②第 1 波首领：三四丈长的青色巨虾（ch523），六只碧绿的眼、弓背分节、尾扇、长须、一对螯，"
+     "身上裹一团黑气（蓄势「黑气」）；48×40。"),
+))
+
+BEASTS = (WOLF, CAGE, STIFF, SHIGUI, BOAR, BISHE, CHUANSHAN, MOJIAO, TUISHAN, TIEBI, HUOYAN) + CHAPTER8_BEASTS + (CHAPTER10_YINGLI,) + CHAPTER11_BEASTS + CHAPTER12_BEASTS + CHAPTER13_BEASTS
 
 
 def _canvas_from(rows: tuple[str, ...], beast: Beast) -> Canvas:

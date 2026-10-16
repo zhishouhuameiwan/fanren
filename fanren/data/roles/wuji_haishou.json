@@ -2,20 +2,20 @@
   "id": "wuji_haishou",
   "name": "五级海兽",
   "realm": "CoreEarly",
-  "maxHp": 720,
-  "maxMp": 430,
-  "attack": 66,
-  "defence": 50,
-  "speed": 30,
+  "maxHp": 320,
+  "maxMp": 18,
+  "attack": 30,
+  "defence": 36,
+  "speed": 24,
   "element": 4,
   "magics": [
-    "magic_haichao_jue",
-    "magic_bingjian_shu"
+    "magic_haichao_jue"
   ],
   "toughness": 3,
   "weaknesses": [
-    "土"
+    "土",
+    "剑"
   ],
   "origin": "原著",
-  "note": "原著明写五级妖兽约当结丹初期（ch503），是外星海猎妖的常规目标。\n\n【八方旅人化改造 2026-09-25】破势与蓄劲占位：第 6 章以后不在本轮范围，只填最小合法值（架势 3，破绽取五行上克它的那一行，无属性取拳），写到那一章时重填。"
+  "note": "原著明写五级妖兽约当结丹初期（ch503）。第 13 章就地改写（施工图 1.2 B25、5.3、8.2）：② b13_waixinghai_lieyao 第 0 波 ×2，ch523 霓裳草引来、被飞剑随手斩下的那几只。破绽土、剑（就地补「剑」），不写 killable_by。气血压到锚点一半以下、只留海潮诀（冰箭术对结丹防御只打 1 点，一并去掉）：第 0 波是「省着打」的前菜，首领在第 1 波。平衡路（测试路 B，按 tests/BattleHand.h 量）攻 34→30、法力 54→18：海潮诀只够一发（G-34），放完落回拳脚（notes/ch13/balance.md）。"
 }

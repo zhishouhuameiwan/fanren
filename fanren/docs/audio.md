@@ -248,6 +248,15 @@ RMS、直流、NaN、接缝（BGM：台阶/折角倍数、掉电平/门槛）或
 | `ch12_hanlitai` | `bgm_cliff` |
 | `ch12_lingquan` | `bgm_cave` |
 
+第13章四张新图同样只用已有曲目（`docs/ch13-design.md` 第 4.2 节），登记如下：
+
+| 地图 | BGM |
+| --- | --- |
+| `ch13_nanming` | `bgm_river` |
+| `ch13_tianxing` | `bgm_town` |
+| `ch13_waihai` | `bgm_river` |
+| `ch13_wuzhong` | `bgm_valley` |
+
 
 - 纯合成的乐器是「像」而不是「是」：古筝、琵琶的拨弦最像；笛子、二胡是加法/减法合成，
   胜在音高表现（滑音、揉弦）而非音色逼真。

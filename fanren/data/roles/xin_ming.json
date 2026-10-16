@@ -1,0 +1,14 @@
+{
+  "id": "xin_ming",
+  "name": "辛明",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 250,
+  "attack": 37,
+  "defence": 26,
+  "speed": 16,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch502 开天门修士，以白水剑为信物过关（境界估）。ch13_nanming npc_xin_ming：ch13.gongdao → ch13.panzha；路径行动 xinming_xinwu_dating。名牌例外（16.1 第 44 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

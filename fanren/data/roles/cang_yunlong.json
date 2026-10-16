@@ -1,0 +1,14 @@
+{
+  "id": "cang_yunlong",
+  "name": "苍云龙",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch502 逆星盟护法，奉命封岛、盘查离岛修士。ch13_nanming npc_cang_yunlong：ch13.gongdao → ch13.panzha，n04 挂点；名牌例外：上图即用本名（施工图 16.1 第 44 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

@@ -199,11 +199,12 @@ TEST(ChapterTableData, TheShippedTableIsWhatTheWorkOrderAsked) {
     const ChapterTable table = shippedChapters(data);
     // 2026-10-13 第 11 章（docs/interfaces-p3-ch11.md 8.2）：表加了「第十一章」「结丹」，ch11.done；卡上不写「天星城」。
     // 2026-10-13 第 12 章（docs/interfaces-p3-ch12.md 5.2）：表加了「第十二章」「虚天殿」，ch12.done。
-    const char* titles[] = {"山村·七玄门", "绿瓶四年", "神手谷惊变", "落日峰", "嘉元城·墨府", "太南谷·黄枫谷", "血色试炼", "魔道入侵", "遁走", "落海", "结丹", "虚天殿"};
-    const char* numerals[] = {"第一章", "第二章", "第三章", "第四章", "第五章", "第六章", "第七章", "第八章", "第九章", "第十章", "第十一章", "第十二章"};
-    const char* flags[] = {"ch01.done", "ch02.done", "ch03.done", "ch04.done", "ch05.done", "ch06.done", "ch07.done", "ch08.done", "ch09.done", "ch10.done", "ch11.done", "ch12.done"};
-    ASSERT_EQ(table.chapters.size(), 12u);
-    for (int i = 0; i < 12; ++i) {
+    // 2026-10-14 第 13 章（docs/interfaces-p3-ch13.md 5.2、5.3）：表加了「第十三章」「逆星之乱」，ch13.done。
+    const char* titles[] = {"山村·七玄门", "绿瓶四年", "神手谷惊变", "落日峰", "嘉元城·墨府", "太南谷·黄枫谷", "血色试炼", "魔道入侵", "遁走", "落海", "结丹", "虚天殿", "逆星之乱"};
+    const char* numerals[] = {"第一章", "第二章", "第三章", "第四章", "第五章", "第六章", "第七章", "第八章", "第九章", "第十章", "第十一章", "第十二章", "第十三章"};
+    const char* flags[] = {"ch01.done", "ch02.done", "ch03.done", "ch04.done", "ch05.done", "ch06.done", "ch07.done", "ch08.done", "ch09.done", "ch10.done", "ch11.done", "ch12.done", "ch13.done"};
+    ASSERT_EQ(table.chapters.size(), 13u);
+    for (int i = 0; i < 13; ++i) {
         const auto& entry = table.chapters[static_cast<std::size_t>(i)];
         EXPECT_EQ(entry.number, i + 1);
         EXPECT_EQ(entry.title, titles[i]);
@@ -230,8 +231,8 @@ TEST(ChapterCards, OnlyAChapterEndingForTheFirstTimeQueuesCards) {
     EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch01.done", 1, 0).empty());
     EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch01.done", 0, 0).empty());
     EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch01.koujue_received", 0, 1).empty());
-    EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch13.done", 0, 1).empty())
-        << "表里没有的章不排（第 12 章已进入章节表）";
+    EXPECT_TRUE(fanren::game::cardsForFlagChange(table, "ch14.done", 0, 1).empty())
+        << "表里没有的章不排（第 13 章已进入章节表）";
     const std::vector<CardRequest> anyValue{{CardKind::Closing, 2}, {CardKind::Opening, 3}};
     EXPECT_EQ(fanren::game::cardsForFlagChange(table, "ch02.done", 0, 5), anyValue)
         << "置成任何非 0 值都算演完";
@@ -239,13 +240,20 @@ TEST(ChapterCards, OnlyAChapterEndingForTheFirstTimeQueuesCards) {
 
 TEST(ChapterCards, TheLastChapterIsFollowedByToBeContinued) {
     const ChapterTable table = shippedChapters(shippedData());
-    const std::vector<CardRequest> expected{{CardKind::Closing, 12}, {CardKind::ToBeContinued, 0}};
-    EXPECT_EQ(fanren::game::cardsForFlagChange(table, "ch12.done", 0, 1), expected);
+    const std::vector<CardRequest> expected{{CardKind::Closing, 13}, {CardKind::ToBeContinued, 0}};
+    EXPECT_EQ(fanren::game::cardsForFlagChange(table, "ch13.done", 0, 1), expected);
     const fanren::game::Card more = fanren::game::resolveCard(table, expected[1]);
     EXPECT_EQ(more.headline, "未完待续");
     const fanren::game::Card closing = fanren::game::resolveCard(table, expected[0]);
-    EXPECT_EQ(closing.headline, "第十二章　终");
-    EXPECT_EQ(closing.kicker, "虚天殿");
+    EXPECT_EQ(closing.headline, "第十三章　终");
+    EXPECT_EQ(closing.kicker, "逆星之乱");
+    // 第 12 章不再是最后一章：「第十二章　终」接第十三章开篇（契约 interfaces-p3-ch13.md 5.3）。
+    const std::vector<CardRequest> twelfth{{CardKind::Closing, 12}, {CardKind::Opening, 13}};
+    EXPECT_EQ(fanren::game::cardsForFlagChange(table, "ch12.done", 0, 1), twelfth);
+    EXPECT_EQ(fanren::game::resolveCard(table, twelfth[0]).headline, "第十二章　终");
+    EXPECT_EQ(fanren::game::resolveCard(table, twelfth[0]).kicker, "虚天殿");
+    EXPECT_EQ(fanren::game::resolveCard(table, twelfth[1]).kicker, "第十三章");
+    EXPECT_EQ(fanren::game::resolveCard(table, twelfth[1]).headline, "逆星之乱");
     // 第 11 章不再是最后一章：「第十一章　终」接第十二章开篇（契约 interfaces-p3-ch12.md 5.3）。
     const std::vector<CardRequest> eleventh{{CardKind::Closing, 11}, {CardKind::Opening, 12}};
     EXPECT_EQ(fanren::game::cardsForFlagChange(table, "ch11.done", 0, 1), eleventh);

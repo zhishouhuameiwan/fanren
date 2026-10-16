@@ -1,0 +1,14 @@
+{
+  "id": "ling_yuling",
+  "name": "凌玉灵",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch505 星宫外事执法，引他进天星城（境界估，文案不报境界）。ch13_nanming npc_ling_yuling：ch13.zhuibing → ch13.yinjian，n06 挂点；名牌例外（16.1 第 44 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

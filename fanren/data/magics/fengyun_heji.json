@@ -1,0 +1,12 @@
+{
+  "id": "magic_fengyun_heji",
+  "name": "蜂云合剑",
+  "descKey": "magic.desc.magic_fengyun_heji",
+  "element": 2,
+  "needMp": 40,
+  "power": 64,
+  "needRealm": "CoreEarly",
+  "boost": "power",
+  "origin": "改编（名字为改编；原文只写七道青光合成巨剑，ch524）",
+  "note": "n20 chonglian.lua 重炼七十二剑后 magic.learn 看返回值，全仓恰 1 处。木、单体重击：② 青色巨虾 killable_by 木、剑，收尾靠它与剑。BATTLE_EXTRA_MEANS[b13_waixinghai_lieyao] 的木来路（learn，ch13）：needRealm CoreEarly、needMp 40，守第 13 章起点（CoreEarly / 470）的施展门槛。图鉴标「改编」。数值是内容初值，归平衡路。"
+}

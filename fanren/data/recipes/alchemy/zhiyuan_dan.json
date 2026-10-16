@@ -1,0 +1,21 @@
+{
+  "id": "recipe_zhiyuan_dan",
+  "name": "至元丹方",
+  "kind": "alchemy",
+  "productId": "pill_zhiyuan_dan",
+  "productCount": 3,
+  "difficulty": 60,
+  "requiredProficiency": 40,
+  "requireFlag": "ch13.liandan",
+  "inputs": [
+    {
+      "itemId": "material_yaodan_wuji",
+      "count": 1
+    },
+    {
+      "itemId": "herb_huangjing_cao",
+      "count": 1
+    }
+  ],
+  "note": "笔记 L.3：五级妖丹 1 ＋ 黄精 1 → 至元丹 3；n26 liandan.lua 置 ch13.liandan 后列上丹炉；不写 guaranteed。成功率 ＝ 40 ＋ 熟练/2 ＋ 资质/5 ＋ 炉品×5 − 难度：ch12-end 炼丹熟练 100、资质 50、雾中岛丹炉 grade 4 → 120 − 60 ＝ 60%（意图玩家 ≥ 50%，施工图第 7 节）。difficulty 归平衡路。"
+}

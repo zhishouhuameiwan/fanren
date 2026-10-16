@@ -1,0 +1,49 @@
+{
+  "id": "q13_qianyelu",
+  "name": "千叶露",
+  "chapter": 13,
+  "kind": "side",
+  "title_key": "ch13.quest.qianyelu.title",
+  "summary_key": "ch13.quest.qianyelu.summary",
+  "accept": [
+    {
+      "flag": "ch13.caigou",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch13.quest.qianyelu.s1",
+      "done": [
+        {
+          "flag": "ch13.cunjin",
+          "op": ">=",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "s2",
+      "text_key": "ch13.quest.qianyelu.s2",
+      "done": [
+        {
+          "flag": "ch13.wenshi",
+          "op": ">=",
+          "value": 1
+        }
+      ]
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch13.done",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "rewards": [],
+  "origin": "原著",
+  "note": "必经。ch501 南明岛掌柜不识千叶露 → ch516 古玉的典籍查明是伴妖草之汁 → ch540 文思月给出巢穴位置 → 章末取草。无独立挂点，全在主线（n02 接、n15 s1、n32 s2、ch13.done 了结）。不写 target：接取在南明岛，指向外海会提前露出地名。文案按接取（caigou）编号，s1 / s2 只写到「千叶露」为止（伴妖草自 cunjin 起，施工图 12.2）。"
+}

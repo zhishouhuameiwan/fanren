@@ -1,0 +1,14 @@
+{
+  "id": "huang_mingli",
+  "name": "黄明礼",
+  "realm": "FoundationLate",
+  "maxHp": 480,
+  "maxMp": 320,
+  "attack": 44,
+  "defence": 30,
+  "speed": 18,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch534 被妖兽追杀、被他一招救下的假丹修士，引他去秘市。ch13_waihai npc_huang_mingli：ch13.lidao → ch13.jiaohuan；路径行动 huangmingli_mishi_dating。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

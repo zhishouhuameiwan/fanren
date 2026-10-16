@@ -1,0 +1,245 @@
+{
+  "id": "objectives_ch13",
+  "name": "第13章目标链",
+  "chapter": 13,
+  "steps": [
+    {
+      "id": "n01_wenxun",
+      "text_key": "objective.ch13.n01_wenxun",
+      "done_flag": "ch13.wenxun",
+      "target_map": "ch13_nanming",
+      "target_object": "trigger_wenxun"
+    },
+    {
+      "id": "n02_caigou",
+      "text_key": "objective.ch13.n02_caigou",
+      "done_flag": "ch13.caigou",
+      "target_map": "ch13_nanming",
+      "target_object": "npc_yuanliao_zhanggui"
+    },
+    {
+      "id": "n03_gongdao",
+      "text_key": "objective.ch13.n03_gongdao",
+      "done_flag": "ch13.gongdao",
+      "target_map": "ch13_nanming",
+      "target_object": "trigger_qiuling"
+    },
+    {
+      "id": "n04_panzha",
+      "text_key": "objective.ch13.n04_panzha",
+      "done_flag": "ch13.panzha",
+      "target_map": "ch13_nanming",
+      "target_object": "npc_cang_yunlong"
+    },
+    {
+      "id": "n05_zhuibing",
+      "text_key": "objective.ch13.n05_zhuibing",
+      "done_flag": "ch13.zhuibing",
+      "target_map": "ch13_nanming",
+      "target_object": "trigger_chugang"
+    },
+    {
+      "id": "n06_yinjian",
+      "text_key": "objective.ch13.n06_yinjian",
+      "done_flag": "ch13.yinjian",
+      "target_map": "ch13_nanming",
+      "target_object": "npc_ling_yuling"
+    },
+    {
+      "id": "n07_rucheng",
+      "text_key": "objective.ch13.n07_rucheng",
+      "done_flag": "ch13.rucheng",
+      "target_map": "ch13_tianxing",
+      "target_object": "trigger_rucheng"
+    },
+    {
+      "id": "n08_qifu",
+      "text_key": "objective.ch13.n08_qifu",
+      "done_flag": "ch13.qifu",
+      "target_map": "ch13_tianxing",
+      "target_object": "trigger_dongfu39"
+    },
+    {
+      "id": "n09_tanzhen",
+      "text_key": "objective.ch13.n09_tanzhen",
+      "done_flag": "ch13.tanzhen",
+      "target_map": "ch13_tianxing",
+      "target_object": "trigger_xingkong"
+    },
+    {
+      "id": "n10_qianru",
+      "text_key": "objective.ch13.n10_qianru",
+      "done_flag": "ch13.qianru",
+      "target_map": "ch13_tianxing",
+      "target_object": "trigger_zhaiyuan"
+    },
+    {
+      "id": "n11_yirong",
+      "text_key": "objective.ch13.n11_yirong",
+      "done_flag": "ch13.yirong",
+      "target_map": "ch13_tianxing",
+      "target_object": "trigger_lanlu"
+    },
+    {
+      "id": "n12_chuansong",
+      "text_key": "objective.ch13.n12_chuansong",
+      "done_flag": "ch13.chuansong",
+      "target_map": "ch13_tianxing",
+      "target_object": "npc_gu_laozhe"
+    },
+    {
+      "id": "n13_daoqiyuan",
+      "text_key": "objective.ch13.n13_daoqiyuan",
+      "done_flag": "ch13.daoqiyuan",
+      "target_map": "ch13_waihai",
+      "target_object": "trigger_shiwu"
+    },
+    {
+      "id": "n14_mingzhu",
+      "text_key": "objective.ch13.n14_mingzhu",
+      "done_flag": "ch13.mingzhu",
+      "target_map": "ch13_waihai",
+      "target_object": "npc_ming_furen"
+    },
+    {
+      "id": "n15_cunjin",
+      "text_key": "objective.ch13.n15_cunjin",
+      "done_flag": "ch13.cunjin",
+      "target_map": "ch13_waihai",
+      "target_object": "npc_li_xun"
+    },
+    {
+      "id": "n16_chucheng",
+      "text_key": "objective.ch13.n16_chucheng",
+      "done_flag": "ch13.chucheng",
+      "target_map": "ch13_waihai",
+      "target_object": "trigger_chucheng"
+    },
+    {
+      "id": "n17_lifu",
+      "text_key": "objective.ch13.n17_lifu",
+      "done_flag": "ch13.lifu",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_lifu"
+    },
+    {
+      "id": "n18_chongshi",
+      "text_key": "objective.ch13.n18_chongshi",
+      "done_flag": "ch13.chongshi",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_chongshi"
+    },
+    {
+      "id": "n19_xuanyin",
+      "text_key": "objective.ch13.n19_xuanyin",
+      "done_flag": "ch13.xuanyin",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_shichuang"
+    },
+    {
+      "id": "n20_chonglian",
+      "text_key": "objective.ch13.n20_chonglian",
+      "done_flag": "ch13.chonglian",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_lianjianshi"
+    },
+    {
+      "id": "n21_dujie",
+      "text_key": "objective.ch13.n21_dujie",
+      "done_flag": "ch13.dujie",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_dizhen"
+    },
+    {
+      "id": "n22_wusezhu",
+      "text_key": "objective.ch13.n22_wusezhu",
+      "done_flag": "ch13.wusezhu",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_biguanshi"
+    },
+    {
+      "id": "n23_buzhen",
+      "text_key": "objective.ch13.n23_buzhen",
+      "done_flag": "ch13.buzhen",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_buzhen"
+    },
+    {
+      "id": "n24_youyao",
+      "text_key": "objective.ch13.n24_youyao",
+      "done_flag": "ch13.lieyao",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_youyao"
+    },
+    {
+      "id": "n25_chongmo",
+      "text_key": "objective.ch13.n25_chongmo",
+      "done_flag": "ch13.chongmo",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_shoushou"
+    },
+    {
+      "id": "n26_liandan",
+      "text_key": "objective.ch13.n26_liandan",
+      "done_flag": "ch13.liandan",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_danfang"
+    },
+    {
+      "id": "n27_biguan",
+      "text_key": "objective.ch13.n27_biguan",
+      "done_flag": "ch13.biguan",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_jingshimen"
+    },
+    {
+      "id": "n28_chuguan",
+      "text_key": "objective.ch13.n28_chuguan",
+      "done_flag": "ch13.chuguan",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_chuguan"
+    },
+    {
+      "id": "n29_gongsun",
+      "text_key": "objective.ch13.n29_gongsun",
+      "done_flag": "ch13.gongsun",
+      "target_map": "ch13_wuzhong",
+      "target_object": "npc_gongsun_xing"
+    },
+    {
+      "id": "n30_lidao",
+      "text_key": "objective.ch13.n30_lidao",
+      "done_flag": "ch13.lidao",
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_lidao"
+    },
+    {
+      "id": "n31_mishi",
+      "text_key": "objective.ch13.n31_mishi",
+      "done_flag": "ch13.jiaohuan",
+      "target_map": "ch13_waihai",
+      "target_object": "trigger_mishi"
+    },
+    {
+      "id": "n32_wenshi",
+      "text_key": "objective.ch13.n32_wenshi",
+      "done_flag": "ch13.wenshi",
+      "target_map": "ch13_waihai",
+      "target_object": "npc_wen_siyue"
+    },
+    {
+      "id": "n33_jianshi",
+      "text_key": "objective.ch13.n33_jianshi",
+      "done_flag": "ch13.jianshi",
+      "target_map": "ch13_waihai",
+      "target_object": "trigger_jiaoshi"
+    },
+    {
+      "id": "n34_banyao",
+      "text_key": "objective.ch13.n34_banyao",
+      "done_flag": "ch13.done",
+      "target_map": "ch13_waihai",
+      "target_object": "trigger_dongkou"
+    }
+  ]
+}

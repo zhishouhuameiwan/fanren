@@ -60,6 +60,11 @@ assert len(SFX) == len(sfx_ui.SFX) + len(sfx_battle.SFX) + len(sfx_jingle.SFX), 
 # ch12_taqian -> bgm_cave
 # ch12_hanlitai -> bgm_cliff
 # ch12_lingquan -> bgm_cave
+# 第 13 章四张图全用已有的曲子（docs/ch13-design.md 第 4.2 节）：
+# ch13_nanming -> bgm_river
+# ch13_tianxing -> bgm_town
+# ch13_waihai -> bgm_river
+# ch13_wuzhong -> bgm_valley
 MAP_BGM = ("bgm_village", "bgm_town", "bgm_mountain_path", "bgm_cliff", "bgm_qixuanmen", "bgm_valley",
            "bgm_indoor", "bgm_sect", "bgm_cave", "bgm_wild", "bgm_river", "bgm_inn", "bgm_manor", "bgm_night")
 

@@ -1,0 +1,14 @@
+{
+  "id": "min_xiushi",
+  "name": "淡金脸修士",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch524–526 三名结丹之一。姓只在三人私语与传音里，韩立没当面听到，名牌用不含姓的描述（施工图 16.1 第 44 条），role id 不动。无地图对象，n25 talk 用。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

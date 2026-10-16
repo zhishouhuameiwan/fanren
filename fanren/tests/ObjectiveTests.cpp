@@ -688,6 +688,17 @@ constexpr ScriptTransfer kScriptTransfers[] = {
     {"ch12.tupo", "scripts/ch12/zoupian_a.lua", "ch12_guiwu", "trigger_zoupian_a", "ch12_guiwu"},
     {"ch12.tupo", "scripts/ch12/zoupian_b.lua", "ch12_guiwu", "trigger_zoupian_b", "ch12_guiwu"},
     {"ch12.tupo", "scripts/ch12/zoupian_c.lua", "ch12_guiwu", "trigger_zoupian_c", "ch12_guiwu"},
+    // Chapter 13 design 3.1 (transfer table, 7 rows) / contract 5.3: lingquan.lua's patched last line is the
+    // ch12 -> ch13 hand-over; four one-way story exits (lidao.lua lands on a written cell, (14,46) — this table and
+    // walkObjectiveChain only read the destination map, never the cell: O-11); then the two Black Stone City round
+    // trips (enter / once false / guard ch13.lifu, 0 flag.set, top-level advance_days(12) + teleport).
+    {"ch12.done", "scripts/ch12/lingquan.lua", "ch13_nanming"},
+    {"ch13.yinjian", "scripts/ch13/yinjian.lua", "ch13_tianxing"},
+    {"ch13.chuansong", "scripts/ch13/chuansong.lua", "ch13_waihai"},
+    {"ch13.chucheng", "scripts/ch13/chucheng.lua", "ch13_wuzhong"},
+    {"ch13.lidao", "scripts/ch13/lidao.lua", "ch13_waihai"},
+    {"ch13.lifu", "scripts/ch13/qiyuan_hang.lua", "ch13_waihai", "trigger_qiyuan_hang", "ch13_wuzhong"},
+    {"ch13.lifu", "scripts/ch13/hui_wuzhong.lua", "ch13_wuzhong", "trigger_hui_wuzhong", "ch13_waihai"},
 };
 
 // 门的钥匙里不在目标链上的：哪个脚本置它、紧跟在链上哪一步之后到手。

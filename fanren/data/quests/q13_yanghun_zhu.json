@@ -1,0 +1,48 @@
+{
+  "id": "q13_yanghun_zhu",
+  "name": "养魂木珠",
+  "chapter": 13,
+  "kind": "side",
+  "title_key": "ch13.quest.yanghun_zhu.title",
+  "summary_key": "ch13.quest.yanghun_zhu.summary",
+  "accept": [
+    {
+      "flag": "ch13.lifu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch13.quest.yanghun_zhu.s1",
+      "done": [
+        {
+          "flag": "ch13.z3",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch13_wuzhong",
+      "target_object": "trigger_yanghun"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch13.z3",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "rewards": [],
+  "fail": [
+    {
+      "flag": "ch13.lidao",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch13.quest.yanghun_zhu.fail",
+  "origin": "原著",
+  "note": "可选（Z3）。ch518 新绿液催养魂木、ch523 已成形。接得早、交得晚：立府即接，yanghun.lua 开头判 ch13.buzhen；根须 ≥ 1 且绿液 ≥ 3 → bottle.spend(3)、advance_days、take 根须 1、give story_yanghun_zhu 1、置 ch13.z3。失败于 ch13.lidao（之后回不了雾中岛）。文案编在 buzhen，接取那一刻（lifu）也说得通。"
+}

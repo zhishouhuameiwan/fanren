@@ -1,0 +1,48 @@
+{
+  "id": "q13_mingzhu_dingdan",
+  "name": "明珠轩订单",
+  "chapter": 13,
+  "kind": "side",
+  "title_key": "ch13.quest.mingzhu_dingdan.title",
+  "summary_key": "ch13.quest.mingzhu_dingdan.summary",
+  "accept": [
+    {
+      "flag": "ch13.mingzhu",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "steps": [
+    {
+      "id": "s1",
+      "text_key": "ch13.quest.mingzhu_dingdan.s1",
+      "done": [
+        {
+          "flag": "ch13.z1",
+          "op": ">=",
+          "value": 1
+        }
+      ],
+      "target_map": "ch13_waihai",
+      "target_object": "npc_ming_furen"
+    }
+  ],
+  "complete": [
+    {
+      "flag": "ch13.z1",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "rewards": [],
+  "fail": [
+    {
+      "flag": "ch13.biguan",
+      "op": ">=",
+      "value": 1
+    }
+  ],
+  "fail_text_key": "ch13.quest.mingzhu_dingdan.fail",
+  "origin": "改编（大纲「商行订单」）",
+  "note": "可选（Z1）。mingzhu.lua 再谈分支：已接单、ch13.z1 未置、六级妖丹 ≥ 1 才列「交货」→ take 1、give material_lingshi_zhong 30、置 ch13.z1。失败于 ch13.biguan（往返自此关闭；完成压过失败）。奖励由脚本 give，不进 rewards。"
+}

@@ -194,3 +194,23 @@ $env:FANREN_WRITE_CH11_FIXTURES = $null
 `ch11.done == 1`，日期、灵石、背包、法术、队伍、旗标一项不变。`Ch11Driver.h` 的终点断言、`Ch11AcceptanceTests` 的章节卡断言
 （「第十一章　终」接第十二章开篇）与 `Ch11TriggerModeTests` 的章末断言同时改了。
 第 12 章的终局写到 `ch12-end-{first,second}.sav`，开关是 `FANREN_WRITE_CH12_FIXTURES`。
+
+## 第 12 章交接存档（第 13 章开工后重生成）
+
+`tests/fixtures/ch12-end-{first,second}.sav` 是第 13 章通关测试的起点。第 13 章给 `scripts/ch12/lingquan.lua`
+末尾（`flag.set("ch12.done")` 之后）补了一行 `teleport("ch13_nanming")`（契约 `docs/interfaces-p3-ch13.md` 5.3），
+终局从灵泉边挪到南明岛礁上（default spawn `haishang`，6,29，朝上），所以 2026-10-14 按 `tests/ChapterFixture.h` 重生成：
+
+```powershell
+$env:FANREN_WRITE_CH12_FIXTURES = '1'
+.\build-ch13test\fanren_tests.exe --gtest_filter=Ch12Walkthrough.*
+$env:FANREN_WRITE_CH12_FIXTURES = $null
+.\build-ch13test\fanren_tests.exe --gtest_filter=Ch12*
+```
+
+新旧两份逐字段比（JSON payload）：两侧都只差 `mapId`（`ch12_lingquan` → `ch13_nanming`）、`position`（12,11 → 6,29）、
+`playSecondsGameplay`（少五帧，约 −0.083 秒：从前说完话要走回泉边，现在 teleport 直接落地）与随之变的 `checksum`；
+`facing` 不变（两处都朝上），`ch12.done == 1`，日期、灵石、背包、法术、队伍、旗标一项不变。`Ch12Driver.h` 的终点断言、
+`Ch12AcceptanceTests` 的章节卡断言（「第十二章　终」接第十三章开篇）与 `Ch12TriggerModeTests` 的章末断言
+（仅末行一处 `teleport("ch13_nanming")`）同时改了。
+第 13 章的终局写到 `ch13-end-{first,second}.sav`，开关是 `FANREN_WRITE_CH13_FIXTURES`。

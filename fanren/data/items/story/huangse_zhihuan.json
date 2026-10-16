@@ -1,0 +1,11 @@
+{
+  "id": "story_huangse_zhihuan",
+  "name": "黄色指环",
+  "descKey": "item.desc.story_huangse_zhihuan",
+  "kind": "story",
+  "grade": 3,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch506–507 星宫发的戒严凭证；神识扫到它便退走。n07 rucheng.lua「报名 / 安分」两支都 give 1。"
+}

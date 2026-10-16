@@ -1,0 +1,34 @@
+{
+  "id": "ch13_mishi_tan",
+  "name": "秘市杂摊",
+  "nameKey": "ch13.shop.name.mishi_tan",
+  "buyRate": 1.0,
+  "sellRate": 0.6,
+  "entries": [
+    {
+      "itemId": "herb_nichang_cao",
+      "price": 0,
+      "stock": 3,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": 3
+    },
+    {
+      "itemId": "herb_huangjing_cao",
+      "price": 0,
+      "stock": 3,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": 3
+    },
+    {
+      "itemId": "pill_huiqi_dan",
+      "price": 0,
+      "stock": 3,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": 3
+    }
+  ],
+  "note": "ch535 秘市一二层的散摊；收至元丹、妖丹（sellRate 0.6）。只由 n31 mishi.lua 开一次。限量不补。"
+}

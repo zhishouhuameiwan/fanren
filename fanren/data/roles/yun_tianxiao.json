@@ -1,0 +1,14 @@
+{
+  "id": "yun_tianxiao",
+  "name": "云天啸",
+  "realm": "CoreMid",
+  "maxHp": 900,
+  "maxMp": 620,
+  "attack": 76,
+  "defence": 58,
+  "speed": 28,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch536–539 秘市东主。无地图对象，n31 mishi.lua 的 talk 用；白骨阴火只在文案、不建法术，一击是旁白，重伤未死。第 14 章照用本 role（契约第 3 节）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

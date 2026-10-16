@@ -1,0 +1,34 @@
+{
+  "id": "ch13_nanming_fangshi",
+  "name": "南明岛原料铺",
+  "nameKey": "ch13.shop.name.nanming_fangshi",
+  "buyRate": 0.9,
+  "sellRate": 0.5,
+  "entries": [
+    {
+      "itemId": "herb_nichang_cao",
+      "price": 0,
+      "stock": 5,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": 5
+    },
+    {
+      "itemId": "pill_huiqi_dan",
+      "price": 0,
+      "stock": 3,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": 3
+    },
+    {
+      "itemId": "pill_jinchuang_yao",
+      "price": 0,
+      "stock": 5,
+      "restockDays": 0,
+      "restockAmount": 0,
+      "maxStock": 5
+    }
+  ],
+  "note": "笔记 L.3、施工图第 7 节「战乱封锁」：ch501 南明岛坊市比天星城略便宜（buyRate 0.9：霓裳草 9、回气丹 450）；战时货少、限量不补。由 n02 caigou.lua shop() 打开，ch13.gongdao 之后只一句封市。霓裳草为外海备饵（O-12，可删）。"
+}

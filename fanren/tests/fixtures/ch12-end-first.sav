@@ -1,5 +1,5 @@
 {
-  "checksum": "3f4f56971decd666",
+  "checksum": "2e51ef5ef1746dab",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -1363,16 +1363,16 @@
       "magic_ji_hongxianzhen",
       "magic_shijin_chongqun"
     ],
-    "mapId": "ch12_lingquan",
+    "mapId": "ch13_nanming",
     "maxHp": 700,
     "maxMp": 470,
     "mp": 470,
     "party": [],
-    "playSecondsGameplay": 636.6666666664163,
+    "playSecondsGameplay": 636.583333333083,
     "playSecondsSystem": 0.0,
     "position": {
-      "x": 12,
-      "y": 11
+      "x": 6,
+      "y": 29
     },
     "realm": 31,
     "realmCap": 31,

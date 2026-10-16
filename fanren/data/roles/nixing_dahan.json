@@ -1,0 +1,30 @@
+{
+  "id": "nixing_dahan",
+  "name": "黑壮大汉",
+  "realm": "CoreEarly",
+  "maxHp": 600,
+  "maxMp": 0,
+  "attack": 38,
+  "defence": 44,
+  "speed": 18,
+  "element": 16,
+  "magics": [],
+  "toughness": 4,
+  "weaknesses": [
+    "金",
+    "木",
+    "剑"
+  ],
+  "killable_by": [
+    "木",
+    "剑"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 2.0,
+    "all": false,
+    "text_key": "ch13.battle.nanming_zhuibing.charge"
+  },
+  "origin": "原著",
+  "note": "ch503–504 两名追兵里祭大印的那一个。① 第 0 波。破绽金、木、剑，killable_by 木、剑：金削得了他的势、要不了他的命。蓄势（白玉大印）每 3 个出手回合一次、单体 ×2.0，要在那一回合前把他打破势或防御硬接（施工图 8.2）。element 取土：木克土，青元剑芒对他有加成。法力 0：只打拳脚与蓄势重招。数值是内容初值，归平衡路。"
+}

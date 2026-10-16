@@ -902,7 +902,10 @@ const std::map<int, Realm>& realmCapOfChapter() {
                                               // 第 11 章：结丹初期（scripts/ch11/biguan.lua 的 realm.advance，与 ch11.done 不同脚本）。
                                               {11, Realm::CoreEarly},
                                               // 第 12 章：仍是结丹初期（施工图验收第 5 条：realm.advance / cap / demote 本章各 0 处）。
-                                              {12, Realm::CoreEarly}};
+                                              {12, Realm::CoreEarly},
+                                              // 第 13 章：结丹中期（scripts/ch13/biguan.lua n27 的 realm.cap 抬上限、玩家在静室自坐，
+                                              // 都在 ch13.done 之前；契约 interfaces-p3-ch13.md 5.3）。本章 13 条全 realm 0。
+                                              {13, Realm::CoreMid}};
     return kCap;
 }
 

@@ -1,0 +1,13 @@
+{
+  "id": "magic_ji_wuxinghuan",
+  "name": "祭五行环",
+  "descKey": "magic.desc.magic_ji_wuxinghuan",
+  "element": 1,
+  "needMp": 30,
+  "power": 0,
+  "needRealm": "CoreEarly",
+  "effect": "stagger",
+  "stagger": 3,
+  "origin": "原著（手段的数据化；n01 学会为改编）",
+  "note": "ch504 五行环锁住儒生真元（A25）：做成削架势 3（effect stagger，不伤人、不判破绽，第 7 章先例）。n01 wenxun.lua magic.learn 看返回值，全仓恰 1 处；物品 story_wuse_tonghuan 不动。规则 25 的「金」不登它（施工图 16.1 第 46 条：削得了势、要不了命）。needMp 30 是内容初值，归平衡路。"
+}

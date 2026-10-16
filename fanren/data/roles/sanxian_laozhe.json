@@ -1,0 +1,14 @@
+{
+  "id": "sanxian_laozhe",
+  "name": "三仙宗老者",
+  "realm": "FoundationLate",
+  "maxHp": 480,
+  "maxMp": 320,
+  "attack": 44,
+  "defence": 30,
+  "speed": 18,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch499–500 海上被拦下问话的三仙宗修士（境界估）。ch13_nanming npc_sanxian_laozhe：ch13.wenxun → ch13.gongdao；路径行动 sanxian_tianxingling_dating。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

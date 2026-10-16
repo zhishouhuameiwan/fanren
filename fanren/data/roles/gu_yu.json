@@ -1,0 +1,14 @@
+{
+  "id": "gu_yu",
+  "name": "古玉",
+  "realm": "QiRefining13",
+  "maxHp": 180,
+  "maxMp": 130,
+  "attack": 24,
+  "defence": 13,
+  "speed": 12,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch515–516 寸金阁里专研上古丹方的老者，原文只说炼气期，取十三层（估）。ch13_waihai npc_gu_yu：ch13.chuansong → ch13.shouchao；路径行动 guyu_shanggu_dating。名牌例外（16.1 第 44 条）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

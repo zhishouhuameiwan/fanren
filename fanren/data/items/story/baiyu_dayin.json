@@ -1,0 +1,11 @@
+{
+  "id": "story_baiyu_dayin",
+  "name": "白玉大印",
+  "descKey": "item.desc.story_baiyu_dayin",
+  "kind": "story",
+  "grade": 6,
+  "price": 0,
+  "tradeable": false,
+  "origin": "原著",
+  "note": "ch503–504 黑壮大汉祭的大印。战利品，不做手段；n05 胜后 give 1。"
+}

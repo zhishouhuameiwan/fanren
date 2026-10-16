@@ -1,0 +1,13 @@
+{
+  "id": "magic_mihuan_guniao",
+  "name": "黑雾怪鸟",
+  "descKey": "magic.desc.magic_mihuan_guniao",
+  "element": 4,
+  "needMp": 24,
+  "power": 24,
+  "needRealm": "CoreEarly",
+  "boost": "power",
+  "target": "all",
+  "origin": "改编（名字为改编；原著 ch503–504 砚中黑雾化鸟）",
+  "note": "只在 nixing_rusheng.magics（① 敌方），全仓 magic.learn 0 处。水、全体小伤；韩立独战时全体即他一人。数值是内容初值，归平衡路。"
+}

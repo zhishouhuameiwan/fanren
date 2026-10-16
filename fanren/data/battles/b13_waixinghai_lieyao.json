@@ -1,24 +1,37 @@
 {
   "id": "b13_waixinghai_lieyao",
-  "name": "外星海·五级海兽群",
+  "name": "珊瑚礁诱妖",
   "chapter": 13,
   "terrain": "sea",
+  "hero_absent": false,
   "can_escape": true,
   "defeat_is_fatal": true,
   "units": [
     {
       "role_id": "wuji_haishou",
-      "faction": "enemy"
+      "faction": "enemy",
+      "wave": 0
     },
     {
       "role_id": "wuji_haishou",
-      "faction": "enemy"
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "qingse_juxia",
+      "faction": "enemy",
+      "wave": 1
     }
   ],
   "rewards": {
-    "cultivation": 1400,
-    "spirit_stones": 320,
+    "cultivation": 40,
+    "spirit_stones": 0,
     "drops": [
+      {
+        "item_id": "material_yaodan_liuji",
+        "count": 1,
+        "rate": 100
+      },
       {
         "item_id": "material_yaodan_wuji",
         "count": 2,
@@ -28,6 +41,5 @@
   },
   "intro_key": "ch13.battle.waixinghai_lieyao.intro",
   "origin": "原著",
-  "rewritten_by_lore": true,
-  "note": "逆星盟之乱后偷渡外星海、立府雾中岛，靠猎妖炼丹推到结丹中期（ch512-535）。旧原型此战的敌人是筑基后期档，与第 13 章的结丹曲线脱节，按五级妖兽（≈结丹初期）重新校准。"
+  "note": "战斗 ②，n24 youyao.lua（trigger_youyao）的循环仗，可重复、按一场计（第 11 章诱妖先例）；n25 要 ch13.lieyao >= 2。就地改写（施工图 1.2 B24、16.1 第 6 条）：旧占位是「立府雾中岛…ch512–535」、修为 1400、灵石 320、只有一波，现改为 ch523 火红珊瑚礁诱妖——第 0 波五级海兽 ×2（飞剑随手斩，用剑、土省法），第 1 波六级青色巨虾（行动 2、全体蓄势 ×1.8，killable_by 木、剑：收尾只有剑与蜂云合剑）。可逃（逃不扣草，绿液战前已扣）、致命；spirit_stones 0；drops 恰六级 1 ＋ 五级 2（rate 100，妖丹只由 drops 给）；rewards.cultivation 40（≤ 60，O-10：可重复的仗给多了就成了冲结丹中期的捷径）。intro_key 不改名：开场白由内容路 C 写进 ch13_battle.json，data/text/battles.json 的旧占位由协调者删（契约 5.2）。战斗背景 cliff_top 归内容路 A。平衡路（测试路 B，2026-10-14；意图手两侧真档走到 n23 之后连按两轮）：调前第一轮胜 14 回合、韩立 700→112，三日后第二轮 322 起打败（8 回合）；五级海兽攻 34→30、法力 54→18（一发海潮诀），青色巨虾攻 36→30、气血 820→700 之后第一轮胜 13 回合 700→343、第二轮胜 10 回合 553→283，两侧相同。捂住木与剑 → 巨虾压在 1、意图手无路可进而逃。rewards.cultivation 40 不动：意图玩家两胜共 80，冲结丹中期两侧都是「闭关一年」2 次。逐项见 notes/ch13/balance.md。"
 }

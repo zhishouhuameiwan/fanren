@@ -1,0 +1,29 @@
+{
+  "id": "b13_nanming_zhuibing",
+  "name": "出港追兵",
+  "chapter": 13,
+  "terrain": "sea",
+  "hero_absent": false,
+  "can_escape": false,
+  "defeat_is_fatal": true,
+  "units": [
+    {
+      "role_id": "nixing_rusheng",
+      "faction": "enemy",
+      "wave": 0
+    },
+    {
+      "role_id": "nixing_dahan",
+      "faction": "enemy",
+      "wave": 0
+    }
+  ],
+  "rewards": {
+    "cultivation": 300,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch13.battle.nanming_zhuibing.intro",
+  "origin": "原著",
+  "note": "战斗 ①，n05 zhuibing.lua（trigger_chugang）。ch503–504：出港半日，两名逆星盟结丹初期追上、借验容貌要他随行，「随行 / 不随」两支都打。一波两敌：白面儒生（killable_by 金、剑）、黑壮大汉（killable_by 木、剑，单体蓄势 ×2.0）。全作第一次一人对两名同阶、无友军：五行环削势 3 先锁一个，破势窗口里收掉，再转向另一个（施工图 8.2）。hero_absent false、can_escape false、defeat_is_fatal true、spirit_stones 0、drops []（迷幻砚、白玉大印、灵石 600 由脚本 give）；rewards.cultivation 300（施工图 8.1 建议值）。剑上此时无神雷（A26）。开场白与蓄势文案归内容路 C（ch13_battle.json）。战斗背景 dock_river 归内容路 A。平衡路（测试路 B，2026-10-14；tests/BattleHand.h 意图手，两侧 ch12-end 真档走到 n04 之后起打）：调前胜 19 回合、韩立 700→75；白面儒生气血 480→360 之后胜 16 回合、700→312，大汉的白玉大印被祭金蚨破势打断 1 次，两侧相同。捂住金与剑 → 败、儒生压在 1；捂住木与剑 → 败、大汉压在 1；只防 → 败。最低合法起点（中阶灵石 0、无丹药、气血压回第 12 章终档的 614）胜 16 回合、614→226。逐项见 notes/ch13/balance.md。"
+}

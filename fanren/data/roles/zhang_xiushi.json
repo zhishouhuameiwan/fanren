@@ -1,0 +1,14 @@
+{
+  "id": "zhang_xiushi",
+  "name": "张姓修士",
+  "realm": "FoundationMid",
+  "maxHp": 380,
+  "maxMp": 250,
+  "attack": 37,
+  "defence": 26,
+  "speed": 16,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch507–510 替守阵者经办偷渡、抬价的筑基修士；经办人一律姓张（施工图 1.2 B9）。ch13_tianxing npc_zhang_xiushi：ch13.yirong → ch13.chuansong；路径行动 zhangxiushi_jiama_dating。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}

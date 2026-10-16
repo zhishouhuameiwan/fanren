@@ -1,0 +1,14 @@
+{
+  "id": "liu_hufa",
+  "name": "逆星盟壮汉",
+  "realm": "CoreEarly",
+  "maxHp": 700,
+  "maxMp": 470,
+  "attack": 62,
+  "defence": 46,
+  "speed": 22,
+  "element": 0,
+  "magics": [],
+  "origin": "原著",
+  "note": "ch502–503 随苍云龙盘查的壮汉（境界估）。他的姓与职衔只出现在韩立飞走之后两人的私话里，韩立从没当面听到，名牌用不含姓的描述（施工图 16.1 第 44 条），role id 不动。ch13_nanming npc_liu_hufa：ch13.gongdao → ch13.panzha；路径行动 liuhufa_shaozhu_dating（只说少主，不出名）。境界只供名牌与天眼术，数值照 src/core/rules/Realm.h 锚点与第 10–12 章路人写法。不上阵。"
+}
