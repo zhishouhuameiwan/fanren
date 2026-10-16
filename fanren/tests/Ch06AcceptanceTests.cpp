@@ -119,7 +119,7 @@ constexpr const char* kMapLou = "ch06_sanxiu_lou";
 constexpr const char* kMapShanqiu = "ch06_shanqiu";
 constexpr const char* kMapHfg = "ch06_huangfenggu";
 constexpr const char* kMapByy = "ch06_baiyaoyuan";
-constexpr const char* kChapterMaps[] = {kMapCun, kMapGu, kMapLou, kMapShanqiu, kMapHfg, kMapByy};
+[[maybe_unused]] constexpr const char* kChapterMaps[] = {kMapCun, kMapGu, kMapLou, kMapShanqiu, kMapHfg, kMapByy};
 
 // ---- 本章动到的东西（施工图第 2 节、E9、第 9 节）----
 constexpr const char* kPill = "pill_yangjing_dan";

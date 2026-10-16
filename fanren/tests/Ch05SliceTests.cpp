@@ -145,7 +145,7 @@ constexpr const char* kHuangjing = "herb_huangjing_cao";
 constexpr const char* kZishen = "herb_zishen_cao";
 constexpr const char* kFireMagic = "magic_huodan_shu";
 constexpr const char* kWindMagic = "magic_yufeng_jue";
-constexpr const char* kJianfuMagic = "magic_ji_jianfu";
+[[maybe_unused]] constexpr const char* kJianfuMagic = "magic_ji_jianfu";
 
 // ---- 施工图 3.3 日历（判据抄自那张表，不从脚本读）----
 constexpr int kDaysRoad = 60;            // 1a：前两个月的路

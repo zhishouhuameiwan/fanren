@@ -133,3 +133,46 @@ PROBE_OK
 5. **Lua 独立静态库与 sol2 的版本耦合**：`SOL2_LUA_VERSION` 在 sol2 官方 CMakeLists 里默认写的是 `5.4.4`，本工程实际 vendor 的是 `5.4.9`。因为本工程绕开了 sol2 自己的 CMakeLists（只用它的头文件），这个默认值没有被实际用到，不构成风险；但如果 P1 未来决定改用 sol2 官方的 CMakeLists 全量集成方式，需要显式覆盖 `SOL2_LUA_VERSION` 为 `5.4.9`（或改用系统检测模式），否则可能触发它自带的 FetchContent 逻辑再拉一份不同版本的 Lua。
 6. **探针未覆盖真实窗口/渲染路径**：本探针是"无窗口冒烟测试"，只验证了库能否初始化和链接，没有验证 `SDL_CreateWindow`/`SDL_CreateRenderer`/实际渲染一帧/实际播放一段音频这些更贴近真实使用场景的路径。这些放在 P1（真正建 `fanren` 工程时）用真实渲染循环验证更合适，P0 阶段不做是有意的范围控制，但不应被误读为"渲染路径已验证"。
 7. **`vcvars64.bat` 路径硬编码为 VS "18" (2026) Community 版**（`C:\Program Files\Microsoft Visual Studio\18\Community\...`），与 `fanren-sdl3/build.bat` 保持一致。如果 CI 机器或其他开发者机器上 VS 安装路径/版本不同（比如 Professional 版，或版本号不是 "18"），`build.bat` 会在这一步直接失败，需要相应机器上手动改路径或改造成用 `vswhere.exe` 动态探测（这也顺带能解决上面提到的 `vswhere.exe` 告警）。
+
+## 六、macOS / 非 Windows（2026-10-15 移植）
+
+项目于 2026-10-15 换到一台 Intel Mac（macOS 15.8.1，Apple clang 17）上续做。Homebrew 在这一平台上没有预编译包（Tier 3），SDL3 系列装不上，所以 `bootstrap.py` 在非 Windows 上改为**用同样锁定的版本从源码构建**：
+
+| 包 | 用途 | URL | SHA256 |
+|---|---|---|---|
+| SDL3 3.4.16 源码 | 主库 | https://github.com/libsdl-org/SDL/releases/download/release-3.4.16/SDL3-3.4.16.tar.gz | `7322236cd12090c3eb40b9728be4d49c76f66ad17d04369584d4ecad5cf77c68` |
+| SDL3_ttf 3.2.2 源码 | 字体 | https://github.com/libsdl-org/SDL_ttf/releases/download/release-3.2.2/SDL3_ttf-3.2.2.tar.gz | `63547d58d0185c833213885b635a2c0548201cc8f301e6587c0be1a67e1e045d` |
+| SDL3_image 3.4.6 源码 | 图片 | https://github.com/libsdl-org/SDL_image/releases/download/release-3.4.6/SDL3_image-3.4.6.tar.gz | `d2e4637ae700f72e5196b8fbd749850ed2e5e1e09c5a5be8d06ff55aaccf3b01` |
+| SDL3_mixer 3.2.4 源码 | 音频 | https://github.com/libsdl-org/SDL_mixer/releases/download/release-3.2.4/SDL3_mixer-3.2.4.tar.gz | `182a07c745375e113dc740d43964ff21b0be29f29f59876c4dbc4db3d32f6901` |
+| freetype（libsdl-org 分支 `9973564`） | SDL3_ttf 的子模块 | https://github.com/libsdl-org/freetype/archive/9973564cfa63763a3e4ac67c09147899539b1e07.tar.gz | `026a05a49d114a1235d2926f4c03a9330e4b1a6efe7c217ec9607904c32907d4` |
+| harfbuzz（libsdl-org 分支 `564bf98`） | SDL3_ttf 的子模块 | https://github.com/libsdl-org/harfbuzz/archive/564bf9818a18709776856533829c0c04950773d6.tar.gz | `a448dd6c22d8e1e1cf39438c662251c1f97f810b8780eed4a6d6ada948c99ddc` |
+
+- 源码解到 `vendor/src/`，CMake + Ninja 构建成动态库，装进与 VC 包相同的 `vendor/<名>-<版本>/`，所以 `CMakeLists.txt` 的 `CMAKE_PREFIX_PATH` 一处不改。装好后写 `vendor/<名>-<版本>/.fanren-built`（内容是构建配方），版本或选项一变就重建。
+- SDL_ttf 的源码包不带子模块，freetype / harfbuzz 取的是 `release-3.2.2` 这个 tag 在 `external/` 下钉的提交（GitHub API 查得），与 VC 包一样带 harfbuzz；plutosvg（彩色 emoji）关掉。GitHub 的提交归档 tarball 在极少数情况下会重新压缩、SHA 变化——真遇到就按同一提交重新核一次。
+- 所有要系统库的编解码一律关：SDL3_image 走 stb（不走 ImageIO——它做色彩管理；不走 libpng——没 vendor），PNG 存图照常可用；SDL3_mixer 的 Ogg 走内置 stb_vorbis。整套构建除 `vendor/` 与系统 SDK 外不依赖任何东西。
+- 下载先落成 `.download`，SHA256 对上才挪进 `vendor/`（坏包重下）；解压先进 `.extracting-<目录>`，整棵树就位后写 `.fanren-extracted`——中途打断不会留下半截目录。SDL3 四库的构建配方逐个串起来（SDL_ttf 另含 freetype / harfbuzz 的提交号），上游一变下游跟着重建。
+- cmake / ninja 用 `pip install --user cmake ninja` 装（cmake 4.4.4、ninja 1.13.2），装完把 `~/Library/Python/3.12/bin` 放进 PATH。
+- 下载加了重试（`DOWNLOAD_ATTEMPTS = 4`）：这台机器的网络经常在 TLS 握手时断掉，SHA256 照旧把关。
+
+### 6.1 sol2 3.3.0 的一处补丁
+
+`optional<T&>::emplace` 调用了 `optional<T&>` 没有的 `construct()`，而且没有 return。MSVC 不检查没实例化的模板，clang 17+ 直接报错。`bootstrap.py` 的 `patch_sol2` 解压后打上游的修法（sol2 develop 分支、vcpkg 都带这一处）：幂等，找不到原文就报错，**所有平台都打**，保证各平台编的是同一份 sol2。
+
+### 6.2 跨平台确定性（重要）
+
+标准只规定了 `std::mt19937` 的输出，没规定 `std::uniform_int_distribution` 怎么映射到区间，也没规定 `std::sort` 怎么排相等的元素——MSVC 的 STL 与 libc++ 两处都不一样。本项目的通关用例与 `tests/fixtures/*.sav` 交接存档全是 MSVC 生成的，移植后第一次在 macOS 上跑，15 条通关类用例对不上。处理：
+
+- `src/core/rules/UniformInt.h`：逐位复刻 MSVC 的 `uniform_int_distribution`（Lemire 拒绝采样），替换了 `src/` 里全部 8 处（战斗逃跑、炼丹、修炼顿悟与突破、经济、遭遇）。
+- `src/core/model/PortableSort.h`：逐步复刻 MSVC 的 `std::sort`（插入排序阈值 32、九数取中、三路划分、堆排序兜底），只用在 `GameState::removeItem` 按年份重排背包那一处——背包次序写进存档，第 7 章起背包超过 32 格。其余 `std::sort` 不是全序就只影响画面，不进存档。
+- 结果：Windows 上逐位不变（历史存档一字不改），macOS 上 2038 / 2038 全绿。`tests/PortableDeterminismTests.cpp` 钉期望值；在 MSVC 上另有两条与标准库直接对拍的用例（`#if defined(_MSC_VER)`），下次在 Windows 上构建时会自己核一遍。
+- **以后新代码掷骰子、排会进存档的东西，一律用这两个，不要直接用 `std::uniform_int_distribution` / `std::sort`。**
+- 浮点：MSVC 默认不把 `a*b+c` 融合成一条 FMA，clang 在有 FMA 的目标上（如 Apple Silicon）会融合、舍入不同。`CMakeLists.txt` 在非 MSVC 上加 `-ffp-contract=off`。本机 Intel 不受影响；Apple Silicon 未实测。
+- 两条只在 MSVC 上编的对拍用例（外加堆排序兜底对 `make_heap` + `sort_heap` 的一条）至今还没在 Windows 上跑过——下次在 Windows 上构建时要看它们是不是绿的。
+
+### 6.3 门禁自检里的 Windows 假设
+
+`tools/validate_selftest.py` 的 D 段（跨图可达性）原先按反斜杠从报错里切图名，在 macOS 上（报错写 `maps/ch02_jusuo.tmj`）下游四张图一张也对不上、那条判 FAIL，而旁边「上游一张没误伤」那条恒真、失了牙。改成两种分隔符都认，并补一条「报错里的图名取得出来」的自检；阴性对照（往报错里注入一条 `ch01_hanjiacun` 的误报）当场报出。全仓 `tools/` 再无别处按反斜杠切路径。
+
+### 6.4 编译警告
+
+clang 的 `-Wall -Wextra` 比 MSVC `/W4` 多一条 `-Wmissing-field-initializers`：它对本项目惯用的「聚合初始化只写前几个成员」每处都报（约 30 处）。`CMakeLists.txt` 在非 MSVC 上关掉这一条；其余 clang 报出的 8 处（没用的函数 / 常量、多余的 lambda 捕获、循环里多一次拷贝）逐处改掉。Apple ld 的「ignoring duplicate libraries」用 `-no_warn_duplicate_libraries` 关掉。全量编译 0 警告。

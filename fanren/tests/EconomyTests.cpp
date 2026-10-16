@@ -460,7 +460,6 @@ TEST(Encounter, DailyCapResetsOnNewDay) {
 
 TEST(Encounter, RealmFilterExcludesOutOfRangeEntries) {
     EncounterTable table = makeTable(1, 1);   // battle_low 只到 QiRefining3
-    EncounterState state;
 
     // 结丹初期：只有 battle_high 合法，多次触发应从不选到 battle_low。
     for (std::uint32_t seed = 0; seed < 50; ++seed) {

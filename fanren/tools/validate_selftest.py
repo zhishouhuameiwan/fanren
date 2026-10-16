@@ -436,7 +436,17 @@ def selftest_d_world_reachability(case: Case, base: Path) -> None:
     # 而且红得没道理——第 3 章挂在第 2 章后面，掐掉第 2 章的入口，第 3 章跟着
     # 走不到才是对的，检查器变好了，断言却把它判成失败。
     # 钉内容的形状（有几张图、叫什么名字）是债，第 1 章的审查就点过这一条。
-    named = {e.split(chr(92))[-1].split(".tmj")[0] for e in broken}
+    # 图名取报错里 .tmj 前那一段，两种路径分隔符都认：这里原先只按反斜杠切（Windows 的写法），
+    # 在 macOS 上报错写的是 maps/ch02_jusuo.tmj，切出来是整段「maps/ch02_jusuo」，下游一张也对不上、
+    # 上游那条「一张没误伤」却恒真——两条一起失了牙（2026-10-15 移植 macOS 时发现）。
+    def map_named(error: str) -> str:
+        found = re.search(r"([^\\/\s]+)\.tmj", error)
+        return found.group(1) if found else ""
+
+    case.check("报错里的图名取得出来（两种分隔符）",
+               map_named("[error] maps/ch02_jusuo.tmj: x") == "ch02_jusuo" and
+               map_named("[error] maps" + chr(92) + "ch02_yabi.tmj: x") == "ch02_yabi")
+    named = {map_named(e) for e in broken}
     downstream = {"ch02_yaopu", "ch02_jusuo", "ch02_yabi", "ch02_wairentang"}
     upstream = {"ch01_hanjiacun", "ch01_qingniuzhen", "ch01_caixiashan",
                 "ch01_qixuanmen", "ch01_liangu_ya", "ch01_shenshougu"}

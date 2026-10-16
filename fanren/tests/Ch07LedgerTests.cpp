@@ -67,7 +67,7 @@ constexpr int kLowestAtCangshi = 166;         // 第 9 节第 1 条：82 + 24 + 
 constexpr int kChapterLingshiDelta = 349;     // 第 9 节第 6 条
 constexpr int kChapterZhongDelta = 17;        // 第 9 节第 6 条：中阶 ≈ 17 − k
 constexpr int kZhujiAtEnd = 17;               // 第 9 节第 2 条
-constexpr int kYaofenGiven = 40;              // 3.2 节点 34
+[[maybe_unused]] constexpr int kYaofenGiven = 40;            // 3.2 节点 34
 constexpr int kYaofenRefill = 10;             // 3.2 节点 35c：药粉用尽再给 10 份
 constexpr int kMarketCap = 1300;              // 第 9 节来源表末行：收药摊那一路封顶约一千三
 

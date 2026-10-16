@@ -3,6 +3,8 @@
 #include <algorithm>
 #include <random>
 
+#include "core/rules/UniformInt.h"
+
 namespace fanren::rules {
 
 std::string step(const EncounterTable& table, EncounterState& state, Realm realm,
@@ -20,7 +22,7 @@ std::string step(const EncounterTable& table, EncounterState& state, Realm realm
         const int lo = std::min(table.stepsMin, table.stepsMax);
         const int hi = std::max(table.stepsMin, table.stepsMax);
         std::mt19937 thresholdRng(seed);
-        std::uniform_int_distribution<int> stepsDist(lo, hi);
+        UniformInt stepsDist(lo, hi);
         state.stepsUntilNext = std::max(1, stepsDist(thresholdRng));
     }
 
@@ -47,7 +49,7 @@ std::string step(const EncounterTable& table, EncounterState& state, Realm realm
     }
 
     std::mt19937 pickRng(seed);
-    std::uniform_int_distribution<int> pick(0, totalWeight - 1);
+    UniformInt pick(0, totalWeight - 1);
     int roll = pick(pickRng);
     const EncounterEntry* chosen = candidates.back();
     for (const EncounterEntry* entry : candidates) {

@@ -24,7 +24,7 @@ constexpr float kCenterX = kW / 2.f;
 constexpr float kTwoPi = 2.f * std::numbers::pi_v<float>;
 
 // 美术层 320×180，×4 铺满 1280×720（施工图 1.1：战斗背景同一尺度）。
-constexpr float kArtScale = 4.f;
+[[maybe_unused]] constexpr float kArtScale = 4.f;
 constexpr std::array<const char*, 4> kArtFiles{"art/title/sky.png", "art/title/far.png",
                                               "art/title/mid.png", "art/title/near.png"};
 // 各层的漂移速度（屏幕像素/秒）。天最慢、云海最快，near 那一角亭台不动（title.py 的约定）。

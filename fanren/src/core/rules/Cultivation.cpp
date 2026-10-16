@@ -4,6 +4,8 @@
 #include <limits>
 #include <random>
 
+#include "core/rules/UniformInt.h"
+
 namespace fanren::rules {
 namespace {
 
@@ -85,7 +87,7 @@ CultivationGain meditate(Realm realm, int aptitude, int effectiveness, int days,
     // 顿悟逐日独立判定，命中次数越多加成越多。整段只判一次的话，玩家把
     // 一次长闭关拆成十次短打坐就能多摇十次骰子；逐日判定则拆不出便宜。
     std::mt19937 rng(seed);
-    std::uniform_int_distribution<int> roll(0, 9999);
+    UniformInt roll(0, 9999);
     const int insightOdds = 20 + apt / 2;   // 万分之 20..70
     for (int d = 0; d < spent; ++d) {
         if (roll(rng) < insightOdds) {
@@ -128,7 +130,7 @@ BreakthroughAttempt attemptBreakthrough(Realm realm, int cultivation, int aptitu
     if (cultivation < need) return attempt;
 
     std::mt19937 rng(seed);
-    std::uniform_int_distribution<int> roll(0, 99);
+    UniformInt roll(0, 99);
 
     // 成功判定必须是同一种子下的第一次取数：这样提高成功率只可能把失败翻成
     // 成功，绝不会反过来。「嗑了丹药反而炸炉」是玩家最不能接受的随机。

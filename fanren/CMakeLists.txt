@@ -34,9 +34,32 @@ function(fanren_own_warnings target)
     if(MSVC)
         target_compile_options(${target} PRIVATE /W4 /permissive-)
     else()
-        target_compile_options(${target} PRIVATE -Wall -Wextra)
+        # -Wmissing-field-initializers flags every aggregate init that leaves
+        # defaulted members out (`BattleEvent{kind, unit}` and the like). That
+        # is this codebase's house style and MSVC's /W4 has no such warning,
+        # so it is off here to keep both toolchains at zero warnings.
+        target_compile_options(${target} PRIVATE -Wall -Wextra -Wno-missing-field-initializers)
     endif()
 endfunction()
+
+if(NOT MSVC)
+    # Saves and test fixtures must come out bit-identical to MSVC's (see
+    # docs/deps.md section 6.2). MSVC never fuses a*b+c into one FMA by
+    # default; clang does wherever the target has FMA (Apple Silicon, for
+    # one), which rounds differently. Keep every multiply and add separate.
+    add_compile_options(-ffp-contract=off)
+endif()
+
+if(APPLE)
+    # Static layers reach the executables along several link paths; Apple's ld
+    # (Xcode 15+) then warns "ignoring duplicate libraries" on every link.
+    # Harmless; older linkers do not know the flag, hence the probe.
+    include(CheckLinkerFlag)
+    check_linker_flag(CXX "LINKER:-no_warn_duplicate_libraries" FANREN_LD_NO_WARN_DUPLICATES)
+    if(FANREN_LD_NO_WARN_DUPLICATES)
+        add_link_options(LINKER:-no_warn_duplicate_libraries)
+    endif()
+endif()
 
 # ---------------------------------------------------------------------------
 # Third-party dependencies

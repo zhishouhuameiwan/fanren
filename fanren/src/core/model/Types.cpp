@@ -4,6 +4,8 @@
 #include <cstddef>
 #include <vector>
 
+#include "core/model/PortableSort.h"
+
 namespace fanren::core {
 
 const Item* GameData::findItem(const std::string& id) const {
@@ -71,7 +73,9 @@ bool GameState::removeItem(const std::string& itemId, int count) {
 
     int remaining = count;
     // 先扣年份低的，把高年份留给玩家：低年份灵草价值低，符合玩家预期。
-    std::sort(bag.begin(), bag.end(), [](const BagEntry& a, const BagEntry& b) {
+    // 年份相同的谁先谁后会写进存档，std::sort 在各家标准库上排得不一样，用 portableSort
+    // （MSVC 的排法，见 PortableSort.h），否则 macOS 上的存档与 Windows 的交接存档对不上。
+    portableSort(bag.begin(), bag.end(), [](const BagEntry& a, const BagEntry& b) {
         return a.herbAge < b.herbAge;
     });
     for (BagEntry& entry : bag) {

@@ -5,6 +5,8 @@
 #include <random>
 #include <utility>
 
+#include "core/rules/UniformInt.h"
+
 namespace fanren::rules {
 
 namespace {
@@ -320,7 +322,7 @@ CraftResult craft(const Recipe& recipe, const core::GameState& state, int profic
 
     const int chance = successChance(recipe, proficiency, aptitude, toolGrade);
     std::mt19937 rng(seed);
-    std::uniform_int_distribution<int> d100(1, 100);
+    UniformInt d100(1, 100);
     result.success = d100(rng) <= chance;
 
     result.consumed = planConsumption(recipe, state, result.success);
