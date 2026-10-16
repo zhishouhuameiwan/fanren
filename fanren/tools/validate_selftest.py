@@ -2697,6 +2697,19 @@ def selftest_ch12_means(case: Case, base: Path) -> None:
                quiet("magic_shijin_chongqun"))
         mutate("噬金虫群 needMp 471 → 必报", [(shijin, lambda p: p.update(needMp=471))],
                says("第 12 章", "magic_shijin_chongqun", "付不起"))
+        # 第 13 章门禁审查 G-1：learn 来路也要真伤人——power 0、挂 effect 的必报；五行环登进第 13 章的「金」必报。
+        mutate("祭金蚨 power 改成 0 → 必报", [(jinfu, lambda p: p.update(power=0))],
+               says("magic_ji_jinfu", "不伤人"))
+        mutate("祭金蚨挂 effect stagger → 必报", [(jinfu, lambda p: p.update(effect="stagger", stagger=3))],
+               says("magic_ji_jinfu", "挂着 effect"))
+        ring = ("金", "learn", "magic_ji_wuxinghuan", "ch13")
+        validate.CHAPTER_MEANS[13].append(ring)
+        try:
+            found = source_errors()
+            case.check("五行环登进第13章的「金」→ 必报", says("magic_ji_wuxinghuan", "不伤人")(found) and
+                       says("magic_ji_wuxinghuan", "挂着 effect")(found), chr(10).join(found[:3]) or "（一条也没报）")
+        finally:
+            validate.CHAPTER_MEANS[13].remove(ring)
         # G-8：起点表漏登一章 → 那一章的 learn 来路必报，不许整章静默跳过。
         saved_start = validate.CHAPTER_START.pop(12)
         try:

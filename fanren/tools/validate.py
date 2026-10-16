@@ -2351,8 +2351,8 @@ CHAPTER_MEANS = {
          ("暗器", "give", "weapon_wuming_sixian", "ch07"),
          ("剑", "give", "weapon_lieyang_jian", "ch06")],
     # 第 13 章（docs/interfaces-p3-ch13.md 5.2）：起点结丹初期，第 12 章九条照旧。五行环（magic_ji_wuxinghuan，
-    # scripts/ch13/wenxun.lua 学会）不登：它 power 0、挂 effect stagger，只削势不伤人，登上去规则 25 就会对
-    # killable_by 含金的敌人放水（施工图 8.2、16.1 第 46 条）。
+    # scripts/ch13/wenxun.lua 学会）不登：它 power 0、挂 effect stagger，削架势不判破绽、不伤人（BattleAction 的
+    # applyStagger），不是「金」类的一击；登上去 check_means_sources 的 learn 分支会报（第 13 章门禁审查 G-1）。
     13: [("拳", "hand", "", ""),
          ("火", "learn", "magic_huodan_shu", "ch04"),
          ("土", "learn", "magic_liusha_shu", "ch06"),
@@ -2644,6 +2644,13 @@ def check_means_sources(report, roles: dict | None = None) -> None:
             names = {name for bit, name in ELEMENT_BITS.items() if isinstance(element, int) and element & bit}
             if category not in names:
                 report.error(where, f"{owner}：{source} 的五行不是「{category}」，它打不出这一类")
+            # 伤不伤人与友军一支（role_means_available）、施法符（check_given_spell）同一口径（第 13 章门禁审查 G-1）：
+            # power 0 或挂 effect 的法术（看破、削架势）打不出这一类的要命一击。
+            power, poison = magic.get("power", 10), magic.get("poison", 0)
+            if not ((is_plain_int(power) and power > 0) or (is_plain_int(poison) and poison > 0)):
+                report.error(where, f"{owner}：{source} 不伤人（power {power!r}），不算「{category}」类一击")
+            if "effect" in magic:
+                report.error(where, f"{owner}：{source} 挂着 effect {magic.get('effect')!r}，不是伤人的一击")
             check_learned_castable(report, where, owner, chapter, source, magic)
             if not re.search(r'magic\.learn\s*\(\s*["\']' + re.escape(source) + r'["\']', code):
                 report.error(where, f"{owner}：scripts/{chapter_dir}/ 里没有 magic.learn(\"{source}\")，"

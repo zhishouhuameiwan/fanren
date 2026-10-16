@@ -12,7 +12,7 @@ if pick == 1 then
 else
     talk("hanli", "ch13.yirong.leverage")
 end
-talk("yi_jing", "ch13.yirong.threat")
+talk("", "ch13.yirong.threat")
 talk("hanli", "ch13.yirong.shout")
 talk("yi_jing", "ch13.yirong.agree")
 talk("hanli", "ch13.yirong.enough")
