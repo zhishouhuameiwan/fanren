@@ -28,7 +28,38 @@ inline constexpr int kBondTierThresholds[] = {0, 20, 45, 70, 95};
 [[nodiscard]] int bondTier(int value);
 
 // 默契加 amount（只增不减、封顶 kBondMax）。amount < 0 不动账、返回 false；其余返回 true。
-// 每天的上限（并肩、赠礼）不在这里判：那两项的记账日子在 BondRecord 上，由各自的入口管。
+// 不判每天的上限：剧情脚本的 bond.add 走这一条。并肩、赠礼有每天的账，走下面两个入口。
 bool addBond(core::BondRecord& record, int amount);
+
+// ---- 按天记账的两个来源（契约 2.2）：战斗结算（B 路）与赠礼（D 路）只调这里，不各写一套 ----
+//
+// today 是 GameState::day。日历从第 1 天起（rules::Calendar::day、GameState::day 的缺省都是 1）
+// 且只往前走，所以 BondRecord 里拿 0 当「从来没有过」不会与真的某一天撞上。
+
+inline constexpr int kBondPerBattleWin = 2;        // 并肩打赢一仗
+inline constexpr int kBondBattleDailyCap = 6;      // 同一位伙伴、同一天，并肩那一项至多加这么多
+inline constexpr int kBondGiftLiked = 5;
+inline constexpr int kBondGiftPlain = 2;
+inline constexpr int kBondGiftDisliked = 0;
+
+// 并肩打赢一仗：+kBondPerBattleWin，同一天累计到 kBondBattleDailyCap 为止，仍封顶 kBondMax。
+// 返回这一仗实际加了多少（到了当天上限或已满 100 就是 0）。
+int addBattleBond(core::BondRecord& record, int today);
+
+enum class GiftTaste { Liked, Plain, Disliked };
+
+// 一件物品对这位伙伴算什么：在 like 里是合意，在 dislike 里是不喜，都不在是寻常（两张表都列了按合意算）。
+[[nodiscard]] GiftTaste giftTaste(const core::Companion& companion, const std::string& itemId);
+
+struct GiftOutcome {
+    bool given = false;    // false = 今天已经收过了，账一点没动（东西也不该扣，由调用方照此办）
+    GiftTaste taste = GiftTaste::Plain;
+    int gained = 0;        // 实际加了多少（封顶之后）
+};
+
+// 赠礼：每人每天一次。今天收过了 → given = false、不动账；否则记下今天，合意 +5、寻常 +2、不喜 0。
+// 不喜的也算今天送过了。
+GiftOutcome giveGift(core::BondRecord& record, const core::Companion& companion, const std::string& itemId,
+                     int today);
 
 }  // namespace fanren::rules

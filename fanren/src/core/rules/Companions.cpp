@@ -39,4 +39,42 @@ bool addBond(core::BondRecord& record, int amount) {
     return true;
 }
 
+int addBattleBond(core::BondRecord& record, int today) {
+    if (record.battleDay != today) {
+        record.battleDay = today;
+        record.battleGainedThatDay = 0;
+    }
+    const int room = std::max(0, kBondBattleDailyCap - record.battleGainedThatDay);
+    const int step = std::min(kBondPerBattleWin, room);
+    record.battleGainedThatDay += step;
+    const int before = record.value;
+    addBond(record, step);
+    return record.value - before;
+}
+
+GiftTaste giftTaste(const core::Companion& companion, const std::string& itemId) {
+    const auto listed = [&itemId](const std::vector<std::string>& items) {
+        return std::find(items.begin(), items.end(), itemId) != items.end();
+    };
+    if (listed(companion.giftsLike)) return GiftTaste::Liked;
+    if (listed(companion.giftsDislike)) return GiftTaste::Disliked;
+    return GiftTaste::Plain;
+}
+
+GiftOutcome giveGift(core::BondRecord& record, const core::Companion& companion, const std::string& itemId,
+                     int today) {
+    GiftOutcome outcome;
+    outcome.taste = giftTaste(companion, itemId);
+    if (record.giftDay == today) return outcome;
+    record.giftDay = today;
+    outcome.given = true;
+    const int amount = outcome.taste == GiftTaste::Liked   ? kBondGiftLiked
+                       : outcome.taste == GiftTaste::Plain ? kBondGiftPlain
+                                                           : kBondGiftDisliked;
+    const int before = record.value;
+    addBond(record, amount);
+    outcome.gained = record.value - before;
+    return outcome;
+}
+
 }  // namespace fanren::rules

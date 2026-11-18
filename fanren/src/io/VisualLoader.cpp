@@ -174,18 +174,46 @@ struct SpriteReader : Reader {
     // 按表的倍数、播放序与战斗图（伙伴改版，docs/interfaces-companions.md 2.5）。都可缺，缺了是改版前的行为；
     // 播放序缺了的那份缺省由调用方先放进 out.walkCycle（顶层的 walk_cycle）。
     bool readSheetScales(const json& v, const std::string& where, core::CharacterSheet& out) {
-        if (!optionalInt(v, "scale", where, out.scale) || !optionalInt(v, "battle_scale", where, out.battleScale) ||
-            !optionalString(v, "battle_file", where, out.battleFile)) {
+        if (!optionalInt(v, "scale", where, out.scale) || !optionalInt(v, "battle_scale", where, out.battleScale)) {
             return false;
         }
         if (out.scale <= 0 || out.battleScale <= 0) return fail(where, "scale、battle_scale 都必须是正数");
-        if (member(v, "battle_file") != nullptr && out.battleFile.empty()) {
-            return fail(where + ".battle_file", "写了就不能是空串");
-        }
         if (const json* cycle = member(v, "walk_cycle")) {
             if (!intList(*cycle, where + ".walk_cycle", out.walkCycle)) return false;
             if (out.walkCycle.empty()) return fail(where + ".walk_cycle", "不能是空表");
         }
+        return readBattleSheet(v, where, out);
+    }
+
+    // battle_sheet：战斗帧所在的另一张图与它的格子。写了就六项全写、不许多写——缺一项就是几何要借走路图的，
+    // 而战斗格与走路格差得很远，借来的脚底、列数会把每一帧都切错。
+    bool readBattleSheet(const json& v, const std::string& where, core::CharacterSheet& out) {
+        const json* node = member(v, "battle_sheet");
+        if (node == nullptr) return true;
+        const std::string at = where + ".battle_sheet";
+        if (!node->is_object()) return fail(at, "应当是对象");
+        constexpr std::array<const char*, 6> kKeys{"file", "frame_w", "frame_h", "cols", "foot_y", "head_y"};
+        for (const auto& item : node->items()) {
+            if (std::find_if(kKeys.begin(), kKeys.end(), [&item](const char* k) { return item.key() == k; }) ==
+                kKeys.end()) {
+                return fail(at + "." + item.key(), "不认识的字段（只认 file、frame_w、frame_h、cols、foot_y、head_y）");
+            }
+        }
+        for (const char* key : kKeys) {
+            if (member(*node, key) == nullptr) return fail(at + "." + key, "battle_sheet 的六项要全写");
+        }
+        core::BattleSheet sheet;
+        if (!nonEmptyString(member(*node, "file"))) return fail(at + ".file", "应当是非空字符串");
+        sheet.file = member(*node, "file")->get<std::string>();
+        if (!optionalInt(*node, "frame_w", at, sheet.frameW) || !optionalInt(*node, "frame_h", at, sheet.frameH) ||
+            !optionalInt(*node, "cols", at, sheet.cols) || !optionalInt(*node, "foot_y", at, sheet.footY) ||
+            !optionalInt(*node, "head_y", at, sheet.headY)) {
+            return false;
+        }
+        if (sheet.frameW <= 0 || sheet.frameH <= 0 || sheet.cols <= 0) {
+            return fail(at, "帧宽、帧高、列数都必须是正数");
+        }
+        out.battleSheet = std::move(sheet);
         return true;
     }
 
@@ -325,26 +353,43 @@ struct SpriteReader : Reader {
             const std::string where = "sheets." + item.key();
             // 与生成的表同名就分不清谁是谁：覆盖的是角色，不是表。
             if (index.sheets.count(item.key()) != 0) return fail(where, "与 index.json 里的人物表同名");
+            // 手绘表必须自己写倍数与播放序：继承缺省就是 ×3、[0,1,0,2]，每向第 4 帧永远播不到，而且不报错。
+            for (const char* key : {"scale", "walk_cycle"}) {
+                if (member(item.value(), key) == nullptr) return fail(where + "." + key, "手绘表必须自己写这一项");
+            }
             core::CharacterSheet sheet;
             if (!readCheckedSheet(item.value(), where, DefaultFrame{}, index.walkCycle, sheet)) return false;
             sheet.file = "hd/" + sheet.file;
-            if (!sheet.battleFile.empty()) sheet.battleFile = "hd/" + sheet.battleFile;
+            if (sheet.battleSheet) sheet.battleSheet->file = "hd/" + sheet.battleSheet->file;
             added.emplace(item.key(), std::move(sheet));
         }
         std::map<std::string, std::string> roles;
         std::map<std::string, std::string> files;
-        if (!stringMap(member(root, "roles"), "roles", roles) || !stringMap(member(root, "files"), "files", files)) {
+        std::map<std::string, std::vector<core::LookVariant>> variants;
+        if (!stringMap(member(root, "roles"), "roles", roles) || !stringMap(member(root, "files"), "files", files) ||
+            !readVariants(member(root, "role_variants"), variants)) {
             return false;
         }
         for (const auto& [roleId, sheetId] : roles) {
             if (added.count(sheetId) == 0) return fail("roles." + roleId, "指向的表不在 hd/index.json 里");
         }
         index.sheets.merge(added);
+        // 变体的 look 可以指手绘表，也可以指生成的表（韩立的少年相在手绘版画出来之前接着用生成的那张），
+        // 但得是合并之后真有的表。
+        for (const auto& [roleId, list] : variants) {
+            for (const core::LookVariant& variant : list) {
+                if (index.sheets.count(variant.look) == 0) {
+                    return fail("role_variants." + roleId, "look " + variant.look + " 不是任何一张人物表");
+                }
+            }
+        }
         for (const auto& [roleId, sheetId] : roles) {
             // 同名角色整个由手绘表接管：生成的按章变体不再作数，否则 lookForRole 先看变体，覆盖等于没覆盖。
+            // 还要按章换的，写在 hd/index.json 自己的 role_variants 里（下面那一步）。
             index.roles[roleId] = sheetId;
             index.variants.erase(roleId);
         }
+        for (auto& [roleId, list] : variants) index.variants[roleId] = std::move(list);
         return true;
     }
 

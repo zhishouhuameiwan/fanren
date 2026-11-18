@@ -193,6 +193,48 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
 头顶气泡：`bubble.exclaim`（！）、`bubble.ellipsis`（…）、`bubble.path`（通用路径行动）、
 `bubble.path_inquire`（打探）、`bubble.path_buy`（求购）、`bubble.path_duel`（切磋）。
 
+### 5.1 按表的倍数、播放序与战斗图（伙伴改版，`docs/interfaces-companions.md` 2.5）
+
+人物表另有四个可选字段，**缺省就是改版前的行为**，生成器写出的表一个都不写：
+
+| 字段 | 意思 | 缺省 |
+| --- | --- | --- |
+| `scale` | 世界层按几倍画 | 3 |
+| `walk_cycle` | 走路播放序（`walk` 每一向帧表的下标），读取器按这张表自己的查越界 | 顶层的 `walk_cycle`，`[0,1,0,2]` |
+| `battle_scale` | 战斗层按几倍画 | 4 |
+| `battle_sheet` | 战斗帧在另一张图上时写：`{"file", "frame_w", "frame_h", "cols", "foot_y", "head_y"}`，**六项全写、不许多写** | 不写 = 战斗帧与走路帧同一张图、同一套格子 |
+
+写了 `battle_sheet`，`battle` 里的帧号指那张图上的格子。取战斗帧的文件、矩形、脚底、头顶一律经
+`game/SpriteAtlas.h` 的 `battleSheetFile` / `battleSheetFrameRect` / `battleSheetFootY` / `battleSheetHeadY`，
+别处不自己判有没有 `battle_sheet`。
+
+### 5.2 手绘表 `sprites/hd/index.json`
+
+具名角色的手绘表放 `sprites/hd/`，有自己的一份索引，**人工维护**，`artgen.py --check` 不管它。
+`io::loadSpriteIndex` 读完生成的 `index.json` 后顺带读同目录的 `hd/index.json`，不在就什么都不做；
+世界画面、主菜单、战斗画面都经这一个函数，所以三处一起生效。
+
+```jsonc
+{
+  "sheets": {"hanli_hd": {"file": "hanli.png", "frame_w": 64, "frame_h": 60, "cols": 4,
+                          "scale": 2, "walk_cycle": [0, 1, 2, 3],
+                          "walk": {...}, "battle": {...},
+                          "battle_sheet": {"file": "hanli_battle.png", "frame_w": 132, "frame_h": 84,
+                                           "cols": 4, "foot_y": 82, "head_y": 3}}},
+  "roles": {"hanli": "hanli_hd"},                                          // 角色 → 手绘表，覆盖生成的
+  "role_variants": {"hanli": [{"look": "hanli_child", "max_chapter": 2}]}, // 可不写；与上面同形
+  "files": {"hanli.png": "<sha256>", "hanli_battle.png": "<sha256>"}
+}
+```
+
+- 表的 `file` 与 `battle_sheet.file` 相对 `hd/`，读进来补上 `hd/` 前缀（与生成的表同样相对 `sprites/`）。
+- 手绘表**必须自己写 `scale` 与 `walk_cycle`**，漏了整份报错。
+- 手绘表的 id 不许与生成的表同名；`roles` 指向的必须是这份里的表。
+- 覆盖一个角色时，它在生成索引里的 `role_variants` 不再作数；这份里给它写了 `role_variants` 就用这份的。
+  变体的 `look` 可以指手绘表，也可以指生成的表，但得是合并之后真有的表。
+- 写坏了（语法、少项、指向不存在的表）整份索引读不进来，调用方退回旧画法并打一行警告。
+- `files` 的 sha256 由门禁核，读取器只认形状。
+
 ## 6. 特效与图标
 
 `fx/index.json`：`textures.<名>` = `{file, w, h, frame_w, frame_h, frames, rows, blend, tint?, fps?, anchor?, note}`。

@@ -33,6 +33,17 @@ struct PixelRect {
 // 非人形敌人面向右、不翻转；光球不分朝向。
 enum class BattleFacing { Left, Right, None };
 
+// 战斗帧另放一张图时那张图的格子（伙伴改版，docs/interfaces-companions.md 2.5 的 battle_sheet）。
+// 六项在 index.json 里必须全写：战斗格与走路格差得很远（定稿美术走路 64×60、战斗 132×84），几何不能借走路图的。
+struct BattleSheet {
+    std::string file;   // 相对 art/sprites/
+    int frameW = 0;
+    int frameH = 0;
+    int cols = 0;
+    int footY = 0;
+    int headY = 0;
+};
+
 // 一张人物表（一个外观）：每帧 frameW×frameH（常人 16×24、巨汉 24×32），cols 列一行。
 struct CharacterSheet {
     std::string file;   // 相对 art/sprites/ 的路径
@@ -55,8 +66,10 @@ struct CharacterSheet {
     // 缺省值就是改版前写死的行为，旧表一个字不用改；高清手绘表（assets/art/sprites/hd/）自己写。
     int scale = 3;                            // 世界层按几倍画（高清表 2）；3 即 WorldView 的 kArtScale
     std::vector<int> walkCycle{0, 1, 0, 2};   // 走路播放序（walk 每一向的下标）；读取器缺省取 index.json 顶层的 walk_cycle
-    std::string battleFile;                   // 战斗立姿另一张图（相对 art/sprites/）；空 = 与 file 同一张
     int battleScale = 4;                      // 战斗层按几倍画
+    // 战斗帧在另一张图上时有值：battle 里的帧号指的是那张图上的格子。没有 = 与走路帧同一张图、同一套格子。
+    // **别处不许自己判有没有它**：战斗层取文件、帧矩形、脚底、头顶一律经 game/SpriteAtlas.h 的 battleSheet* 函数。
+    std::optional<BattleSheet> battleSheet;
 };
 
 // 一个非人形敌人（兽、光球）：只有战斗帧，没有走路帧。帧号 → 像素与人物表同一条公式。

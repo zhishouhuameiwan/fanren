@@ -1,7 +1,8 @@
 // 伙伴改版·底座（docs/interfaces-companions.md 第 6 节「第一步」）：数据这一半。
 //   1. 存档 v10：新字段往返、旧档全给空、写坏了判失败、全部交接档读进来再写出逐字段不变；
 //   2. 伙伴数据：加载器的形状、两个查询函数、默契的档；
-//   3. 人物表按表的新字段（scale / walk_cycle / battle_file / battle_scale）与 hd/index.json 覆盖。
+//   3. 人物表按表的新字段（scale / walk_cycle / battle_scale / battle_sheet）与 hd/index.json 覆盖；
+//   4. 默契按天记账（并肩、赠礼）。
 // 走 Application 真入口的那一半在 CompanionsBaseWiringTests.cpp。
 #include <gtest/gtest.h>
 
@@ -20,6 +21,7 @@
 #include "TempDir.h"
 #include "core/model/Types.h"
 #include "core/model/Visual.h"
+#include "core/rules/Calendar.h"
 #include "core/rules/Companions.h"
 #include "game/SpriteAtlas.h"
 #include "io/CompanionLoader.h"
@@ -266,6 +268,15 @@ TEST(CompanionLoader, AMissingDirectoryMeansNoCompanions) {
     EXPECT_TRUE(loaded.value.empty());
 }
 
+TEST(CompanionLoader, APathThatIsAFileNotADirectoryFails) {
+    // 遍历不了就判失败，不悄悄当成「一位也没有」或只读进一半。
+    fanren::test::TempDir dir("fanren_companions_notadir");
+    writeFile(dir.path() / "companions", "not a directory");
+    const auto loaded = fanren::io::loadCompanions((dir.path() / "companions").string());
+    ASSERT_FALSE(loaded.ok);
+    EXPECT_NE(loaded.error.find("companions"), std::string::npos) << loaded.error;
+}
+
 TEST(CompanionLoader, RejectsBadShapes) {
     const char* broken[] = {
         R"({"id": "a", "roles": [{"role": "r"}]})",                                   // 缺 met_flag
@@ -342,11 +353,17 @@ constexpr const char* kWalk3 = R"("walk": {"down": [0,1,2], "left": [3,4,5], "ri
 constexpr const char* kWalk4 =
     R"("walk": {"down": [0,1,2,3], "left": [4,5,6,7], "right": [8,9,10,11], "up": [12,13,14,15]})";
 
+// 生成索引的样子：一张常人表 boy、一张少年表 hanli_child；韩立第 1–2 章用少年表。
 std::string baseIndex() {
     return std::string(R"({"walk_cycle": [0, 1, 0, 2], "walk_fps": 8, "sheets": {"boy": {"file": "boy.png", )") +
-           kWalk3 + R"(}}, "roles": {"hanli": "boy", "zhang": "boy"},
-           "role_variants": {"hanli": [{"look": "boy", "max_chapter": 2}]}})";
+           kWalk3 + R"(}, "hanli_child": {"file": "child.png", )" + kWalk3 +
+           R"(}}, "roles": {"hanli": "boy", "zhang": "boy"},
+           "role_variants": {"hanli": [{"look": "hanli_child", "max_chapter": 2}]}})";
 }
+
+// 定稿美术的战斗格（契约 2.5）：132×84、2 行 × 4 列、脚底在第 82 行。
+constexpr const char* kBattleSheet =
+    R"("battle_sheet": {"file": "hd_battle.png", "frame_w": 132, "frame_h": 84, "cols": 4, "foot_y": 82, "head_y": 3})";
 
 TEST(SheetFields, OldSheetsKeepTodaysBehaviourByDefault) {
     const auto index = fanren::io::parseSpriteIndex(baseIndex());
@@ -354,31 +371,50 @@ TEST(SheetFields, OldSheetsKeepTodaysBehaviourByDefault) {
     const fanren::core::CharacterSheet& boy = index.value.sheets.at("boy");
     EXPECT_EQ(boy.scale, 3);
     EXPECT_EQ(boy.walkCycle, (std::vector<int>{0, 1, 0, 2}));
-    EXPECT_TRUE(boy.battleFile.empty());
+    EXPECT_FALSE(boy.battleSheet.has_value());
     EXPECT_EQ(boy.battleScale, 4);
 }
 
-TEST(SheetFields, EachSheetMayCarryItsOwnScaleCycleAndBattleImage) {
-    const std::string text = std::string(R"({"sheets": {"hd": {"file": "hd.png", "frame_w": 40, "frame_h": 48, "cols": 4,
-        "scale": 2, "walk_cycle": [0, 1, 2, 3], "battle_file": "hd_battle.png", "battle_scale": 1, )") +
-                             kWalk4 + "}}}";
+TEST(SheetFields, EachSheetMayCarryItsOwnScaleCycleAndBattleSheet) {
+    // 定稿美术的走路格 64×60、每向 4 帧。
+    const std::string text = std::string(R"({"sheets": {"hd": {"file": "hd.png", "frame_w": 64, "frame_h": 60, "cols": 4,
+        "scale": 2, "walk_cycle": [0, 1, 2, 3], "battle_scale": 1, )") +
+                             kBattleSheet + ", " + kWalk4 + "}}}";
     const auto index = fanren::io::parseSpriteIndex(text);
     ASSERT_TRUE(index.ok) << index.error;
     const fanren::core::CharacterSheet& hd = index.value.sheets.at("hd");
     EXPECT_EQ(hd.scale, 2);
     EXPECT_EQ(hd.walkCycle, (std::vector<int>{0, 1, 2, 3}));
-    EXPECT_EQ(hd.battleFile, "hd_battle.png");
     EXPECT_EQ(hd.battleScale, 1);
+    ASSERT_TRUE(hd.battleSheet.has_value());
+    EXPECT_EQ(hd.battleSheet->file, "hd_battle.png");
+    EXPECT_EQ(hd.battleSheet->frameW, 132);
+    EXPECT_EQ(hd.battleSheet->frameH, 84);
+    EXPECT_EQ(hd.battleSheet->cols, 4);
+    EXPECT_EQ(hd.battleSheet->footY, 82);
+    EXPECT_EQ(hd.battleSheet->headY, 3);
     EXPECT_EQ(index.value.walkCycle, (std::vector<int>{0, 1, 0, 2})) << "全局那一份不受影响";
 }
 
-TEST(SheetFields, RejectsACycleLongerThanItsOwnSheetAndNonPositiveScales) {
+TEST(SheetFields, RejectsACycleLongerThanItsOwnSheetBadScalesAndAPartialBattleSheet) {
+    const std::string sheet = R"({"sheets": {"a": {"file": "a.png", )";
     const std::string bad[] = {
-        std::string(R"({"sheets": {"a": {"file": "a.png", "walk_cycle": [0, 1, 2, 3], )") + kWalk3 + "}}}",
-        std::string(R"({"sheets": {"a": {"file": "a.png", "walk_cycle": [], )") + kWalk3 + "}}}",
-        std::string(R"({"sheets": {"a": {"file": "a.png", "scale": 0, )") + kWalk3 + "}}}",
-        std::string(R"({"sheets": {"a": {"file": "a.png", "battle_scale": -1, )") + kWalk3 + "}}}",
-        std::string(R"({"sheets": {"a": {"file": "a.png", "battle_file": "", )") + kWalk3 + "}}}",
+        sheet + R"("walk_cycle": [0, 1, 2, 3], )" + kWalk3 + "}}}",
+        sheet + R"("walk_cycle": [], )" + kWalk3 + "}}}",
+        sheet + R"("scale": 0, )" + kWalk3 + "}}}",
+        sheet + R"("battle_scale": -1, )" + kWalk3 + "}}}",
+        // battle_sheet 六项缺一项、多一项、类型错、几何不是正数
+        sheet + R"("battle_sheet": {"file": "b.png", "frame_w": 132, "frame_h": 84, "cols": 4, "foot_y": 82}, )" +
+            kWalk3 + "}}}",
+        sheet + R"("battle_sheet": {"frame_w": 132, "frame_h": 84, "cols": 4, "foot_y": 82, "head_y": 3}, )" + kWalk3 +
+            "}}}",
+        sheet + R"("battle_sheet": {"file": "b.png", "frame_w": 132, "frame_h": 84, "cols": 4, "foot_y": 82,
+            "head_y": 3, "rows": 2}, )" + kWalk3 + "}}}",
+        sheet + R"("battle_sheet": {"file": "", "frame_w": 132, "frame_h": 84, "cols": 4, "foot_y": 82, "head_y": 3}, )" +
+            kWalk3 + "}}}",
+        sheet + R"("battle_sheet": {"file": "b.png", "frame_w": 0, "frame_h": 84, "cols": 4, "foot_y": 82, "head_y": 3}, )" +
+            kWalk3 + "}}}",
+        sheet + R"("battle_sheet": "b.png", )" + kWalk3 + "}}}",
     };
     for (const std::string& text : bad) EXPECT_FALSE(fanren::io::parseSpriteIndex(text).ok) << text;
 }
@@ -398,6 +434,34 @@ TEST(SheetFields, WalkFramePlaysEachSheetsOwnCycle) {
     EXPECT_EQ(fanren::game::walkFrame(index.value, boy, 2, true, step * 2.5f), 0);
 }
 
+TEST(SheetFields, BattleFramesComeFromTheBattleSheetWhenThereIsOneAndFromTheSheetOtherwise) {
+    const std::string text = std::string(R"({"sheets": {"old": {"file": "old.png", "frame_w": 16, "frame_h": 24,
+        "foot_y": 23, "head_y": 2, )") + kWalk3 + R"(}, "hd": {"file": "hd.png", "frame_w": 64, "frame_h": 60, "cols": 4,
+        "foot_y": 58, "head_y": 4, )" + kBattleSheet + ", " + kWalk4 + "}}}";
+    const auto index = fanren::io::parseSpriteIndex(text);
+    ASSERT_TRUE(index.ok) << index.error;
+    const auto& old = index.value.sheets.at("old");
+    const auto& hd = index.value.sheets.at("hd");
+    // 没写 battle_sheet：与走路帧同一张图、同一套格子（3 列 16×24）。
+    EXPECT_EQ(fanren::game::battleSheetFile(old), "old.png");
+    const auto oldRect = fanren::game::battleSheetFrameRect(old, 5);
+    EXPECT_EQ(oldRect.x, 32.f);
+    EXPECT_EQ(oldRect.y, 24.f);
+    EXPECT_EQ(oldRect.w, 16.f);
+    EXPECT_EQ(oldRect.h, 24.f);
+    EXPECT_EQ(fanren::game::battleSheetFootY(old), 23);
+    EXPECT_EQ(fanren::game::battleSheetHeadY(old), 2);
+    // 写了：第 5 帧在 4 列 132×84 的那张图上是第 2 行第 2 格。
+    EXPECT_EQ(fanren::game::battleSheetFile(hd), "hd_battle.png");
+    const auto hdRect = fanren::game::battleSheetFrameRect(hd, 5);
+    EXPECT_EQ(hdRect.x, 132.f);
+    EXPECT_EQ(hdRect.y, 84.f);
+    EXPECT_EQ(hdRect.w, 132.f);
+    EXPECT_EQ(hdRect.h, 84.f);
+    EXPECT_EQ(fanren::game::battleSheetFootY(hd), 82);
+    EXPECT_EQ(fanren::game::battleSheetHeadY(hd), 3);
+}
+
 // hd/index.json 与 index.json 放在一起的那种目录；返回 index.json 的路径。
 fs::path spritesDir(const fanren::test::TempDir& dir, const std::string& hd) {
     const fs::path sprites = dir.path() / "art" / "sprites";
@@ -406,9 +470,16 @@ fs::path spritesDir(const fanren::test::TempDir& dir, const std::string& hd) {
     return sprites / "index.json";
 }
 
-const std::string kHd = std::string(R"({"sheets": {"hanli_hd": {"file": "hanli.png", "frame_w": 40, "frame_h": 48,
-    "cols": 4, "scale": 2, "walk_cycle": [0, 1, 2, 3], "battle_file": "hanli_battle.png", )") + kWalk4 + R"(}},
+std::string hdSheet(const std::string& extra = {}) {
+    return std::string(R"({"file": "hanli.png", "frame_w": 64, "frame_h": 60, "cols": 4, "scale": 2,
+        "walk_cycle": [0, 1, 2, 3], )") + kBattleSheet + ", " + extra + kWalk4 + "}";
+}
+
+const std::string kHd = R"({"sheets": {"hanli_hd": )" + hdSheet() + R"(},
     "roles": {"hanli": "hanli_hd"}, "files": {"hanli.png": "00"}})";
+
+const auto kNoChapterDone = [](int) { return false; };
+const auto kEveryChapterDone = [](int) { return true; };
 
 TEST(HdIndex, WithoutTheFileNothingChanges) {
     fanren::test::TempDir dir("fanren_hd_none");
@@ -424,14 +495,14 @@ TEST(HdIndex, OverridesTheRolesItNamesAndOnlyThose) {
     fanren::test::TempDir dir("fanren_hd_override");
     const auto loaded = fanren::io::loadSpriteIndex(spritesDir(dir, kHd).string());
     ASSERT_TRUE(loaded.ok) << loaded.error;
-    const auto never = [](int) { return false; };
-    const fanren::core::CharacterSheet* hanli = fanren::game::sheetForRole(loaded.value, "hanli", never);
+    const fanren::core::CharacterSheet* hanli = fanren::game::sheetForRole(loaded.value, "hanli", kNoChapterDone);
     ASSERT_NE(hanli, nullptr);
     EXPECT_EQ(hanli->file, "hd/hanli.png") << "文件名照旧相对 art/sprites/";
     EXPECT_EQ(hanli->scale, 2);
-    EXPECT_EQ(hanli->battleFile, "hd/hanli_battle.png") << "战斗图同样补 hd/ 前缀";
-    EXPECT_EQ(loaded.value.variants.count("hanli"), 0u) << "同名角色整个由手绘表接管，生成的按章变体不再作数";
-    const fanren::core::CharacterSheet* zhang = fanren::game::sheetForRole(loaded.value, "zhang", never);
+    EXPECT_EQ(fanren::game::battleSheetFile(*hanli), "hd/hd_battle.png") << "战斗图同样补 hd/ 前缀";
+    EXPECT_EQ(loaded.value.variants.count("hanli"), 0u)
+        << "手绘索引没给它写变体：生成的按章变体不再作数，否则覆盖等于没覆盖";
+    const fanren::core::CharacterSheet* zhang = fanren::game::sheetForRole(loaded.value, "zhang", kNoChapterDone);
     ASSERT_NE(zhang, nullptr);
     EXPECT_EQ(zhang->file, "boy.png");
     // 没点名的角色一个不动：除了 hanli，roles 与不带 hd 时逐项相同。
@@ -440,11 +511,32 @@ TEST(HdIndex, OverridesTheRolesItNamesAndOnlyThose) {
     EXPECT_EQ(loaded.value.roles, expected);
 }
 
+TEST(HdIndex, ItsOwnRoleVariantsMayPointBackAtAGeneratedSheet) {
+    // 契约 2.5：韩立换成手绘表，第 1–2 章的少年相在手绘版画出来之前接着用生成的 hanli_child。
+    const std::string hd = R"({"sheets": {"hanli_hd": )" + hdSheet() + R"(}, "roles": {"hanli": "hanli_hd"},
+        "role_variants": {"hanli": [{"look": "hanli_child", "max_chapter": 2}]}})";
+    fanren::test::TempDir dir("fanren_hd_variants");
+    const auto loaded = fanren::io::loadSpriteIndex(spritesDir(dir, hd).string());
+    ASSERT_TRUE(loaded.ok) << loaded.error;
+    const auto* young = fanren::game::sheetForRole(loaded.value, "hanli", kNoChapterDone);
+    ASSERT_NE(young, nullptr);
+    EXPECT_EQ(young->file, "child.png") << "第 2 章还没演完：生成的少年表";
+    const auto* grown = fanren::game::sheetForRole(loaded.value, "hanli", kEveryChapterDone);
+    ASSERT_NE(grown, nullptr);
+    EXPECT_EQ(grown->file, "hd/hanli.png") << "第 2 章演完之后：手绘表";
+}
+
 TEST(HdIndex, ABrokenHdIndexFailsTheWholeLoad) {
     const std::string bad[] = {
         "{",                                                                               // 语法错
         R"({"roles": {"hanli": "nope"}, "sheets": {}})",                                    // 角色指向没有的表
-        std::string(R"({"sheets": {"boy": {"file": "x.png", )") + kWalk3 + R"(}}, "roles": {}})",  // 与生成的表同名
+        R"({"sheets": {"boy": )" + hdSheet() + R"(}, "roles": {}})",                         // 与生成的表同名
+        // 手绘表漏写 scale / walk_cycle（继承缺省就是 ×3、第 4 帧永远播不到）
+        std::string(R"({"sheets": {"x_hd": {"file": "x.png", "walk_cycle": [0, 1, 2, 3], )") + kWalk4 + "}}}",
+        std::string(R"({"sheets": {"x_hd": {"file": "x.png", "scale": 2, )") + kWalk4 + "}}}",
+        // 变体指向合并后不存在的表
+        R"({"sheets": {"hanli_hd": )" + hdSheet() + R"(}, "roles": {"hanli": "hanli_hd"},
+            "role_variants": {"hanli": [{"look": "nope", "max_chapter": 2}]}})",
     };
     for (const std::string& hd : bad) {
         fanren::test::TempDir dir("fanren_hd_bad");
@@ -454,16 +546,98 @@ TEST(HdIndex, ABrokenHdIndexFailsTheWholeLoad) {
     }
 }
 
-TEST(HdIndex, TheRealIndexStillLoadsWithEveryOldSheetOnTheOldDefaults) {
+TEST(HdIndex, TheRealIndexStillLoadsAndEveryGeneratedSheetKeepsTheOldDefaults) {
     const auto loaded = fanren::io::loadSpriteIndex((repoRoot() / "assets/art/sprites/index.json").string());
     ASSERT_TRUE(loaded.ok) << loaded.error;
-    ASSERT_FALSE(loaded.value.sheets.empty());
+    std::size_t generated = 0;
     for (const auto& [id, sheet] : loaded.value.sheets) {
+        // 手绘表（hd/ 下的）由美术路提交，自己写倍数与播放序，不在这条的管辖之内。
+        if (sheet.file.rfind("hd/", 0) == 0) continue;
+        ++generated;
         EXPECT_EQ(sheet.scale, 3) << id;
-        EXPECT_EQ(sheet.walkCycle, loaded.value.walkCycle) << id;
-        EXPECT_TRUE(sheet.battleFile.empty()) << id;
+        EXPECT_EQ(sheet.walkCycle, (std::vector<int>{0, 1, 0, 2})) << id;
+        EXPECT_FALSE(sheet.battleSheet.has_value()) << id;
         EXPECT_EQ(sheet.battleScale, 4) << id;
     }
+    EXPECT_GT(generated, 0u);
+}
+
+// ---------------------------------------------------------------------------
+// 4. 默契按天记账（契约 2.2 的表，期望值写死）
+// ---------------------------------------------------------------------------
+
+TEST(BondRules, TheCalendarStartsOnDayOneSoZeroCanMeanNever) {
+    EXPECT_EQ(fanren::rules::Calendar{}.day, 1);
+    EXPECT_EQ(GameState{}.day, 1);
+}
+
+TEST(BondRules, FightingSideBySideGivesTwoAndAtMostSixADay) {
+    BondRecord r;
+    EXPECT_EQ(fanren::rules::addBattleBond(r, 10), 2);
+    EXPECT_EQ(fanren::rules::addBattleBond(r, 10), 2);
+    EXPECT_EQ(fanren::rules::addBattleBond(r, 10), 2);
+    EXPECT_EQ(fanren::rules::addBattleBond(r, 10), 0) << "同一天第四仗：已到 +6";
+    EXPECT_EQ(r.value, 6);
+    EXPECT_EQ(r.battleDay, 10);
+    EXPECT_EQ(r.battleGainedThatDay, 6);
+    EXPECT_EQ(fanren::rules::addBattleBond(r, 11), 2) << "第二天重新算";
+    EXPECT_EQ(r.value, 8);
+    EXPECT_EQ(r.battleGainedThatDay, 2);
+}
+
+TEST(BondRules, FightingSideBySideStillStopsAtAHundred) {
+    BondRecord r;
+    r.value = 99;
+    EXPECT_EQ(fanren::rules::addBattleBond(r, 3), 1);
+    EXPECT_EQ(r.value, 100);
+    EXPECT_EQ(fanren::rules::addBattleBond(r, 3), 0);
+    EXPECT_EQ(r.value, 100);
+}
+
+TEST(BondRules, GiftsAreLikedPlainOrDislikedByTheCompanionsLists) {
+    const auto companions = nangongOnly();
+    const Companion& nw = companions.at("nangong_wan");
+    EXPECT_EQ(fanren::rules::giftTaste(nw, "herb_a"), fanren::rules::GiftTaste::Liked);
+    EXPECT_EQ(fanren::rules::giftTaste(nw, "herb_b"), fanren::rules::GiftTaste::Disliked);
+    EXPECT_EQ(fanren::rules::giftTaste(nw, "herb_c"), fanren::rules::GiftTaste::Plain);
+}
+
+TEST(BondRules, AGiftADayFiveTwoOrZeroAndADislikedOneStillCounts) {
+    const auto companions = nangongOnly();
+    const Companion& nw = companions.at("nangong_wan");
+    BondRecord r;
+    auto out = fanren::rules::giveGift(r, nw, "herb_a", 20);
+    EXPECT_TRUE(out.given);
+    EXPECT_EQ(out.gained, 5);
+    EXPECT_EQ(r.value, 5);
+    EXPECT_EQ(r.giftDay, 20);
+
+    out = fanren::rules::giveGift(r, nw, "herb_c", 20);
+    EXPECT_FALSE(out.given) << "每人每天一次";
+    EXPECT_EQ(out.gained, 0);
+    EXPECT_EQ(r.value, 5);
+
+    out = fanren::rules::giveGift(r, nw, "herb_c", 21);
+    EXPECT_TRUE(out.given);
+    EXPECT_EQ(out.gained, 2);
+    EXPECT_EQ(r.value, 7);
+
+    out = fanren::rules::giveGift(r, nw, "herb_b", 22);
+    EXPECT_TRUE(out.given);
+    EXPECT_EQ(out.gained, 0);
+    EXPECT_EQ(r.value, 7);
+    EXPECT_EQ(r.giftDay, 22) << "不喜的也算今天送过了";
+    EXPECT_FALSE(fanren::rules::giveGift(r, nw, "herb_a", 22).given);
+}
+
+TEST(BondRules, GiftsStopAtAHundredToo) {
+    const auto companions = nangongOnly();
+    BondRecord r;
+    r.value = 98;
+    const auto out = fanren::rules::giveGift(r, companions.at("nangong_wan"), "herb_a", 5);
+    EXPECT_TRUE(out.given);
+    EXPECT_EQ(out.gained, 2);
+    EXPECT_EQ(r.value, 100);
 }
 
 }  // namespace

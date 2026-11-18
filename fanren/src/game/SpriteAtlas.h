@@ -46,6 +46,14 @@ using ChapterDone = std::function<bool(int)>;
 // 帧号 → 人物表里的像素矩形：x = (i % cols) * frameW，y = (i / cols) * frameH。
 [[nodiscard]] engine::RectF sheetFrameRect(const CharacterSheet& sheet, int frame);
 
+// ---- 战斗帧（伙伴改版，docs/interfaces-companions.md 2.5）----
+// 表上写了 battle_sheet 取那张图与它的格子，没写取表自己的（走路帧同一张、同一套格子）。
+// 战斗层、主菜单只调这几个，不自己判有没有 battle_sheet。frame 是 sheet.battle 里的帧号。
+[[nodiscard]] const std::string& battleSheetFile(const CharacterSheet& sheet);
+[[nodiscard]] engine::RectF battleSheetFrameRect(const CharacterSheet& sheet, int frame);
+[[nodiscard]] int battleSheetFootY(const CharacterSheet& sheet);
+[[nodiscard]] int battleSheetHeadY(const CharacterSheet& sheet);
+
 // 物件在第 seconds 秒显示第几帧（fps 为 0 或只有一帧时恒为 0）。
 [[nodiscard]] int objectFrame(const ObjectSprite& sprite, float seconds);
 

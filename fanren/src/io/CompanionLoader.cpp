@@ -137,19 +137,27 @@ using nlohmann::json;
     return readGifts(node, where, out, why);
 }
 
-std::vector<fs::path> listCompanionFiles(const fs::path& dir) {
+// 目录不存在 = 一位伙伴也没有；存在却不是目录、或遍历到一半出错，判失败——只读进一半的伙伴不报错，
+// 少掉的那几位要到她该上场时才发现。
+core::Result<std::vector<fs::path>> listCompanionFiles(const fs::path& dir) {
+    using Out = core::Result<std::vector<fs::path>>;
     std::vector<fs::path> files;
     std::error_code ec;
-    if (!fs::exists(dir, ec) || !fs::is_directory(dir, ec)) return files;
-    for (auto it = fs::recursive_directory_iterator(dir, fs::directory_options::skip_permission_denied, ec);
-         it != fs::recursive_directory_iterator(); it.increment(ec)) {
-        if (ec) break;
+    if (!fs::exists(dir, ec)) {
+        if (ec) return Out::failure("读不了伙伴目录 " + dir.string() + "：" + ec.message());
+        return Out::success(std::move(files));
+    }
+    if (!fs::is_directory(dir, ec)) return Out::failure("伙伴目录 " + dir.string() + " 不是目录");
+    for (auto it = fs::recursive_directory_iterator(dir, ec); !ec && it != fs::recursive_directory_iterator();
+         it.increment(ec)) {
         std::error_code typeEc;
         if (it->is_regular_file(typeEc) && it->path().extension() == ".json") files.push_back(it->path());
+        if (typeEc) return Out::failure("读不了 " + it->path().string() + "：" + typeEc.message());
     }
+    if (ec) return Out::failure("遍历伙伴目录 " + dir.string() + " 出错：" + ec.message());
     // 排序：重复的报错要写明「哪两个文件」，不能跟着文件系统的次序在两台机器上报出两句话。
     std::sort(files.begin(), files.end());
-    return files;
+    return Out::success(std::move(files));
 }
 
 }  // namespace
@@ -169,7 +177,9 @@ core::Result<std::map<std::string, core::Companion>> loadCompanions(const std::s
     std::map<std::string, core::Companion> companions;
     std::map<std::string, std::string> fileOfId;
     std::map<std::string, std::string> fileOfRole;
-    for (const fs::path& file : listCompanionFiles(fs::path(companionsDir))) {
+    core::Result<std::vector<fs::path>> listed = listCompanionFiles(fs::path(companionsDir));
+    if (!listed) return Out::failure(listed.error);
+    for (const fs::path& file : listed.value) {
         core::Result<core::Companion> one = loadCompanionFile(file.string());
         if (!one) return Out::failure(one.error);
         if (const auto seen = fileOfId.find(one.value.id); seen != fileOfId.end()) {

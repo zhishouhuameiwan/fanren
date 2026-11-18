@@ -48,6 +48,23 @@ engine::RectF sheetFrameRect(const CharacterSheet& sheet, int frame) {
                          static_cast<float>(sheet.frameW), static_cast<float>(sheet.frameH)};
 }
 
+const std::string& battleSheetFile(const CharacterSheet& sheet) {
+    return sheet.battleSheet ? sheet.battleSheet->file : sheet.file;
+}
+
+engine::RectF battleSheetFrameRect(const CharacterSheet& sheet, int frame) {
+    if (!sheet.battleSheet) return sheetFrameRect(sheet, frame);
+    const core::BattleSheet& grid = *sheet.battleSheet;
+    const int col = frame % grid.cols;
+    const int row = frame / grid.cols;
+    return engine::RectF{static_cast<float>(col * grid.frameW), static_cast<float>(row * grid.frameH),
+                         static_cast<float>(grid.frameW), static_cast<float>(grid.frameH)};
+}
+
+int battleSheetFootY(const CharacterSheet& sheet) { return sheet.battleSheet ? sheet.battleSheet->footY : sheet.footY; }
+
+int battleSheetHeadY(const CharacterSheet& sheet) { return sheet.battleSheet ? sheet.battleSheet->headY : sheet.headY; }
+
 int objectFrame(const ObjectSprite& sprite, float seconds) {
     if (sprite.fps <= 0.f || sprite.frames.size() <= 1) return 0;
     const auto step = static_cast<long long>(std::floor(std::max(0.f, seconds) * sprite.fps));
