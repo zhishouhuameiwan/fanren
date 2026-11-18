@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "game/Application.h"
+#include "game/Portraits.h"
 
 namespace fanren::game {
 namespace {
@@ -51,6 +52,9 @@ constexpr double kFastForwardDwell = 0.10;
 
 // 回看面板。铺满大半个屏幕：一行对白 44 字，窄面板会把每一行折成三行。
 constexpr int kLogPanelMargin = 60;
+
+// 头像外那圈细框离头像几像素（框画在头像外面，不压头像本身的像素）。
+constexpr float kPortraitFrameOut = 3.f;
 
 }  // namespace
 
@@ -297,8 +301,14 @@ void DialogueScene::render(Application& app) {
 
     // 正文只排已显示的部分：逐字显示时断行要跟着增长的文本走，
     // 否则最后一行会提前占位、看起来像文字在跳。
-    const engine::Rect textArea{content.x, content.y, content.w,
-                                std::max(0, content.h - optionHeight)};
+    engine::Rect textArea{content.x, content.y, content.w, std::max(0, content.h - optionHeight)};
+    // 说话人在头像表里有头像就画在正文左侧、正文让开（伙伴改版 3.9）；没登记的角色与旁白一笔不多画。
+    if (const std::optional<PortraitFrame> portrait = portraitFor(eng, speakerRole_, face_)) {
+        const PortraitLayout layout = portraitLayout(textArea, theme.padding, static_cast<int>(portrait->src.w),
+                                                     static_cast<int>(portrait->src.h));
+        renderPortrait(app, *portrait, layout.portrait);
+        textArea = layout.text;
+    }
     ui::drawTextBlock(eng, revealedText(), textArea, theme.bodyFontSize, theme);
 
     if (!fullyRevealed()) return;
@@ -325,6 +335,19 @@ void DialogueScene::renderNameTag(Application& app, const engine::Rect& box) con
     ui::drawPlate(eng, tag, theme);
     eng.drawText(speaker_, tag.x + kTagPadX, tag.y + (tag.h - kTagFontSize) / 2 - 1, kTagFontSize,
                  theme.goldBright, theme.bodyStyle);
+}
+
+void DialogueScene::renderPortrait(Application& app, const PortraitFrame& portrait, const engine::Rect& area) const {
+    engine::Engine& eng = app.engine();
+    const ui::Theme& theme = app.theme();
+    const engine::RectF dst{static_cast<float>(area.x), static_cast<float>(area.y), static_cast<float>(area.w),
+                            static_cast<float>(area.h)};
+    // 垫一块深底、外面一圈暗金细框：头像图透明的地方不透出底下的地图，也与正文分得开。
+    eng.fillRect(dst, theme.inkDeep, engine::BlendMode::Alpha);
+    eng.drawTexture(portrait.texture, portrait.src, dst, engine::DrawOptions{});
+    ui::drawFrame(eng, engine::RectF{dst.x - kPortraitFrameOut, dst.y - kPortraitFrameOut,
+                                     dst.w + kPortraitFrameOut * 2.f, dst.h + kPortraitFrameOut * 2.f},
+                  theme.goldDim);
 }
 
 void DialogueScene::renderKeyHint(Application& app, const engine::Rect& box) const {

@@ -10,6 +10,7 @@
 
 #include "engine/Engine.h"
 #include "engine/TextLayout.h"
+#include "game/Portraits.h"
 #include "game/Scene.h"
 #include "io/SettingsFile.h"
 #include "ui/Widgets.h"
@@ -29,7 +30,8 @@ public:
     void revealAtOnce() { revealAtOnce_ = true; }
 
     // 说话人的角色 id 与表情（伙伴改版，docs/interfaces-companions.md 3.9）：脚本 talk 的第三个参数
-    // 经 Application::sayAs 一路送到这里。**这里只存，不画**——头像按它画是世界画面路（A 路）的事；
+    // 经 Application::sayAs 一路送到这里。这个角色在头像表（data/visual/portraits.json，game/Portraits.h）
+    // 里有头像，render 就把那个表情的一格画在框左侧、正文让开；没登记的角色与旁白画面与改版前一样。
     // 没调过它的对话框（旁白、提示）两样都是空串。
     void setPortrait(std::string roleId, std::string face) {
         speakerRole_ = std::move(roleId);
@@ -89,6 +91,8 @@ private:
     // 框上沿的两块小牌：左边说话人的名签，右边那行按键提示。
     void renderNameTag(Application& app, const engine::Rect& box) const;
     void renderKeyHint(Application& app, const engine::Rect& box) const;
+    // 头像：area 由 game/Portraits.h 的 portraitLayout 给。
+    void renderPortrait(Application& app, const PortraitFrame& portrait, const engine::Rect& area) const;
     // 正文读完、等着按确认时右下角那个缓慢起伏的「▼」。
     void renderContinueMark(Application& app, const engine::Rect& box) const;
 

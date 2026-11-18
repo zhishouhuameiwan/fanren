@@ -1,0 +1,4 @@
+{
+  "_doc": "对白头像（人工维护，形状见 docs/art-sprites.md 5.3）：角色 id → 头像图集（相对 assets/art/portraits/）与 normal / smile / angry / hurt 四个表情各自的帧号。同一个人的不同装束是不同角色 id 的条目。没登记的角色对白照旧不带头像。",
+  "portraits": {}
+}
