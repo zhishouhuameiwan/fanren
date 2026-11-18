@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <filesystem>
 #include <cstddef>
+#include <cstdlib>
 #include <fstream>
 #include <iterator>
 #include <memory>
@@ -29,6 +30,7 @@
 #include "game/Application.h"
 #include "game/BattleFx.h"
 #include "game/BattleScene.h"
+#include "io/BattleLoader.h"
 
 namespace {
 
@@ -103,7 +105,7 @@ protected:
         const std::string sword = R"(, "weapons": ["剑"])";
         // 伙伴的角色：身法 4，比韩立（5）慢、比木桩（1）快；probe_ally_e 身法 30，第一个动。
         for (const char* id : {"probe_ally_a", "probe_ally_b", "probe_ally_c", "probe_ally_d", "probe_ally_n",
-                               "probe_ally_v", "probe_ally_w"}) {
+                               "probe_ally_v", "probe_ally_w", "probe_ally_x", "probe_ally_r"}) {
             writeFile(data / "roles" / (std::string(id) + ".json"), role(id, id, 300, 20, 5, 4, sword));
         }
         writeFile(data / "roles" / "probe_ally_e.json", role("probe_ally_e", "probe_ally_e", 300, 20, 5, 30, sword));
@@ -118,11 +120,21 @@ protected:
                   role("probe_scaled_foe", "称", kScaledFoeHp, 1, 50, 1,
                        R"(, "toughness": 3, "weaknesses": ["火"])"));
         writeFile(data / "roles" / "probe_killer.json", role("probe_killer", "凶", kDummyHp, 9999, 50, 40, ""));
+        // 一击就倒、出手最快、专挑打得死的：用来让一位伙伴先倒下、仗却打赢。
+        writeFile(data / "roles" / "probe_striker.json", role("probe_striker", "刺客", 1, 60, 0, 40, ""));
+        // 防御高到法术只打得出保底的 1 点：连发两下，第一下破势、第二下（破势 ×2）把这 2 点气血打光。
+        writeFile(data / "roles" / "probe_frail.json",
+                  role("probe_frail", "朽木", 2, 1, 9999, 1, R"(, "toughness": 1, "weaknesses": ["水"])"));
 
         writeFile(data / "magics" / "probe_duo.json",
                   R"({"id": "magic_probe_duo", "name": "探针合击", "descKey": "magic.desc.magic_probe_duo", )"
                   R"("element": 4, "needMp": 0, "power": )" +
                       std::to_string(kDuoPower) + R"(, "needRealm": "Mortal", "boost": "power"})");
+
+        // 连发型、敌方全体、水：蓄 1 点劲打两下。
+        writeFile(data / "magics" / "probe_rain.json",
+                  R"({"id": "magic_probe_rain", "name": "探针骤雨", "descKey": "magic.desc.magic_probe_rain", )"
+                  R"("element": 4, "needMp": 0, "power": 1, "needRealm": "Mortal", "boost": "hits", "target": "all"})");
 
         const fs::path companions = data / "companions";
         writeFile(companions / "probe_a.json", companion("probe_a", "probe_ally_a", true, ""));
@@ -131,6 +143,8 @@ protected:
         writeFile(companions / "probe_d.json", companion("probe_d", "probe_ally_d", true, ""));
         writeFile(companions / "probe_n.json", companion("probe_n", "probe_ally_n", false, "magic_probe_duo"));
         writeFile(companions / "probe_e.json", companion("probe_e", "probe_ally_e", false, "magic_probe_duo"));
+        writeFile(companions / "probe_x.json", companion("probe_x", "probe_ally_x", true, "magic_probe_duo"));
+        writeFile(companions / "probe_r.json", companion("probe_r", "probe_ally_r", false, "magic_tianyan_shu"));
         // 同一个人两段角色：编成里写死前一段、队伍里带着后一段——场上会有两个她（契约第 4 节）。
         writeFile(companions / "probe_v.json",
                   R"({"id": "probe_v", "met_flag": "probe.v", "chase": true, )"
@@ -143,6 +157,8 @@ protected:
         writeFile(battles / "probe_b_fast.json", battle("probe_b_fast", {"probe_fast_foe"}));
         writeFile(battles / "probe_b_boss.json", battle("probe_b_boss", {"probe_boss"}));
         writeFile(battles / "probe_b_killer.json", battle("probe_b_killer", {"probe_killer"}));
+        writeFile(battles / "probe_b_striker.json", battle("probe_b_striker", {"probe_striker"}));
+        writeFile(battles / "probe_b_frail.json", battle("probe_b_frail", {"probe_frail", "probe_dummy"}));
         writeFile(battles / "probe_b_scaled.json",
                   battle("probe_b_scaled", {"probe_scaled_foe"}, R"(, "scale_by_party": true)"));
         writeFile(battles / "probe_b_unscaled.json", battle("probe_b_unscaled", {"probe_scaled_foe"}));
@@ -731,15 +747,20 @@ TEST(CompanionsBattleRepo, NoExistingFormationScalesByParty) {
     }
     ASSERT_FALSE(root.empty());
     ASSERT_TRUE(app.init(root.string(), true).ok);
+    // 只核第 1–13 章的旧编成（id 以 b01_ … b13_ 起头）：样板段的明雷、历练编成会开它，不在此列，也不断言总数。
     int count = 0;
     for (const fs::directory_entry& entry : fs::directory_iterator(root / "data" / "battles")) {
         if (entry.path().extension() != ".json") continue;
-        const fanren::core::BattleSetup* setup = app.battleSetup(entry.path().stem().string());
+        const std::string id = entry.path().stem().string();
+        if (id.size() < 4 || id[0] != 'b' || id[3] != '_') continue;
+        const int chapter = std::atoi(id.substr(1, 2).c_str());
+        if (chapter < 1 || chapter > 13) continue;
+        const fanren::core::BattleSetup* setup = app.battleSetup(id);
         ASSERT_NE(setup, nullptr) << entry.path();
         EXPECT_FALSE(setup->scaleByParty) << setup->id;
         ++count;
     }
-    EXPECT_EQ(count, 71) << "契约 3.10：现有 71 份编成";
+    EXPECT_GT(count, 0) << "一份旧编成也没找到：这条什么也没核";
     app.shutdown();
 }
 
@@ -801,6 +822,199 @@ TEST_F(CompanionsBattle, TheSamePersonInTheFormationAndInThePartyDoesNotBreakThe
     EXPECT_TRUE(scene->runToCompletion());
     ASSERT_FALSE(scene->update(app_, 1.0 / 60.0));
     EXPECT_EQ(state().bondOf("probe_v"), 32) << "只记一次";
+}
+
+// ---------------------------------------------------------------------------
+// 验收补测（协调者 2026-11-18）
+// ---------------------------------------------------------------------------
+
+TEST_F(CompanionsBattle, HanLiChasesAtMostOncePerRound) {
+    party({"probe_ally_a", "probe_ally_b"});
+    state().bonds["probe_a"].value = 20;
+    state().bonds["probe_b"].value = 20;
+    BattleScene* scene = open("probe_b_two");
+    ASSERT_NE(scene, nullptr);
+    const BattleState& b = scene->battle();
+    const int hero = indexOf(b, "hanli");
+    const int a = indexOf(b, "probe_ally_a");
+    const int bb = indexOf(b, "probe_ally_b");
+    std::vector<int> dummies;
+    for (std::size_t i = 0; i < b.units().size(); ++i) {
+        if (b.units()[i].id == "probe_dummy") dummies.push_back(static_cast<int>(i));
+    }
+    ASSERT_EQ(dummies.size(), 2u);
+    ASSERT_EQ(scene->runToAllyTurn(), hero);
+    defend(*scene, hero);
+    // 两位伙伴先后各打出一个破势：头一次韩立追，第二次不追（他这一回合追过了）。
+    const int first = scene->runToAllyTurn();
+    ASSERT_TRUE(first == a || first == bb);
+    const std::vector<BattleEvent> once = attackWith(*scene, first, dummies[0]);
+    ASSERT_EQ(only(once, BattleEventKind::Break).size(), 1u);
+    ASSERT_EQ(only(once, BattleEventKind::Chase).size(), 1u);
+    EXPECT_EQ(only(once, BattleEventKind::Chase)[0].actor, hero);
+    const int second = scene->runToAllyTurn();
+    ASSERT_EQ(second, first == a ? bb : a);
+    ASSERT_EQ(b.round(), 1);
+    const std::vector<BattleEvent> twice = attackWith(*scene, second, dummies[1]);
+    ASSERT_EQ(only(twice, BattleEventKind::Break).size(), 1u);
+    EXPECT_TRUE(only(twice, BattleEventKind::Chase).empty()) << "韩立每回合至多追一次";
+}
+
+TEST_F(CompanionsBattle, AGroupAttackWhoseFirstBrokenFoeFallsInTheSameActionChasesNobody) {
+    party({"probe_ally_a"});
+    state().bonds["probe_a"].value = 20;
+    state().realm = fanren::rules::Realm::QiRefining1;   // 与探针敌人同境界：没有境界压制
+    state().learnedMagics = {"magic_probe_rain"};
+    BattleScene* scene = open("probe_b_frail");
+    ASSERT_NE(scene, nullptr);
+    const BattleState& b = scene->battle();
+    const int hero = indexOf(b, "hanli");
+    const int frail = indexOf(b, "probe_frail");
+    ASSERT_EQ(scene->runToAllyTurn(), hero);
+    const std::size_t before = b.events().size();
+    fanren::test::BattleHand hand(app_);
+    Action rain = make(ActionKind::Cast, hero, frail);
+    rain.magicId = "magic_probe_rain";
+    rain.boost = 1;   // 连发两下
+    ASSERT_TRUE(hand.issue(*scene, rain)) << scene->feedback();
+    const std::vector<BattleEvent> events = eventsSince(b, before);
+    const std::vector<BattleEvent> breaks = only(events, BattleEventKind::Break);
+    ASSERT_EQ(breaks.size(), 2u) << "两个都破势";
+    ASSERT_EQ(breaks[0].target, frail) << "朽木先破势";
+    EXPECT_FALSE(at(b, frail).alive()) << "朽木在同一手里被打倒";
+    EXPECT_TRUE(only(events, BattleEventKind::Chase).empty()) << "第一个破势的倒了：不追，也不改去追第二个";
+}
+
+TEST_F(CompanionsBattle, ADuoWithBoostIsRefused) {
+    party({"probe_ally_n"});
+    state().bonds["probe_n"].value = 70;
+    BattleScene* scene = open("probe_b_dummy", /*preemptive=*/true);
+    ASSERT_NE(scene, nullptr);
+    const BattleState& b = scene->battle();
+    const int hero = indexOf(b, "hanli");
+    const int ally = indexOf(b, "probe_ally_n");
+    ASSERT_EQ(scene->runToAllyTurn(), hero);
+    Action duo = fanren::test::BattleHand::duo(b, hero, ally, indexOf(b, "probe_dummy"));
+    duo.boost = 1;
+    const std::size_t before = b.events().size();
+    const auto refused = scene->issuePlayerAction(app_, duo);
+    EXPECT_FALSE(refused.ok) << "合招不能叠蓄劲";
+    EXPECT_NE(refused.error.find("蓄"), std::string::npos) << refused.error;
+    EXPECT_EQ(b.events().size(), before) << "回绝不动局面";
+    EXPECT_EQ(at(b, hero).bp, 2);
+    EXPECT_EQ(at(b, ally).bp, 2);
+    duo.boost = 0;
+    EXPECT_TRUE(scene->issuePlayerAction(app_, duo).ok) << "不蓄劲就出得来";
+}
+
+TEST_F(CompanionsBattle, ADuoDoesNotTriggerAChaseEvenWithAThirdCompanionOnField) {
+    party({"probe_ally_x", "probe_ally_a"});
+    state().bonds["probe_x"].value = 80;   // chase 为真、有合招
+    state().bonds["probe_a"].value = 60;   // 第三位：chase 为真、默契够追
+    BattleScene* scene = open("probe_b_dummy", /*preemptive=*/true);
+    ASSERT_NE(scene, nullptr);
+    const BattleState& b = scene->battle();
+    const int hero = indexOf(b, "hanli");
+    ASSERT_EQ(scene->runToAllyTurn(), hero);
+    const std::size_t before = b.events().size();
+    fanren::test::BattleHand hand(app_);
+    ASSERT_TRUE(hand.issue(*scene, fanren::test::BattleHand::duo(b, hero, indexOf(b, "probe_ally_x"),
+                                                                 indexOf(b, "probe_dummy"))))
+        << scene->feedback();
+    const std::vector<BattleEvent> events = eventsSince(b, before);
+    ASSERT_EQ(only(events, BattleEventKind::Break).size(), 1u) << "合招打出了破势";
+    EXPECT_TRUE(only(events, BattleEventKind::Chase).empty()) << "合招这一手不触发追击";
+}
+
+TEST_F(CompanionsBattle, ADuoPartnersGuardEndsTheMomentTheDuoIsCalled) {
+    party({"probe_ally_n"});
+    state().bonds["probe_n"].value = 70;
+    BattleScene* scene = open("probe_b_dummy");
+    ASSERT_NE(scene, nullptr);
+    const BattleState& b = scene->battle();
+    const int hero = indexOf(b, "hanli");
+    const int ally = indexOf(b, "probe_ally_n");
+    // 第 1 回合两人都防御：第 2 回合两人都有先手，韩立身法快，排在她前面；她仍在守势里。
+    ASSERT_EQ(scene->runToAllyTurn(), hero);
+    defend(*scene, hero);
+    ASSERT_EQ(scene->runToAllyTurn(), ally);
+    defend(*scene, ally);
+    ASSERT_EQ(scene->runToAllyTurn(), hero);
+    ASSERT_EQ(b.round(), 2);
+    ASSERT_TRUE(at(b, ally).guarding);
+    const std::size_t logBefore = b.log().size();
+    const std::size_t before = b.events().size();
+    fanren::test::BattleHand hand(app_);
+    ASSERT_TRUE(hand.issue(*scene, fanren::test::BattleHand::duo(b, hero, ally, indexOf(b, "probe_dummy"))))
+        << scene->feedback();
+    EXPECT_FALSE(at(b, ally).guarding) << "陪着出了合招，这一回合的行动就用掉了：守势当场散去";
+    const std::vector<BattleEvent> ends = only(eventsSince(b, before), BattleEventKind::GuardEnd);
+    ASSERT_EQ(ends.size(), 1u);
+    EXPECT_EQ(ends[0].actor, ally);
+    bool said = false;
+    for (std::size_t i = logBefore; i < b.log().size(); ++i) {
+        said = said || b.log()[i] == at(b, ally).name + " 收起守势";
+    }
+    EXPECT_TRUE(said) << "日志上与轮到本人时同一说法";
+}
+
+TEST_F(CompanionsBattle, ARevealDuoIsCalledStraightFromThePartnerRow) {
+    party({"probe_ally_r"});
+    state().bonds["probe_r"].value = 70;
+    BattleScene* scene = open("probe_b_dummy", /*preemptive=*/true);
+    ASSERT_NE(scene, nullptr);
+    const BattleState& b = scene->battle();
+    const int hero = indexOf(b, "hanli");
+    const int ally = indexOf(b, "probe_ally_r");
+    ASSERT_EQ(scene->runToAllyTurn(), hero);
+    const std::size_t before = b.events().size();
+    fanren::test::BattleHand hand(app_);
+    ASSERT_TRUE(hand.issue(*scene, fanren::test::BattleHand::duo(b, hero, ally, -1))) << scene->feedback();
+    EXPECT_EQ(scene->menuMode(), BattleMenuMode::Closed) << "看破不挑目标：选中就出";
+    const std::vector<BattleEvent> events = eventsSince(b, before);
+    const std::vector<BattleEvent> acts = only(events, BattleEventKind::Act);
+    ASSERT_EQ(acts.size(), 1u);
+    EXPECT_EQ(acts[0].value, static_cast<int>(ActionKind::Duo));
+    EXPECT_EQ(only(events, BattleEventKind::Reveal).size(), 1u);
+    EXPECT_TRUE(only(events, BattleEventKind::Hit).empty());
+    EXPECT_EQ(at(b, hero).bp, 0);
+    EXPECT_EQ(at(b, ally).bp, 0);
+    const Unit& dummy = at(b, indexOf(b, "probe_dummy"));
+    EXPECT_EQ(dummy.revealed, dummy.weaknesses) << "破绽全部揭开";
+}
+
+TEST_F(CompanionsBattle, ACompanionWhoFellStillGetsTheBondForTheWin) {
+    state().party = {fanren::core::PartyMember{"probe_ally_a", 1, true}};
+    BattleScene* scene = open("probe_b_striker");
+    ASSERT_NE(scene, nullptr);
+    ASSERT_TRUE(scene->runToCompletion());
+    EXPECT_FALSE(at(scene->battle(), indexOf(scene->battle(), "probe_ally_a")).alive()) << "她先倒下了";
+    ASSERT_FALSE(scene->update(app_, 1.0 / 60.0));
+    EXPECT_EQ(state().bondOf("probe_a"), 2) << "上过场、并肩打赢，倒下了也记";
+}
+
+TEST(CompanionsBattleLoader, AScaleByPartyThatIsNotABoolIsAnError) {
+    const fanren::test::TempDir dir("fanren_scale_by_party");
+    const fs::path file = dir.path() / "b_probe.json";
+    writeFile(file, battle("b_probe", {"wild_wolf"}, R"(, "scale_by_party": "true")"));
+    const auto loaded = fanren::io::loadBattle(file.string());
+    ASSERT_FALSE(loaded.ok);
+    EXPECT_NE(loaded.error.find("scale_by_party"), std::string::npos) << loaded.error;
+    writeFile(file, battle("b_probe", {"wild_wolf"}, R"(, "scale_by_party": true)"));
+    const auto good = fanren::io::loadBattle(file.string());
+    ASSERT_TRUE(good.ok) << good.error;
+    EXPECT_TRUE(good.value.scaleByParty);
+}
+
+TEST(CompanionsBattlePanel, ThePanelStopsGrowingAtSixRowsAndASeventhAllyHasNoRow) {
+    const fanren::engine::RectF six = fanren::game::partyPanelRect(6);
+    const fanren::engine::RectF seven = fanren::game::partyPanelRect(7);
+    EXPECT_FLOAT_EQ(seven.y, six.y) << "6 行封顶";
+    EXPECT_FLOAT_EQ(seven.h, six.h);
+    EXPECT_FLOAT_EQ(six.h, 120.f + 3 * 34.f);
+    // 面板第一行从上沿下 10 起、一行 34：6 行放得下，第 7 行出了底边（drawPartyPanel 就停在那里）。
+    EXPECT_LE(10.f + 6 * 34.f, six.h);
+    EXPECT_GT(10.f + 7 * 34.f, seven.h);
 }
 
 }  // namespace

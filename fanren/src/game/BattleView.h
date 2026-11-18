@@ -33,7 +33,7 @@ struct BattleLook {
     std::string file;           // 相对 art/sprites/
     int frameW = 16;
     int frameH = 24;
-    int cols = 3;
+    int cols = 3;               // 非人形表的列数；人物表为 0——帧矩形经 sheet 取（battleLookFrameRect），别处不读它
     int footY = 23;
     int headY = 0;
     std::map<std::string, std::vector<int>> poses;   // idle / ready / attack / cast / hurt / down / victory / guard

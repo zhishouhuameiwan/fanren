@@ -142,7 +142,7 @@ BattleLook battleLookFor(const SpriteIndex& index, const std::string& battleId, 
         look.file = battleSheetFile(sheet);
         look.frameW = static_cast<int>(cell.w);
         look.frameH = static_cast<int>(cell.h);
-        look.cols = sheet.cols;
+        look.cols = 0;   // 人物表的格子由 sheet 管（battle_sheet 的列数与走路图不同），不在这里另存一份
         look.footY = battleSheetFootY(sheet);
         look.headY = battleSheetHeadY(sheet);
         look.scale = sheet.battleScale;

@@ -422,7 +422,8 @@ void BattleScene::buildFromSetup(Application& app, const core::BattleSetup& setu
     if (heroPresent_) addPartyUnits(app, units);
 
     // 人数系数（伙伴改版 3.10）：编成写了 scale_by_party 才乘。人数是我方此刻上场的全部单位
-    //（韩立、编成里写死的友军、队员），乘的只有敌方的气血，架势不乘。
+    //（韩立、编成里写死的友军、队员），乘的只有敌方的气血，架势不乘。编成里 wave > 0、开场还没入场的
+    // 我方单位也算在人数里——现在没有这样的编成；真写出来时要按「开场在场的」数，改这里。
     if (setup.scaleByParty) {
         const auto allies = static_cast<int>(
             std::count_if(units.begin(), units.end(), [](const Unit& u) { return u.ally; }));

@@ -248,8 +248,11 @@ core::Result<std::string> BattleState::apply(const Action& action) {
     unitRef(action.actorIndex).acted = true;
     slotUsed_ = true;
     // 追击（伙伴改版 3.2）挂在这一手之后、胜负判定之前：它是这一手的余波，不是一次行动。
-    if (const std::string chase = resolveChase(action.actorIndex, lastActionBegin_); !chase.empty()) {
-        line += "；" + chase;
+    // 合招这一手不触发追击（3.3）：两人都已经出手了，合招本身就是那次联手；场上另有第三位伙伴也不追。
+    if (action.kind != ActionKind::Duo) {
+        if (const std::string chase = resolveChase(action.actorIndex, lastActionBegin_); !chase.empty()) {
+            line += "；" + chase;
+        }
     }
     log_.push_back(line);
     refreshPhase();

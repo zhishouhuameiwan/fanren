@@ -116,6 +116,13 @@ std::string BattleState::applyDuo(const Action& a) {
     partner.boosted = true;
     partner.acted = true;
     partner.duoSpentRound = round_;
+    // 陪同的那一位这一回合的行动用掉了，轮到他时会被跳过（skipIneligibleActors），也就走不到 beginActorTurn——
+    // 他上一回合摆的守势得在这里当场散去，说法与 beginActorTurn 同一句，否则他白得一整回合的减半。
+    if (partner.guarding) {
+        partner.guarding = false;
+        log_.push_back(partner.name + " 收起守势");
+        emit(BattleEvent{BattleEventKind::GuardEnd, a.partnerIndex});
+    }
     // 效果：那门法术由发起人施放——境界压制、killableBy、事件归属都算发起人的（resolveMagic 按 actorIndex 走）。
     const Magic magic = *findMagic(a.magicId);
     return resolveMagic(a, magic, nullptr, a.partnerIndex);

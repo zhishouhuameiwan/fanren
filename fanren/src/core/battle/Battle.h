@@ -428,7 +428,7 @@ private:
 
     // ---- 追击（伙伴改版 3.2）----
     // 这一手（events_ 从 fromEvent 起的那一段）若让某个敌人进入破势，按规则挑一位追击者补一记普攻。
-    // 返回追加到日志里的半句（不带开头的标点），没有追击时为空串。追击不再触发追击。
+    // 返回追加到日志里的半句（不带开头的标点），没有追击时为空串。追击不再触发追击；合招不调它（apply）。
     std::string resolveChase(int actorIndex, std::size_t fromEvent);
     // 谁来追：出手的是韩立 → 默契最高的可追伙伴；出手的是伙伴 → 韩立。没人为 -1。
     [[nodiscard]] int pickChaser(int actorIndex) const;

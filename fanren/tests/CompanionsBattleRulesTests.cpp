@@ -4,6 +4,7 @@
 //   * 四人同场：AI 与全体攻击处处只认「活着的」（契约第 4 节「四人同场」说没核过，这里核）。
 #include <gtest/gtest.h>
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -86,6 +87,7 @@ TEST(CompanionsBattleLook, ASheetWithABattleSheetDrawsFromThatSheetsGridAtItsOwn
     EXPECT_EQ(look.footY, 82);
     EXPECT_EQ(look.headY, 18);
     EXPECT_EQ(look.scale, 2);
+    EXPECT_EQ(look.cols, 0) << "不留一份走路图的列数：格子一律经 sheet 取";
     // 帧 5 在 4 列、132×84 的格子上：(132, 84)。
     const fanren::engine::RectF r = fanren::game::battleLookFrameRect(look, 5);
     EXPECT_FLOAT_EQ(r.x, 132.f);
@@ -144,13 +146,25 @@ TEST(CompanionsBattleAlive, EnemyAiAndAnAllOutHeavyBlowOnlyTouchStandingAllies) 
         if (a.actorIndex >= 0) static_cast<void>(battle.apply(a));
         battle.endTurn();
     }
-    int heavyHits = 0;
+    // 横扫全场真的出过：首领的某一手（一条 Act 到下一条 Act 之间）打中了站着的三个人。
+    std::size_t widest = 0;
+    std::vector<int> struck;
+    bool bossActing = false;
     for (const auto& e : battle.events()) {
+        if (e.kind == BattleEventKind::Act || e.kind == BattleEventKind::RoundStart) {
+            if (bossActing) widest = std::max(widest, struck.size());
+            struck.clear();
+            bossActing = e.kind == BattleEventKind::Act && e.actor == 4;
+            continue;
+        }
         if (e.kind != BattleEventKind::Hit) continue;
         EXPECT_NE(e.target, fallen) << "横扫全场也不打倒下的人";
-        if (e.actor == 4) ++heavyHits;
+        if (bossActing && std::find(struck.begin(), struck.end(), e.target) == struck.end()) {
+            struck.push_back(e.target);
+        }
     }
-    EXPECT_GT(heavyHits, 0) << "首领真的出过手";
+    if (bossActing) widest = std::max(widest, struck.size());
+    EXPECT_EQ(widest, 3u) << "首领出过一次横扫全场的重招，打中的正好是站着的三个人";
     EXPECT_EQ(battle.units()[fallen].hp, 0);
 }
 
