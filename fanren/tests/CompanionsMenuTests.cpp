@@ -175,4 +175,52 @@ TEST(MenuSpriteScale, OldSheetsKeepFourAndHdSheetsDrawAtTwo) {
     EXPECT_EQ(MenuScene::menuSpriteScale(0), 1) << "至少 1";
 }
 
+// 小像框 96×132（状态页）。画在哪、取源图哪一块，都由 portraitPlacement 一处算，drawPortrait 照它画。
+TEST(MenuPortrait, OldSheetsDrawExactlyAsBeforeAndHdSheetsStayInsideTheBox) {
+    const fanren::engine::Rect box{396, 100, 96, 132};
+
+    // 旧表：16×24、脚底在末行（23）、×4。与改版前写死的算式同一个结果：整帧不裁，
+    // 左右居中（x + 16），帧底贴在框底往上 16（y + 132 − 16 − 96 = y + 20）。
+    const auto old = MenuScene::portraitPlacement(box, fanren::engine::Rect{32, 48, 16, 24}, 4, 23);
+    EXPECT_FLOAT_EQ(old.src.x, 32.f);
+    EXPECT_FLOAT_EQ(old.src.y, 48.f);
+    EXPECT_FLOAT_EQ(old.src.w, 16.f);
+    EXPECT_FLOAT_EQ(old.src.h, 24.f);
+    EXPECT_FLOAT_EQ(old.dst.x, 412.f);
+    EXPECT_FLOAT_EQ(old.dst.y, 120.f);
+    EXPECT_FLOAT_EQ(old.dst.w, 64.f);
+    EXPECT_FLOAT_EQ(old.dst.h, 96.f);
+
+    // 高清表：64×60、×2 = 128×120，比框宽。脚底在第 57 行：脚落在框底往上 16（y + 116），
+    // 左右各裁掉 16 个屏幕像素（源图 8 列），上沿 y + 116 − 116 = y 恰好贴着框顶，不出框。
+    const auto hd = MenuScene::portraitPlacement(box, fanren::engine::Rect{128, 0, 64, 60}, 2, 57);
+    EXPECT_FLOAT_EQ(hd.dst.x, 396.f);
+    EXPECT_FLOAT_EQ(hd.dst.w, 96.f);
+    EXPECT_FLOAT_EQ(hd.dst.y, 100.f);
+    EXPECT_FLOAT_EQ(hd.dst.h, 120.f);
+    EXPECT_FLOAT_EQ(hd.src.x, 136.f);
+    EXPECT_FLOAT_EQ(hd.src.w, 48.f);
+    EXPECT_FLOAT_EQ(hd.src.y, 0.f);
+    EXPECT_FLOAT_EQ(hd.src.h, 60.f);
+    // 旧的大个子表（曲魂：24×32、脚底在末行、×4 = 96×128）：改版前起头顶就高出框 12，原样保留。
+    const auto big = MenuScene::portraitPlacement(box, fanren::engine::Rect{0, 0, 24, 32}, 4, 31);
+    EXPECT_FLOAT_EQ(big.dst.x, 396.f);
+    EXPECT_FLOAT_EQ(big.dst.y, 88.f);
+    EXPECT_FLOAT_EQ(big.dst.w, 96.f);
+    EXPECT_FLOAT_EQ(big.dst.h, 128.f);
+    EXPECT_FLOAT_EQ(big.src.h, 32.f);
+    // 头顶高过余量（16）的：多出的那一截裁掉。64×60 ×2、脚底在第 59 行再往下压 12 行的夹具
+    // （footY 71：上沿在框顶往上 28）→ 裁掉 12 个屏幕像素 = 源图 6 行，上沿停在框顶往上 16。
+    const auto tall = MenuScene::portraitPlacement(box, fanren::engine::Rect{128, 0, 64, 60}, 2, 71);
+    EXPECT_FLOAT_EQ(tall.dst.y, 84.f);
+    EXPECT_FLOAT_EQ(tall.src.y, 6.f);
+    // 左、右、下一律不出框；上沿至多高出框 16。
+    for (const auto& at : {old, hd, big, tall}) {
+        EXPECT_GE(at.dst.x, 396.f);
+        EXPECT_GE(at.dst.y, 100.f - 16.f);
+        EXPECT_LE(at.dst.x + at.dst.w, 396.f + 96.f);
+        EXPECT_LE(at.dst.y + at.dst.h, 100.f + 132.f);
+    }
+}
+
 }  // namespace

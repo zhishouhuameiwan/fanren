@@ -39,7 +39,9 @@ void LilianPartyScene::onEnter(Application& app) {
     }
     hint_ = app.text(candidates_.empty() ? "ui.lilian.alone" : "ui.lilian.pick");
     list_.reset();
-    list_.setPageSize(static_cast<int>(candidates_.size()) + 1);
+    // 一页至多画得下几行按面板高度算（与 render 用同一块列表区）：名册一长就翻页，不画出面板。
+    const int fit = ui::listRowsThatFit(listArea(app).h, app.theme());
+    list_.setPageSize(std::max(1, std::min(static_cast<int>(candidates_.size()) + 1, fit)));
     rebuildRows(app);
 }
 
@@ -121,8 +123,14 @@ void LilianPartyScene::render(Application& app) {
     const int x = content.x + theme.padding;
     e.drawText(app.text("ui.lilian.tag"), x, content.y + 6, 18, theme.gold, theme.bodyStyle);
     e.drawText(hint_, x, content.y + 40, 18, theme.paperDim, theme.bodyStyle);
-    const engine::Rect listArea{content.x, content.y + kHeaderH, content.w, std::max(0, content.h - kHeaderH)};
-    list_.render(e, listArea, theme);
+    list_.render(e, listArea(app), theme);
 }
+
+engine::Rect LilianPartyScene::listArea(Application& app) const {
+    const engine::Rect content = ui::panelContentArea(kPanel, title_, app.theme());
+    return engine::Rect{content.x, content.y + kHeaderH, content.w, std::max(0, content.h - kHeaderH)};
+}
+
+int LilianPartyScene::pageSize() const { return list_.pageSize(); }
 
 }  // namespace fanren::game

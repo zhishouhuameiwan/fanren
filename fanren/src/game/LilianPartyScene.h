@@ -29,6 +29,8 @@ public:
 
     // 此刻选上的角色 id，按名册次序（测试读它）。
     [[nodiscard]] std::vector<std::string> chosenRoles() const;
+    // 列表一页几行（测试读它：不超过面板画得下的行数）。
+    [[nodiscard]] int pageSize() const;
 
 private:
     struct Candidate {
@@ -39,6 +41,8 @@ private:
     };
 
     void rebuildRows(Application& app);
+    // 列表区（标题与两行说明之下）。onEnter 定页大小、render 画列表都用它。
+    [[nodiscard]] engine::Rect listArea(Application& app) const;
     [[nodiscard]] int chosenCount() const;
     // 确认了「出发」：返回 false = 面板就此收起。
     bool depart(Application& app);

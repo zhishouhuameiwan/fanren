@@ -560,6 +560,9 @@ void Application::returnToTitle() {
     bgmOverride_.clear();
     itemsGiven_ = false;
     shops_ = initialShops_;
+    // 历练里返回首页：那一趟就此作罢（与读档、新开局同一个口径），不然 inLilian() 还为真，
+    // 回到首页再「继续旅程」之前，存档闸、worldObjects() 都还指着那一趟。
+    lilian_.reset();
     replaceScene(std::make_unique<TitleScene>());
 }
 
@@ -974,14 +977,17 @@ void Application::startBattle(const std::string& battleId, BattleOutcome onFinis
 void Application::startBattle(const BattleStart& start, BattleOutcome onFinish) {
     BattleStart actual = start;
     // 历练里按韩立的境界拼档的后缀（契约 3.12「难度」）。只在这里拼：世界逻辑递进来的是 foe.battle 原样。
-    // 拼出来的那一场不存在时不退回原 id——那会悄悄开一场没分档的仗；门禁（每一档的编成都在）管它。
     if (lilian_) {
         const core::LilianSite* site = lilianSite(lilian_->siteId);
         const int tier = site == nullptr ? 0 : rules::lilianTier(*site, state_.realm);
         actual.battleId = rules::tieredBattleId(start.battleId, tier);
+        // 拼出来的那一场不存在：**不开仗、不调回调**。压下去的话 BattleScene 查不到编成会退回内置的
+        // 探针杂兵战，打赢了世界逻辑的回调还会把明雷记成已清。进门时已按这一档把每个 foe 的编成核过
+        // （enterLilian），走到这里只能是境界在里面变了、或别的路递进来一个没核过的 id。
         if (battleSetup(actual.battleId) == nullptr) {
-            std::fprintf(stderr, "[lilian] 历练 %s 里要开的编成 %s 不存在\n", lilian_->siteId.c_str(),
-                         actual.battleId.c_str());
+            std::fprintf(stderr, "[lilian] 历练 %s 里要开的编成 %s 不存在，这一仗不开\n",
+                         lilian_->siteId.c_str(), actual.battleId.c_str());
+            return;
         }
     }
     battleOutcome_ = std::move(onFinish);
@@ -996,12 +1002,14 @@ const core::LilianSite* Application::lilianSite(const std::string& siteId) const
 
 namespace {
 
-// 进一趟历练时的 chance 抽签（契约 3.12「每趟不同」）：没抽中的明雷记成已清、宝箱记成已开，
-// 记进这一趟的账。图读不进来就整个失败——不拿半张账进去。
-// 入口图在这之前已经 loadMap 过一遍，这里照样按文件再读一次：抽签只看对象，与哪张图正载着无关。
-[[nodiscard]] core::Result<core::WorldObjectState> rollLilianObjects(const std::string& mapsRoot,
-                                                                    const std::vector<std::string>& maps,
-                                                                    const std::string& siteId, int day) {
+// 进一趟历练之前读这处历练地的每一张图，做两件事，都只读文件、不动任何状态：
+//   · chance 抽签（契约 3.12「每趟不同」）：没抽中的明雷记成已清、宝箱记成已开，记进这一趟的账；
+//   · 核对这一档每个 foe 的编成（foe.battle 拼上 tier 的后缀）都在——缺一场就进不去，
+//     免得进去之后撞上它才发现（startBattle 那时只能不开这一仗）。
+// 任何一张图读不进来、缺任何一场编成，整个失败：不拿半张账进去。
+[[nodiscard]] core::Result<core::WorldObjectState> rollLilianObjects(
+    const std::string& mapsRoot, const std::vector<std::string>& maps, const std::string& siteId, int day,
+    int tier, const std::function<bool(const std::string&)>& battleExists) {
     using Out = core::Result<core::WorldObjectState>;
     core::WorldObjectState objects;
     const std::uint32_t seed = rules::lilianSeed(day, siteId);
@@ -1010,8 +1018,14 @@ namespace {
         if (!loaded) return Out::failure(loaded.error);
         for (const core::MapObject& object : loaded.value.objects) {
             if (object.type != "foe" && object.type != "chest") continue;
-            const std::string raw = object.property("chance");
             const std::string id = object.property("id");
+            if (object.type == "foe" && !object.property("battle").empty()) {
+                const std::string battle = rules::tieredBattleId(object.property("battle"), tier);
+                if (!battleExists(battle)) {
+                    return Out::failure("缺编成 " + battle + "（" + mapId + " 上的 " + object.name + "）");
+                }
+            }
+            const std::string raw = object.property("chance");
             if (raw.empty() || id.empty()) continue;   // 没写 chance 的每趟都在；没 id 的门禁报
             // chance 是 1–99 的整数（出现的百分比）。写坏了不吞：打一行警告，按「一定出现」办——
             // 少一只明雷玩家看不出来，多一只看得出来。
@@ -1036,41 +1050,31 @@ namespace {
 
 core::Result<bool> Application::enterLilian(const LilianEntry& entry) {
     if (lilian_) return core::Result<bool>::failure("已经在历练里了");
-    LilianTrip trip{entry.siteId, state_.mapId, state_.position, state_.facing, state_.party, {}};
+    // 先抽签、核编成：只读文件，失败了什么都还没动。没登记的历练地只读入口图、不分档。
+    const core::LilianSite* site = lilianSite(entry.siteId);
+    const std::vector<std::string> maps = site != nullptr ? site->maps : std::vector<std::string>{entry.mapId};
+    const int tier = site == nullptr ? 0 : rules::lilianTier(*site, state_.realm);
+    auto rolled = rollLilianObjects(assetRoot_ + "/maps", maps, entry.siteId, state_.day, tier,
+                                    [this](const std::string& id) { return battleSetup(id) != nullptr; });
+    if (!rolled) return core::Result<bool>::failure(rolled.error);
+
+    LilianTrip trip{entry.siteId, state_.mapId, state_.position, state_.facing, state_.party,
+                    std::move(rolled.value)};
     std::vector<core::PartyMember> members;
     for (const std::string& roleId : entry.party) members.push_back(core::PartyMember{roleId, -1, true});
+    // 原图留在内存里：入口图万一载不进来（抽签刚读过它，只有文件在这一刹那变了才会），直接换回去，
+    // 不从磁盘重读——于是没有「原图也读不回来」这一支，也不会出现人不在历练里、却站在历练图上的局面。
+    std::unique_ptr<core::TileMap> previous = std::move(map_);
     state_.party = std::move(members);
     auto loaded = loadMap(entry.mapId, entry.spawn);
-    if (loaded) {
-        // 抽签要读这处历练地的每一张图（没登记的历练地只抽入口图）；有一张读不进来就按「进不去」退回。
-        const core::LilianSite* site = lilianSite(entry.siteId);
-        const std::vector<std::string> maps =
-            site != nullptr ? site->maps : std::vector<std::string>{entry.mapId};
-        auto rolled = rollLilianObjects(assetRoot_ + "/maps", maps, entry.siteId, state_.day);
-        if (rolled) {
-            trip.objects = std::move(rolled.value);
-        } else {
-            loaded = core::Result<bool>::failure(rolled.error);
-        }
-    }
     if (!loaded) {
-        // 入口图进不去：退回原样。loadMap 失败时可能已经换了图、把人摆到 (0,0)（图载进来了却找不到
-        // 出生点），所以图、格、朝向、队伍都要放回去——不然 inLilian() 为假、存档闸不拦，
-        // 半截的状态能被存进档里。
-        state_.party = std::move(trip.party);
-        auto back = loadMap(trip.mapId, std::string{});
+        map_ = std::move(previous);
+        state_.mapId = trip.mapId;
         state_.position = trip.position;
         state_.facing = trip.facing;
-        if (!back) {
-            // 原图也读不回来：画面上留着的是哪张图已经说不准了，但**存档里记的图**必须是原图——
-            // 此刻存下去、读回来，人就回到进去之前那一格。两样失败都如实交回给调用方说给玩家听，
-            // 再打到标准错误：这是数据坏了，不是玩家能绕开的事。
-            state_.mapId = trip.mapId;
-            const std::string why =
-                "入口图进不去（" + loaded.error + "），原图也读不回来（" + back.error + "）";
-            std::fprintf(stderr, "[lilian] %s\n", why.c_str());
-            return core::Result<bool>::failure(why);
-        }
+        state_.party = std::move(trip.party);
+        const std::string bgm = worldBgm();
+        if (engine_ && !bgm.empty() && bgm != "none") engine_->playBgm(bgm);
         return loaded;
     }
     lilian_ = std::move(trip);

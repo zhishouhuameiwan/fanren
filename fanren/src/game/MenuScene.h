@@ -48,6 +48,21 @@ public:
     // 菜单的小像一向比走在地图上的大三分之一（16×24 的旧表：地图 ×3、菜单 ×4）。
     [[nodiscard]] static int menuSpriteScale(int sheetScale);
 
+    // 小像贴在框里的哪一块：帧按 scale 放大、左右居中，脚底（帧内 footY 那一行的下沿）落在框底往上
+    // kPortraitFootGap 处；超出的部分连同源图上对应的那一截一起裁掉。裁的边界：左、右、下就是框；
+    // 上沿许高出框 kPortraitHeadroom——旧的 24×32 表（曲魂、傀儡、熊）×4 是 128 高，改版前起头顶就高出
+    // 框 12，裁掉就改了现有画面。行与行之间空着 22（上一行的分隔线在框顶往上 22），16 碰不到它。
+    // 旧表 16×24 不裁，与改版前一模一样；高清表（64×60、×2）左右各裁 16。
+    // dst 为空（宽或高 ≤ 0）= 整帧都在可画范围之外，不画。
+    struct PortraitPlacement {
+        engine::RectF src;
+        engine::RectF dst;
+    };
+    static constexpr int kPortraitFootGap = 16;
+    static constexpr int kPortraitHeadroom = 16;
+    [[nodiscard]] static PortraitPlacement portraitPlacement(const engine::Rect& box, const engine::Rect& frame,
+                                                             int scale, int footY);
+
     // initial：打开时光标停在哪一项；focusList：物品 / 法术页直接把光标放进右栏的列表，
     // 记事页直接翻开告示板，首页页直接进入确认（截图口用；游戏里按 Tab 打开时停在「状态」）。
     explicit MenuScene(Page initial = Page::Status, bool focusList = false);
@@ -99,6 +114,7 @@ private:
         engine::TextureId portrait = engine::kInvalidTexture;
         engine::Rect portraitFrame{};
         int portraitScale = 4;   // menuSpriteScale(这张表的 scale)
+        int portraitFootY = 23;  // 这张表的脚底（帧内的行）
     };
     // 赠与列表的一行是背包里的哪一堆（灵草按年份分堆）。
     struct GiftChoice {
@@ -113,6 +129,8 @@ private:
     void loadMembers(Application& app);
     // 队伍页光标所在那一行的伙伴 id；不是伙伴（或没有选中）时为空串。
     [[nodiscard]] std::string selectedCompanion(Application& app) const;
+    // 队伍页光标所在那一行对应 GameState::party 里的哪一位；没有选中、或下标对不上时为 nullptr。
+    [[nodiscard]] core::PartyMember* selectedMember(Application& app) const;
     void updateParty(Application& app, bool confirmed);
     void updatePartyActions(Application& app, bool confirmed);
     void giveSelected(Application& app);

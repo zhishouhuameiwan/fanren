@@ -168,6 +168,30 @@ int MenuScene::menuSpriteScale(int sheetScale) {
     return std::max(1, sheetScale * kMenuScaleNum / kMenuScaleDen);
 }
 
+MenuScene::PortraitPlacement MenuScene::portraitPlacement(const engine::Rect& box, const engine::Rect& frame,
+                                                          int scale, int footY) {
+    const float k = static_cast<float>(std::max(1, scale));
+    const float w = static_cast<float>(frame.w) * k;
+    const float h = static_cast<float>(frame.h) * k;
+    const float boxX = static_cast<float>(box.x);
+    const float boxY = static_cast<float>(box.y);
+    const float boxR = boxX + static_cast<float>(box.w);
+    const float boxB = boxY + static_cast<float>(box.h);
+    // 改版前是「帧底边贴在框底往上 16」；旧表的脚底都在末行，按脚底对齐与它是同一个位置。
+    const float x = boxX + (static_cast<float>(box.w) - w) / 2.f;
+    const float y = boxB - static_cast<float>(kPortraitFootGap) - static_cast<float>(footY + 1) * k;
+    const float x0 = std::max(x, boxX);
+    const float y0 = std::max(y, boxY - static_cast<float>(kPortraitHeadroom));
+    const float x1 = std::min(x + w, boxR);
+    const float y1 = std::min(y + h, boxB);
+    PortraitPlacement out;
+    if (x1 <= x0 || y1 <= y0) return out;
+    out.dst = engine::RectF{x0, y0, x1 - x0, y1 - y0};
+    out.src = engine::RectF{static_cast<float>(frame.x) + (x0 - x) / k, static_cast<float>(frame.y) + (y0 - y) / k,
+                            (x1 - x0) / k, (y1 - y0) / k};
+    return out;
+}
+
 void MenuScene::onEnter(Application& app) {
     fx_ = std::make_unique<engine::PostFx>(app.engine());
     backdropReady_ = false;
@@ -277,13 +301,17 @@ std::vector<ui::ListItem> MenuScene::rosterRows(const core::GameData& data, cons
     return rows;
 }
 
-std::string MenuScene::selectedCompanion(Application& app) const {
+core::PartyMember* MenuScene::selectedMember(Application& app) const {
     const int index = party_.selection();
-    if (index < 0 || index >= static_cast<int>(partyIndex_.size())) return {};
-    const std::vector<core::PartyMember>& party = app.state().party;
+    if (index < 0 || index >= static_cast<int>(partyIndex_.size())) return nullptr;
+    std::vector<core::PartyMember>& party = app.state().party;
     const std::size_t at = partyIndex_[static_cast<std::size_t>(index)];
-    if (at >= party.size()) return {};
-    return rules::companionOfRole(app.data().companions, party[at].roleId);
+    return at < party.size() ? &party[at] : nullptr;
+}
+
+std::string MenuScene::selectedCompanion(Application& app) const {
+    const core::PartyMember* member = selectedMember(app);
+    return member == nullptr ? std::string{} : rules::companionOfRole(app.data().companions, member->roleId);
 }
 
 void MenuScene::rebuildLists(Application& app) {
@@ -352,6 +380,7 @@ void MenuScene::loadMembers(Application& app) {
         member.portraitFrame = engine::Rect{static_cast<int>(frame.x), static_cast<int>(frame.y),
                                             static_cast<int>(frame.w), static_cast<int>(frame.h)};
         member.portraitScale = menuSpriteScale(sheet->scale);
+        member.portraitFootY = sheet->footY;
     };
 
     members_.clear();
@@ -499,9 +528,13 @@ void MenuScene::updatePartyActions(Application& app, bool confirmed) {
     }
     if (!confirmed) return;
     if (partyActions_.selection() == kPartyActionToggle) {
-        const int index = party_.selection();
-        core::PartyMember& member = app.state().party[partyIndex_[static_cast<std::size_t>(index)]];
-        member.active = !member.active;
+        core::PartyMember* member = selectedMember(app);
+        if (member == nullptr || selectedCompanion(app).empty()) {
+            e.playSfx(kSfxError);
+            focus_ = Focus::Party;
+            return;
+        }
+        member->active = !member->active;
         e.playSfx(kSfxConfirm);
         rebuildCompanionLists(app);
         loadMembers(app);   // 状态页只列上场的人
@@ -526,6 +559,14 @@ void MenuScene::giveSelected(Application& app) {
     }
     const GiftChoice choice = giftChoices_[static_cast<std::size_t>(index)];
     core::GameState& state = app.state();
+    // 次序：先核背包里还有没有，再记账，再扣——不会出现记了账却没扣成的半截。
+    // 列表就是从背包这一刻拼出来的，没有了只能是别处动了背包：响一声错、重拼列表，账一笔不动。
+    if (state.itemCountOfAge(choice.itemId, choice.herbAge) < 1) {
+        e.playSfx(kSfxError);
+        rebuildLists(app);
+        rebuildCompanionLists(app);
+        return;
+    }
     // 今天送过了就一样不动：账不记、东西不扣、说一句（契约 2.2「每人每天一次」，记账在 rules::giveGift）。
     const rules::GiftOutcome outcome =
         rules::giveGift(state.bonds[companionId], found->second, choice.itemId, state.day);
@@ -535,10 +576,7 @@ void MenuScene::giveSelected(Application& app) {
         focus_ = Focus::Party;
         return;
     }
-    if (!state.removeItemOfAge(choice.itemId, 1, choice.herbAge)) {
-        // 列表就是从背包这一刻拼出来的，扣不成只能是有人在别处动了背包：说出来，不默默吞掉。
-        std::fprintf(stderr, "[menu] 赠与时背包里已经没有 %s 了\n", choice.itemId.c_str());
-    }
+    (void)state.removeItemOfAge(choice.itemId, 1, choice.herbAge);   // 上面核过数量，扣得成
     e.playSfx(kSfxConfirm);
     switch (outcome.taste) {
         case rules::GiftTaste::Liked: app.showMessage("ui.menu.gift.liked"); break;
@@ -834,13 +872,9 @@ void MenuScene::drawPortrait(Application& app, const Member& member, const engin
     ui::drawFrame(e, frame, theme.goldDim);
 
     if (member.portrait != engine::kInvalidTexture) {
-        const engine::Rect& src = member.portraitFrame;
-        const float w = static_cast<float>(src.w * member.portraitScale);
-        const float h = static_cast<float>(src.h * member.portraitScale);
-        e.drawTexture(member.portrait, toRectF(src),
-                      engine::RectF{frame.x + (frame.w - w) / 2.f, frame.y + frame.h - h - 16.f, w,
-                                    h},
-                      engine::DrawOptions{});
+        const PortraitPlacement at =
+            portraitPlacement(box, member.portraitFrame, member.portraitScale, member.portraitFootY);
+        if (at.dst.w > 0.f && at.dst.h > 0.f) e.drawTexture(member.portrait, at.src, at.dst, engine::DrawOptions{});
         return;
     }
     // 没有精灵（美术还在路上、或这个角色没进索引）：一方印章，刻着姓。

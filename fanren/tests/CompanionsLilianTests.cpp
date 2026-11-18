@@ -16,6 +16,7 @@
 #include "core/rules/Lilian.h"
 #include "game/LilianPartyScene.h"
 #include "io/LilianLoader.h"
+#include "ui/Widgets.h"
 
 namespace {
 
@@ -151,8 +152,14 @@ TEST_F(LilianD, AnEmptyRosterGoesAloneAndEscapeChangesNothing) {
 
 TEST_F(LilianD, TheSecondTripStartsWithGatesClosedAndNothingPermanentIsWritten) {
     app_.state().worldObjects.openedChests = {"keep.me"};
+    // 进去之前拍旗标：enterWithAB 要置的那几面先置好（它再置一遍是同一个值），快照里就只差「进去那一刻」。
+    meet("a");
+    meet("b");
+    app_.state().setFlag("probe.a.grown");
+    app_.state().setFlag("probe.lilian.open");
+    const std::map<std::string, int> flagsBefore = app_.state().flags;
     enterWithAB();
-    const std::map<std::string, int> flagsInside = app_.state().flags;
+    EXPECT_EQ(app_.state().flags, flagsBefore) << "进去那一刻没置任何旗标";
     // 世界逻辑开机关、开宝箱、清明雷，都经 worldObjects() 记账（C 路）；这里照它的口子记。
     app_.worldObjects().openedGates.insert("lilian_probe_a.gate");
     app_.worldObjects().openedChests.insert("lilian_probe_a.chest_fixed");
@@ -164,7 +171,7 @@ TEST_F(LilianD, TheSecondTripStartsWithGatesClosedAndNothingPermanentIsWritten) 
     EXPECT_TRUE(kept.openedGates.empty());
     EXPECT_TRUE(kept.clearedFoes.empty());
     EXPECT_TRUE(kept.gatheredDay.empty());
-    EXPECT_EQ(app_.state().flags, flagsInside) << "历练里没置任何旗标";
+    EXPECT_EQ(app_.state().flags, flagsBefore) << "进去、在里面、出来，都没置任何旗标";
 
     openPanel();
     depart(2);
@@ -278,25 +285,26 @@ TEST(LilianChanceRule, TheSeedDependsOnDayAndSiteAndTheEdgesAreFixed) {
 }
 
 // ---------------------------------------------------------------------------
-// 回滚：入口图进不去、原图也读不回来（底座把这一支的失败吞掉了，D 路补上）
+// 进不去：入口图读不进来、这一档缺编成——什么都不动，原图从磁盘上删了也不受影响
 // ---------------------------------------------------------------------------
 
-TEST_F(LilianD, WhenNeitherTheEntranceNorTheOriginalMapLoadsBothFailuresAreReported) {
+TEST_F(LilianD, AnEntranceThatCannotLoadChangesNothingEvenIfTheOriginalFileIsGone) {
     writeMap(root_->path(), "probe_home_gone", standAndFacility("zhanwei", "probe_missing"));
     ASSERT_TRUE(app_.loadMap("probe_home_gone", std::string{}).ok);
     tick(2);
     app_.state().party = {{"qu_hun", 17, true}};
     app_.state().setFlag("probe.lilian.open");
     openPanel();
-    fs::remove(root_->path() / "maps" / "probe_home_gone.tmj");   // 原图此刻读不回来了
+    // 原图在磁盘上没了：进门失败之后也不该去重读它（原图一直在内存里）。
+    fs::remove(root_->path() / "maps" / "probe_home_gone.tmj");
     depart(0);   // 名册空着：唯一一行就是出发
 
     EXPECT_FALSE(app_.inLilian());
     ASSERT_EQ(top(), "Dialogue");
-    const std::string said = lastLine();
-    EXPECT_EQ(said.rfind("进不去：入口图进不去（", 0), 0u) << said;
-    EXPECT_NE(said.find("原图也读不回来（"), std::string::npos) << said;
-    // 存档里记的仍是原图、原来那一格：此刻存下去，读回来就是进去之前。
+    EXPECT_EQ(lastLine().rfind("进不去：", 0), 0u) << lastLine();
+    EXPECT_NE(lastLine().find("lilian_probe_missing"), std::string::npos) << lastLine();
+    ASSERT_NE(app_.currentMap(), nullptr);
+    EXPECT_EQ(app_.currentMap()->id, "probe_home_gone") << "画面上还是原图";
     EXPECT_EQ(app_.state().mapId, "probe_home_gone");
     EXPECT_EQ(app_.state().position.x, 12);
     EXPECT_EQ(app_.state().position.y, 11);
@@ -304,6 +312,69 @@ TEST_F(LilianD, WhenNeitherTheEntranceNorTheOriginalMapLoadsBothFailuresAreRepor
     ASSERT_EQ(app_.state().party.size(), 1u);
     EXPECT_EQ(app_.state().party[0].roleId, "qu_hun");
     EXPECT_EQ(app_.state().party[0].hp, 17);
+    EXPECT_EQ(&app_.worldObjects(), &app_.state().worldObjects) << "开宝箱记的是永久那份，不是一趟没进成的历练";
+}
+
+TEST_F(LilianD, AMissingTierBattleKeepsYouOutAndNamesIt) {
+    // probe_lack：两档（QiRefining13 / FoundationMid），图上一只 foe.battle = probe_lack，只有 _t1 这一场。
+    app_.state().setFlag("probe.lilian.open");
+    writeMap(root_->path(), "probe_home_lack", standAndFacility("zhanwei", "probe_lack"));
+    ASSERT_TRUE(app_.loadMap("probe_home_lack", std::string{}).ok);
+    tick(2);
+
+    app_.state().realm = Realm::FoundationEarly;   // 落在第 2 档：probe_lack_t2 不存在
+    openPanel();
+    depart(0);
+    EXPECT_FALSE(app_.inLilian());
+    ASSERT_EQ(top(), "Dialogue");
+    EXPECT_NE(lastLine().find("probe_lack_t2"), std::string::npos) << lastLine();
+    EXPECT_EQ(app_.state().mapId, "probe_home_lack");
+    press(SDL_SCANCODE_RETURN);
+    tick(2);
+
+    app_.state().realm = Realm::QiRefining3;       // 第 1 档：probe_lack_t1 在，进得去
+    openPanel();
+    depart(0);
+    EXPECT_TRUE(app_.inLilian());
+    EXPECT_EQ(app_.state().mapId, "lilian_probe_lack");
+}
+
+TEST_F(LilianD, InsideALilianAMissingBattleIsNotOpenedAndTheCallbackNeverRuns) {
+    enterWithAB();
+    app_.state().realm = Realm::QiRefining3;
+    bool called = false;
+    app_.startBattle(fanren::game::BattleStart{"probe_none"}, [&called](const auto&) { called = true; });
+    tick(3);
+    EXPECT_EQ(top(), "World") << "不压战斗场景（压下去会退回内置的探针杂兵战）";
+    EXPECT_FALSE(called);
+    // 对照：在的那一场照常开。
+    app_.startBattle(fanren::game::BattleStart{"probe_foe"}, [](const auto&) {});
+    tick();
+    EXPECT_EQ(top(), "Battle");
+}
+
+TEST_F(LilianD, ReturningToTheTitleDropsTheTrip) {
+    enterWithAB();
+    app_.returnToTitle();
+    tick(2);
+    EXPECT_FALSE(app_.inLilian());
+    EXPECT_EQ(&app_.worldObjects(), &app_.state().worldObjects);
+}
+
+TEST_F(LilianD, ALongRosterPagesInsideThePanelInsteadOfDrawingPastIt) {
+    for (const char* c : {"a", "b", "c", "d", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o"}) meet(c);
+    app_.state().setFlag("probe.lilian.open");
+    openPanel();
+    const int rows = panel()->pageSize();
+    EXPECT_GE(rows, 1);
+    EXPECT_LT(rows, 15) << "十四位加「出发」一共 15 行，面板画不下就得翻页";
+    EXPECT_LE(fanren::ui::listAreaHeight(rows, app_.theme()), 460) << "一页不比面板（460 高）还高";
+    // 翻页之后照样走得到最后一行「出发」：从第 0 行往上一格回绕到末行。
+    press(SDL_SCANCODE_UP);
+    press(SDL_SCANCODE_RETURN);
+    tick(2);
+    EXPECT_TRUE(app_.inLilian());
+    EXPECT_TRUE(app_.state().party.empty());
 }
 
 // ---------------------------------------------------------------------------

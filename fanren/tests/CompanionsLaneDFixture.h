@@ -6,12 +6,15 @@
 //   probe_a：zhang_tie（probe.a.grown 置了就过去）→ li_feiyu；met probe.a.met；
 //            合意 material_dansha、不喜 material_fuzhi，别的算寻常
 //   probe_b：baiyi_shaonv；probe_c：chen_shimei；probe_d：cao_lu（met 各是 probe.<x>.met）
-//   probe_e：ding_lao，met probe.e.met——没有一条用例置它（不在名册上的对照）
+//   probe_e：ding_lao；probe_f … probe_o：十位各挂一个现成角色（「名册一长」那条用例用）。
+//   met 旗标都是 probe.<x>.met，用例自己置；没置的就不在名册上。
 // 探针历练地 probe_jindi：入口 lilian_probe_a 的 rukou；用到 lilian_probe_a、lilian_probe_b；
 //   三档上限 QiRefining13 / FoundationEarly / FoundationMid；解锁旗标 probe.lilian.open。
 // 探针地图：probe_home（韩立站在 (12,11) 面朝左，(11,11) 是 kind=lilian、site=probe_jindi 的设施）；
 //   lilian_probe_a（同样的站位，(11,11) 是 kind=lilian 的出口）；lilian_probe_b。两张历练图上各有
 //   kChanceObjects 个带 chance=50 的 foe 与 chest，另各一个不带 chance 的 foe 与 chest、一道 gate。
+// 另两处：probe_missing（入口图 lilian_probe_missing 不存在）；probe_lack（两档，图上一只 foe 的编成
+//   只有 probe_lack_t1）。
 #include <SDL3/SDL.h>
 #include <gtest/gtest.h>
 
@@ -165,6 +168,15 @@ inline std::unique_ptr<TempDir> makeRoot(const char* prefix) {
     writeFile(companions / "probe_c.json", companionJson("probe_c", R"([{"role": "chen_shimei"}])"));
     writeFile(companions / "probe_d.json", companionJson("probe_d", R"([{"role": "cao_lu"}])"));
     writeFile(companions / "probe_e.json", companionJson("probe_e", R"([{"role": "ding_lao"}])"));
+    // 名册一长的那条用例用：probe_f … probe_o，各挂一个现成的角色。
+    const char* const longRoster[][2] = {{"f", "baichi_sanxiu_a"}, {"g", "baichi_sanxiu_b"}, {"h", "baichi_sanxiu_c"},
+                                         {"i", "baimen_zhanggui"}, {"j", "baishuilou_huoji"}, {"k", "baiyi_qingnian"},
+                                         {"l", "baiyi_xiushi"},    {"m", "budai_guairen"},    {"n", "cang_yunlong"},
+                                         {"o", "chen_dage"}};
+    for (const auto& [suffix, role] : longRoster) {
+        const std::string id = std::string("probe_") + suffix;
+        writeFile(companions / (id + ".json"), companionJson(id, std::string(R"([{"role": ")") + role + R"("}])"));
+    }
     writeFile(root->path() / "data" / "lilian" / "probe_jindi.json", kSiteJson);
     // 入口图根本不存在的一处（形状是对的，加载器只查形状）：回滚那一支的用例用它。
     writeFile(root->path() / "data" / "lilian" / "probe_missing.json", R"({
@@ -176,6 +188,19 @@ inline std::unique_ptr<TempDir> makeRoot(const char* prefix) {
     writeMap(root->path(), "probe_home", standAndFacility("zhanwei"));
     writeMap(root->path(), "lilian_probe_a", lilianMapObjects("lilian_probe_a"));
     writeMap(root->path(), "lilian_probe_b", lilianMapObjects("lilian_probe_b"));
+    // 缺一档编成的历练地：两档，图上一只 foe 的编成只有 _t1。
+    writeFile(root->path() / "data" / "lilian" / "probe_lack.json", R"({
+      "id": "probe_lack", "name_key": "probe.lilian.name", "unlock_flag": "probe.lilian.open",
+      "entry": {"map": "lilian_probe_lack"}, "maps": ["lilian_probe_lack"],
+      "tiers": [{"max_realm": "QiRefining13"}, {"max_realm": "FoundationMid"}]})");
+    writeBattle(root->path(), "probe_lack_t1");
+    {
+        std::vector<std::string> lack = standAndFacility("rukou", "probe_lack");
+        lack.push_back(object(10, "foe_lack", "foe", 1, 2,
+                              {prop("id", "lilian_probe_lack.foe"), prop("battle", "probe_lack"),
+                               prop("look", "zhang_tie"), prop("facing", "down")}));
+        writeMap(root->path(), "lilian_probe_lack", lack);
+    }
     return root;
 }
 
