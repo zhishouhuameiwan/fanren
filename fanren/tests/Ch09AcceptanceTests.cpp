@@ -101,7 +101,8 @@ protected:
         std::ifstream in(file);
         nlohmann::json json;
         in >> json;
-        ASSERT_EQ(json.at("save_version").get<int>(), 9) << label;
+        // 写出的是当前版本：第 9 章时是 9，伙伴改版（docs/interfaces-companions.md 2.3）推到 10。
+        ASSERT_EQ(json.at("save_version").get<int>(), 10) << label;
         const auto read = io::loadGame(file.string());
         ASSERT_TRUE(read.ok) << read.error;
         EXPECT_EQ(test::comparableSaveLines(read.value), test::comparableSaveLines(s)) << label;

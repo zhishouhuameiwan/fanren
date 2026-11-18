@@ -1238,7 +1238,8 @@ TEST(BattleKnowledge, TheSaveKeepsThemByNameAndBringsThemBack) {
     EXPECT_NE(text.find("\"knownWeaknesses\""), std::string::npos);
     EXPECT_NE(text.find("拳"), std::string::npos);
     // 设计原文：破绽让存档升到 v7；此后野外遭遇的计数器又推到 v8（docs/interfaces-octo-encounters.md 第 7 节）。
-    EXPECT_NE(text.find("\"save_version\": 9"), std::string::npos) << "第 9 章 E2：当前存档为 v9";
+    // 伙伴改版（docs/interfaces-companions.md 2.3）加入默契与四种地图对象，推到 10。
+    EXPECT_NE(text.find("\"save_version\": 10"), std::string::npos) << "伙伴改版：当前存档为 v10";
     const auto after = fanren::io::loadGame(path.string());
     std::error_code ec;
     fs::remove(path, ec);

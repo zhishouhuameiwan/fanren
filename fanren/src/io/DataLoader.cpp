@@ -13,6 +13,7 @@
 
 #include "core/rules/Bottle.h"   // herbMaxAgeForGrade / kMaxHerbAge：灵草年份上限的唯一出处
 #include "core/rules/Realm.h"
+#include "io/CompanionLoader.h"
 #include "io/JsonUtil.h"
 #include "io/PathActionLoader.h"
 #include "io/QuestLoader.h"
@@ -750,6 +751,13 @@ core::Result<GameData> loadGameDataImpl(const std::string& dataRootStr) {
         loadPathActionDir((dataRoot / "pathactions").string());
     if (!pathActions) return core::Result<GameData>::failure(pathActions.error);
     data.pathActions = std::move(pathActions.value);
+
+    // 伙伴（docs/interfaces-companions.md 2.1）。同样只查形状与「一个角色只属于一位伙伴」；
+    // 角色、法术、物品、旗标的引用归门禁。目录不存在 = 一位也没有。
+    core::Result<std::map<std::string, core::Companion>> companions =
+        loadCompanions((dataRoot / "companions").string());
+    if (!companions) return core::Result<GameData>::failure(companions.error);
+    data.companions = std::move(companions.value);
 
     return core::Result<GameData>::success(std::move(data));
 }

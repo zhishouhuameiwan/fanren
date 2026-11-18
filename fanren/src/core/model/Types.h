@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -302,6 +303,50 @@ struct Quest {
 // 只要用到成员之前补全——本文件读完时它就完整了）。
 struct PathAction;
 
+// ---- 伙伴（伙伴改版，docs/interfaces-companions.md 2.1）----
+//
+// 伙伴是「人」，角色（data/roles）是「她那时候的样子」：同一位伙伴按剧情先后用过几个角色 id。
+// **队伍里存的仍然是角色 id**（GameState::party），伙伴数据只回答两件事，各收在一个函数里：
+// 这个角色属于哪位伙伴、这位伙伴此刻该用哪个角色（core/rules/Companions.h）。
+struct CompanionRole {
+    std::string roleId;
+    std::string untilFlag;   // 置了这一段就过去了；空 = 一直有效
+};
+
+struct Companion {
+    std::string id;
+    std::vector<CompanionRole> roles;   // 按先后
+    std::string metFlag;                // 置了就进名册
+    std::string fieldSkill;             // 场地技；空 = 没有
+    bool chase = false;                 // 能不能追击
+    std::string duo;                    // 合招（data/magics 的一条）；空 = 没有
+    std::vector<std::string> giftsLike;     // 物品 id
+    std::vector<std::string> giftsDislike;  // 物品 id；两张表都没列的算寻常
+};
+
+// 韩立与一位伙伴之间的默契账（docs/interfaces-companions.md 2.2、2.3）。
+// 日子用 GameState::day 那一套；0 = 从来没有过（日历从第 1 天起）。
+struct BondRecord {
+    int value = 0;                 // 0–100，只增不减，离队不清零
+    int battleDay = 0;             // 「并肩打赢一仗」上次加分的那一天
+    int battleGainedThatDay = 0;   // 那一天这一项已经加了多少（同一位伙伴每天至多 +6）
+    int giftDay = 0;               // 上次赠礼的那一天（每人每天一次）
+};
+
+// 四种地图对象（宝箱、采集点、明雷、机关）的状态，键是对象 id（全局唯一，带图名前缀）。
+// 收成一个结构是因为它有两份：正史的那份进存档（GameState::worldObjects），历练里「这一趟」
+// 的那份只在内存里、出来就扔（docs/interfaces-companions.md 3.12，Application::worldObjects）。
+struct WorldObjectState {
+    std::set<std::string> openedChests;           // 开过的宝箱
+    std::map<std::string, int> gatheredDay;       // 采集点 → 上次采集的那一天
+    std::map<std::string, int> clearedFoes;       // 明雷 → 清掉的那一天
+    std::set<std::string> openedGates;            // 开过的机关
+
+    [[nodiscard]] bool empty() const {
+        return openedChests.empty() && gatheredDay.empty() && clearedFoes.empty() && openedGates.empty();
+    }
+};
+
 struct GameData {
     std::map<std::string, Item> items;
     std::map<std::string, Magic> magics;
@@ -317,6 +362,8 @@ struct GameData {
     // 路径行动，按章号排好（io/PathActionLoader.h 的 loadPathActionDir，只查形状；
     // 引用由门禁与 tests/PathActionTests.cpp 在真树上查）。
     std::vector<PathAction> pathActions;
+    // 伙伴（io/CompanionLoader.h），伙伴 id → 数据。目录不存在 = 一位也没有。
+    std::map<std::string, Companion> companions;
 
     [[nodiscard]] const Item* findItem(const std::string& id) const;
     [[nodiscard]] const Magic* findMagic(const std::string& id) const;
@@ -535,6 +582,19 @@ struct GameState {
     // 跌落之前到过的最高境界（第 9 章契约 1.3），凡人表示从没跌过。
     // RealmDemote 取原值与跌落前境界的较大者；第 10 章重修加速读它。
     rules::Realm formerRealm = rules::Realm::Mortal;
+
+    // ---- 伙伴改版（docs/interfaces-companions.md 2.3，存档 v10）----
+    //
+    // 追加在**所有数据成员的末尾**，与上面各项同一个规矩。全部是集合 / 映射，不用旗标：
+    // 每个宝箱、每位伙伴都去 data/flags.json 登记一项不现实。v9 及更早的档读进来全是空的。
+    // 名册不存（由伙伴的 met_flag 推出）；历练进行中的状态不存（历练里不能存档）。
+    std::map<std::string, BondRecord> bonds;   // 伙伴 id → 默契账
+    WorldObjectState worldObjects;             // 正史里四种地图对象的状态
+
+    [[nodiscard]] int bondOf(const std::string& companionId) const {
+        const auto it = bonds.find(companionId);
+        return it == bonds.end() ? 0 : it->second.value;
+    }
 };
 
 // ---- 战斗配置（从 data/battles/ 读入，运行期只读）----

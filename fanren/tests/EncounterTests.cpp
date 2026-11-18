@@ -310,7 +310,8 @@ fanren::core::Result<GameState> loadText(const std::string& text) {
 TEST(EncounterSave, TheSaveVersionIsEight) {
     // 设计原文（docs/interfaces-octo-encounters.md 第 7 节、io/SaveFile.h 第 8 条）：计数器进存档，升到 8。
     // 第 9 章 E2 在保留遭遇计数器的基础上，将当前版本推到 9。
-    EXPECT_EQ(fanren::io::kSaveVersion, 9);
+    // 伙伴改版（docs/interfaces-companions.md 2.3）加入默契与四种地图对象，推到 10。
+    EXPECT_EQ(fanren::io::kSaveVersion, 10);
 }
 
 TEST(EncounterSave, TheCounterRoundTripsThroughASave) {

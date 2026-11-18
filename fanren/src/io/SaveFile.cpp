@@ -7,6 +7,7 @@
 #include <fstream>
 #include <iomanip>
 #include <map>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -15,6 +16,7 @@
 #include <nlohmann/json.hpp>
 
 #include "core/rules/Bottle.h"
+#include "core/rules/Companions.h"
 #include "core/rules/Realm.h"
 
 namespace fanren::io {
@@ -162,10 +164,93 @@ json toJson(const GameState& s) {
         {"triggeredToday", s.encounter.triggeredToday},
         {"lastDay", s.encounter.lastDay},
     };
+
+    // 默契账与四种地图对象（save_version 10 起）。std::map / std::set 按键排好，写出来的次序是确定的。
+    json bonds = json::object();
+    for (const auto& [companionId, bond] : s.bonds) {
+        bonds[companionId] = {
+            {"value", bond.value},
+            {"battleDay", bond.battleDay},
+            {"battleGained", bond.battleGainedThatDay},
+            {"giftDay", bond.giftDay},
+        };
+    }
+    payload["bonds"] = std::move(bonds);
+    payload["openedChests"] = s.worldObjects.openedChests;
+    payload["gatheredDay"] = json(s.worldObjects.gatheredDay);
+    payload["clearedFoes"] = json(s.worldObjects.clearedFoes);
+    payload["openedGates"] = s.worldObjects.openedGates;
     return payload;
 }
 
 core::Result<GameState> failState(const std::string& msg) { return core::Result<GameState>::failure(msg); }
+
+// ---- v10 的五项（伙伴改版）。都可缺（v9 及更早的档）；写了却写坏了判失败，与 knownWeaknesses 同一条口径。
+// 返回空串 = 读好了，否则是那一句错。
+
+std::string readIdSet(const json& p, const char* key, std::set<std::string>& out) {
+    if (!p.contains(key)) return {};
+    const json& list = p[key];
+    if (!list.is_array()) return std::string("存档 payload 的 ") + key + " 不是数组";
+    for (const json& id : list) {
+        if (!id.is_string() || id.get_ref<const std::string&>().empty()) {
+            return std::string("存档 payload 的 ") + key + " 里有不是对象 id 的条目";
+        }
+        out.insert(id.get<std::string>());
+    }
+    return {};
+}
+
+std::string readDayMap(const json& p, const char* key, std::map<std::string, int>& out) {
+    if (!p.contains(key)) return {};
+    const json& days = p[key];
+    if (!days.is_object()) return std::string("存档 payload 的 ") + key + " 不是对象";
+    for (const auto& entry : days.items()) {
+        if (!entry.value().is_number_integer() || entry.value().get<int>() < 0) {
+            return std::string("存档 payload 的 ") + key + " 里 \"" + entry.key() + "\" 不是日子";
+        }
+        out[entry.key()] = entry.value().get<int>();
+    }
+    return {};
+}
+
+std::string readBonds(const json& p, std::map<std::string, core::BondRecord>& out) {
+    if (!p.contains("bonds")) return {};
+    const json& bonds = p["bonds"];
+    if (!bonds.is_object()) return "存档 payload 的 bonds 不是对象";
+    for (const auto& entry : bonds.items()) {
+        const json& b = entry.value();
+        core::BondRecord record;
+        const std::array<std::pair<const char*, int*>, 4> fields = {{
+            {"value", &record.value},
+            {"battleDay", &record.battleDay},
+            {"battleGained", &record.battleGainedThatDay},
+            {"giftDay", &record.giftDay},
+        }};
+        for (const auto& [name, slot] : fields) {
+            if (!b.is_object() || !b.contains(name) || !b[name].is_number_integer() || b[name].get<int>() < 0) {
+                return "存档 payload 的 bonds 里 \"" + entry.key() + "\" 缺少非负整数 " + name;
+            }
+            *slot = b[name].get<int>();
+        }
+        if (record.value > rules::kBondMax) {
+            return "存档 payload 的 bonds 里 \"" + entry.key() + "\" 的默契超过上限";
+        }
+        out[entry.key()] = record;
+    }
+    return {};
+}
+
+std::string readCompanionFields(const json& p, GameState& s) {
+    for (const std::string& why :
+         {readBonds(p, s.bonds), readIdSet(p, "openedChests", s.worldObjects.openedChests),
+          readDayMap(p, "gatheredDay", s.worldObjects.gatheredDay),
+          readDayMap(p, "clearedFoes", s.worldObjects.clearedFoes),
+          readIdSet(p, "openedGates", s.worldObjects.openedGates)}) {
+        if (!why.empty()) return why;
+    }
+    return {};
+}
 
 core::Result<GameState> fromJson(const json& p) {
     if (!p.is_object()) return failState("存档 payload 不是 JSON 对象");
@@ -423,6 +508,9 @@ core::Result<GameState> fromJson(const json& p) {
         }
     }
 
+    // 默契账与四种地图对象自 save_version 10 起存在；v9 档读不到它们是正常的，全给空。
+    if (const std::string why = readCompanionFields(p, s); !why.empty()) return failState(why);
+
     return core::Result<GameState>::success(std::move(s));
 }
 
@@ -550,6 +638,9 @@ const std::map<int, MigrationFn>& migrations() {
         {7, [](const json& payload) { return core::Result<json>::success(payload); }},
         // 8 -> 9：加入 formerRealm，旧档缺省凡人（从没跌过）；空操作仍显式登记。
         {8, [](const json& payload) { return core::Result<json>::success(payload); }},
+        // 9 -> 10：加入默契账与四种地图对象的状态（伙伴改版）。v9 档里没有，fromJson 读不到就全是空的
+        // ——旧档 = 谁都不熟、一样也没开过。空操作，照规矩登记：漏这一行，第 9–13 章的交接档一份也读不回来。
+        {9, [](const json& payload) { return core::Result<json>::success(payload); }},
     };
     return kTable;
 }

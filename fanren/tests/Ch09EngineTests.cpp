@@ -523,7 +523,8 @@ TEST_F(Ch09EngineTest, AnActualCastBelowTheRequiredRealmLeavesHpAndMpUnchanged) 
 }
 
 TEST(Ch09Save, TheCurrentVersionIsNine) {
-    EXPECT_EQ(fanren::io::kSaveVersion, 9);
+    // 第 9 章定的是 v9；伙伴改版（docs/interfaces-companions.md 2.3）加入默契与四种地图对象，推到 10。
+    EXPECT_EQ(fanren::io::kSaveVersion, 10);
 }
 
 TEST_F(Ch09EngineTest, ACompleteDemotedStateRoundTripsIncludingFormerRealm) {
@@ -533,7 +534,8 @@ TEST_F(Ch09EngineTest, ACompleteDemotedStateRoundTripsIncludingFormerRealm) {
     const fs::path path = dir.path() / "state.sav";
     ASSERT_TRUE(fanren::io::saveGame(app_.state(), path.string()).ok);
     const std::string text = readFile(path);
-    EXPECT_NE(text.find("\"save_version\": 9"), std::string::npos);
+    // 伙伴改版把写出的版本推到 10（docs/interfaces-companions.md 2.3），formerRealm 照旧写。
+    EXPECT_NE(text.find("\"save_version\": 10"), std::string::npos);
     EXPECT_NE(text.find("\"formerRealm\": 22"), std::string::npos);
     const auto loaded = fanren::io::loadGame(path.string());
     ASSERT_TRUE(loaded.ok) << loaded.error;
@@ -647,7 +649,8 @@ TEST(Ch09Save, TheCompatibilityScanAcceptsAVersionNineDemotedSave) {
     ASSERT_TRUE(fanren::io::saveGame(state, path.string()).ok);
     const auto original = nlohmann::json::parse(readFile(path), nullptr, false);
     ASSERT_FALSE(original.is_discarded());
-    ASSERT_EQ(original.at("save_version"), 9);
+    // 写出的是当前版本（伙伴改版起为 10）；扫描要认的是 formerRealm 那一项。
+    ASSERT_EQ(original.at("save_version"), 10);
     ASSERT_EQ(original.at("payload").at("realm"), 3);
     ASSERT_EQ(original.at("payload").at("realmCap"), 3);
     ASSERT_EQ(original.at("payload").at("formerRealm"), 22);

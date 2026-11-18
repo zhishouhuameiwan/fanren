@@ -222,7 +222,8 @@ TEST(Ch04MagicSave, TheSaveVersionIsFive) {
     // 那份设计原文的数。再推到 8：野外遭遇的计数器（docs/interfaces-octo-encounters.md、
     // io/SaveFile.h 第 8 条）。
     // 第 9 章 E1/E2 的 formerRealm 将当前版本推到 9。
-    EXPECT_EQ(kSaveVersion, 9);
+    // 伙伴改版（docs/interfaces-companions.md 2.3）加入默契与四种地图对象，推到 10。
+    EXPECT_EQ(kSaveVersion, 10);
 }
 
 TEST(Ch04MagicSave, TheFourToFiveMigrationIsRegistered) {

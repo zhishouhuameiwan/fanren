@@ -40,7 +40,11 @@ namespace fanren::io {
 //    7→8 迁移是空操作，照规矩登记。不存它的话，读一次档就把当天的遭遇上限清零。
 // 9: 加入跌落之前的最高境界（GameState::formerRealm，第 9 章 E1）。
 //    v8 档缺此项即凡人（从没跌过），8→9 迁移是空操作，照规矩登记。
-inline constexpr int kSaveVersion = 9;
+// 10: 加入默契账（GameState::bonds）与四种地图对象的状态（GameState::worldObjects：已开宝箱、
+//    采集点上次采集的日子、已清明雷、已开机关），伙伴改版，docs/interfaces-companions.md 2.3。
+//    v9 档里没有这几项，读不到就全是空的——**旧档 = 谁都不熟、一样也没开过**，那会儿还没有伙伴
+//    和这些对象。9→10 迁移是空操作，照规矩登记。全是集合 / 映射，按键排序写出，同一局两次写出逐字节相同。
+inline constexpr int kSaveVersion = 10;
 
 // v5 及更早的存档读进来时，境界上限取多少（5→6 迁移的全部内容，公开出来单独测）。
 //

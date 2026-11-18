@@ -207,7 +207,8 @@ TEST(Ch03SaveVersion, IsFive) {
     // io/SaveFile.h 第 7 条）。6→7 同样是空操作、同样登记。**再推到 8**：野外遭遇的计数器
     //（io/SaveFile.h 第 8 条），7→8 也是空操作。
     // 第 9 章 E1/E2 的 formerRealm 将当前版本推到 9，8→9 仍登记空迁移。
-    EXPECT_EQ(kSaveVersion, 9);
+    // 伙伴改版（docs/interfaces-companions.md 2.3）加入默契与四种地图对象，推到 10。9→10 同样登记空迁移。
+    EXPECT_EQ(kSaveVersion, 10);
 }
 
 TEST(Ch03SaveVersion, HandBuiltSaveAtTheCurrentVersionIsAccepted) {
