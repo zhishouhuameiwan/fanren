@@ -88,6 +88,8 @@ public:
     [[nodiscard]] Vec2f position() const;
     [[nodiscard]] bool moving() const { return elapsed_ < duration_; }
     [[nodiscard]] Vec2f target() const { return to_; }
+    // 这一步已经滑了多少秒（没在滑时是整步的时长或 0）。跟随者起步时拿主角的这个数对齐进度。
+    [[nodiscard]] float elapsed() const { return elapsed_; }
 
 private:
     Vec2f from_{};
@@ -231,9 +233,12 @@ public:
         WalkPose pose;
     };
 
-    // epoch：主角最近一次瞬移的序号（WorldView 自己数）。carryDt：这一帧 advance 已经推过的秒数——
-    // 这一刻才起步的滑步补推这么多，与主角在同一帧起步、同一帧到。walkStart 同 WalkPose::update。
-    void sync(const std::vector<WorldFrame::Follower>& followers, unsigned epoch, float carryDt, float walkStart);
+    // epoch：主角最近一次瞬移的序号（WorldView 自己数）。leader / leaderPose：主角此刻的滑步与走路帧——
+    // 这一刻起步的跟随者直接对齐主角这一步已经走过的进度（主角没在滑就从 0 起），走路帧也跟主角同一拍。
+    // 不拿「上一帧 advance 推了多少秒」去猜：游戏里 WorldScene::update 先 advance、后 tryStep，主角要到 render 里
+    // 才起步、那一刻进度是 0；测试里也可能反过来。对齐主角此刻的进度，两种次序都同一帧起步、同一帧到。
+    void sync(const std::vector<WorldFrame::Follower>& followers, unsigned epoch, const StepSlide& leader,
+              const WalkPose& leaderPose);
     void advance(float dt, float walkStart);
     void clear();
     [[nodiscard]] const std::vector<Slot>& slots() const { return slots_; }
@@ -391,7 +396,6 @@ private:
     StepSlide player_;
     WalkPose pose_;                 // 主角的走路帧
     unsigned snapEpoch_ = 0;        // 主角每瞬移一次加一：跟随者据此整列瞬移
-    float lastDt_ = 0.f;            // 上一次 advance 推了多少秒（跟随者新起步的滑步补推它）
     FollowerTrack followers_;
     Vec2f camera_{};
     float clock_ = 0.f;             // 视觉时钟：闪烁、帧动画、波光的相位

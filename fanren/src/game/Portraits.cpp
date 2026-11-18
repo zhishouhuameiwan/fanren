@@ -86,8 +86,9 @@ engine::RectF portraitFrameRect(const core::PortraitSheet& sheet, int faceSlot) 
                          static_cast<float>(sheet.frameH)};
 }
 
-std::optional<PortraitFrame> portraitFor(engine::Engine& engine, const std::string& roleId,
+std::optional<PortraitFrame> portraitFor(engine::Engine& engine, bool headless, const std::string& roleId,
                                          const std::string& face) {
+    if (headless) return std::nullopt;         // 没有渲染器：图本来就载不进来，不当毛病报
     if (roleId.empty()) return std::nullopt;   // 旁白
     const core::PortraitTable& table = portraitTable(engine);
     const auto it = table.find(roleId);

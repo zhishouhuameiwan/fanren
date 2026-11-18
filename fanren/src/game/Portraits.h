@@ -21,7 +21,9 @@ struct PortraitSource {
     std::string imageDir;
 };
 
-// 换来源并丢掉已读的表（下次问到时按新来源重读）。只给测试用；游戏里从不调。
+// 换来源并丢掉已读的表与已打过的警告（下次问到时按新来源重读）。**只给单线程的测试用**；游戏里从不调。
+// 来源是进程级的一份全局状态：并发的用例各换各的会互相踩。将来 Application 给出游戏根之后，
+// 缺省来源改成从游戏根找、这个开关一并收掉（协调者记在合并那一步）。
 void setPortraitSource(PortraitSource source);
 
 // 当前来源的表在哪（缺省来源经引擎的资源根往上一层找 data/visual/portraits.json）；找不到为空串。
@@ -38,11 +40,12 @@ void setPortraitSource(PortraitSource source);
 
 // 这一句要画的那一格：纹理、源矩形、格子大小。说话人没登记、旁白（roleId 空）、图载不进来、
 // 格子越出了图 → nullopt。表情认不出时退回 normal 并警告一次。
+// headless（没有渲染器）时一律静默返回 nullopt、不读表也不警告：那时图本来就载不进来，不是图坏了。
 struct PortraitFrame {
     engine::TextureId texture = engine::kInvalidTexture;
     engine::RectF src{};
 };
-[[nodiscard]] std::optional<PortraitFrame> portraitFor(engine::Engine& engine, const std::string& roleId,
+[[nodiscard]] std::optional<PortraitFrame> portraitFor(engine::Engine& engine, bool headless, const std::string& roleId,
                                                        const std::string& face);
 
 // ---- 摆位（纯函数，不开窗口可测）----

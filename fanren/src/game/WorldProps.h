@@ -45,6 +45,14 @@ struct PropPlaceholder {
 // 明雷头顶标记取不到图时：一块小牌一个字（精英换一种颜色、换一个字）。
 [[nodiscard]] PropPlaceholder foeMarkPlaceholder(bool elite);
 
+// ---- 新对象缺图的警告 ----
+// 进程级去重：同一个 key（每种缺的物件 id、每个取不到的明雷 look）整个进程只打一行。世界层每进一次栈是一台新的
+// WorldView，按实例记的话每进一次图就再响一遍；只记「第一张缺的」的话，美术路补了一部分之后剩下缺的又没人提。
+// 返回这一次打没打。
+bool warnWorldOnce(const std::string& key, const std::string& message);
+// 忘掉已打过的警告。**只给单线程的测试用**（钉住「每种各一行」的用例要从零数起）。
+void forgetWorldWarnings();
+
 // ---- 人物的落点（屏幕像素）----
 // 帧内 (frameW/2, footY+1) 对准脚底点，按**这张表自己的** scale 放大（docs/art-sprites.md 第 4 节、5.1）。
 // 旧表 scale 是 3，与改版前写死的 kArtScale 同一个数，画出来逐像素不变；高清表 ×2，一帧约 128×120，

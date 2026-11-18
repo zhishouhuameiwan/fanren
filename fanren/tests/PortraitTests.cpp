@@ -213,9 +213,12 @@ protected:
         dir_ = fanren::test::uniqueTempPath("fanren_portraits");
         fs::create_directories(dir_);
         writeFixtureAtlas(dir_ / "fixture.png");
+        // zhang_tie 的 normal 指第 9 格：4 列 1 行的图集只有 0–3 格，第 9 格在第 3 行，越出了图。
         writeText(dir_ / "portraits.json",
                   R"({"portraits": {"hanli": {"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
-                      "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}}}})");
+                      "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}},
+                      "zhang_tie": {"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
+                      "faces": {"normal": 9, "smile": 1, "angry": 2, "hurt": 3}}}})");
         writeText(dir_ / "empty.json", R"({"portraits": {}})");
     }
     void TearDown() override {
@@ -334,12 +337,12 @@ TEST_F(PortraitShot, NarrationAndUnregisteredSpeakersLookExactlyAsWithoutAnyPort
     {
         SourceGuard guard(fixture());
         narrationWith = shoot("", "normal", boxX);
-        otherWith = shoot("zhang_tie", "normal", boxX);
+        otherWith = shoot("han_mu", "normal", boxX);
     }
     {
         SourceGuard guard(emptyTable());
         narrationWithout = shoot("", "normal", boxX);
-        otherWithout = shoot("zhang_tie", "normal", boxX);
+        otherWithout = shoot("han_mu", "normal", boxX);
     }
     ASSERT_GT(narrationWith.w, 0);
     ASSERT_GT(otherWith.w, 0);
@@ -358,6 +361,61 @@ TEST_F(PortraitShot, NarrationAndUnregisteredSpeakersLookExactlyAsWithoutAnyPort
     }
     EXPECT_GT(differingPixels(hanliWith, hanliWithout), static_cast<std::size_t>(kFixtureW * kFixtureH * 4))
         << "有头像时至少头像那 112×128 一块不同";
+}
+
+TEST_F(PortraitShot, AFaceWhoseCellLiesOutsideTheAtlasLeavesThatLineWithoutAPortrait) {
+    int boxX = 0;
+    {
+        SourceGuard guard(emptyTable());
+        (void)shoot("", "normal", boxX);   // 暖机，见上一条
+    }
+    Frame outside, without;
+    {
+        SourceGuard guard(fixture());
+        ::testing::internal::CaptureStderr();
+        outside = shoot("zhang_tie", "normal", boxX);
+        const std::string err = ::testing::internal::GetCapturedStderr();
+        EXPECT_NE(err.find("zhang_tie"), std::string::npos) << "越界的那一格要警告：" << err;
+    }
+    {
+        SourceGuard guard(emptyTable());
+        without = shoot("zhang_tie", "normal", boxX);
+    }
+    ASSERT_GT(outside.w, 0);
+    EXPECT_EQ(differingPixels(outside, without), 0u) << "那一句不带头像，画面与没登记时一样（正文也不让开）";
+    for (int face = 0; face < 4; ++face) EXPECT_EQ(findScaledFace(outside, face).x, -1);
+}
+
+TEST_F(PortraitShot, AnUnknownFaceFromTheScriptIsDrawnAsNormal) {
+    SourceGuard guard(fixture());
+    int boxX = 0;
+    const Frame normal = shoot("hanli", "normal", boxX);
+    const auto at = findScaledFace(normal, 0);
+    ASSERT_GE(at.x, 0);
+    ::testing::internal::CaptureStderr();
+    const Frame sad = shoot("hanli", "sad", boxX);
+    const std::string err = ::testing::internal::GetCapturedStderr();
+    const auto sadAt = findScaledFace(sad, 0);
+    EXPECT_EQ(sadAt.x, at.x) << "认不出的表情按 normal 画、画在同一处";
+    EXPECT_EQ(sadAt.y, at.y);
+    for (int face = 1; face < 4; ++face) EXPECT_EQ(findScaledFace(sad, face).x, -1);
+    EXPECT_NE(err.find("sad"), std::string::npos) << "认不出的表情要警告：" << err;
+}
+
+TEST_F(PortraitShot, WithoutARendererPortraitsAreSilentlySkipped) {
+    // 无头（没有渲染器）时图本来就载不进来：不读表、不警告，免得头像表一填上，无头的 bot 与用例每张头像报一行「载不进来」。
+    SourceGuard guard(fixture());
+    fanren::game::Application app;
+    ASSERT_TRUE(app.init(repoRoot(), /*headless=*/true).ok);
+    app.sayAs("hanli", "ch01.zhenshang.arrive", "smile");
+    app.tick(1.0 / 60.0);
+    ASSERT_NE(app.topScene(), nullptr);
+    ASSERT_EQ(app.topScene()->name(), "Dialogue");
+    ::testing::internal::CaptureStderr();
+    app.drawScenes();   // 走一遍 DialogueScene::render（无头下绘制全是空操作）
+    const std::string err = ::testing::internal::GetCapturedStderr();
+    EXPECT_EQ(err.find("[portrait]"), std::string::npos) << err;
+    app.shutdown();
 }
 
 TEST_F(PortraitShot, TheDefaultSourceIsTheShippedTableBesideTheAssets) {

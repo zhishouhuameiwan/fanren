@@ -372,6 +372,46 @@ TEST_F(FollowerSlide, AFollowerGivenTheHerosLastCellSlidesThereInStepWithHim) {
     EXPECT_FALSE(view.followers()[0].pose.walking) << "停下之后回站立帧";
 }
 
+TEST_F(FollowerSlide, InTheGamesOwnOrderTheFollowerKeepsPaceWithTheHeroEveryFrame) {
+    // 游戏里一帧的真实次序（WorldScene::update → WorldScene::render）：先 view.advance，再 tryStep 换格，
+    // 再 render——render 开头 sync 发现主角换了格、主角从进度 0 起步，同一处 trackFollowers 让伙伴起步。
+    // 判据：这一步之内的每一帧，伙伴与主角走过的进度相同，同一帧到格；谁也不领先一帧。
+    Point from;
+    ASSERT_TRUE(placeInTheOpen(from));
+    app_.state().position = Point{from.x + 1, from.y};   // 主角在前、伙伴在他身后一格
+    fanren::game::WorldView view;
+    fanren::game::WorldScene world;
+    view.advance(app_, 0.0);
+    view.trackFollowers(app_, withFollowers({{"nangong_wan", from, 1}}));
+    constexpr double kFrame = 1.0 / 60.0;
+    view.advance(app_, kFrame);
+    view.trackFollowers(app_, withFollowers({{"nangong_wan", from, 1}}));
+
+    // 起步那一帧：advance → tryStep → render。
+    view.advance(app_, kFrame);
+    ASSERT_TRUE(world.tryStep(app_, 1, 0));
+    view.trackFollowers(app_, withFollowers({{"nangong_wan", Point{from.x + 1, from.y}, 1}}));
+    const float heroFrom = static_cast<float>(from.x + 1);
+    const float followerFrom = static_cast<float>(from.x);
+    int heroArrived = -1;
+    int followerArrived = -1;
+    for (int frame = 0; frame < 12; ++frame) {
+        SCOPED_TRACE(frame);
+        const auto& slot = view.followers()[0];
+        EXPECT_NEAR(view.playerCell().x - heroFrom, slot.slide.position().x - followerFrom, 1e-5f)
+            << "伙伴与主角同一个进度";
+        EXPECT_EQ(view.playerMoving(), slot.slide.moving());
+        EXPECT_EQ(view.walking(), slot.pose.walking) << "走路帧同一拍";
+        if (heroArrived < 0 && !view.playerMoving()) heroArrived = frame;
+        if (followerArrived < 0 && !slot.slide.moving()) followerArrived = frame;
+        // 下一帧：没有新的一步，advance 之后 render 照常 track（帧里的格不变）。
+        view.advance(app_, kFrame);
+        view.trackFollowers(app_, withFollowers({{"nangong_wan", Point{from.x + 1, from.y}, 1}}));
+    }
+    EXPECT_GT(heroArrived, 0) << "一步要滑好几帧";
+    EXPECT_EQ(followerArrived, heroArrived) << "同一帧到格";
+}
+
 TEST_F(FollowerSlide, AFollowerMovedMoreThanOneCellSnaps) {
     Point from;
     ASSERT_TRUE(placeInTheOpen(from));
@@ -568,6 +608,39 @@ TEST_F(WorldPropsDrawn, TheSameFrameDrawnTwiceIsIdentical) {
     const Shot b = draw(empty);
     ASSERT_GT(a.w, 0);
     EXPECT_EQ(differing(a, b, 0, 0, a.w, a.h), 0);
+}
+
+int occurrences(const std::string& text, const std::string& needle) {
+    int n = 0;
+    for (std::size_t at = text.find(needle); at != std::string::npos; at = text.find(needle, at + needle.size())) ++n;
+    return n;
+}
+
+TEST_F(WorldPropsDrawn, EachMissingObjectSpriteAndFoeLookIsReportedOnceForTheWholeProcess) {
+    // 每种缺的物件 id 各一行、明雷取不到的 look 各一行，世界层进栈两次（两台 WorldView）也不重报。
+    // 哪几张缺以真索引此刻为准：美术路补上了的那几张，一行都不该有。
+    const auto index = fanren::io::loadSpriteIndex((fs::path(repoRoot()) / "assets/art/sprites/index.json").string());
+    ASSERT_TRUE(index.ok) << index.error;
+    const auto missing = [&index](const char* id) { return index.value.objects.count(id) == 0 ? 1 : 0; };
+
+    const MapObject chest = objectAt("chest", hero_.x + 3, hero_.y);
+    const MapObject gate = objectAt("gate", hero_.x - 3, hero_.y);
+    const MapObject foe = objectAt("foe", hero_.x, hero_.y + 3);
+    WorldFrame frame;
+    frame.chests.push_back(WorldFrame::Chest{&chest, false});
+    frame.gates.push_back(WorldFrame::Gate{&gate, false});
+    frame.foes.push_back(WorldFrame::Foe{&foe, "selftest_no_such_look", 2, false});
+
+    fanren::game::forgetWorldWarnings();
+    ::testing::internal::CaptureStderr();
+    (void)draw(frame);
+    (void)draw(frame);
+    const std::string err = ::testing::internal::GetCapturedStderr();
+    EXPECT_EQ(occurrences(err, "物件 chest_closed 在"), missing("chest_closed")) << err;
+    EXPECT_EQ(occurrences(err, "物件 gate_closed 在"), missing("gate_closed")) << err;
+    EXPECT_EQ(occurrences(err, "物件 foe_mark 在"), missing("foe_mark")) << err;
+    EXPECT_EQ(occurrences(err, "物件 chest_open 在"), 0) << "这一帧没有开着的宝箱";
+    EXPECT_EQ(occurrences(err, "明雷的 look「selftest_no_such_look」"), 1) << err;
 }
 
 TEST_F(WorldPropsDrawn, NewObjectsAndAFollowerAreVisibleEvenWithoutTheirArt) {

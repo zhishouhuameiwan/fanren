@@ -300,8 +300,8 @@ void WalkPose::stop() {
     idleClock = 0.f;
 }
 
-void FollowerTrack::sync(const std::vector<WorldFrame::Follower>& followers, unsigned epoch, float carryDt,
-                         float walkStart) {
+void FollowerTrack::sync(const std::vector<WorldFrame::Follower>& followers, unsigned epoch,
+                         const StepSlide& leader, const WalkPose& leaderPose) {
     bool rebuild = !seen_ || epoch != epoch_ || followers.size() != slots_.size();
     for (std::size_t i = 0; !rebuild && i < followers.size(); ++i) rebuild = followers[i].roleId != slots_[i].roleId;
     seen_ = true;
@@ -329,8 +329,10 @@ void FollowerTrack::sync(const std::vector<WorldFrame::Follower>& followers, uns
         const Vec2f at{fl(follower.cell.x), fl(follower.cell.y)};
         if (steps == 1) {
             slot.slide.moveTo(at);
-            slot.slide.advance(carryDt);
-            slot.pose.update(slot.slide.moving(), carryDt, walkStart);
+            if (leader.moving()) slot.slide.advance(leader.elapsed());
+            // 主角已经在播走路帧（连着走、或这一步已在 advance 里起播）就跟他同一拍；还没起播的，
+            // 下一次 advance 两边一起从「迈甲」那一帧起。
+            if (leaderPose.walking) slot.pose = leaderPose;
         } else {
             slot.slide.snap(at);
             slot.pose.stop();
@@ -540,7 +542,7 @@ float WorldView::walkStartClock() const {
 void WorldView::trackFollowers(Application& app, const WorldFrame& frame) {
     // 先认一遍主角：这一帧要是换了图、主角被挪了，跟随者要跟着整列瞬移，而不是从旧图的格子滑过来。
     sync(app);
-    followers_.sync(frame.followers, snapEpoch_, lastDt_, walkStartClock());
+    followers_.sync(frame.followers, snapEpoch_, player_, pose_);
 }
 
 void WorldView::advance(Application& app, double deltaSeconds) {
@@ -550,7 +552,6 @@ void WorldView::advance(Application& app, double deltaSeconds) {
     player_.advance(dt);
     pose_.update(player_.moving(), dt, walkStartClock());
     followers_.advance(dt, walkStartClock());
-    lastDt_ = dt;
     fadeClock_ += dt;
     bannerClock_ += dt;
     if (const core::TileMap* map = app.currentMap()) {
@@ -1207,15 +1208,10 @@ void WorldView::drawSorted(engine::Engine& engine, Application& app, const World
 // ---------------------------------------------------------------------------
 
 void WorldView::warnMissingProp(const char* spriteId) {
-    // 整个进程一行就够：八张图是美术路一起补的，缺一张多半是全缺，一张一行只是刷屏；世界层每进一次栈
-    // 就是一台新的 WorldView，按实例记的话每进一次图又响一遍。
-    static bool warned = false;
-    if (warned) return;
-    warned = true;
-    std::fprintf(stderr,
-                 "[world] WARNING: 物件 %s 在 art/sprites/index.json 的 objects 里没有（宝箱 / 采集点 / 机关 / "
-                 "明雷标记的图由美术路补）：这几种新对象退回占位画法\n",
-                 spriteId);
+    // 每种缺的物件 id 各一行、整个进程去重（WorldProps.h 的 warnWorldOnce）：美术路只补了一部分时，剩下缺的照样有提示。
+    warnWorldOnce(std::string("prop:") + spriteId,
+                  std::string("物件 ") + spriteId +
+                      " 在 art/sprites/index.json 的 objects 里没有（新对象的图由美术路补）：这种对象退回占位画法");
 }
 
 void WorldView::drawProp(engine::Engine& engine, const core::MapObject& object, const char* spriteId,
@@ -1274,7 +1270,7 @@ void WorldView::drawFoe(engine::Engine& engine, const WorldFrame::Foe& foe, cons
             return;
         }
     } else if (atlasOk_) {
-        warnOnce("foe-look:" + foe.look, "明雷的 look「" + foe.look +
+        warnWorldOnce("foe-look:" + foe.look, "明雷的 look「" + foe.look +
                                              "」在 art/sprites/index.json 里既不是角色、外观，也不是敌人：退回旧图元画法");
     }
     const engine::Rect cell{static_cast<int>(snap(footX - kCell / 2.f)), static_cast<int>(snap(footY - kCell)),

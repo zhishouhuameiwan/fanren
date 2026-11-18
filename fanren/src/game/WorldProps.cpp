@@ -1,6 +1,8 @@
 #include "game/WorldProps.h"
 
 #include <cmath>
+#include <cstdio>
+#include <set>
 
 #include "game/WorldView.h"
 
@@ -22,7 +24,20 @@ constexpr engine::Color kGateOpenEdge{150, 170, 190, 90};
 constexpr engine::Color kFoeMarkPlate{196, 48, 40, 255};
 constexpr engine::Color kFoeMarkElitePlate{214, 160, 40, 255};
 
+std::set<std::string>& worldWarnings() {
+    static std::set<std::string> warned;
+    return warned;
+}
+
 }  // namespace
+
+bool warnWorldOnce(const std::string& key, const std::string& message) {
+    if (!worldWarnings().insert(key).second) return false;
+    std::fprintf(stderr, "[world] WARNING: %s\n", message.c_str());
+    return true;
+}
+
+void forgetWorldWarnings() { worldWarnings().clear(); }
 
 const char* chestSprite(bool opened) { return opened ? kChestOpenSprite : kChestClosedSprite; }
 const char* gatherSprite(bool depleted) { return depleted ? kGatherSpentSprite : kGatherReadySprite; }
