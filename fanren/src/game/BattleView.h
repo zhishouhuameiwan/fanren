@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -39,6 +40,11 @@ struct BattleLook {
     core::BattleFacing facing = core::BattleFacing::Left;
     bool floating = false;      // 光球：悬空
     bool humanoid = true;       // 人物表（有走路帧的那种）
+    // ---- 伙伴改版（docs/interfaces-companions.md 2.5）----
+    int scale = 4;              // 这张表的战斗倍数（人物表的 battle_scale；非人形表没有这一项，恒 4）
+    // 人物表的那一份：取帧矩形经 game/SpriteAtlas.h 的 battleSheetFrameRect（写了 battle_sheet 的表，
+    // 战斗帧在另一张图、另一套格子上）。非人形表为空，按上面的 frameW / frameH / cols 算。
+    std::optional<core::CharacterSheet> sheet;
 };
 [[nodiscard]] BattleLook battleLookFor(const SpriteIndex& index, const std::string& battleId,
                                        const std::string& roleId, const ChapterDone& chapterDone);
@@ -48,6 +54,11 @@ struct BattleLook {
 [[nodiscard]] bool battleFlip(const BattleLook& look, bool ally);
 // 放大倍数：与背景同一像素密度（×4）；首领大一号（×5）。
 [[nodiscard]] float battleScale(bool boss);
+// 按表的那一条（伙伴改版 2.5）：倍数取这张表的 battle_scale；首领再加四分之一、按整数取——
+// 旧表（×4）的首领照旧 ×5；倍数小于 4 的表（高清手绘表）首领不另放大，画多大由那张图自己定。
+[[nodiscard]] float battleScale(int sheetScale, bool boss);
+// 一个外观的帧矩形：人物表经 battleSheetFrameRect，非人形表按自己的格子算。
+[[nodiscard]] engine::RectF battleLookFrameRect(const BattleLook& look, int frame);
 
 // HUD 上跟着事件跳一下的那几样（盾被削、盾回满、破绽格亮起）。HUD 读，台上的钟推。
 struct HudPulse {
@@ -76,6 +87,10 @@ public:
     // ---- 事件（BattleScene::playEvent 播到哪一条调哪一个）----
     void onAct(const core::battle::BattleEvent& e);
     void onBoost(int unit, int level);
+    // 追击（伙伴改版 3.2）：追的那一位冲上去；别人收势。
+    void onChase(const core::battle::BattleEvent& e);
+    // 合招的另一位（伙伴改版 3.3）：一起起势。
+    void onDuoJoin(int unit);
     // alreadyBroken：挨这一下之前就已破势（数字红、带残影）；previousToughness：这一下之前显示的架势
     //（比事件里的少了就是被削了：盾跳一下、数字往下递减）。
     void onHit(const core::battle::BattleEvent& e, bool alreadyBroken, int previousToughness);

@@ -76,6 +76,28 @@ inline constexpr int kDevourPlayerVolume = 480;
 inline constexpr int kFleeBittenNumerator = 1;
 inline constexpr int kFleeBittenDenominator = 3;
 
+// ---- 伙伴改版（docs/interfaces-companions.md 3.1–3.4、3.10）----
+// 数字都是初值，平衡路用 tests/BattleHand.h 量过之后改，改了回写契约。
+//
+// 谁上场：伙伴（rules::companionOfRole 查得到的队员）按队伍次序前 3 位上场；不是伙伴的队员不设上限。
+inline constexpr int kMaxCompanionsOnField = 3;
+// 追击：默契到第 2 档「相熟」起；合招：到第 4 档「知己」起（档的门槛在 rules::kBondTierThresholds）。
+inline constexpr int kChaseMinBondTier = 2;
+inline constexpr int kDuoMinBondTier = 4;
+// 合招：两人各扣 2 点劲，威力 ×1.6（百分数）。
+inline constexpr int kDuoBpCost = 2;
+inline constexpr int kDuoPowerPercent = 160;
+// 先手（偷袭明雷得手）：我方全员开场多 1 点劲。
+inline constexpr int kPreemptiveBonusBp = 1;
+// 人数系数（编成写了 scale_by_party 才乘）：敌方气血按我方上场人数乘——1 人 ×1.0、2 人 ×1.35、
+// 3 人 ×1.7、4 人及以上 ×2.0（百分数，下标 = 人数 − 1）。架势不乘。
+inline constexpr int kPartyHpPercent[] = {100, 135, 170, 200};
+
+// 我方上场 allies 人时敌方气血乘的百分数（0 人、负数按 1 人算，超过表长按最后一档）。
+[[nodiscard]] int partyHpPercent(int allies);
+// 按 partyHpPercent 乘出来的气血上限（四舍五入，至少 1）。
+[[nodiscard]] int scaledPartyHp(int maxHp, int allies);
+
 struct Unit {
     std::string id, name;
     int hp{}, maxHp{}, mp{}, maxMp{};
@@ -146,6 +168,19 @@ struct Unit {
     bool charging = false;    // 已宣告，下一手是重招
     int roundsActed = 0;      // 出过手的回合数：蓄势的节奏按它数
 
+    // ---- 伙伴（伙伴改版，docs/interfaces-companions.md 3.2、3.3）----
+    // game 层建场时填：伙伴按 rules::companionOfRole 查，默契取开战那一刻的账。追击与合招只认这几样，
+    // 不认角色 id——傀儡、化身、曲魂、编成里写死的友军 companion 都是空串，下面的规则一概不碰它们。
+    bool hero = false;           // 韩立本人（他在场时永远是 0 号，但规则层不靠下标认他）
+    std::string companion;       // 伙伴 id；空 = 不是伙伴
+    int bond = 0;                // 韩立与这位伙伴的默契（0–100）
+    bool canChase = false;       // 伙伴数据的 chase
+    std::string duo;             // 伙伴数据的 duo（一条法术 id）；空 = 没有合招
+    int chasedRound = 0;         // 在第几回合追击过（每回合至多一次）；0 = 还没有
+    // 这一回合的行动被合招用掉了（回合号）：轮到他时跳过。不复用 acted——acted 是「出过手」，
+    // 合招的另一位没有出手，只是陪着出了这一招。
+    int duoSpentRound = 0;
+
     // 「在场且还站得住」。**不在场的单位一律当作不在**：行动序、选中、可否被打、
     // 胜负判定全靠这一条，分成两个谓词就必然有哪一处只问了其中一个。
     [[nodiscard]] bool alive() const { return hp > 0 && !fled && onField; }
@@ -153,7 +188,9 @@ struct Unit {
 };
 
 // Charge 追加在末尾（首领宣告蓄势，只有 AI 用得上）。Move 随格子一起删掉。
-enum class ActionKind { Attack, Cast, Item, Defend, Escape, Charge };
+// Duo（合招，伙伴改版 3.3）再追加在末尾：发起人是 actorIndex，另一位是 partnerIndex，
+// magicId 是那位伙伴数据里的 duo。
+enum class ActionKind { Attack, Cast, Item, Defend, Escape, Charge, Duo };
 
 struct Action {
     ActionKind kind{};
@@ -164,6 +201,8 @@ struct Action {
     int category = 0;
     // 蓄几点劲（0–3，不超过现有）。只有 Attack 与 Cast 蓄得了。
     int boost = 0;
+    // Duo 用：合招的另一位（单位下标）。
+    int partnerIndex = -1;
 };
 
 // Escaped 是**玩家**跑了，EnemyFled 是**敌人**跑了，两者的后续剧情完全不同。
@@ -206,6 +245,12 @@ enum class BattleEventKind {
     // 追加在末尾。紧跟在那一手的 Act 之后；value = 削掉的点数，toughness = 削后的架势。
     // 削到 0 时紧接一条 Break（与「打中破绽削到 0」同一条）。不是一击：没有 Hit，不伤人、不判破绽。
     Stagger,
+    // ---- 伙伴改版（docs/interfaces-companions.md 3.2、3.3），追加在末尾 ----
+    // actor 追击 target（刚进入破势的那个敌人）；value = 打出破势的那一位；category = 追击用的兵刃；
+    // text = 这一下的说法。紧跟着是这一击的 Hit（以及 Fall）。不是一次行动：没有 Act。
+    Chase,
+    // 合招：紧跟在那一手的 Act 之后。actor = 发起人，target = 另一位，value = 每人扣掉的劲。
+    DuoJoin,
 };
 
 struct BattleEvent {
@@ -226,10 +271,18 @@ struct BattleEvent {
     std::string text;
 };
 
+// 开战参数里规则层要知道的那几样（伙伴改版 3.4）。缺省就是改版前的开法。
+struct SetupOptions {
+    // 先手（偷袭明雷得手）：我方全员开场多 kPreemptiveBonusBp 点劲；第一回合我方全员排在所有敌人之前。
+    // 是行动序里单独的一个键，与防御给的「下回合先手」（Unit::priority）不是一回事。
+    bool preemptive = false;
+};
+
 class BattleState {
 public:
     // 横版没有战场尺寸：只要单位与种子。
-    void setup(std::vector<Unit> units, std::uint32_t seed);
+    void setup(std::vector<Unit> units, std::uint32_t seed, SetupOptions options = {});
+    [[nodiscard]] bool preemptive() const { return preemptive_; }
 
     // ---- 扩展接口：必须在 setup() 之后调用（setup 会清空这些登记）----
     void addMagic(const Magic& magic);
@@ -317,6 +370,13 @@ public:
     // AI 挑目标与菜单报数都走它，不另算一份。道具施法按那门法术、劲 0 估。
     [[nodiscard]] int estimateHitDamage(const Action& action, int targetIndex) const;
 
+    // ---- 合招（伙伴改版 3.3）----
+    // actor 能与谁合招：韩立 → 场上每一位有合招的伙伴；伙伴 → 韩立（她自己有合招时）。只看「这一对有没有
+    // 合招」，不看默契、劲、倒没倒下——那几样是 isLegal 的事，菜单照它置灰并写明理由。下标按单位序。
+    [[nodiscard]] std::vector<int> duoPartners(int actorIndex) const;
+    // 这一对合的是哪一门（那位伙伴数据里的 duo）；不是一对时为空串。
+    [[nodiscard]] std::string duoMagicOf(int actorIndex, int partnerIndex) const;
+
 private:
     [[nodiscard]] Unit& unitRef(int index) { return units_[static_cast<std::size_t>(index)]; }
     [[nodiscard]] const Unit& unitRef(int index) const {
@@ -331,6 +391,9 @@ private:
     [[nodiscard]] bool checkItem(const Action& a, const Unit& u, std::string* why) const;
     [[nodiscard]] bool checkEscape(const Unit& u, std::string* why) const;
     [[nodiscard]] bool checkCharge(const Unit& u, std::string* why) const;
+    [[nodiscard]] bool checkDuo(const Action& a, const Unit& u, std::string* why) const;
+    // 一对人里的那位伙伴（另一位是韩立）；不是「韩立 + 伙伴」这样一对时为 -1。
+    [[nodiscard]] int duoCompanionIndex(int first, int second) const;
     [[nodiscard]] bool checkBoost(const Action& a, const Unit& u, std::string* why) const;
     [[nodiscard]] bool checkEnemyTarget(int targetIndex, const Unit& actor, std::string* why) const;
     // 一门法术挑的目标（施法与道具施法共用）：看破不挑；伤人的与削架势的打一个敌人，
@@ -345,17 +408,30 @@ private:
     // 一门法术落下去（施法与道具施法共用，契约 docs/interfaces-p3-ch07.md 2.3「逐项相同」）。
     // viaItem 为空是施法；非空是用那件符箓施展——只差三处：不扣法力、不吃蓄劲、
     // Act 那一行记 Item、说法是「X 使用 Y——」。
-    std::string resolveMagic(const Action& a, const Magic& magic, const Item* viaItem);
+    // duoPartner ≥ 0 是合招（伙伴改版 3.3）：不扣法力、不吃蓄劲（劲在 applyDuo 里按合招扣过了）、
+    // 威力 ×kDuoPowerPercent、Act 那一行记 Duo，其后紧跟一条 DuoJoin。
+    std::string resolveMagic(const Action& a, const Magic& magic, const Item* viaItem, int duoPartner = -1);
     // 看破（Magic::effect == Reveal）：扣法力（道具不扣），本场每一个站着的敌人破绽全部揭开。
     // 不算一次攻击——不判破绽、不削架势、不打断蓄势、不扣劲（蓄了也只当没蓄）。
-    std::string applyReveal(const Action& a, const Magic& magic, const Item* viaItem);
+    std::string applyReveal(const Action& a, const Magic& magic, const Item* viaItem, int duoPartner);
     // 削架势（Magic::effect == Stagger）：扣法力（道具不扣），目标架势减 magic.stagger，到 0 即破势
     //（breakUnit，与打中破绽削到 0 同一条路）。不判破绽、不揭开、不伤人、不扣劲。
-    std::string applyStagger(const Action& a, const Magic& magic, const Item* viaItem);
+    std::string applyStagger(const Action& a, const Magic& magic, const Item* viaItem, int duoPartner);
     std::string applyItem(const Action& a);
     std::string applyDefend(const Action& a);
     std::string applyEscape(const Action& a);
     std::string applyCharge(const Action& a);
+    std::string applyDuo(const Action& a);
+    // 施法一类的 Act 那一行（施法 / 道具施法 / 合招三种来源）。
+    void emitCastAct(const Action& a, int target, int category, const Item* viaItem, int duoPartner, int hits,
+                     std::string text);
+
+    // ---- 追击（伙伴改版 3.2）----
+    // 这一手（events_ 从 fromEvent 起的那一段）若让某个敌人进入破势，按规则挑一位追击者补一记普攻。
+    // 返回追加到日志里的半句（不带开头的标点），没有追击时为空串。追击不再触发追击。
+    std::string resolveChase(int actorIndex, std::size_t fromEvent);
+    // 谁来追：出手的是韩立 → 默契最高的可追伙伴；出手的是伙伴 → 韩立。没人为 -1。
+    [[nodiscard]] int pickChaser(int actorIndex) const;
 
     // 一击的后果。结算函数只改局面、把发生了什么记在这里；事件由 emitStrike 按
     // 「先这一击、再破势（与打断蓄势）、再倒下 / 遁走」的顺序一次写出——画面逐条播的
@@ -405,7 +481,7 @@ private:
     std::string applyPoison(int targetIndex, int turns, int power);
 
     void beginRound();
-    // 跳过这一位上动不了的人：倒下的、不在场的、破势的。
+    // 跳过这一位上动不了的人：倒下的、不在场的、破势的、这一回合的行动被合招用掉的。
     void skipIneligibleActors();
     // 轮到当前行动者出手：他上一次摆开的守势就此散去。**刻意不放进
     // skipIneligibleActors()**：apply() 之后不会换人，只有 beginRound() 与 endTurn()
@@ -448,6 +524,7 @@ private:
     int round_ = 0;
     BattlePhase phase_ = BattlePhase::Ongoing;
     bool canEscape_ = true;
+    bool preemptive_ = false;   // SetupOptions::preemptive
 
     // ---- 吞噬模式的记账 ----
     bool devour_ = false;

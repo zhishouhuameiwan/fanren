@@ -232,11 +232,24 @@ public:
                 ok = scene.menuChoose(app, game::kBattleMenuItem) && chooseListed(scene, a, false) &&
                      chooseTarget(scene, a);
                 break;
+            case ActionKind::Duo:
+                // 合招（伙伴改版 3.3）：根菜单第六项「合招」→ 挑与谁合 →（要挑目标的）择敌。不蓄劲。
+                ok = scene.menuChoose(app, game::kBattleMenuDuo) && chooseDuo(scene, a) &&
+                     (scene.menuMode() == game::BattleMenuMode::Closed || chooseTarget(scene, a));
+                break;
             case ActionKind::Charge:
                 break;
         }
         if (!ok) scene.closeMenu();
         return ok;
+    }
+
+    // 合招这一手的样子：actor 与 partner 合出这一对的那一门，打 target（看破一类不挑目标，传 -1）。
+    [[nodiscard]] static Action duo(const BattleState& b, int actor, int partner, int target) {
+        Action a = make(ActionKind::Duo, actor, target);
+        a.partnerIndex = partner;
+        a.magicId = b.duoMagicOf(actor, partner);
+        return a;
     }
 
 private:
@@ -692,6 +705,16 @@ private:
         }
         const auto found = std::find(ids.begin(), ids.end(), a.magicId);
         return found != ids.end() && scene.menuChoose(*app_, static_cast<int>(found - ids.begin()));
+    }
+
+    // 合招那一级：按另一位的下标找行，行序与菜单同源（buildDuoItems）。
+    bool chooseDuo(game::BattleScene& scene, const Action& a) {
+        if (scene.menuMode() != game::BattleMenuMode::Duo) return false;
+        std::vector<int> partners;
+        static_cast<void>(game::BattleScene::buildDuoItems(app_->data(), app_->state(), scene.battle(), a.actorIndex,
+                                                           partners));
+        const auto found = std::find(partners.begin(), partners.end(), a.partnerIndex);
+        return found != partners.end() && scene.menuChoose(*app_, static_cast<int>(found - partners.begin()));
     }
 
     bool chooseTarget(game::BattleScene& scene, const Action& a) {

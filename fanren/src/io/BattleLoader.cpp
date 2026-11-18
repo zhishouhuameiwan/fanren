@@ -91,6 +91,14 @@ core::Result<core::BattleSetup> loadBattle(const std::string& path) {
         setup.heroAbsent = parsed["hero_absent"].get<bool>();
     }
 
+    // 人数系数（伙伴改版 3.10）：缺字段按 false 收；写了却不是布尔当场报错，与 hero_absent 同一个理由。
+    if (parsed.contains("scale_by_party")) {
+        if (!parsed["scale_by_party"].is_boolean()) {
+            return Out::failure("战斗 " + setup.id + " 的 scale_by_party 必须是 true / false：" + path);
+        }
+        setup.scaleByParty = parsed["scale_by_party"].get<bool>();
+    }
+
     if (!parsed.contains("units") || !parsed["units"].is_array()) {
         return Out::failure("战斗 " + setup.id + " 缺少 units 数组");
     }

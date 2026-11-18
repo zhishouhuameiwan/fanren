@@ -54,8 +54,22 @@ struct StageBody {
 
 // 站位不许压到的几块 HUD：左下日志、右下队伍面板（脚下还要留出敌人的架势行）。
 inline constexpr float kStageFloorY = 640.f;        // 敌人脚下那一行的底边不得低于它
+// 队伍面板：我方不超过 3 人时就是这一块（与改版前逐像素相同）。
 inline constexpr engine::RectF kPartyPanelRect{848.f, 588.f, 416.f, 120.f};
 inline constexpr engine::RectF kLogRect{16.f, 652.f, 780.f, 56.f};
+
+// ---- 四人同场（伙伴改版，docs/interfaces-companions.md 第 4 节「四人同场」）----
+// 面板一行 34 像素；3 行放得下，第 4 位从前被静默丢掉。我方 4 人起面板往上加高，每多一人高一行，
+// 底边不动（日志框右边那一块）；最多加到 kPartyPanelMaxRows 行。我方的站位与前冲的下限跟着面板的上沿走。
+inline constexpr float kPartyRowH = 34.f;
+inline constexpr int kPartyPanelBaseRows = 3;
+inline constexpr int kPartyPanelMaxRows = 6;
+// 我方 allyRows 人时的队伍面板。
+[[nodiscard]] engine::RectF partyPanelRect(int allyRows);
+// 前冲往下让最多让到的那条线：面板上沿再往下 12（脚尖压进去一点点，只在冲的那一下）。
+[[nodiscard]] float lungeFloorY(int allyRows);
+// 我方有几个人（倒下的也占一行）。
+[[nodiscard]] int allyCount(const std::vector<core::battle::Unit>& units);
 
 // ---- 特效贴图（assets/art/fx，由 tools/artgen/fx.py 生成）----
 //

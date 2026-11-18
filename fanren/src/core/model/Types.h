@@ -653,6 +653,11 @@ struct BattleSetup {
     // ---- 战斗背景（八方旅人化改造，画面路用）----
     // 可选；空串 = 按 terrain 推（BattleScene::backdropOf）。规则层一个字节也不读它。
     std::string backdrop;
+
+    // ---- 人数系数（伙伴改版，docs/interfaces-companions.md 3.10）----
+    // 缺省 false：现有编成都没写这个字段，一场都不受影响。为真时敌方气血按我方上场人数乘系数
+    //（core::battle::partyHpPercent），架势不乘。只有新写的明雷与历练编成会开它。
+    bool scaleByParty = false;
 };
 
 // ---- Tiled 地图 ----
