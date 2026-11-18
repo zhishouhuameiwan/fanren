@@ -188,17 +188,73 @@ def npc(name, x, y, role_id, facing, script=None, wander=False,
 
 
 def trigger(name, x, y, script, mode, once=True, w=1, h=1,
-            guard_flag=None, set_flag=None):
+            guard_flag=None, set_flag=None, require_party=None):
     kw = dict(script=script, mode=mode, once=once)
     if guard_flag:
         kw["guard_flag"] = guard_flag
     if set_flag:
         kw["set_flag"] = set_flag
+    # 插话（map_spec 4.4、契约 3.8）：只收伙伴 id，这位伙伴不在队里就不触发。
+    if require_party:
+        kw["require_party"] = require_party
     return obj(name, "trigger", x, y, w, h, **kw)
 
 
 def facility(name, x, y, kind, w=1, h=1, **extra):
+    # 历练入口是 kind="lilian"，带 site=<历练地 id>（map_spec 4.6）：facility(..., "lilian", site="...")。
     return obj(name, "facility", x, y, w, h, kind=kind, **extra)
+
+
+# ---- 伙伴改版的四种对象（map_spec 4.8–4.11，契约 2.4）----
+#
+# 对象 id 一律是 `<map_id>.<语义>`（门禁规则 32 钉着），所以这里收的是 map_id 与语义两段，自己拼。
+# 物品清单写成 [(物品 id, 件数), ...] 或单个物品 id；拼成 `物品id:件数,…`（件数为 1 时不写）。
+
+def _object_id(map_id, key):
+    return "%s.%s" % (map_id, key)
+
+
+def _item_list(items):
+    if isinstance(items, str):
+        return items
+    return ",".join(item if count == 1 else "%s:%d" % (item, count) for item, count in items)
+
+
+def chest(name, x, y, map_id, key, loot, require_flag=None):
+    kw = dict(id=_object_id(map_id, key), loot=_item_list(loot))
+    if require_flag:
+        kw["require_flag"] = require_flag
+    return obj(name, "chest", x, y, **kw)
+
+
+def gather(name, x, y, map_id, key, item, respawn_days, require_flag=None):
+    kw = dict(id=_object_id(map_id, key), item=_item_list(item), respawn_days=int(respawn_days))
+    if require_flag:
+        kw["require_flag"] = require_flag
+    return obj(name, "gather", x, y, **kw)
+
+
+def foe(name, x, y, map_id, key, battle, look, facing, respawn_days=None, elite=False,
+        require_flag=None):
+    # 明雷只占一格，面朝 facing：它面前那一格踏进去就开打（契约 3.4）。
+    kw = dict(id=_object_id(map_id, key), battle=battle, look=look, facing=facing)
+    if respawn_days:
+        kw["respawn_days"] = int(respawn_days)
+    if elite:
+        kw["elite"] = True
+    if require_flag:
+        kw["require_flag"] = require_flag
+    return obj(name, "foe", x, y, **kw)
+
+
+def gate(name, x, y, map_id, key, skill, w=1, h=1, opens=None, hint=None):
+    # opens：打开后置的旗标，剧情或别的门要读它时才写；历练图上不许写（门禁规则 39）。
+    kw = dict(id=_object_id(map_id, key), skill=skill)
+    if opens:
+        kw["opens"] = opens
+    if hint:
+        kw["hint"] = hint
+    return obj(name, "gate", x, y, w, h, **kw)
 
 
 # ---------------------------------------------------------------------------

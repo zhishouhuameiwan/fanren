@@ -82,12 +82,18 @@ r"""门禁自身的负向自检：故意写坏，看 validate.py 与 genmaps.py 
      写成互补旗标、或换成群像白名单里的 role 不许报；两个都挂同一个 visible_flag 仍然必须报；
      孪生换成一个照抄了名字的新 role（id 不同、名牌相同）必须报，写成互补旗标则不许报。
 
+  V. 伙伴改版（规则 31–40）—— 伙伴数据、四种新对象的 id 与形状、口袋里的宝箱（机关开着算走得到、
+     换成墙就走不到）、机关与明雷堵在外刃堂二门夹道上、机关没人会、明雷编成（不存在、致命、精英可逃、
+     历练缺一档）、插话写成角色 id、历练（site、非 lilian_ 图、存档点、opens、修为）、手绘表清单
+     （sha256、没登记的图、缺向、缺动作、帧号越界）：坏的一版每条必报，同一批改好之后全量 0 错误。
+
 退出码 0 表示每条负向用例都如期被抓住。
 """
 
 from __future__ import annotations
 
 import contextlib
+import hashlib
 import io
 import re
 import json
@@ -2800,6 +2806,271 @@ def selftest_magic_targets(case: Case, base: Path) -> None:
         case.check(f"E3 normal shape entry sees {scope!r}", len(mine) == expected, "\n".join(mine))
 
 
+# ---------------------------------------------------------------------------
+# V：伙伴改版的门禁（规则 31–40，docs/interfaces-companions.md 第 5 节）
+# ---------------------------------------------------------------------------
+#
+# 两遍全量 validate：坏的一份里每条新规则都必须报出自己那一句；同一批探针改好之后的一份里，
+# 新规则一句都不许报（唯一放过的是探针历练图「从开局走不到」——它本来就只靠历练入口进，
+# 那归规则 18，与本节无关）。坏、好两份逐项对应，所以每一条都是「先报过错、再过」。
+
+V_MAP = "ch01_hanjiacun"          # 摆探针对象的图
+V_CHOKE_MAP = CHOKE_MAP           # 外刃堂二门夹道：x=23–24、y=27–28，南北唯一的通路
+V_LILIAN_MAP = "lilian_probe"
+V_SITE = "probe_site"
+V_FLAG = "ch01.done"              # 一个登记过、拿得到的旗标（伙伴的 met_flag、机关的 opens 用它）
+V_SHEET_PNG = Path("assets") / "art" / "sprites" / "chars" / "arch_bandit.png"   # 16×24、3 列、7 行
+
+
+def v_open_cells(work: Path, map_id: str, count: int) -> list[tuple[int, int]]:
+    """找 count 格：以它为中心 5×5 全都走得到、没有对象压着，彼此隔开 6 格以上。
+
+    四周宽敞，探针摆上去（连同口袋的三面墙）才不会顺带切断别的路，报出来的只有探针自己。
+    """
+    parsed, collision = parse_one(work, map_id)
+    occupied = validate.occupied_cells(parsed)
+    taken = {cell for record in parsed.objects for cell in validate.object_halo(record)}
+    start = next((s["x"], s["y"]) for s in parsed.spawns.values()
+                 if str(s["props"].get("default", "")).lower() == "true")
+    seen = validate.flood(parsed, collision, occupied, start)
+    picks: list[tuple[int, int]] = []
+    for cell in sorted(seen):
+        square = [(cell[0] + dx, cell[1] + dy) for dx in range(-2, 3) for dy in range(-2, 3)]
+        if any(c not in seen or c in taken or c == start for c in square):
+            continue
+        if any(abs(cell[0] - p[0]) < 6 and abs(cell[1] - p[1]) < 6 for p in picks):
+            continue
+        picks.append(cell)
+        if len(picks) == count:
+            return picks
+    raise AssertionError("%s 上找不到 %d 格宽敞的空地" % (map_id, count))
+
+
+def v_set_collision(payload: dict, cell: tuple[int, int], value: int) -> None:
+    for layer in payload["layers"]:
+        if layer.get("name") == "collision":
+            layer["data"][cell[1] * payload["width"] + cell[0]] = value
+
+
+def v_battle(work: Path, battle_id: str, **changes) -> None:
+    """照现成的野外遭遇编成（谷外孤狼：可逃、不致命、修为 3）写一份探针编成。"""
+    payload = json.loads((work / "data" / "battles" / "be03_guwai_gulang.json").read_text(encoding="utf-8"))
+    payload["id"] = battle_id
+    # 挪到第 13 章：第 3 章有野外遭遇，门禁要它们比同章剧情战轻（规则 27），探针别去搅那一条。
+    payload["chapter"] = 13
+    for key, value in changes.items():
+        if key == "cultivation":
+            payload["rewards"]["cultivation"] = value
+        else:
+            payload[key] = value
+    (work / "data" / "battles" / (battle_id + ".json")).write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2) + chr(10), encoding="utf-8")
+
+
+def v_write_json(path: Path, payload) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + chr(10), encoding="utf-8")
+
+
+def v_hd_sheet(walk: dict, battle: dict) -> dict:
+    return {"file": "probe.png", "frame_w": 16, "frame_h": 24, "cols": 3, "scale": 2,
+            "walk_cycle": [0, 1, 2, 1], "walk": walk, "battle": battle,
+            "foot_y": 23, "head_y": 0}
+
+
+def v_build(work: Path, bad: bool) -> None:
+    """把一整批探针写进副本。bad=True 写坏的那一版，False 写改好的那一版。"""
+    # ---- 规则 31：伙伴数据 ----
+    companions = work / "data" / "companions"
+    v_write_json(companions / "probe_seal.json", {
+        "id": "probe_seal", "met_flag": V_FLAG, "field_skill": "break_seal", "chase": True,
+        "roles": [{"role": "zhang_tie", "until_flag": V_FLAG}, {"role": "li_feiyu"}],
+        "gifts": {"like": ["material_dansha"]}})
+    if bad:
+        v_write_json(companions / "probe_bad.json", {
+            "id": "probe_bad", "met_flag": V_FLAG, "romance": 1, "duo": "no_such_magic",
+            "roles": [{"role": "no_such_role"}], "gifts": {"like": ["no_such_item"]}})
+        v_write_json(companions / "probe_dup.json", {
+            "id": "probe_dup", "met_flag": V_FLAG, "roles": [{"role": "zhang_tie"}]})
+
+    # ---- 历练地与编成（规则 37、39）----
+    v_write_json(work / "data" / "lilian" / (V_SITE + ".json"), {
+        "id": V_SITE, "name_key": "lilian.map.probe.name", "unlock_flag": V_FLAG, "entry": {"map": V_LILIAN_MAP},
+        "maps": [V_LILIAN_MAP] + ([V_MAP] if bad else []),
+        "tiers": [{"max_realm": "QiRefining13"}, {"max_realm": "FoundationEarly"}, {"max_realm": "FoundationMid"}]})
+    v_battle(work, "probe_lilian_foe_t1", cultivation=0)
+    v_battle(work, "probe_lilian_foe_t2", cultivation=3 if bad else 0)
+    if not bad:
+        v_battle(work, "probe_lilian_foe_t3", cultivation=0)
+    v_battle(work, "probe_elite", can_escape=bad)
+
+    # ---- 探针历练图：拿开局图的地形，对象只留出生点 ----
+    lilian = load_map(work, V_MAP)
+    for prop in lilian["properties"]:
+        if prop["name"] == "map_id":
+            prop["value"] = V_LILIAN_MAP
+        elif prop["name"] == "display_name_key":
+            prop["value"] = "lilian.map.probe.name"     # 规则 21：由图名推出来的那一个
+    v_write_json(work / "data" / "text" / "probe_v.json", {"lilian.map.probe.name": "探针历练图"})
+    layer = objects_layer(lilian)
+    layer[:] = [o for o in layer if o.get("type") == "spawn"]
+    lilian_cells = v_open_cells(work, V_MAP, 3)
+    if bad:
+        add_object(lilian, make_object("facility_v_save", "facility", lilian_cells[0], {"kind": "save"}))
+    add_object(lilian, make_object("gate_v_lilian", "gate", lilian_cells[1], dict(
+        {"id": V_LILIAN_MAP + ".gate", "skill": "break_seal"}, **({"opens": V_FLAG} if bad else {}))))
+    add_object(lilian, make_object("foe_v_lilian", "foe", lilian_cells[2], {
+        "id": V_LILIAN_MAP + ".foe", "battle": "probe_lilian_foe", "look": "wild_wolf", "facing": "down",
+        "chance": "0" if bad else "50"}))
+    save_map(work, V_LILIAN_MAP, lilian)
+
+    # ---- 摆在开局图上的探针（规则 32、33、35、37、38、39）----
+    payload = load_map(work, V_MAP)
+    c = v_open_cells(work, V_MAP, 12)
+    prefix = V_MAP + "."
+    add_object(payload, make_object("chest_v_a", "chest", c[0], {
+        "id": "chest_x" if bad else prefix + "chest_a", "loot": "material_dansha:x" if bad else "material_dansha:2"}))
+    add_object(payload, make_object("chest_v_b", "chest", c[1], {
+        "id": prefix + "dup", "loot": "no_such_item" if bad else "material_fuzhi"}))
+    add_object(payload, make_object("chest_v_c", "chest", c[2], dict(
+        {"id": prefix + ("dup" if bad else "chest_c"), "loot": "material_fuzhi"}, **({"chance": "50"} if bad else {}))))
+    add_object(payload, make_object("gather_v", "gather", c[3], {
+        "id": prefix + "gather", "item": "herb_huangjing_cao", "respawn_days": "0" if bad else "3"}))
+    add_object(payload, make_object("foe_v_a", "foe", c[4], {
+        "id": prefix + "foe_a", "battle": "no_such_battle" if bad else "be03_guwai_gulang",
+        "look": "no_such_look" if bad else "wild_wolf", "facing": "north" if bad else "left"}))
+    add_object(payload, make_object("foe_v_elite", "foe", c[5], {
+        "id": prefix + "foe_elite", "battle": "probe_elite", "look": "wild_wolf", "facing": "down", "elite": True}))
+    add_object(payload, make_object("foe_v_fatal", "foe", c[6], {
+        "id": prefix + "foe_fatal", "battle": "b03_gu_wai_elang" if bad else "be03_guwai_gulang",
+        "look": "wild_wolf", "facing": "down"}))
+    add_object(payload, make_object("gate_v_a", "gate", c[7], {
+        "id": prefix + "gate_a", "skill": "nobody_knows" if bad else "break_seal",
+        "opens": "probe.unregistered" if bad else V_FLAG, "hint": "no.such.key" if bad else "ui.facility.locked"}))
+    add_object(payload, make_object("facility_v_lilian", "facility", c[8], dict(
+        {"kind": "lilian", "site": "no_site" if bad else V_SITE}, **({"require_party": "probe_seal"} if bad else {}))))
+    if bad:
+        add_object(payload, make_object("facility_v_lilian2", "facility", c[9], {"kind": "lilian"}))
+    else:
+        # 生成器的帮手（tools/mapgen/genmaps.py 的 chest / gather / foe / gate）写出来的对象照样过门禁。
+        import genmaps
+        add_object(payload, genmaps.foe("foe_v_gen", c[9][0], c[9][1], V_MAP, "foe_gen", "be03_guwai_gulang",
+                                        "wild_wolf", "up", respawn_days=5))
+        add_object(payload, genmaps.chest("chest_v_gen", c[11][0], c[11][1], V_MAP, "chest_gen",
+                                          [("material_dansha", 2), ("material_fuzhi", 1)]))
+    # 口袋：c[10] 三面墙，北面在坏的一版是墙、好的一版是机关；宝箱在口袋里。
+    pocket = c[10]
+    for dx, dy in ((1, 0), (-1, 0), (0, 1)):
+        v_set_collision(payload, (pocket[0] + dx, pocket[1] + dy), 1)
+    north = (pocket[0], pocket[1] - 1)
+    if bad:
+        v_set_collision(payload, north, 1)
+    else:
+        add_object(payload, make_object("gate_v_pocket", "gate", north, {"id": prefix + "gate_pocket", "skill": "break_seal"}))
+    add_object(payload, make_object("chest_v_pocket", "chest", pocket, {"id": prefix + "chest_pocket", "loot": "material_fuzhi"}))
+    # 插话：挂在现成的触发器上。
+    set_prop(find_object(payload, "trigger_huicun"), "require_party", "zhang_tie" if bad else "probe_seal")
+    if bad:
+        set_prop(find_object(payload, "trigger_xinbie"), "require_party", "nobody")
+    save_map(work, V_MAP, payload)
+
+    # ---- 主线的咽喉（规则 34、36）：坏的一版在外刃堂二门夹道放机关与明雷 ----
+    if bad:
+        choke = load_map(work, V_CHOKE_MAP)
+        add_object(choke, make_object("gate_v_choke", "gate", (CHOKE_CELL[0], CHOKE_CELL[1] + 1), {
+            "id": V_CHOKE_MAP + ".gate_choke", "skill": "break_seal"}, size=(2, 1)))
+        add_object(choke, make_object("foe_v_choke", "foe", CHOKE_CELL, {
+            "id": V_CHOKE_MAP + ".foe_choke", "battle": "be03_guwai_gulang", "look": "wild_wolf", "facing": "right"}))
+        save_map(work, V_CHOKE_MAP, choke)
+
+    # ---- 规则 40：手绘表清单 ----
+    sprites = work / "assets" / "art" / "sprites"
+    sprites.mkdir(parents=True, exist_ok=True)
+    shutil.copy(ROOT / "assets" / "art" / "sprites" / "index.json", sprites / "index.json")
+    hd = sprites / "hd"
+    hd.mkdir(parents=True, exist_ok=True)
+    shutil.copy(ROOT / V_SHEET_PNG, hd / "probe.png")
+    digest = hashlib.sha256((hd / "probe.png").read_bytes()).hexdigest()
+    walk = {"down": [0, 1, 2], "left": [3, 4, 5], "right": [6, 7, 8], "up": [9, 10, 11]}
+    battle = {"idle": [12, 13], "ready": [14], "attack": [15], "cast": [16], "hurt": [17],
+              "down": [18], "victory": [19], "guard": [20]}
+    if bad:
+        walk.pop("up")
+        battle.pop("guard")
+        walk["down"] = [0, 1, 999]
+    sheet = v_hd_sheet(walk, battle)
+    if bad:
+        sheet["battle_sheet"] = {"file": "unlisted.png", "frame_w": 16, "frame_h": 24, "cols": 3,
+                                 "foot_y": 23, "head_y": 0}
+    v_write_json(hd / "index.json", {
+        "sheets": {"probe_hd": sheet}, "roles": {"zhang_tie": "probe_hd"},
+        "files": {"probe.png": ("0" * 64) if bad else digest}})
+
+
+# 坏的一版里每条规则必须报出来的那一句（取各自报错里独有的一截）。
+V_EXPECTED = [
+    ("31 伙伴数据：表外字段", "表外字段 ['romance']"),
+    ("31 伙伴数据：角色不存在", "roles 里的角色不存在：no_such_role"),
+    ("31 伙伴数据：合招法术不存在", "duo（合招）指向的法术不存在：no_such_magic"),
+    ("31 伙伴数据：赠礼物品不存在", "gifts.like 里的物品不存在：no_such_item"),
+    ("31 伙伴数据：一个角色属于两位伙伴", "角色 zhang_tie 同时属于"),
+    ("32 对象 id 不带图名前缀", "的 id=chest_x 不合规"),
+    ("32 对象 id 重复", "的 id=ch01_hanjiacun.dup 与"),
+    ("32 loot 写法坏了", "loot='material_dansha:x' 写坏了"),
+    ("32 loot 里的物品不存在", "loot 里的物品不存在：no_such_item"),
+    ("32 respawn_days 不是正整数", "respawn_days='0' 要是正整数"),
+    ("32 foe 的 facing 写错", "facing=north 不是 up / down / left / right"),
+    ("32 foe 的 look 不存在", "look=no_such_look 在精灵索引里找不到"),
+    ("32 require_party 写在 trigger 以外", "require_party 只许写在 trigger 上"),
+    ("32 gate 的 opens 没登记", "opens=probe.unregistered 没在 data/flags.json 登记"),
+    ("32 gate 的 hint 不是文案", "hint=no.such.key 不是一条存在的文案 key"),
+    ("33 口袋里的宝箱走不到", "chest_v_pocket: 从出生点无法到达"),
+    ("34 机关卡主线", "规则 34"),
+    ("35 机关没人能开", "skill=nobody_knows 不是任何一位伙伴的 field_skill"),
+    ("36 明雷堵主线", "规则 36"),
+    ("37 明雷编成不存在", "明雷的编成不存在：no_such_battle"),
+    ("37 明雷编成致命", "明雷的编成 b03_gu_wai_elang 要写 defeat_is_fatal: false"),
+    ("37 精英可逃", "精英明雷的编成 probe_elite 要写 can_escape: false"),
+    ("37 历练图缺一档", "明雷的编成不存在：probe_lilian_foe_t3"),
+    ("38 require_party 写成角色 id", "require_party=zhang_tie 写成了角色 id"),
+    ("38 require_party 不是伙伴", "require_party=nobody 不是任何一位伙伴的 id"),
+    ("39 lilian 设施的 site 不存在", "site=no_site 没有定义"),
+    ("39 lilian 设施缺 site", "kind=lilian 的设施缺少 site"),
+    ("39 历练地用了非 lilian_ 图", "历练地用到的图 ch01_hanjiacun 不以 lilian_ 开头"),
+    ("39 历练图上有存档点", "历练图上不许有 kind=save 的设施"),
+    ("39 历练图上的机关写了 opens", "历练图上的机关不许写 opens"),
+    ("39 历练编成有修为", "历练的编成 probe_lilian_foe_t2 修为奖励要为 0"),
+    ("39 chance 越界", "chance='0' 要是 1–99 的整数"),
+    ("39 chance 写在普通图上", "chest_v_c: chance 只许写在历练图"),
+    ("40 sha256 对不上", "probe.png 的 sha256 与磁盘不一致"),
+    ("40 图没登在 files", "引的图 unlisted.png 没登在 files 里"),
+    ("40 走路帧缺一向", "走路帧缺 ['up']"),
+    ("40 战斗帧缺动作", "战斗帧缺 ['guard']"),
+    ("40 帧号越界", "走路帧 down 的帧号 [999] 超出图里的 21 格"),
+]
+
+
+def selftest_v_companions(case: Case, base: Path) -> None:
+    print()
+    print("V. 伙伴改版的门禁（规则 31–40）：坏的每条都报，改好之后一条都不报")
+    bad_work = make_full_workdir(base / "v_bad")
+    v_build(bad_work, bad=True)
+    errors = run_validate_full(bad_work)
+    for label, needle in V_EXPECTED:
+        hits = [e for e in errors if needle in e]
+        case.check("报：" + label, bool(hits), hits[0] if hits else "没报出含「%s」的错误" % needle)
+
+    good_work = make_full_workdir(base / "v_good")
+    v_build(good_work, bad=False)
+    errors = run_validate_full(good_work)
+    # 探针历练图只靠历练入口进（入口本身由 D 路接），所以「从开局走不到」是本节之外的事，放过这一条。
+    stray = [e for e in errors if not (V_LILIAN_MAP + ".tmj" in e and "走不到这张图" in e)]
+    case.check("改好之后新规则一条都不报（全量 0 错误）", not stray, chr(10).join(stray[:8]))
+    case.check("改好的一版仍有对照：机关后面的宝箱在、明雷在、历练三档都在",
+               any(o.get("name") == "chest_v_pocket" for o in objects_layer(load_map(good_work, V_MAP)))
+               and (good_work / "data" / "battles" / "probe_lilian_foe_t3.json").exists())
+
+
 def main() -> int:
     case = Case()
     if sys.argv[1:] == ["--ch10-ally-mp"]:
@@ -2856,6 +3127,7 @@ def main() -> int:
         selftest_q_encounters(case, base)
         selftest_r_portal_direction(case, base)
         selftest_s_npc_role_clash(case, base)
+        selftest_v_companions(case, base)
 
     print()
     print("用例 %d 条，未如期抓住 %d 条" % (case.total, case.failed))

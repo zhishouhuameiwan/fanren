@@ -113,10 +113,14 @@
 | 属性 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
 | `script` | string | 是 | Lua 脚本路径 |
-| `mode` | string | 是 | `enter`（踏入）/ `interact`（按键交互）/ `auto`（进图即触发） |
+| `mode` | string | 是 | `enter`（踏入）/ `interact`（按键交互） |
 | `once` | bool | 是 | 是否只触发一次 |
 | `guard_flag` | string | 否 | 触发的前置旗标 |
 | `set_flag` | string | 是（当 `once=true`） | 判定「已触发过」所看的那个旗标 |
+| `require_party` | string | 否 | **伙伴 id**（`data/companions/`）：这位伙伴不在队里就不触发，不论她当时用的是哪个角色 id。给插话用（`docs/interfaces-companions.md` 3.8）。**不收角色 id**——`nangong_wan` 既是伙伴 id 又是她后期的角色 id，两种都收会有歧义；写成角色 id 由规则 38 报 |
+
+> `mode` 曾经还列过 `auto`（进图即触发）。引擎从来只认 `enter` 与 `interact`，也没有一张图用过它——规范里写着、
+> 引擎不判的字段是这个项目栽过的坑（交接文档教训 14），2026-11-18 删掉。
 
 #### `once` 的判据：脚本自己置的完成旗标（2026-09-20 改）
 
@@ -154,16 +158,81 @@
 
 | 属性 | 类型 | 必填 | 说明 |
 | --- | --- | --- | --- |
-| `kind` | string | 是 | `alchemy` / `forge` / `talisman` / `formation` / `field` / `meditate` / `shop` / `board` / `save` |
+| `kind` | string | 是 | `alchemy` / `forge` / `talisman` / `formation` / `field` / `meditate` / `shop` / `board` / `save` / `lilian` |
 | `ref_id` | string | 否 | 商店 id、灵田 id 等 |
 | `slots` | int | 否 | 灵田槽位数（`kind=field` 时必填） |
 | `grade` | int | 否 | 炉鼎 / 符笔 / 地火 / 阵盘的品阶 0-5，缺省 1；`kind` 为炼制四艺之一时有意义。缺字段按 1 收而不是 0：0 在规则层的意思是「没有炉鼎」，一处忘了写的丹房会变成点不动任何东西的屋子 |
 | `effectiveness` | int | 否 | `kind=meditate` 时有意义：在此打坐的修为效率（百分比，100–300，缺省 100）。灵眼之泉这类洞府灵脉写它；功法、灵根的加成不写在地图上 |
 | `require_flag` | string | 否 | 解锁旗标 |
+| `site` | string | 是（当 `kind=lilian`） | 历练地 id，对应 `data/lilian/<site>.json`（`docs/interfaces-companions.md` 3.12）。历练入口只放在指定的地方，不动现有的打坐点 |
 
 ### 4.7 （已删除）
 
 （已删除：战棋时代的 `battle_anchor`，2026-09-29 清理）
+
+### 4.8–4.11 伙伴改版的四种对象（2026-11-18，`docs/interfaces-companions.md` 2.4、3.4–3.6）
+
+四种对象都带 **`id`：全局唯一，写成 `<map_id>.<语义>`**（例：`ch07_zhaoze_shenchu.chest_jiaoxue`）。状态按 id 记在存档的
+集合里（宝箱开没开、采集点哪天采的、明雷哪天清的、机关开没开），历练里记在「这一趟」里、出来就扔。
+四种都**占格**（机关开了之后不占），面朝它按确认键交互；`WorldScene::interact` 问到它们时排在设施之后，依次
+宝箱 → 采集点 → 明雷 → 机关。`require_flag` 没置时宝箱、采集点、明雷都当不在（不画、不占格、按了不响）。
+
+物品清单（宝箱的 `loot`、采集点的 `item`）写成 `物品id` 或 `物品id:件数`，几样用逗号隔开，件数缺省 1。
+背包这一堆再加就超过 999 件时开不了、采不了，给一句提示，对象状态不变（游戏没有格数上限，「满」只有这一种意思）。
+
+#### 4.8 `chest` — 宝箱
+
+| 属性 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `id` | string | 是 | 见上 |
+| `loot` | string | 是 | 物品清单 |
+| `require_flag` | string | 否 | 置了才出现 |
+| `chance` | int | 否 | **只在历练图上**：每一趟出现的百分比，1–99。没抽中的看上去是被人先开过的 |
+
+开一次，此后一直是开着的样子（再按：「箱子是空的」）。
+
+#### 4.9 `gather` — 采集点
+
+| 属性 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `id` | string | 是 | 见上 |
+| `item` | string | 是 | 物品清单（通常一样） |
+| `respawn_days` | int | 是 | 采一次冷却几天，正整数；按日历刷新 |
+| `require_flag` | string | 否 | 置了才出现 |
+
+#### 4.10 `foe` — 明雷
+
+| 属性 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `id` | string | 是 | 见上 |
+| `battle` | string | 是 | 战斗编成 id。历练图上写编成 id 的前半，引擎按境界拼 `_t1` / `_t2` / `_t3` |
+| `look` | string | 是 | 画哪张人物表 / 敌人表：先当角色 id，再当外观 id，再当敌人 id |
+| `facing` | string | 是 | `up` / `down` / `left` / `right`：它面朝哪边 |
+| `respawn_days` | int | 否 | 打赢之后几天重新出现；不写 = 不重生 |
+| `elite` | bool | 否 | 精英：编成必须不可逃 |
+| `require_flag` | string | 否 | 置了才出现 |
+| `chance` | int | 否 | **只在历练图上**：每一趟出现的百分比，1–99 |
+
+只占一格，站着不动。**主角踏进它面前那一格**（它的格 + `facing`）就被看见，直接开打；主角站在它的侧面或背后
+相邻格、面朝它按确认是**偷袭**，占先手。打赢消失并记档；逃跑成功主角退回开打前站的那一格、它留在原地；
+打输回这张图的缺省出生点（历练里是整趟退出）。编成一律 `defeat_is_fatal: false`。
+
+#### 4.11 `gate` — 机关
+
+| 属性 | 类型 | 必填 | 说明 |
+| --- | --- | --- | --- |
+| `id` | string | 是 | 见上 |
+| `skill` | string | 是 | 场地技：队里有一位伙伴的 `field_skill` 等于它就开得了 |
+| `opens` | string | 否 | 打开后置的旗标，剧情或别的门要读它时才写。**历练图上不许写** |
+| `hint` | string | 否 | 文案 key：没人会、名册里也还没有会的人时，替换掉那句「似乎要用别的法子」 |
+
+可以占多格（一道横在路上的禁制）。名册里已有会这手的人、只是不在队里时，提示「这里要某某来才行」。
+**主线必经的路上不许放机关**（规则 34）；放了机关的图，必须是玩家带着会这手的伙伴走得到的图。
+
+#### 历练图
+
+图名以 `lilian_` 开头，列在历练地定义 `data/lilian/<site>.json` 的 `maps` 里（形状见 D 路的 `src/io/LilianLoader.h`）。
+图上不许有存档点、打坐点（`kind=save` / `meditate`），机关不许写 `opens`（规则 39）。出口也是一处 `kind=lilian` 的设施。
 
 ---
 
@@ -228,6 +297,8 @@
     （2026-09-21 改：此前隐身的 NPC 照样占格，是一堵没有任何反馈的隐形墙。）
     早先这条只看 `collision` 层，于是一张把 2×2 设施压在唯一走廊上的地图能通过校验、却走不过去。
     走得到之后按不按得出来是另一回事，见规则 17。
+    （2026-11-18 伙伴改版）宝箱、采集点、明雷也占格（带 `require_flag` 的不算），四种新对象都要走得到；
+    机关**按开着算**：机关后面的东西算「带对了人就走得到」。机关关着时卡不卡主线另由规则 34 查。
 14. `chapter` 属性与所在目录/文件名的章号一致。
 15. **`once` 与 `set_flag` 配对**（见 4.4）：`once=true` 必须有 `set_flag` 且它已在
     `data/flags.json` 登记；`once=false` 不得留着 `set_flag`。
@@ -244,7 +315,8 @@
 > 不适用于触发器之间。
 
 17. **同格遮蔽**：一格上只问得出一个对象，压在下面的那个永远按不出来。
-    `WorldScene::interact` 依次问 `npc` → `mode=interact` 的 `trigger` → `facility`，
+    `WorldScene::interact` 依次问 `npc` → `mode=interact` 的 `trigger` → `facility`（伙伴改版之后再接
+    `chest` → `gather` → `foe` → `gate`；宝箱、采集点一定应声，明雷、机关会让位），
     谁先应声谁就独占这一次确认键；而引擎每类只取第一个**命中且在场**的
     （`npc` 走 `visibleNpcAt`，其余走 `objectAt`）。
     于是两种死法，都不会有任何工具报错，玩家只觉得按键没反应：
@@ -347,6 +419,34 @@
     - `validate_selftest.py` 的 S 节：把一个没旗标的 NPC 复制成同 role 必须报、且只报一条；同一对写成互补旗标、或换成
       白名单里的 role 不许报；两个都挂同一个 `visible_flag` 仍然必须报；孪生换成照抄了名字的新 role 必须报，写成互补
       旗标则不许报。
+
+
+> 规则 31–40 是伙伴改版加的（2026-11-18，`docs/interfaces-companions.md` 第 5 节），条文与探针见 `tools/validate.py`
+> 「规则 31–40」那一节与 `tools/validate_selftest.py` 的 V 节（坏的一版每条必报，同一批改好之后全量 0 错误）。
+
+31. **伙伴数据**（`data/companions/<id>.json`）：`id` 与文件名相同；表外字段、缺 `met_flag` / `roles` 都报；`roles` 里的角色、
+    `duo`（合招法术）、`gifts` 里的物品都存在；**同一个角色 id 不属于两位伙伴**（`companionOfRole` 只能答一位）。
+    `met_flag` / `until_flag` 的登记由规则 8 的数据那一半查。伙伴与历练地不进全局 id 表：伙伴 id 与她后期的角色 id 本来就同名。
+32. **四种新对象的 id 与形状**：id 写成 `<map_id>.<语义>`、全局唯一；`loot` / `item` 的写法与物品存在；`respawn_days` 是正整数；
+    `foe` 只占一格、`facing` 是四个方向之一、`elite` 是 bool、`look` 在精灵索引里有；`gate` 的 `opens` 已登记、`hint` 是存在的文案；
+    `require_party` 只写在 `trigger` 上。
+33. **宝箱、采集点可达**：落在规则 13 上（四种新对象都算交互对象），机关按开着算。
+34. **机关不卡主线**：所有 `gate` 都关着（占格）时，目标链（`data/objectives/`）上每一步的目标仍然走得到。按差集报：
+    机关开着时走得到、关着就走不到的那一步。
+35. **机关有人能开**：每个 `gate.skill` 至少是一位伙伴的 `field_skill`。
+36. **明雷不堵路**：所有 `foe` 都在场（含带 `require_flag` 的）、它们面前那一格都不踏时，目标链上每一步仍然走得到。同样按差集报。
+37. **明雷编成**：普通图上 `foe.battle` 存在；历练图上 `foe.battle` 加每一档的后缀（`_t1`…，档数取历练地定义里 `tiers` 的条数，
+    没写按三档；一张图被几处历练地列了，取档最多的那一处）都存在。两种图都查：`defeat_is_fatal` 为 `false`；`elite` 的 `can_escape` 为 `false`。
+38. **插话**：`require_party` 是一个伙伴 id；写成角色 id 的、谁都不是的都报。
+39. **历练**：`kind=lilian` 的设施有 `site`、`data/lilian/<site>.json` 存在；历练地用到的图（`maps`、`entry_map`）都以 `lilian_` 开头、
+    都存在（`entry.map` 也算）；`lilian_` 图上没有存档点、打坐点，机关没写 `opens`；历练图上明雷的编成修为奖励为 0；
+    `chance` 只写在历练图的 `foe` / `chest` 上、是 1–99 的整数。
+40. **手绘表清单**（`assets/art/sprites/hd/index.json`，不在就不查）：`files` 里每个文件都在、sha256 与磁盘一致；表里引到的图
+    （`file`、`battle_sheet.file`）都登在 `files` 里；`roles` 登记了的角色，那张表四向走路帧、战斗八个动作
+    （idle / ready / attack / cast / hurt / down / victory / guard）都齐，帧号落在图里。
+
+一人一身（`docs/interfaces-companions.md` 3.11）**不设规则**：谁在队里是脚本里 `party.add` 定的，静态查不了，
+靠引擎 `WorldScene::npcPresent` 一处守卫，加上走真入口的用例。
 
 ---
 

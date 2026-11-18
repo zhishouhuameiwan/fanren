@@ -7,6 +7,7 @@
 //
 // **格子语义不许变**：tryStep 一调，GameState::position 立刻变，无头测试靠这一点驱动整章剧情。
 // 插值滑动、走路帧、镜头缓动、换图淡入都是 WorldView 里的纯视觉，从不回头去延迟逻辑。
+#include <map>
 #include <string>
 #include <vector>
 
@@ -58,6 +59,23 @@ public:
     [[nodiscard]] static bool npcVisible(const core::GameState& state,
                                         const core::MapObject& npc);
 
+    // ---- 伙伴改版（docs/interfaces-companions.md 3.8、3.11）----
+    //
+    // 两条新规矩都要问「这个角色是哪位伙伴」，所以要伙伴数据（GameData::companions）。
+    // 引擎里的入口（tryStep、interact、pathAction、describe）一律走带 companions 的这几个；
+    // 上面不带的旧签名等于传一张空的伙伴表——没有伙伴数据，就没有哪个角色属于伙伴。
+    using Companions = std::map<std::string, core::Companion>;
+
+    // 插话（3.8）：trigger 写了 require_party（**伙伴 id**）时，这位伙伴不论用的是哪个角色 id，
+    // 都得在队里才算 ready。其余照 triggerReady(state, trigger)。
+    [[nodiscard]] static bool triggerReady(const core::GameState& state, const core::MapObject& trigger,
+                                          const Companions& companions);
+    // 一人一身（3.11）：某位伙伴的任意一个角色 id 在队里时，图上 role_id 属于这位伙伴的 npc
+    // 不在场——不画、不能谈、不占格。只对伙伴生效：不是伙伴的角色（傀儡、化身）照 npcVisible。
+    // 画面（describe）与走位、对话（visibleNpcAt）问的都是这一个函数。
+    [[nodiscard]] static bool npcPresent(const core::GameState& state, const core::MapObject& npc,
+                                        const Companions& companions);
+
     // 这一格上**在场**的那个 npc；一个都没有则 nullptr。
     //
     // 不能直接用 core::TileMap::objectAt(cell, "npc")：它只返回对象表里第一个
@@ -78,6 +96,11 @@ public:
     [[nodiscard]] static const core::MapObject* visibleNpcAt(const core::GameState& state,
                                                             const core::TileMap& map,
                                                             core::Point cell);
+    // 带伙伴数据的那一个：在场判据换成 npcPresent（多一条一人一身）。引擎里的入口都走它。
+    [[nodiscard]] static const core::MapObject* visibleNpcAt(const core::GameState& state,
+                                                            const core::TileMap& map,
+                                                            core::Point cell,
+                                                            const Companions& companions);
 
     // 地图对象属性里的 facing（up / down / left / right）换成 GameState 那一套
     // 数字朝向。公开是为了能单测：一个拼错的 facing 该退到「朝下」，而不是
@@ -108,6 +131,13 @@ public:
     [[nodiscard]] static std::string objectiveWhereText(Application& app,
                                                         const rules::PortalLink* hop);
 
+    // 这一帧要画的东西（render 里 describe 装好交给 WorldView 的那一份）。公开给无头测试：
+    // 跟随者站在哪、宝箱开没开、明雷在不在，要从画面拿到的那一份上断言，不另算一遍。
+    const WorldFrame& describeFrame(Application& app);
+
+    // 主角走过的格子（最近的在前，至多三格）。跟随者照它排；公开给测试看足迹记没记上。
+    [[nodiscard]] const std::vector<core::Point>& footprints() const { return trail_; }
+
 private:
     // 当前该做的那一步。没有目标链、或全章走完时是 nullptr。
     [[nodiscard]] static const core::Objective* objectiveOf(Application& app);
@@ -119,6 +149,27 @@ private:
 
     // 面朝方向的前一格；交互与触发都看这一格。
     [[nodiscard]] core::Point facingCell(const core::GameState& state) const;
+
+    // ---- 跟随的足迹（契约 3.7）----
+    //
+    // 足迹只在 tryStep 迈成一步时记（换格之后**立刻**记，后面的明雷、触发器、传送分支都会提前返回）。
+    // 换图、剧情传送、读档、逃跑退回、打输回出生点之后都要清空：这些都是「主角不是一步走过来的」，
+    // 统一由 syncTrail 认出来——此刻的图不是记足迹时那张（TileMap 是每次 loadMap 新建的）、
+    // 或主角不在足迹的头上，就清空，伙伴叠回主角格上。读档另有一层保险：读档会新建 WorldScene。
+    void syncTrail(Application& app);
+    void recordStep(core::Point from, core::Point to);
+
+    // 四种新对象的交互（interact 的末四档）与明雷开打。
+    bool openChest(Application& app, const core::MapObject& chest);
+    bool gatherAt(Application& app, const core::MapObject& gather);
+    bool operateGate(Application& app, const core::MapObject& gate);
+    // 开打。returnCell 是逃跑成功时主角退回的那一格（开打前站的那一格）。
+    static void startFoeBattle(Application& app, const core::MapObject& foe, bool preemptive,
+                               core::Point returnCell);
+
+    std::vector<core::Point> trail_;
+    const core::TileMap* trailMap_ = nullptr;
+    core::Point trailHead_;
 
     double stepCooldown_ = 0.0;
     // 存盘之后屏幕上那一句话，以及它还剩多久。

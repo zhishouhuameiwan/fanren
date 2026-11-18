@@ -1,0 +1,10 @@
+{
+  "ui.world.chest.got": "打开箱子，得了{items}。",
+  "ui.world.chest.empty": "箱子是空的。",
+  "ui.world.gather.got": "采得{items}。",
+  "ui.world.gather.spent": "这里刚采过，过些日子再来。",
+  "ui.world.bag.full": "身上再也装不下了，先腾些地方。",
+  "ui.world.gate.open": "{name}上前施为，前路开了。",
+  "ui.world.gate.need": "这里要{name}来才行。",
+  "ui.world.gate.unknown": "似乎要用别的法子。"
+}
