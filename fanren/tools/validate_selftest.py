@@ -3058,8 +3058,15 @@ def v_build(work: Path, bad: bool) -> None:
     if bad:
         roles["li_feiyu"] = "no_such_sheet"
         variants["li_feiyu"] = [{"look": "no_such_look_sheet", "max_chapter": 2}]
+    # 非人形敌人的手绘图（契约 2.5 末条）：好的一版一只写全的；坏的一版图没登、缺 battle_scale、缺 idle、帧号越界。
+    enemies = {"probe_beast": {"file": "probe.png", "frame_w": 16, "frame_h": 24, "cols": 3, "scale": 2,
+                               "battle_scale": 3, "battle": {"idle": [0, 1], "attack": [2]}}}
+    if bad:
+        enemies["probe_beast_bad"] = {"file": "unlisted_beast.png", "frame_w": 16, "frame_h": 24, "cols": 3,
+                                      "scale": 2, "battle": {"attack": [2]}}
+        enemies["probe_beast"]["battle"]["attack"] = [99]
     v_write_json(hd / "index.json", {
-        "sheets": {"probe_hd": sheet}, "roles": roles, "role_variants": variants,
+        "sheets": {"probe_hd": sheet}, "roles": roles, "role_variants": variants, "enemies": enemies,
         "files": {"probe.png": ("0" * 64) if bad else digest}})
 
 
@@ -3105,6 +3112,10 @@ V_EXPECTED = [
     ("40 帧号越界", "走路帧 down 的帧号 [999] 超出图里的 21 格"),
     ("40 角色指向不存在的表", "角色 li_feiyu（表 no_such_sheet）: 指向的表不在这份索引的 sheets 里"),
     ("40 变体指向不存在的表", "role_variants 里 li_feiyu 的一项指向不存在的表：'no_such_look_sheet'"),
+    ("40 敌人图没登在 files", "敌人 probe_beast_bad 引的图 unlisted_beast.png 没登在 files 里"),
+    ("40 敌人缺 battle_scale", "敌人 probe_beast_bad: battle_scale 要自己写、是正整数"),
+    ("40 敌人缺 idle", "敌人 probe_beast_bad: 战斗帧缺 idle"),
+    ("40 敌人帧号越界", "敌人 probe_beast: 战斗帧 attack 的帧号 [99] 超出图里的 21 格"),
     ("31 伙伴 id 与文件名不一致", "id='probe_other_name' 要与文件名 probe_misnamed 相同"),
     ("31 缺 met_flag", "probe_nomet.json: 缺少 met_flag"),
     ("31 roles 为空", "probe_nomet.json: roles 要是非空的数组"),

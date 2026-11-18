@@ -41,7 +41,7 @@ struct BattleLook {
     bool floating = false;      // 光球：悬空
     bool humanoid = true;       // 人物表（有走路帧的那种）
     // ---- 伙伴改版（docs/interfaces-companions.md 2.5）----
-    int scale = 4;              // 这张表的战斗倍数（人物表的 battle_scale；非人形表没有这一项，恒 4）
+    int scale = 4;              // 这张表的战斗倍数（人物表、非人形表各自的 battle_scale；缺省 4）
     // 人物表的那一份：取帧矩形经 game/SpriteAtlas.h 的 battleSheetFrameRect（写了 battle_sheet 的表，
     // 战斗帧在另一张图、另一套格子上）。非人形表为空，按上面的 frameW / frameH / cols 算。
     std::optional<core::CharacterSheet> sheet;

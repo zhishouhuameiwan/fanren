@@ -163,6 +163,7 @@ BattleLook battleLookFor(const SpriteIndex& index, const std::string& battleId, 
         look.facing = sheet.battleFacing;
         look.floating = sheet.floating;
         look.humanoid = false;
+        look.scale = sheet.battleScale;   // 生成的缺省 4，与改版前相同；手绘的大图自己写
     };
     // 按战斗覆写的外观（识海之战里韩立是光球）：外观 id 可能在人物表里，也可能在非人形表里。
     if (const auto battle = index.battleOverrides.find(battleId); battle != index.battleOverrides.end()) {

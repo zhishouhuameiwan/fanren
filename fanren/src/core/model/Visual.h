@@ -85,6 +85,10 @@ struct EnemySheet {
     BattleFacing battleFacing = BattleFacing::Right;
     bool floating = false;   // index.json 的 "float"：悬空（光球）
     std::string aliasOf;     // 与哪个敌人共用一张图（只作记录：本条自己的字段是全的）
+    // ---- 按表的倍数（伙伴改版，docs/interfaces-companions.md 2.5）：缺省是改版前写死的那两个数 ----
+    // 手绘的大图（hd/index.json 的 enemies）自己写；首领在战斗层另外放大（BattleView::battleScale）。
+    int scale = 3;           // 世界层（明雷）按几倍画
+    int battleScale = 4;     // 战斗层按几倍画
 };
 
 // 一种地图物件。帧是图集里的像素矩形，锚点是帧内的「落地点」。

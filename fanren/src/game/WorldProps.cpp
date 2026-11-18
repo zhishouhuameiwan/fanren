@@ -110,14 +110,14 @@ bool enemyFlipped(const core::EnemySheet& sheet, int facing) {
 }
 
 engine::RectF enemyDest(const core::EnemySheet& sheet, float footX, float footY) {
-    const float scale = fl(kArtScale);
+    const float scale = fl(sheet.scale);
     const float w = fl(sheet.frameW) * scale;
     const float h = fl(sheet.frameH) * scale;
     return engine::RectF{snap(footX - w / 2.f), snap(footY - fl(sheet.footY + 1) * scale), w, h};
 }
 
 float enemyHeadTop(const core::EnemySheet& sheet, float footY) {
-    return footY - fl(sheet.footY + 1 - sheet.headY) * fl(kArtScale);
+    return footY - fl(sheet.footY + 1 - sheet.headY) * fl(sheet.scale);
 }
 
 }  // namespace fanren::game

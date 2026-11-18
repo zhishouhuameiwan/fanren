@@ -4159,6 +4159,45 @@ def check_hd_index(report: Report) -> None:
                 if bad:
                     report.error(where, f"{label}帧 {name} 的帧号 {bad} 超出图里的 {limit} 格")
 
+    check_hd_enemies(report, rel, payload, hd_dir, files)
+
+
+def check_hd_enemies(report: Report, rel: str, payload: dict, hd_dir: Path, files: dict) -> None:
+    """规则 40 的非人形敌人那一半（契约 2.5）：`hd/index.json` 的 `enemies` 覆盖或新增生成索引里的敌人图。
+
+    · 引到的图登在 `files` 里；
+    · `scale`、`battle_scale` 自己写、是正整数（手绘的大图继承 16 像素美术的 ×3 / ×4 会画得出框）；
+    · 战斗帧至少有 `idle`，帧号落在图里。
+    """
+    enemies = payload.get("enemies", {})
+    if not isinstance(enemies, dict):
+        report.error(rel, "enemies 要是「敌人 id → 敌人图」的对象")
+        return
+    for enemy_id, enemy in sorted(enemies.items()):
+        where = f"{rel} 敌人 {enemy_id}"
+        if not isinstance(enemy, dict):
+            report.error(where, "要是对象")
+            continue
+        image = enemy.get("file")
+        if image and image not in files:
+            report.error(rel, f"敌人 {enemy_id} 引的图 {image} 没登在 files 里：改了图门禁核不到")
+        for key in ("scale", "battle_scale"):
+            value = enemy.get(key)
+            if isinstance(value, bool) or not isinstance(value, int) or value <= 0:
+                report.error(where, f"{key} 要自己写、是正整数（手绘的大图继承缺省会画得出框）")
+        battle = enemy.get("battle", {}) if isinstance(enemy.get("battle"), dict) else {}
+        if not battle.get("idle"):
+            report.error(where, "战斗帧缺 idle（明雷站着与战斗待机都画它）")
+        size = png_size(hd_dir / image) if image else None
+        frame_h, cols = enemy.get("frame_h"), enemy.get("cols", 3)
+        if size is None or not isinstance(frame_h, int) or not isinstance(cols, int) or frame_h <= 0:
+            continue
+        limit = cols * (size[1] // frame_h)
+        for name, frames in battle.items():
+            bad = [f for f in frames or [] if not isinstance(f, int) or f < 0 or f >= limit]
+            if bad:
+                report.error(where, f"战斗帧 {name} 的帧号 {bad} 超出图里的 {limit} 格")
+
 
 # ---------------------------------------------------------------------------
 

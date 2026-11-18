@@ -229,6 +229,10 @@ struct SpriteReader : Reader {
             if (!floating->is_boolean()) return fail(where + ".float", "应当是 true / false");
             out.floating = floating->get<bool>();
         }
+        if (!optionalInt(v, "scale", where, out.scale) || !optionalInt(v, "battle_scale", where, out.battleScale)) {
+            return false;
+        }
+        if (out.scale <= 0 || out.battleScale <= 0) return fail(where, "scale、battle_scale 都必须是正数");
         return true;
     }
 
@@ -390,6 +394,26 @@ struct SpriteReader : Reader {
             index.variants.erase(roleId);
         }
         for (auto& [roleId, list] : variants) index.variants[roleId] = std::move(list);
+        return mergeHdEnemies(root, index);
+    }
+
+    // hd/index.json 的 enemies（非人形敌人的手绘图，契约 2.5）：与生成索引里的同形，file 相对 hd/；
+    // 同 id 的覆盖生成的那一张，没有的就新增。手绘的大图必须自己写 scale 与 battle_scale——继承缺省就是
+    // 16 像素美术的 ×3 / ×4，一张几十像素高的图会大得出框，而且不报错。
+    bool mergeHdEnemies(const json& root, core::SpriteIndex& index) {
+        const json* enemies = member(root, "enemies");
+        if (enemies == nullptr) return true;
+        if (!enemies->is_object()) return fail("enemies", "应当是对象");
+        for (const auto& item : enemies->items()) {
+            const std::string where = "enemies." + item.key();
+            for (const char* key : {"scale", "battle_scale"}) {
+                if (member(item.value(), key) == nullptr) return fail(where + "." + key, "手绘的敌人图必须自己写这一项");
+            }
+            core::EnemySheet sheet;
+            if (!readEnemy(item.value(), where, DefaultFrame{}, sheet)) return false;
+            sheet.file = "hd/" + sheet.file;
+            index.enemies[item.key()] = std::move(sheet);
+        }
         return true;
     }
 

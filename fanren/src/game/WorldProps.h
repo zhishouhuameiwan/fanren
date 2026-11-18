@@ -76,7 +76,7 @@ struct FoeBody {
 // 敌人表的帧有自己的朝向（非人形面朝右，人形面朝左，光球不分）。明雷面朝右（1）/ 左（3）而帧朝着另一边时翻转；
 // 面朝上下、或帧不分朝向时按原样。
 [[nodiscard]] bool enemyFlipped(const core::EnemySheet& sheet, int facing);
-// 敌人表在世界层一律 ×kArtScale（敌人表都是 16px 美术那一套）。
+// 敌人表在世界层按它自己的 scale 画（生成的那些缺省 ×3，与 kArtScale 相同；手绘的大图自己写）。
 [[nodiscard]] engine::RectF enemyDest(const core::EnemySheet& sheet, float footX, float footY);
 [[nodiscard]] float enemyHeadTop(const core::EnemySheet& sheet, float footY);
 
