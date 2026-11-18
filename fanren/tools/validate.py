@@ -19,6 +19,7 @@ CI 的门禁之一，也可本地自检：
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import re
 import sys
@@ -42,7 +43,15 @@ OBJECT_REQUIRED_PROPS = {
     "trigger": ["script", "mode", "once"],
     "encounter": ["table_id", "steps_min", "steps_max"],
     "facility": ["kind"],
+    # 伙伴改版的四种新对象（docs/interfaces-companions.md 2.4；map_spec 4.8–4.11）。
+    "chest": ["id", "loot"],
+    "gather": ["id", "item", "respawn_days"],
+    "foe": ["id", "battle", "look", "facing"],
+    "gate": ["id", "skill"],
 }
+
+# 四种新对象：都带全局唯一的 id（以图名加一点作前缀），状态记在存档的集合里。
+WORLD_OBJECT_TYPES = ("chest", "gather", "foe", "gate")
 
 FLAG_PROP_SUFFIX = "_flag"
 TEXT_KEY_SUFFIX = "_key"
@@ -160,6 +169,10 @@ def collect_data(report: Report) -> tuple[dict[str, Path], dict[str, str]]:
         # data/visual/ 是 tools/artgen 的输入（外观表、地图视觉预设，一张表里多条），
         # 不是 one-file-per-entry 的数据条目；运行时只读 assets/art/** 的生成物（施工图 1.2）。
         if path.relative_to(data_dir).parts[0] == "visual":
+            continue
+        # 伙伴与历练地（伙伴改版）不进全局 id 表：伙伴 id 与她后期的角色 id 本来就同名
+        # （nangong_wan，契约 2.4），历练地的名字也不叫 name。两类各由自己的规则查（31、39）。
+        if path.relative_to(data_dir).parts[0] in ("companions", "lilian"):
             continue
 
         # data/text/*.json 是 key → 文案的大对象，其余是 one-file-per-entry。
@@ -562,10 +575,28 @@ def spawn_landing(parsed: ParsedMap, spawn_id: str) -> dict | None:
 
 
 def is_interactive(record: dict) -> bool:
-    """按确认键能按出来的对象。portal 与 enter 触发是踏入型，不走这条。"""
-    if record["type"] in ("npc", "facility"):
+    """按确认键能按出来的对象。portal 与 enter 触发是踏入型，不走这条。
+
+    四种新对象（宝箱、采集点、明雷、机关）都是面朝它按确认（WorldScene::interact 的末四档）。
+    """
+    if record["type"] in ("npc", "facility") or record["type"] in WORLD_OBJECT_TYPES:
         return True
     return record["type"] == "trigger" and record["props"].get("mode") == "interact"
+
+
+def world_object_always_present(record: dict) -> bool:
+    """这个新对象是不是**一定**在场（与 npc_always_present 同一口径：不确定的不算）。
+
+    写了 require_flag 的宝箱、采集点、明雷在旗标置上之前不在（WorldObjects::present）；
+    明雷打赢了也不在，但打赢之前它是在的——挡路要按「在」算。机关一直在。
+    """
+    return not record["props"].get("require_flag")
+
+
+def foe_front_cell(record: dict) -> tuple[int, int]:
+    """明雷面前那一格（WorldObjects::foeFrontCell）：它的格 + facing 那一向，写错按朝下。"""
+    dx, dy = STEP_DIRECTIONS.get(record["props"].get("facing", ""), (0, 1))
+    return (record["x"] + dx, record["y"] + dy)
 
 
 def is_step_activated(record: dict) -> bool:
@@ -594,7 +625,8 @@ def npc_always_present(record: dict) -> bool:
     return not (record["props"].get("visible_flag") or record["props"].get("hidden_flag"))
 
 
-def occupied_cells(parsed: ParsedMap) -> dict[tuple[int, int], str]:
+def occupied_cells(parsed: ParsedMap, gates_open: bool = True,
+                   foe_sight: bool = False) -> dict[tuple[int, int], str]:
     """npc 与 facility 占住的格子 → 占它的对象名。
 
     这就是 WorldScene::tryStep 在 walkable() 之外另挡的那两道，而命中按矩形算，
@@ -603,12 +635,30 @@ def occupied_cells(parsed: ParsedMap) -> dict[tuple[int, int], str]:
     带 visible_flag / hidden_flag 的 npc **不算**：引擎已改成「不画、不能谈的
     npc 也不占格」（tryStep 走 visibleNpcAt），它挡不挡路随旗标变，算不得一堵墙。
     见 npc_always_present。facility 没有可见性属性，一律占格。
+
+    伙伴改版的四种新对象（WorldScene::tryStep 的 blockerAt）：宝箱、采集点、明雷占格，
+    带 require_flag 的不算（不一定在场）；机关关着时占格、开了不占——
+    ``gates_open`` 选按哪一种算：缺省按「开着」，可达性一类的检查问的是「带对了人走不走得到」，
+    「机关不卡主线」（规则 34）另按「关着」算。``foe_sight`` 为真时，在场明雷面前那一格也当墙：
+    「明雷不堵路」（规则 36）问的是不踏进任何一格面前格还走不走得通。
     """
     occupied: dict[tuple[int, int], str] = {}
     for record in parsed.objects:
-        if record["type"] not in ("npc", "facility"):
+        kind = record["type"]
+        if kind in WORLD_OBJECT_TYPES:
+            if kind == "gate":
+                if gates_open:
+                    continue
+            elif not world_object_always_present(record) and not (kind == "foe" and foe_sight):
+                continue        # 规则 36 问的是「所有明雷都在场时」：带 require_flag 的也算在场
+            for cell in object_cells(record):
+                occupied.setdefault(cell, record["name"])
+            if kind == "foe" and foe_sight:
+                occupied.setdefault(foe_front_cell(record), record["name"] + " 的面前")
             continue
-        if record["type"] == "npc" and not npc_always_present(record):
+        if kind not in ("npc", "facility"):
+            continue
+        if kind == "npc" and not npc_always_present(record):
             continue
         for cell in object_cells(record):
             occupied.setdefault(cell, record["name"])
@@ -653,7 +703,7 @@ def flood(parsed: ParsedMap, collision: list, occupied: dict,
     return seen
 
 
-def check_reachability(parsed: ParsedMap, report: Report) -> None:
+def check_reachability(parsed: ParsedMap, report: Report, start_spawn: str = "") -> None:
     """规则 13：从 default spawn 出发，所有交互对象必须可达。
 
     连通口径必须与引擎逐字一致，否则这盏绿灯是假的。引擎里挡路的不只是
@@ -678,6 +728,9 @@ def check_reachability(parsed: ParsedMap, report: Report) -> None:
     if not defaults:
         return
     start = (defaults[0]["x"], defaults[0]["y"])
+    # 历练的入口图：玩家是从历练地定义里的 entry.spawn 落地的（契约 3.12），「从本图入口走得到」从那里算。
+    if start_spawn and start_spawn in parsed.spawns:
+        start = (parsed.spawns[start_spawn]["x"], parsed.spawns[start_spawn]["y"])
     occupied = occupied_cells(parsed)
 
     if cell_blocked(parsed, collision, occupied, start):
@@ -688,18 +741,17 @@ def check_reachability(parsed: ParsedMap, report: Report) -> None:
 
     seen = flood(parsed, collision, occupied, start)
 
-    interactive = {"portal", "npc", "facility"}
+    # 四种新对象也在这里（规则 33「宝箱、采集点可达」随之落在这一条上）：occupied 按「机关开着」算，
+    # 机关后面的东西按「带对了人开了机关」判可达（契约第 5 节）；机关自己贴着站得到就行。
     for record in parsed.objects:
         cells = object_cells(record)
-        is_interactive = record["type"] in interactive or (
-            record["type"] == "trigger" and record["props"].get("mode") == "interact"
-        )
+        reach_by_halo = record["type"] == "portal" or is_interactive(record)
         step_on = record["type"] == "portal" or (
             record["type"] == "trigger" and record["props"].get("mode") == "enter"
         )
         where = f"{rel} 对象 {record['name']}"
 
-        if is_interactive:
+        if reach_by_halo:
             # 对象自身可以放在不可通行格上（如柜台），只要矩形四周有一格可达即可交互。
             if not (object_halo(record) & seen):
                 report.error(where, f"从出生点无法到达 {(record['x'], record['y'])}")
@@ -714,7 +766,19 @@ def check_reachability(parsed: ParsedMap, report: Report) -> None:
 # WorldScene::interact 的问询顺序：npc → mode=interact 的 trigger → facility，
 # 谁先应声谁就独占这一次确认键。tryStep 那边同理：enter 触发命中就 return，
 # 排在它后面的 portal 收不到这一步。
-INTERACT_ORDER = ("npc", "trigger", "facility")
+#
+# 伙伴改版在设施之后接了四档（WorldScene::interact）：宝箱 → 采集点 → 明雷 → 机关，每类只取第一个在场的。
+INTERACT_ORDER = ("npc", "trigger", "facility", "chest", "gather", "foe", "gate")
+
+
+def world_object_verdict(record: dict) -> str:
+    """新对象拿到一次确认键：宝箱、采集点在场就吃掉（开过、采过也要说一句）；明雷打赢会消失、
+    机关开了不再应声，都会让位。带 require_flag 的不一定在场。"""
+    if not world_object_always_present(record):
+        return "maybe"
+    if record["type"] in ("chest", "gather"):
+        return "always"
+    return "maybe"
 
 
 def npc_verdict(record: dict) -> str:
@@ -763,6 +827,8 @@ def check_interaction_shadow(parsed: ParsedMap, report: Report) -> None:
     rel = str(parsed.path.relative_to(ROOT))
     verdict = {"npc": npc_verdict, "trigger": trigger_verdict,
                "facility": lambda _record: "always"}
+    for kind in WORLD_OBJECT_TYPES:
+        verdict[kind] = world_object_verdict
 
     # 每类、每格的「第一个命中」，连同它在对象表里的位置。对象表里的先后就是
     # 引擎逐个比对的先后。npc 这一类只收**一定在场**的：不在场的那些引擎直接跳过。
@@ -774,6 +840,8 @@ def check_interaction_shadow(parsed: ParsedMap, report: Report) -> None:
         if record["type"] not in first_hit:
             continue
         if record["type"] == "npc" and not npc_always_present(record):
+            continue
+        if record["type"] in WORLD_OBJECT_TYPES and not world_object_always_present(record):
             continue
         for cell in object_cells(record):
             first_hit[record["type"]].setdefault(cell, (index, record))
@@ -1192,6 +1260,35 @@ class World:
     terrain: dict[str, tuple[list, dict]]
     teleports: dict[str, set[str]]
     script_flags: dict[str, set[str]]
+    # 历练地 id → (入口图, 入口图上的出生点, unlock_flag)。历练图只从 kind=lilian 的设施进去
+    # （契约 3.12），没有传送点指向它们；世界推演把「走得到的 lilian 设施」当成通到入口的一条边。
+    lilian_entries: dict[str, tuple[str, str, str]] = field(default_factory=dict)
+
+
+def lilian_entries() -> dict[str, tuple[str, str, str]]:
+    """data/lilian/<site>.json 的入口（形状见 D 路 io/LilianLoader.h：entry {map, spawn}、unlock_flag）。
+
+    只取推演要的那三样；形状坏了归规则 39 与 D 路的加载器报，这里读不出来就当没有这处历练地。
+    """
+    entries: dict[str, tuple[str, str, str]] = {}
+    folder = ROOT / "data" / "lilian"
+    if not folder.exists():
+        return entries
+    for path in sorted(folder.glob("*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        entry = payload.get("entry") if isinstance(payload, dict) else None
+        if isinstance(entry, dict) and entry.get("map"):
+            entries[path.stem] = (str(entry["map"]), str(entry.get("spawn", "") or ""),
+                                  str(payload.get("unlock_flag", "") or ""))
+    return entries
+
+
+def lilian_entry_spawns() -> dict[str, str]:
+    """入口图 → 它的入口出生点 id（空 = 缺省出生点）。规则 13 在入口图上从这里出发。"""
+    return {map_id: spawn for map_id, spawn, _flag in lilian_entries().values()}
 
 
 def load_world(maps: list[ParsedMap], report: Report) -> World | None:
@@ -1206,10 +1303,10 @@ def load_world(maps: list[ParsedMap], report: Report) -> World | None:
         if collision is None:
             return None         # 有图读不出来，算出来的断链多半是假的，不如不报
         terrain[parsed.map_id] = (collision, occupied_cells(parsed))
-    return World(by_id, terrain, script_teleport_targets(), script_flag_sets())
+    return World(by_id, terrain, script_teleport_targets(), script_flag_sets(), lilian_entries())
 
 
-def world_closure(world: World, honour_flags: bool) -> tuple[set[str], set[str]]:
+def world_fixpoint(world: World, honour_flags: bool) -> tuple[set[tuple[str, str]], set[str]]:
     """从开局起把世界推到不动点，返回 (走得到的地图, 拿得到的旗标)。
 
     honour_flags=False 是规则 18 的口径：把 require_flag / guard_flag / visible_flag
@@ -1276,6 +1373,25 @@ def world_closure(world: World, honour_flags: bool) -> tuple[set[str], set[str]]
                         continue
                     # hidden_flag 不拦：旗标只增不减，玩家总能赶在它置上之前先谈。
                     produced = set(world.script_flags.get(script, ()))
+                elif kind == "gate":
+                    # 机关打开后置 opens（契约 3.6）：贴着站得到就算拿得到——带没带对人不做推演，
+                    # 与「脚本里任何一处 flag.set 都算」同一份宽松。
+                    if not props.get("opens") or not (object_halo(record) & seen):
+                        continue
+                    produced = {props["opens"]}
+                elif kind == "facility" and props.get("kind") == "lilian":
+                    # 历练入口：面朝它按确认就传到这处历练地的入口（Application::enterLilian）。
+                    # 历练图上的出口也是 lilian 设施，它通回的是进来之前那张图，那张图本来就在推演里。
+                    entry = world.lilian_entries.get(props.get("site", ""))
+                    if entry is None or not (object_halo(record) & seen):
+                        continue
+                    if honour_flags and entry[2] and entry[2] not in flags:
+                        continue
+                    node = (entry[0], entry[1])
+                    if node not in nodes:
+                        nodes.add(node)
+                        changed = True
+                    continue
                 else:
                     continue
 
@@ -1286,6 +1402,12 @@ def world_closure(world: World, honour_flags: bool) -> tuple[set[str], set[str]]
                         nodes.add((target, ""))
                         changed = True
 
+    return nodes, flags
+
+
+def world_closure(world: World, honour_flags: bool) -> tuple[set[str], set[str]]:
+    """world_fixpoint 只要图、不要落点的那一种（规则 18、19 用）。"""
+    nodes, flags = world_fixpoint(world, honour_flags)
     return {map_id for map_id, _ in nodes}, flags
 
 
@@ -1367,6 +1489,8 @@ def check_flag_order(maps: list[ParsedMap], report: Report) -> None:
                 need = record["props"].get(prop_name, "")
                 if not need or need in flags:
                     continue
+                if prop_name == "require_flag" and record["type"] != "portal":
+                    consequence = "这个对象永远不出现" if record["type"] != "facility" else "这个设施永远打不开"
                 report.error(f"{rel} 对象 {record['name']}",
                              f"{prop_name}={need} 从开局出发永远置不上"
                              f"（没有任何拿得到的触发器或脚本会置它），{consequence}")
@@ -3435,6 +3559,608 @@ def check_data_references(texts, flags, defined, report):
 
 
 # ---------------------------------------------------------------------------
+# 规则 31–40：伙伴改版（docs/interfaces-companions.md 第 5 节那张门禁表；map_spec 第 7 节 31–40）
+# ---------------------------------------------------------------------------
+#
+# 31 伙伴数据 · 32 四种新对象的 id 与形状 · 33 宝箱、采集点可达（落在规则 13 上，按「机关开着」算）·
+# 34 机关不卡主线 · 35 机关有人能开 · 36 明雷不堵路 · 37 明雷编成 · 38 插话的 require_party ·
+# 39 历练 · 40 手绘表清单。一人一身（契约 3.11）**不设规则**：谁在队里是脚本定的，静态查不了。
+
+# 对象 id：<图名>.<语义>，全小写。前缀必须恰是所在那张图的 map_id（契约 2.4「以图名作前缀」）。
+OBJECT_ID_TAIL_RE = re.compile(r"^[a-z0-9_]+$")
+# 宝箱 loot / 采集点 item 的一项：物品 id，可带「:件数」（WorldObjects::parseItemList）。
+ITEM_ENTRY_RE = re.compile(r"^([a-z0-9_]+)(?::([1-9][0-9]{0,5}))?$")
+FACING_NAMES = ("up", "down", "left", "right")
+POSITIVE_INT_RE = re.compile(r"^[1-9][0-9]{0,8}$")
+
+COMPANION_FIELDS = {"id", "roles", "met_flag", "field_skill", "chase", "duo", "gifts", "note"}
+COMPANION_ROLE_FIELDS = {"role", "until_flag"}
+
+# 历练（契约 3.12）。定义文件的形状由 D 路定（它的 io/LilianLoader.h 开头）：id、name_key、unlock_flag、
+# entry {map, spawn}、maps（都以 lilian_ 开头、含 entry.map）、tiers（1–3 档，每档 {max_realm}）。
+# 形状归 D 路的加载器查；门禁查的是它引到的图与编成。
+LILIAN_MAP_PREFIX = "lilian_"
+LILIAN_FORBIDDEN_FACILITIES = ("save", "meditate")
+LILIAN_DEFAULT_TIERS = 3          # 定义文件里没写 tiers 时按 _t1 / _t2 / _t3 三档查
+LILIAN_TIER_SUFFIX = "_t%d"
+
+# 手绘表（契约 2.5）。走路四向、战斗八个动作，与生成的人物表同一套名字（docs/art-sprites.md 第 5 节）。
+HD_INDEX = Path("assets") / "art" / "sprites" / "hd" / "index.json"
+SPRITE_INDEX = Path("assets") / "art" / "sprites" / "index.json"
+HD_WALK_DIRECTIONS = ("down", "left", "right", "up")
+HD_BATTLE_ACTIONS = ("idle", "ready", "attack", "cast", "hurt", "down", "victory", "guard")
+
+
+def is_true(value) -> bool:
+    return str(value).lower() == "true"
+
+
+def parse_item_list(text: str) -> list[tuple[str, int]] | None:
+    """loot / item 的写法：`物品id` 或 `物品id:件数`，逗号隔开。写坏了返回 None。"""
+    items = []
+    for piece in str(text).split(","):
+        match = ITEM_ENTRY_RE.match(piece.strip())
+        if not match:
+            return None
+        items.append((match.group(1), int(match.group(2) or 1)))
+    return items
+
+
+def check_foe_fronts(parsed: ParsedMap, report: Report) -> None:
+    """规则 32（明雷面前那一格）：必须可走，且不与传送点、踏入式触发器、别的新对象重叠。
+
+    被看见的那一步在 tryStep 里排在触发器与传送点之前（WorldScene::tryStep）：面前格压着传送点，
+    打赢之后主角站在传送格上却没被传走；压着踏入触发器，那一步的剧情被这一仗吞掉。
+    面前格走不上去（墙、设施、一定在场的 npc、别的新对象），这只明雷就永远看不见人，只能偷袭。
+    """
+    if not any(r["type"] == "foe" for r in parsed.objects):
+        return
+    collision = collision_layer(parsed, report)
+    if collision is None:
+        return
+    rel = str(parsed.path.relative_to(ROOT))
+    occupied = occupied_cells(parsed, gates_open=False)
+    for record in parsed.objects:
+        if record["type"] != "foe":
+            continue
+        front = foe_front_cell(record)
+        where = f"{rel} 对象 {record['name']}"
+        for other in parsed.objects:
+            if other is record or front not in object_cells(other):
+                continue
+            if other["type"] == "portal" or other["type"] in WORLD_OBJECT_TYPES or (
+                    other["type"] == "trigger" and other["props"].get("mode") == "enter"):
+                report.error(where, f"面前那一格 {front} 压着 {other['name']}（{other['type']}）："
+                                    "被看见先于踏入触发器与传送点，那一步会被这一仗吞掉")
+        if cell_blocked(parsed, collision, occupied, front):
+            what = occupied.get(front) or "墙或图外"
+            report.error(where, f"面前那一格 {front} 走不上去（{what}）：它永远看不见人")
+
+
+def check_world_objects(maps: list[ParsedMap], report: Report) -> None:
+    """规则 32：四种新对象的 id 全局唯一、带图名前缀；各自的属性写得对。只看 tmj。
+
+    id 是存档里集合的键（GameState::worldObjects）：两张图撞了 id，开一只箱子另一只也算开过，
+    而且存档里看不出来。前缀用 `<map_id>.`：一眼看得出是哪张图的，也就不会两张图各起一个 chest_1。
+    """
+    seen_ids: dict[str, str] = {}
+    for parsed in maps:
+        check_foe_fronts(parsed, report)
+        rel = str(parsed.path.relative_to(ROOT))
+        lilian_map = parsed.map_id.startswith(LILIAN_MAP_PREFIX)
+        for record in parsed.objects:
+            kind = record["type"]
+            props = record["props"]
+            where = f"{rel} 对象 {record['name']}"
+
+            if kind == "trigger" and props.get("mode") and props["mode"] not in ("enter", "interact"):
+                report.error(where, f"trigger 的 mode={props['mode']} 不认：引擎只处理 enter 与 interact"
+                                    "（map_spec 4.4 删掉了 auto）")
+            if kind == "gate" and props.get("require_flag"):
+                report.error(where, "gate 不认 require_flag（契约 2.4 没有这一项，引擎不判）：机关一直在，"
+                                    "要它晚些出现请用剧情、或把它放在晚些才进得去的地方")
+
+            if props.get("require_party") and kind != "trigger":
+                report.error(where, f"require_party 只许写在 trigger 上（这里是 {kind}）：引擎只在触发器上读它")
+
+            # 规则 39 只看 tmj 的那一半：历练图上没有存档点、打坐点（打坐会加修为、推日历）。
+            if lilian_map and kind == "facility" and props.get("kind") in LILIAN_FORBIDDEN_FACILITIES:
+                report.error(where, f"历练图上不许有 kind={props.get('kind')} 的设施（契约 3.12：历练里不能存档、"
+                                    "打坐会加修为推日历）")
+            if kind == "facility" and props.get("kind") == "lilian" and not props.get("site"):
+                report.error(where, "kind=lilian 的设施缺少 site（历练地 id，data/lilian/<site>.json）")
+
+            if kind not in WORLD_OBJECT_TYPES:
+                continue
+            object_id = props.get("id", "")
+            prefix = parsed.map_id + "."
+            if object_id:
+                if not object_id.startswith(prefix) or not OBJECT_ID_TAIL_RE.match(object_id[len(prefix):]):
+                    report.error(where, f"{kind} 的 id={object_id} 不合规：要写成 {prefix}<小写语义>"
+                                        "（全局唯一，以图名作前缀）")
+                elif object_id in seen_ids:
+                    report.error(where, f"{kind} 的 id={object_id} 与 {seen_ids[object_id]} 重复："
+                                        "存档按 id 记状态，开一个等于两个都开了")
+                else:
+                    seen_ids[object_id] = where
+
+            if kind == "chest" and "loot" in props and parse_item_list(props["loot"]) is None:
+                report.error(where, f"loot={props['loot']!r} 写坏了：要写成「物品id」或「物品id:件数」，逗号隔开")
+            if kind == "gather":
+                if "item" in props and parse_item_list(props["item"]) is None:
+                    report.error(where, f"item={props['item']!r} 写坏了：要写成「物品id」或「物品id:件数」")
+                if "respawn_days" in props and not POSITIVE_INT_RE.match(props["respawn_days"]):
+                    report.error(where, f"respawn_days={props['respawn_days']!r} 要是正整数（采一次冷却几天）")
+            if kind == "foe":
+                if props.get("facing") and props["facing"] not in FACING_NAMES:
+                    report.error(where, f"facing={props['facing']} 不是 up / down / left / right："
+                                        "引擎会按朝下算，它面前那一格就不是你画的那一格")
+                if record["w"] != 1 or record["h"] != 1:
+                    report.error(where, "foe 只许占一格：它「面前那一格」按一格算")
+                if "respawn_days" in props and not POSITIVE_INT_RE.match(props["respawn_days"]):
+                    report.error(where, f"respawn_days={props['respawn_days']!r} 要是正整数；不重生就别写")
+                if "elite" in props and str(props["elite"]).lower() not in ("true", "false"):
+                    report.error(where, f"elite={props['elite']!r} 要是 bool")
+            # chance（契约 3.12，D 路进历练时按它抽谁出现）：只有历练图上的 foe、chest 有意义，1–99 的整数。
+            # 写在别处引擎不判——规范里写着、引擎不判的字段最危险（交接文档教训 14）。
+            if "chance" in props:
+                if kind not in ("foe", "chest") or not lilian_map:
+                    report.error(where, f"chance 只许写在历练图（{LILIAN_MAP_PREFIX}*）的 foe / chest 上：别处引擎不抽")
+                elif not re.match(r"^[1-9][0-9]?$", str(props["chance"])):
+                    report.error(where, f"chance={props['chance']!r} 要是 1–99 的整数（出现的百分比）")
+            if kind == "gate" and lilian_map and props.get("opens"):
+                report.error(where, "历练图上的机关不许写 opens（契约 3.6、3.12）：旗标是永久的，"
+                                    "第二趟进去它就是开着的")
+
+
+def world_targets(maps: list[ParsedMap], report: Report, gates_open: bool = True,
+                  foe_sight: bool = False) -> set[tuple[str, str]] | None:
+    """从开局出发（不看旗标，规则 18 的口径）够得着的 (地图, 对象名)。地形按两个开关算。"""
+    by_id = {m.map_id: m for m in maps}
+    if START_MAP not in by_id:
+        return None
+    terrain: dict[str, tuple[list, dict]] = {}
+    for parsed in maps:
+        collision = collision_layer(parsed, report)
+        if collision is None:
+            return None
+        terrain[parsed.map_id] = (collision, occupied_cells(parsed, gates_open=gates_open, foe_sight=foe_sight))
+    world = World(by_id, terrain, script_teleport_targets(), script_flag_sets(), lilian_entries())
+    nodes, _flags = world_fixpoint(world, honour_flags=False)
+    reached: set[tuple[str, str]] = set()
+    for map_id, spawn_id in nodes:
+        parsed = by_id.get(map_id)
+        here = spawn_landing(parsed, spawn_id) if parsed is not None else None
+        if here is None:
+            continue
+        collision, occupied = terrain[map_id]
+        # 落点自己不判（与 world_fixpoint 同一口径）：引擎只在「迈进」明雷面前那一格时开打，
+        # 传送、换图落在那里不开打，人站得住，从那里照样走得出去。
+        seen = flood(parsed, collision, occupied, (here["x"], here["y"]))
+        for record in parsed.objects:
+            if object_halo(record) & seen:
+                reached.add((map_id, record["name"]))
+    return reached
+
+
+def objective_steps(report: Report) -> list[tuple[str, str, str]]:
+    """目标链每一步的 (说明, 目标图, 目标对象)。形状由规则 22 查，这里只取。"""
+    steps = []
+    objectives_dir = ROOT / "data" / "objectives"
+    if not objectives_dir.exists():
+        return steps
+    for path in sorted(objectives_dir.glob("*.json")):
+        payload = read_json(path, report)
+        if not isinstance(payload, dict) or not isinstance(payload.get("steps"), list):
+            continue
+        rel = str(path.relative_to(ROOT))
+        for index, step in enumerate(payload["steps"]):
+            if isinstance(step, dict) and step.get("target_map") and step.get("target_object"):
+                steps.append((f"{rel} 第 {index + 1} 步（{step.get('id', '')}）",
+                              str(step["target_map"]), str(step["target_object"])))
+    return steps
+
+
+def check_objective_blockers(maps: list[ParsedMap], report: Report) -> None:
+    """规则 34「机关不卡主线」、规则 36「明雷不堵路」。
+
+    34：所有 gate 都关着（占格）时，目标链上每一步的目标仍然走得到。
+    36：所有 foe 都在场、而且它们面前那一格都不能踏（踏进去就开打）时，目标链上每一步仍然走得到。
+
+    两条都按**差集**报：机关开着、明雷不在时走得到，换成关着 / 在场就走不到的那一步，才是机关或
+    明雷堵的。本来就够不着的目标（剧情传送才去得了的那一类）归规则 22 与 18，这里不重复。
+    """
+    has_gate = any(r["type"] == "gate" for m in maps for r in m.objects)
+    has_foe = any(r["type"] == "foe" for m in maps for r in m.objects)
+    if not has_gate and not has_foe:
+        return
+    steps = objective_steps(report)
+    if not steps:
+        return
+    base = world_targets(maps, report)
+    if base is None:
+        return
+    variants = []
+    if has_gate:
+        variants.append(("机关都关着时走不到它（规则 34：主线必经的路上不许放机关）",
+                         world_targets(maps, report, gates_open=False)))
+    if has_foe:
+        variants.append(("所有明雷都在场时，没有一条不踏进明雷面前格的路（规则 36：明雷不许堵主线）",
+                         world_targets(maps, report, foe_sight=True)))
+    for message, reached in variants:
+        if reached is None:
+            continue
+        for where, target_map, target_object in steps:
+            key = (target_map, target_object)
+            if key in base and key not in reached:
+                report.error(where, f"目标 {target_map} 的 {target_object}：{message}")
+
+
+def load_companions(report: Report) -> dict[str, dict]:
+    """data/companions/*.json → 伙伴 id → 原始数据。目录不在 = 一位也没有。"""
+    companions: dict[str, dict] = {}
+    folder = ROOT / "data" / "companions"
+    if not folder.exists():
+        return companions
+    for path in sorted(folder.glob("*.json")):
+        payload = read_json(path, report)
+        if isinstance(payload, dict):
+            companions[path.stem] = payload
+        elif payload is not None:
+            report.error(str(path.relative_to(ROOT)), "伙伴数据必须是对象")
+    return companions
+
+
+def companion_roles(payload: dict) -> list[str]:
+    roles = payload.get("roles")
+    if not isinstance(roles, list):
+        return []
+    return [str(r.get("role", "")) for r in roles if isinstance(r, dict) and r.get("role")]
+
+
+def check_companions(defined: dict, report: Report) -> dict[str, dict]:
+    """规则 31：伙伴数据（契约 2.1）。roles / duo / gifts 引的 id 都存在；同一个角色 id 不属于两位伙伴。
+
+    met_flag、until_flag 是否登记由 check_data_references 顺带查（字段名以 _flag 结尾）。
+    形状与 C++ 的 io/CompanionLoader 同一张表：表外字段、缺 id / met_flag / roles 都报。
+    """
+    companions = load_companions(report)
+    roles_known = defined.get("role", set())
+    magics_known = defined.get("magic", set())
+    items_known = defined.get("item", set())
+    owner: dict[str, str] = {}
+    for stem, payload in companions.items():
+        where = f"data/companions/{stem}.json"
+        extra = sorted(set(payload) - COMPANION_FIELDS)
+        if extra:
+            report.error(where, f"表外字段 {extra}（引擎的伙伴加载器拒收）")
+        if payload.get("id") != stem:
+            report.error(where, f"id={payload.get('id')!r} 要与文件名 {stem} 相同")
+        if not payload.get("met_flag"):
+            report.error(where, "缺少 met_flag（置了就进名册）")
+        roles = payload.get("roles")
+        if not isinstance(roles, list) or not roles:
+            report.error(where, "roles 要是非空的数组（这个人用过的全部角色 id，按先后）")
+            roles = []
+        for entry in roles:
+            if not isinstance(entry, dict) or not entry.get("role"):
+                report.error(where, f"roles 里的一项写坏了：{entry!r}")
+                continue
+            extra = sorted(set(entry) - COMPANION_ROLE_FIELDS)
+            if extra:
+                report.error(where, f"roles 里的一项有表外字段 {extra}")
+            role = str(entry["role"])
+            if roles_known and role not in roles_known:
+                report.error(where, f"roles 里的角色不存在：{role}")
+            if role in owner and owner[role] != stem:
+                report.error(where, f"角色 {role} 同时属于 {owner[role]} 与 {stem}：companionOfRole 只能答一位")
+            owner.setdefault(role, stem)
+        duo = payload.get("duo")
+        if duo and magics_known and duo not in magics_known:
+            report.error(where, f"duo（合招）指向的法术不存在：{duo}")
+        gifts = payload.get("gifts", {})
+        if isinstance(gifts, dict):
+            for side in ("like", "dislike"):
+                for item in gifts.get(side, []) or []:
+                    if items_known and item not in items_known:
+                        report.error(where, f"gifts.{side} 里的物品不存在：{item}")
+        elif gifts:
+            report.error(where, "gifts 要是 {like: [...], dislike: [...]}")
+    return companions
+
+
+def load_lilian_sites(report: Report) -> dict[str, dict]:
+    sites: dict[str, dict] = {}
+    folder = ROOT / "data" / "lilian"
+    if not folder.exists():
+        return sites
+    for path in sorted(folder.glob("*.json")):
+        payload = read_json(path, report)
+        if isinstance(payload, dict):
+            sites[path.stem] = payload
+        elif payload is not None:
+            report.error(str(path.relative_to(ROOT)), "历练地定义必须是对象")
+    return sites
+
+
+def lilian_tier_count(site: dict) -> int:
+    tiers = site.get("tiers")
+    return len(tiers) if isinstance(tiers, list) and tiers else LILIAN_DEFAULT_TIERS
+
+
+def sprite_looks() -> set[str] | None:
+    """foe.look 认得的外观：生成索引的人物表、敌人表、角色映射，加手绘索引的表与角色。索引不在 = None。"""
+    path = ROOT / SPRITE_INDEX
+    if not path.exists():
+        return None
+    try:
+        index = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    looks = set(index.get("sheets", {})) | set(index.get("enemies", {})) | set(index.get("roles", {}))
+    hd = ROOT / HD_INDEX
+    if hd.exists():
+        try:
+            payload = json.loads(hd.read_text(encoding="utf-8"))
+            looks |= set(payload.get("sheets", {})) | set(payload.get("roles", {}))
+        except (OSError, ValueError):
+            pass        # 写坏了归规则 40 报
+    return looks
+
+
+def check_lilian_exit(where: str, entry: tuple[str, str], site_maps: set[str],
+                      by_id: dict[str, ParsedMap], report: Report) -> None:
+    """规则 39（出口）：从 entry.spawn 出发，走得到这处历练地里至少一处 kind=lilian 的设施。
+
+    出口就是「历练里面朝任何一处 lilian 设施按确认」（D 路的 openFacility → leaveLilian），里面又不能存档：
+    走不到出口，就只能靠打输出来。不要求每张图都有——一间只有首领的内室没有出口是正常的设计。
+    跨图按这处历练地自己的传送点连起来算（只走通到 site_maps 里的门）；require_flag 不拦（与规则 18 同一份
+    宽松）。机关按**关着**算：带进去的人不一定会开，出口不能锁在机关后面。
+    """
+    nodes = [entry]
+    seen_nodes = {entry}
+    has_exit = False
+    while nodes:
+        map_id, spawn_id = nodes.pop()
+        parsed = by_id[map_id]
+        here = spawn_landing(parsed, spawn_id)
+        collision = collision_layer(parsed, report)
+        if here is None or collision is None:
+            continue
+        occupied = occupied_cells(parsed, gates_open=False)
+        seen = flood(parsed, collision, occupied, (here["x"], here["y"]))
+        for record in parsed.objects:
+            if record["type"] == "facility" and record["props"].get("kind") == "lilian":
+                has_exit = True
+                if object_halo(record) & seen:
+                    return
+            elif record["type"] == "portal" and any(c in seen for c in object_cells(record)):
+                node = (record["props"].get("target_map", ""), record["props"].get("target_spawn", ""))
+                if node[0] in site_maps and node not in seen_nodes:
+                    seen_nodes.add(node)
+                    nodes.append(node)
+    if has_exit:
+        report.error(where, f"从入口 {entry[0]} 出发走不到任何一处 kind=lilian 的设施（出口）："
+                            "有出口，但被墙、关着的机关或别的东西隔开了，历练里又不能存档，只能靠打输出来")
+    else:
+        report.error(where, "整处历练地一处 kind=lilian 的设施（出口）都没有：历练里又不能存档，只能靠打输出来")
+
+
+def check_world_object_refs(maps: list[ParsedMap], defined: dict, texts: dict[str, str],
+                            flags: set[str], companions: dict[str, dict], report: Report) -> None:
+    """规则 32（引用那一半）、35、37、38、39：要 data/ 才查得动的那几条。"""
+    items_known = defined.get("item", set())
+    roles_known = defined.get("role", set())
+    battles = load_battle_payloads(report)
+    sites = load_lilian_sites(report)
+    looks = sprite_looks()
+    skills = {str(p.get("field_skill")) for p in companions.values() if p.get("field_skill")}
+    # 契约 3.6 末句的最小一条：会这手的伙伴里，至少一位的 met_flag 是从开局拿得到的旗标——
+    # 不然她永远进不了名册，也就永远入不了队。「那张图她在队时还回得去」门禁查不了，由施工图保证。
+    obtainable: set[str] | None = None
+    if any(r["type"] == "gate" for m in maps for r in m.objects):
+        world = load_world(maps, report)
+        if world is not None:
+            _nodes, obtainable = world_fixpoint(world, honour_flags=True)
+    companion_role_ids = {role for p in companions.values() for role in companion_roles(p)}
+
+    # 历练图 → 它所在历练地的档数（同一张图被几处历练地用时取最多的那一份）。
+    tiers_of_map: dict[str, int] = {}
+    for stem, site in sites.items():
+        where = f"data/lilian/{stem}.json"
+        used = [str(m) for m in site.get("maps", []) or []]
+        entry = site.get("entry") if isinstance(site.get("entry"), dict) else {}
+        if entry.get("map") and str(entry["map"]) not in used:
+            used.append(str(entry["map"]))
+        if not used:
+            report.error(where, "没有写用到的图（maps / entry.map）")
+        by_id = {m.map_id: m for m in maps}
+        for map_id in used:
+            if not map_id.startswith(LILIAN_MAP_PREFIX):
+                report.error(where, f"历练地用到的图 {map_id} 不以 {LILIAN_MAP_PREFIX} 开头（契约 3.12）")
+            elif map_id not in by_id:
+                report.error(where, f"历练地用到的图不存在：{map_id}")
+            tiers_of_map[map_id] = max(tiers_of_map.get(map_id, 0), lilian_tier_count(site))
+        if entry.get("map") and str(entry["map"]) in by_id:
+            check_lilian_exit(where, (str(entry["map"]), str(entry.get("spawn", "") or "")),
+                              {m for m in used if m in by_id}, by_id, report)
+
+    def battle_ids_of(parsed: ParsedMap, base: str) -> list[str]:
+        if not parsed.map_id.startswith(LILIAN_MAP_PREFIX):
+            return [base]
+        count = tiers_of_map.get(parsed.map_id, LILIAN_DEFAULT_TIERS)
+        return [base + LILIAN_TIER_SUFFIX % n for n in range(1, count + 1)]
+
+    for parsed in maps:
+        rel = str(parsed.path.relative_to(ROOT))
+        lilian_map = parsed.map_id.startswith(LILIAN_MAP_PREFIX)
+        for record in parsed.objects:
+            kind = record["type"]
+            props = record["props"]
+            where = f"{rel} 对象 {record['name']}"
+
+            if kind == "facility" and props.get("kind") == "lilian" and props.get("site"):
+                if props["site"] not in sites:
+                    report.error(where, f"site={props['site']} 没有定义（data/lilian/{props['site']}.json 不存在）")
+
+            if kind == "trigger" and props.get("require_party"):
+                need = props["require_party"]
+                if need not in companions:
+                    if need in roles_known or need in companion_role_ids:
+                        report.error(where, f"require_party={need} 写成了角色 id：只收伙伴 id（契约 2.4、3.8）")
+                    else:
+                        report.error(where, f"require_party={need} 不是任何一位伙伴的 id（data/companions/）")
+
+            if kind in ("chest", "gather"):
+                field_name = "loot" if kind == "chest" else "item"
+                for item, _count in parse_item_list(props.get(field_name, "")) or []:
+                    if items_known and item not in items_known:
+                        report.error(where, f"{field_name} 里的物品不存在：{item}")
+
+            if kind == "gate":
+                skill = props.get("skill", "")
+                if skill and skill not in skills:
+                    report.error(where, f"skill={skill} 不是任何一位伙伴的 field_skill：这道机关谁也开不了（规则 35）")
+                elif skill and obtainable is not None:
+                    holders = sorted(stem for stem, p in companions.items() if p.get("field_skill") == skill)
+                    if not any(companions[h].get("met_flag") in obtainable for h in holders):
+                        report.error(where, f"会 {skill} 的伙伴（{'、'.join(holders)}）的 met_flag 从开局都拿不到："
+                                            "她进不了名册，这道机关永远开不了（规则 35）")
+                if props.get("opens") and flags and props["opens"] not in flags:
+                    report.error(where, f"opens={props['opens']} 没在 data/flags.json 登记")
+                if props.get("hint") and texts and props["hint"] not in texts:
+                    report.error(where, f"hint={props['hint']} 不是一条存在的文案 key")
+
+            if kind != "foe":
+                continue
+            # 世界画面路取明雷本体：先当角色 id，再当外观 id，再当敌人 id（WorldView 的 foeBodyFor）。
+            if looks is not None and props.get("look") and props["look"] not in looks | roles_known:
+                report.error(where, f"look={props['look']} 在精灵索引里找不到（人物表、敌人表、角色都没有）")
+            base = props.get("battle", "")
+            if not base:
+                continue
+            for battle_id in battle_ids_of(parsed, base):
+                payload = battles.get(battle_id)
+                if payload is None:
+                    tail = "（历练图：foe.battle 加每一档的后缀都要有）" if lilian_map else ""
+                    report.error(where, f"明雷的编成不存在：{battle_id}{tail}")
+                    continue
+                if payload.get("defeat_is_fatal") is not False:
+                    report.error(where, f"明雷的编成 {battle_id} 要写 defeat_is_fatal: false"
+                                        "（败了回本图出生点，契约 3.4）")
+                if is_true(props.get("elite", "")) and payload.get("can_escape") is not False:
+                    report.error(where, f"精英明雷的编成 {battle_id} 要写 can_escape: false（elite 的不能逃）")
+                if lilian_map:
+                    rewards = payload.get("rewards", {}) if isinstance(payload.get("rewards"), dict) else {}
+                    if rewards.get("cultivation", 0) != 0:
+                        report.error(where, f"历练的编成 {battle_id} 修为奖励要为 0（否则是一条刷修为的路，契约 3.12）")
+
+
+def png_size(path: Path) -> tuple[int, int] | None:
+    """PNG 的宽高（读 IHDR）。读不了返回 None。"""
+    try:
+        head = path.read_bytes()[:24]
+    except OSError:
+        return None
+    if len(head) < 24 or head[:8] != bytes([137, 80, 78, 71, 13, 10, 26, 10]):
+        return None
+    return int.from_bytes(head[16:20], "big"), int.from_bytes(head[20:24], "big")
+
+
+def check_hd_index(report: Report) -> None:
+    """规则 40：手绘表清单（契约 2.5）。`hd/index.json` 不在就什么都不查（加载器也什么都不做）。
+
+    · `files` 里每个文件都在、sha256 与磁盘一致；表里引到的图（`file`、`battle_sheet.file`）都得登在 `files` 里，
+      不然改了图没人知道；
+    · `roles` 登记了的角色：它那张表四向走路帧、战斗八个动作都齐，帧号落在图里。
+    """
+    path = ROOT / HD_INDEX
+    if not path.exists():
+        return
+    rel = str(HD_INDEX).replace(chr(92), "/")
+    payload = read_json(path, report)
+    if not isinstance(payload, dict):
+        return
+    hd_dir = path.parent
+    files = payload.get("files", {})
+    if not isinstance(files, dict):
+        report.error(rel, "files 要是「文件名 → sha256」的对象")
+        files = {}
+    for name, digest in sorted(files.items()):
+        target = hd_dir / name
+        if not target.exists():
+            report.error(rel, f"files 里的 {name} 不在磁盘上")
+            continue
+        actual = hashlib.sha256(target.read_bytes()).hexdigest()
+        if str(digest).lower() != actual:
+            report.error(rel, f"{name} 的 sha256 与磁盘不一致（登记 {digest}，实际 {actual}）")
+
+    sheets = payload.get("sheets", {})
+    if not isinstance(sheets, dict):
+        report.error(rel, "sheets 要是对象")
+        return
+    for sheet_id, sheet in sorted(sheets.items()):
+        if not isinstance(sheet, dict):
+            continue
+        for image in (sheet.get("file"), (sheet.get("battle_sheet") or {}).get("file")):
+            if image and image not in files:
+                report.error(rel, f"表 {sheet_id} 引的图 {image} 没登在 files 里：改了图门禁核不到")
+
+    # role_variants 的 look 可以指手绘表，也可以指生成的表，但得是合并之后真有的表（契约 2.5）。
+    generated: set[str] = set()
+    try:
+        generated = set(json.loads((ROOT / SPRITE_INDEX).read_text(encoding="utf-8")).get("sheets", {}))
+    except (OSError, ValueError):
+        pass
+    variants = payload.get("role_variants", {})
+    if isinstance(variants, dict):
+        for role, entries in sorted(variants.items()):
+            for entry in entries if isinstance(entries, list) else []:
+                look = entry.get("look") if isinstance(entry, dict) else None
+                if not look or (look not in sheets and look not in generated):
+                    report.error(rel, f"role_variants 里 {role} 的一项指向不存在的表：{look!r}")
+    elif variants:
+        report.error(rel, "role_variants 要是「角色 id → 变体数组」的对象")
+
+    roles = payload.get("roles", {})
+    if not isinstance(roles, dict):
+        report.error(rel, "roles 要是「角色 id → 表 id」的对象")
+        return
+    for role, sheet_id in sorted(roles.items()):
+        sheet = sheets.get(sheet_id)
+        where = f"{rel} 角色 {role}（表 {sheet_id}）"
+        if not isinstance(sheet, dict):
+            report.error(where, "指向的表不在这份索引的 sheets 里")
+            continue
+        walk = sheet.get("walk", {}) if isinstance(sheet.get("walk"), dict) else {}
+        battle = sheet.get("battle", {}) if isinstance(sheet.get("battle"), dict) else {}
+        missing = [d for d in HD_WALK_DIRECTIONS if not walk.get(d)]
+        if missing:
+            report.error(where, f"走路帧缺 {missing}（四向都要有）")
+        missing = [a for a in HD_BATTLE_ACTIONS if not battle.get(a)]
+        if missing:
+            report.error(where, f"战斗帧缺 {missing}（八个动作都要有）")
+
+        def frame_limit(file_name, frame_h, cols):
+            size = png_size(hd_dir / file_name) if file_name else None
+            if size is None or not isinstance(frame_h, int) or not isinstance(cols, int) or frame_h <= 0:
+                return None
+            return cols * (size[1] // frame_h)
+
+        walk_limit = frame_limit(sheet.get("file"), sheet.get("frame_h"), sheet.get("cols"))
+        battle_sheet = sheet.get("battle_sheet") if isinstance(sheet.get("battle_sheet"), dict) else None
+        battle_limit = (frame_limit(battle_sheet.get("file"), battle_sheet.get("frame_h"), battle_sheet.get("cols"))
+                        if battle_sheet else walk_limit)
+        for label, table, limit in (("走路", walk, walk_limit), ("战斗", battle, battle_limit)):
+            if limit is None:
+                continue
+            for name, frames in table.items():
+                bad = [f for f in frames or [] if not isinstance(f, int) or f < 0 or f >= limit]
+                if bad:
+                    report.error(where, f"{label}帧 {name} 的帧号 {bad} 超出图里的 {limit} 格")
+
+
+# ---------------------------------------------------------------------------
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="内容校验")
@@ -3467,11 +4193,12 @@ def main() -> int:
         if not maps_dir.exists():
             report.warn("maps/", "目录不存在，跳过地图检查")
         else:
+            entry_spawns = lilian_entry_spawns()
             for path in sorted(maps_dir.glob("*.tmj")):
                 parsed = check_map(path, report)
                 if parsed is not None:
                     parsed_maps.append(parsed)
-                    check_reachability(parsed, report)
+                    check_reachability(parsed, report, entry_spawns.get(parsed.map_id, ""))
                     check_interaction_shadow(parsed, report)
             check_cross_map(parsed_maps, report)
             check_deny_text_keys(parsed_maps, report)
@@ -3484,6 +4211,8 @@ def main() -> int:
             # 只要 scripts/ 在，这两条就能查：比对的是地图与脚本，不牵扯 data/。
             check_trigger_once_contract(parsed_maps, report)
             check_hook_declarations(parsed_maps, report)
+            # 规则 32、39 只看 tmj 的那一半。
+            check_world_objects(parsed_maps, report)
             if check_all:
                 check_map_references(parsed_maps, ids, texts, flags, report)
                 defined = collect_reference_ids(report)
@@ -3496,6 +4225,11 @@ def main() -> int:
                 check_recipe_only_flag(report)
                 check_encounters(parsed_maps, report)
                 check_script_bgm(report)
+                # 伙伴改版：规则 31、32（引用）、34–39、40。
+                companions = check_companions(defined, report)
+                check_world_object_refs(parsed_maps, defined, texts, flags, companions, report)
+                check_objective_blockers(parsed_maps, report)
+                check_hd_index(report)
 
     for warning in report.warnings:
         print(f"[warn]  {warning}")

@@ -1,12 +1,17 @@
 #include "game/WorldScene.h"
 
 #include <algorithm>
+#include <cstdio>
+#include <memory>
 #include <string>
 #include <vector>
 
+#include "core/rules/Companions.h"
 #include "core/rules/Objectives.h"
 #include "game/Application.h"
+#include "game/DialogueScene.h"
 #include "game/PathActionScene.h"
+#include "game/WorldObjects.h"
 
 namespace fanren::game {
 namespace {
@@ -76,8 +81,31 @@ bool WorldScene::npcVisible(const core::GameState& state, const core::MapObject&
     return true;
 }
 
+bool WorldScene::triggerReady(const core::GameState& state, const core::MapObject& trigger,
+                              const Companions& companions) {
+    // 插话（契约 3.8）：只收伙伴 id。她用的是哪个角色 id 都算在队里——经 companionOfRole 认人。
+    // 写成角色 id 的由门禁拦（companionInParty 在这里找不到那位「伙伴」，触发器就一直不响）。
+    const std::string need = trigger.property("require_party");
+    if (!need.empty() && !worldobj::companionInParty(state, companions, need)) return false;
+    return triggerReady(state, trigger);
+}
+
+bool WorldScene::npcPresent(const core::GameState& state, const core::MapObject& npc,
+                            const Companions& companions) {
+    if (!npcVisible(state, npc)) return false;
+    // 一人一身（契约 3.11）：她已在队里，图上就不能再站着一个她。只对伙伴生效——
+    // companionOfRole 对傀儡、化身、路人给空串，第 10 章化身既是 NPC 又入队的现状不变。
+    const std::string who = rules::companionOfRole(companions, npc.property("role_id"));
+    return who.empty() || !worldobj::companionInParty(state, companions, who);
+}
+
 const core::MapObject* WorldScene::visibleNpcAt(const core::GameState& state,
                                                 const core::TileMap& map, core::Point cell) {
+    return visibleNpcAt(state, map, cell, Companions{});
+}
+
+const core::MapObject* WorldScene::visibleNpcAt(const core::GameState& state, const core::TileMap& map,
+                                                core::Point cell, const Companions& companions) {
     for (const core::MapObject& object : map.objects) {
         if (object.type != "npc") continue;
         // 与 core::TileMap::objectAt 逐字相同的矩形命中——两处的形状必须一样，
@@ -87,7 +115,7 @@ const core::MapObject* WorldScene::visibleNpcAt(const core::GameState& state,
                          cell.y >= object.position.y &&
                          cell.y < object.position.y + object.height;
         if (!hit) continue;
-        if (!npcVisible(state, object)) continue;   // 多问的就是这一句
+        if (!npcPresent(state, object, companions)) continue;   // 多问的就是这一句
         return &object;
     }
     return nullptr;
@@ -121,6 +149,8 @@ bool WorldScene::tryStep(Application& app, int dx, int dy) {
     // 触发真正发生的这两个入口上，不能只钉在输入层。
     if (app.scripts().isRunning() || app.awaitingCommand()) return false;
     core::GameState& state = app.state();
+    const Companions& companions = app.data().companions;
+    syncTrail(app);
 
     // 先转向再迈步：面朝的方向本身是有意义的输入（交互看的是前一格），
     // 撞墙时至少要把朝向转过去，否则玩家会以为按键没响应。
@@ -140,10 +170,24 @@ bool WorldScene::tryStep(Application& app, int dx, int dy) {
     // NPC 走 visibleNpcAt 而不是 objectAt：**不在场的人不挡路**。从前用 objectAt，
     // 一个还没现身（或已经离开）的 NPC 照样占着那一格，玩家撞上的是一堵看不见、
     // 没有任何反馈的墙。设施没有可见性属性，照旧一律占格。
-    if (visibleNpcAt(state, *map, target) != nullptr) return false;
+    if (visibleNpcAt(state, *map, target, companions) != nullptr) return false;
     if (map->objectAt(target, "facility") != nullptr) return false;
+    // 宝箱、采集点、明雷占格；机关关着时占格、开了不占（契约 2.4）。在不在场、开没开问 worldobj，
+    // 状态经 Application::worldObjects()——历练里是「这一趟」那份。
+    if (worldobj::blockerAt(state, app.worldObjects(), *map, target) != nullptr) return false;
 
+    const core::Point from = state.position;
     state.position = target;
+    // 足迹**紧跟着**换格记（契约 3.7、第 4 节）：下面明雷、触发器、传送三条分支都会提前返回，
+    // 记晚了，踩响剧情的那一步、过门的那一步就漏了。
+    recordStep(from, target);
+
+    // 明雷：踏进它面前那一格就被看见，直接开打，不加不减（契约 3.4）。排在触发器与传送点前面：
+    // 被看见是这一步最先发生的事。逃跑成功退回 from——开打前站的那一格。
+    if (const core::MapObject* foe = worldobj::foeWatching(state, app.worldObjects(), *map, target)) {
+        startFoeBattle(app, *foe, /*preemptive=*/false, from);
+        return true;
+    }
 
     // 踏入型触发：走到即发事件。
     //
@@ -151,7 +195,7 @@ bool WorldScene::tryStep(Application& app, int dx, int dy) {
     // （见 triggerReady 的注释）：脚本半路 return 就等于「这一幕没演」，
     // 触发器留着，玩家满足条件再走回来还能触发。
     if (const core::MapObject* trigger = map->objectAt(target, "trigger")) {
-        if (trigger->property("mode") == "enter" && triggerReady(state, *trigger)) {
+        if (trigger->property("mode") == "enter" && triggerReady(state, *trigger, companions)) {
             app.startEvent(trigger->property("script"));
             return true;
         }
@@ -182,11 +226,12 @@ bool WorldScene::interact(Application& app) {
     // 与 tryStep 同一道闸，理由见那里。
     if (app.scripts().isRunning() || app.awaitingCommand()) return false;
     const core::Point front = facingCell(app.state());
+    const Companions& companions = app.data().companions;
 
     // 同样走 visibleNpcAt：不在场的那个不该抢走这一次确认键。从前用 objectAt，
     // 它只返回对象表里第一个命中的，可见性是命中**之后**才问的一句——于是一个
     // 隐身的 NPC 把同格那个该出面的压得死死的，玩家按确认毫无反应。
-    if (const core::MapObject* npc = visibleNpcAt(app.state(), *map, front)) {
+    if (const core::MapObject* npc = visibleNpcAt(app.state(), *map, front, companions)) {
         const std::string script = npc->property("script");
         if (!script.empty()) {
             app.startEvent(script);
@@ -194,7 +239,7 @@ bool WorldScene::interact(Application& app) {
         }
     }
     if (const core::MapObject* trigger = map->objectAt(front, "trigger")) {
-        if (trigger->property("mode") == "interact" && triggerReady(app.state(), *trigger)) {
+        if (trigger->property("mode") == "interact" && triggerReady(app.state(), *trigger, companions)) {
             app.startEvent(trigger->property("script"));
             return true;
         }
@@ -205,7 +250,184 @@ bool WorldScene::interact(Application& app) {
         app.openFacility(*facility);
         return true;
     }
+    // 四种新对象排在最后，依次宝箱 → 采集点 → 明雷 → 机关（门禁 validate.py 的 INTERACT_ORDER 同此）。
+    // 每一类只取这一格上第一个在场的（开了的机关不算）。
+    const core::GameState& state = app.state();
+    core::WorldObjectState& objects = app.worldObjects();
+    if (const core::MapObject* chest = worldobj::presentAt(state, objects, *map, front, worldobj::kChest)) {
+        return openChest(app, *chest);
+    }
+    if (const core::MapObject* gather = worldobj::presentAt(state, objects, *map, front, worldobj::kGather)) {
+        return gatherAt(app, *gather);
+    }
+    if (const core::MapObject* foe = worldobj::presentAt(state, objects, *map, front, worldobj::kFoe)) {
+        // 站在它的侧面或背后、面朝它按确认是偷袭（契约 3.4）。站在它面前那一格的人照理进格时
+        // 就被看见了；读档、逃跑、它重生时人恰好站在那里，按确认就是一场普通的仗。
+        const bool preemptive = !(worldobj::foeFrontCell(*foe) == state.position);
+        startFoeBattle(app, *foe, preemptive, state.position);
+        return true;
+    }
+    if (const core::MapObject* gate = worldobj::presentAt(state, objects, *map, front, worldobj::kGate)) {
+        return operateGate(app, *gate);
+    }
     return false;
+}
+
+void WorldScene::syncTrail(Application& app) {
+    const core::TileMap* map = app.currentMap();
+    const core::Point hero = app.state().position;
+    if (map == trailMap_ && hero == trailHead_) return;
+    trail_.clear();
+    trailMap_ = map;
+    trailHead_ = hero;
+}
+
+void WorldScene::recordStep(core::Point from, core::Point to) {
+    trail_.insert(trail_.begin(), from);
+    if (trail_.size() > worldobj::kFieldedCompanions) trail_.resize(worldobj::kFieldedCompanions);
+    trailHead_ = to;
+}
+
+namespace {
+
+// 一句旁白：与 Application::showMessage 同一个样子（空说话人、进对话记录），只是正文是拼好的——
+// 宝箱里有什么、机关要谁来开，名字要填进去，showMessage 只收文案 key。
+void narrate(Application& app, const std::string& body) {
+    app.pushDialogueLine(std::string{}, body);
+    app.pushScene(std::make_unique<DialogueScene>(std::string{}, body));
+}
+
+// 把文案里的 slot（{items} / {name}）换成 value。
+std::string fill(std::string text, const std::string& slot, const std::string& value) {
+    for (std::size_t at = text.find(slot); at != std::string::npos; at = text.find(slot, at + value.size())) {
+        text.replace(at, slot.size(), value);
+    }
+    return text;
+}
+
+// 「火灵石×2、清灵草」：物品名取自 data/items，查不到回显 id（画面上一眼看出谁没进 data）。
+std::string describeItems(Application& app, const std::vector<worldobj::ItemStack>& items) {
+    std::string out;
+    for (const worldobj::ItemStack& stack : items) {
+        if (!out.empty()) out += "、";
+        const core::Item* item = app.data().findItem(stack.itemId);
+        out += item != nullptr && !item->name.empty() ? item->name : stack.itemId;
+        if (stack.count > 1) out += "×" + std::to_string(stack.count);
+    }
+    return out;
+}
+
+// 不在队里的伙伴此刻的名字：她现在该用的那个角色的名字（问名之前叫「白衣女子」，之后叫「南宫婉」）。
+std::string companionName(Application& app, const std::string& companionId) {
+    const std::string role = rules::currentRole(app.data().companions, companionId, app.state());
+    return app.speakerName(role.empty() ? companionId : role);
+}
+
+}  // namespace
+
+bool WorldScene::openChest(Application& app, const core::MapObject& chest) {
+    core::WorldObjectState& objects = app.worldObjects();
+    if (worldobj::chestOpened(objects, chest)) {
+        app.showMessage("ui.world.chest.empty");
+        return true;
+    }
+    bool ok = false;
+    const std::vector<worldobj::ItemStack> loot = worldobj::parseItemList(chest.property("loot"), ok);
+    // 背包装不下：说一句，箱子照旧关着（契约 3.5）。loot 写坏了同样不开——门禁拦这种写法，
+    // 这里不发半张清单、也不把箱子记成开过（记了玩家就永远拿不到那份东西了）。
+    if (!ok || !worldobj::bagCanTake(app.state(), app.data(), loot)) {
+        app.showMessage("ui.world.bag.full");
+        return true;
+    }
+    worldobj::giveItems(app.state(), app.data(), loot);
+    objects.openedChests.insert(chest.property("id"));
+    app.noteItemsGiven();
+    narrate(app, fill(app.text("ui.world.chest.got"), "{items}", describeItems(app, loot)));
+    return true;
+}
+
+bool WorldScene::gatherAt(Application& app, const core::MapObject& gather) {
+    core::WorldObjectState& objects = app.worldObjects();
+    const int today = app.state().day;
+    if (worldobj::gatherDepleted(objects, gather, today)) {
+        app.showMessage("ui.world.gather.spent");
+        return true;
+    }
+    bool ok = false;
+    const std::vector<worldobj::ItemStack> haul = worldobj::parseItemList(gather.property("item"), ok);
+    if (!ok || !worldobj::bagCanTake(app.state(), app.data(), haul)) {
+        app.showMessage("ui.world.bag.full");
+        return true;
+    }
+    worldobj::giveItems(app.state(), app.data(), haul);
+    objects.gatheredDay[gather.property("id")] = today;
+    app.noteItemsGiven();
+    narrate(app, fill(app.text("ui.world.gather.got"), "{items}", describeItems(app, haul)));
+    return true;
+}
+
+bool WorldScene::operateGate(Application& app, const core::MapObject& gate) {
+    const Companions& companions = app.data().companions;
+    const std::string skill = gate.property("skill");
+    // 队里任意一位伙伴会这手（契约 3.6），上不上场都算：场地技不是战斗。
+    // 名字取她在队里实际用的那个角色（图上跟着的就是她），不经 currentRole。
+    if (const std::string role = worldobj::partyFieldSkillRole(app.state(), companions, skill); !role.empty()) {
+        app.worldObjects().openedGates.insert(gate.property("id"));
+        // opens 是永久旗标：历练里只记在「这一趟」，不许落进旗标（门禁也不许历练图写 opens）。
+        if (const std::string opens = gate.property("opens"); !opens.empty() && !app.inLilian()) {
+            app.state().setFlag(opens);
+        }
+        // 「一小段演出」：开门声 + 一句她出手的旁白。
+        app.engine().playSfx("door_open");
+        narrate(app, fill(app.text("ui.world.gate.open"), "{name}", app.speakerName(role)));
+        return true;
+    }
+    // 没人会：名册里已有会这手的人，就点她的名；还没有，就只说要别的法子。她此刻不在队里，
+    // 没有「实际的角色 id」可问，只能问 currentRole（契约 2.1 许可的第三处）。
+    if (const std::string who = worldobj::rosterFieldSkillHolder(app.state(), companions, skill); !who.empty()) {
+        narrate(app, fill(app.text("ui.world.gate.need"), "{name}", companionName(app, who)));
+        return true;
+    }
+    // hint（可选）是这道机关自己的说法，替换掉那句通用的「似乎要用别的法子」。
+    const std::string hint = gate.property("hint");
+    app.showMessage(hint.empty() ? std::string{"ui.world.gate.unknown"} : hint);
+    return true;
+}
+
+void WorldScene::startFoeBattle(Application& app, const core::MapObject& foe, bool preemptive,
+                                core::Point returnCell) {
+    // 回调里不留任何指向地图或场景的指针：仗打完时图可能已经换了（打输回出生点、历练整趟退出）。
+    const std::string foeId = foe.property("id");
+    const std::string mapId = app.state().mapId;
+    app.engine().playSfx("encounter");
+    // foe.battle 原样递过去：历练里按境界拼档的后缀是 Application::startBattle 的事（契约 3.12）。
+    app.startBattle(BattleStart{foe.property("battle"), preemptive},
+                    [&app, foeId, mapId, returnCell](const script::CommandResult& result) {
+                        if (result.battleWon) {
+                            // 记进此刻的那一份：历练里是「这一趟」的账，出来就扔。
+                            app.worldObjects().clearedFoes[foeId] = app.state().day;
+                            return;
+                        }
+                        if (result.code == "escaped") {
+                            // 逃跑成功：它留在原地，主角退回开打前站的那一格（契约 3.4）。
+                            app.state().position = returnCell;
+                            return;
+                        }
+                        if (result.code != "lost") return;   // 敌人跑了：它还在，人就地不动
+                        // 打输：在历练里整趟退出（3.12）；不在历练里回这张图的缺省出生点（3.4，
+                        // 明雷的编成一律不致命，门禁钉着）。退出失败（原图读不回来）时也退到出生点，
+                        // 不把人留在一场打输了的仗的原地。
+                        if (app.inLilian()) {
+                            const auto left = app.leaveLilian();
+                            if (left.ok) return;
+                            std::fprintf(stderr, "[world] WARNING: 历练里打输，退出历练失败（%s），退到 %s 的出生点\n",
+                                         left.error.c_str(), mapId.c_str());
+                        }
+                        if (const auto back = app.loadMap(mapId, std::string{}); !back.ok) {
+                            std::fprintf(stderr, "[world] WARNING: 明雷打输后回不了 %s 的出生点：%s\n", mapId.c_str(),
+                                         back.error.c_str());
+                        }
+                    });
 }
 
 bool WorldScene::pathAction(Application& app) {
@@ -214,7 +436,7 @@ bool WorldScene::pathAction(Application& app) {
     // 与 tryStep / interact 同一道闸，理由见 tryStep。
     if (app.scripts().isRunning() || app.awaitingCommand()) return false;
     // 找人与 interact 同一个口径：不在场的人不应声。
-    const core::MapObject* npc = visibleNpcAt(app.state(), *map, facingCell(app.state()));
+    const core::MapObject* npc = visibleNpcAt(app.state(), *map, facingCell(app.state()), app.data().companions);
     if (npc == nullptr) return false;
     return gPathActionOpener(app, *npc);
 }
@@ -223,7 +445,7 @@ std::string WorldScene::pathActionHint(Application& app) const {
     const core::TileMap* map = app.currentMap();
     if (map == nullptr || gPathActionOpener == nullptr || app.topScene() != this) return {};
     if (app.scripts().isRunning() || app.awaitingCommand()) return {};
-    const core::MapObject* npc = visibleNpcAt(app.state(), *map, facingCell(app.state()));
+    const core::MapObject* npc = visibleNpcAt(app.state(), *map, facingCell(app.state()), app.data().companions);
     if (npc == nullptr) return {};
 
     std::string labels;
@@ -311,6 +533,8 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     frame_.clear();
     const core::TileMap* map = app.currentMap();
     if (map == nullptr) return;
+    // 剧情传送、打输回出生点这些「不是一步走过来的」挪动，要在画之前认出来，伙伴才叠回主角格上。
+    syncTrail(app);
     const core::GameState& state = app.state();
 
     // 目标在别的图上时，通往它的**下一道门**要认得出来（portalLeadsToGoal）。
@@ -320,11 +544,13 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     // 第 3 章终局的谷外到七玄门各堂，中间没有一道门亮。跨图寻路现在是一个纯函数
     //（rules::nextPortalToward，只走此刻开着的门），有真地图的测试钉着它指的是哪道门。
 
+    const Companions& companions = app.data().companions;
+    const core::WorldObjectState& objects = app.worldObjects();
     for (const core::MapObject& object : map->objects) {
         if (object.type == "npc") {
             // 在场判定与走位、对话共用同一个 visibleNpcAt 背后那一条：
-            // 画不画、谈不谈得上、占不占格，永远是同一个答案。
-            if (!npcVisible(state, object)) continue;
+            // 画不画、谈不谈得上、占不占格，永远是同一个答案（含一人一身）。
+            if (!npcPresent(state, object, companions)) continue;
             WorldFrame::Npc npc;
             npc.object = &object;
             npc.roleId = object.property("role_id");
@@ -349,9 +575,33 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
             // 只标「按键才响」的那一种，而且只在它当真还能响的时候标。
             // 踏入型不标：那种是走过去自然发生的，提前标出来等于剧透。
             if (object.property("mode") != "interact") continue;
-            if (!triggerReady(state, object)) continue;
+            if (!triggerReady(state, object, companions)) continue;
             frame_.hotspots.push_back(&object);
+        } else if (worldobj::isWorldObjectType(object.type)) {
+            // 四种新对象：只放此刻在场的（require_flag 没置的、清掉了还没重生的明雷不放），
+            // 判据与走位、交互同一组函数（worldobj）。
+            if (!worldobj::present(state, objects, object)) continue;
+            if (object.type == worldobj::kChest) {
+                frame_.chests.push_back(WorldFrame::Chest{&object, worldobj::chestOpened(objects, object)});
+            } else if (object.type == worldobj::kGather) {
+                frame_.gathers.push_back(
+                    WorldFrame::Gather{&object, worldobj::gatherDepleted(objects, object, state.day)});
+            } else if (object.type == worldobj::kFoe) {
+                frame_.foes.push_back(WorldFrame::Foe{&object, object.property("look"),
+                                                      facingFromName(object.property("facing")),
+                                                      object.property("elite") == "true"});
+            } else {
+                frame_.gates.push_back(WorldFrame::Gate{&object, worldobj::gateOpen(objects, object)});
+            }
         }
+    }
+
+    // 跟随（契约 3.7）：上场的伙伴按队伍次序排在主角身后，各站一格足迹。
+    const std::vector<std::string> roles = worldobj::fieldedCompanionRoles(state, companions);
+    const std::vector<worldobj::FollowerPlace> places =
+        worldobj::layoutFollowers(trail_, state.position, state.facing, roles.size());
+    for (std::size_t i = 0; i < roles.size(); ++i) {
+        frame_.followers.push_back(WorldFrame::Follower{roles[i], places[i].cell, places[i].facing});
     }
 
     if (const core::Objective* step = objectiveOf(app)) {
@@ -426,6 +676,11 @@ std::string WorldScene::objectiveWhereText(Application& app, const rules::Portal
         where += "　先到　" + mapName(app, hop->targetMap);
     }
     return where;
+}
+
+const WorldFrame& WorldScene::describeFrame(Application& app) {
+    describe(app, guidePortal(app));
+    return frame_;
 }
 
 void WorldScene::render(Application& app) {
