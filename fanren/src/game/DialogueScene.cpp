@@ -303,7 +303,7 @@ void DialogueScene::render(Application& app) {
     // 否则最后一行会提前占位、看起来像文字在跳。
     engine::Rect textArea{content.x, content.y, content.w, std::max(0, content.h - optionHeight)};
     // 说话人在头像表里有头像就画在正文左侧、正文让开（伙伴改版 3.9）；没登记的角色与旁白一笔不多画。
-    if (const std::optional<PortraitFrame> portrait = portraitFor(eng, app.headless(), speakerRole_, face_)) {
+    if (const std::optional<PortraitFrame> portrait = app.portraits().frameFor(eng, app.headless(), speakerRole_, face_)) {
         const PortraitLayout layout = portraitLayout(textArea, theme.padding, static_cast<int>(portrait->src.w),
                                                      static_cast<int>(portrait->src.h));
         renderPortrait(app, *portrait, layout.portrait);

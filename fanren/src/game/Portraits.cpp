@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <filesystem>
 #include <set>
 #include <utility>
 #include <vector>
@@ -9,63 +10,43 @@
 #include "io/PortraitLoader.h"
 
 namespace fanren::game {
-namespace {
 
-constexpr const char* kDefaultImageDir = "art/portraits";
-
-// 进程里一份。对白框一句一个，表不能每句读一遍。
-struct Shelf {
-    PortraitSource source;
-    bool loaded = false;
-    core::PortraitTable table;
-    std::set<std::string> warned;
-};
-
-Shelf& shelf() {
-    static Shelf instance;
-    return instance;
+void PortraitBook::setRoot(const std::string& gameRoot) {
+    root_ = gameRoot;
+    loaded_ = false;
+    table_.clear();
+    warned_.clear();
 }
 
-void warnOnce(const std::string& key, const std::string& message) {
-    if (!shelf().warned.insert(key).second) return;
+std::string PortraitBook::tablePath() const {
+    return (std::filesystem::path(root_) / "data" / "visual" / "portraits.json").string();
+}
+
+std::string PortraitBook::imageDir() const {
+    return (std::filesystem::path(root_) / "assets" / "art" / "portraits").string();
+}
+
+void PortraitBook::warnOnce(const std::string& key, const std::string& message) {
+    if (!warned_.insert(key).second) return;
     std::fprintf(stderr, "[portrait] WARNING: %s\n", message.c_str());
 }
 
-std::string tablePathFor(engine::Engine& engine, const PortraitSource& source) {
-    if (!source.tablePath.empty()) return source.tablePath;
-    // data/ 与 assets/ 是同一层的兄弟目录（游戏目录 = 同时有 data 与 maps 的那一层）。
-    const std::vector<std::string> found = engine.findAssets("../data/visual", "portraits.json");
-    return found.empty() ? std::string{} : found.front();
-}
-
-}  // namespace
-
-void setPortraitSource(PortraitSource source) {
-    Shelf& s = shelf();
-    s.source = std::move(source);
-    s.loaded = false;
-    s.table.clear();
-    s.warned.clear();
-}
-
-std::string portraitTablePath(engine::Engine& engine) { return tablePathFor(engine, shelf().source); }
-
-const core::PortraitTable& portraitTable(engine::Engine& engine) {
-    Shelf& s = shelf();
-    if (s.loaded) return s.table;
-    s.loaded = true;
-    const std::string path = tablePathFor(engine, s.source);
-    if (path.empty()) {
-        warnOnce("table", "找不到 data/visual/portraits.json：对白一律不带头像");
-        return s.table;
+const core::PortraitTable& PortraitBook::table() {
+    if (loaded_) return table_;
+    loaded_ = true;
+    const std::string path = tablePath();
+    std::error_code ec;
+    if (!std::filesystem::exists(path, ec)) {
+        warnOnce("table", "找不到 " + path + "：对白一律不带头像");
+        return table_;
     }
     auto read = io::loadPortraits(path);
     if (!read) {
         warnOnce("table", read.error + "：对白一律不带头像");
-        return s.table;
+        return table_;
     }
-    s.table = std::move(read.value);
-    return s.table;
+    table_ = std::move(read.value);
+    return table_;
 }
 
 int portraitFaceSlot(const std::string& face) {
@@ -86,11 +67,11 @@ engine::RectF portraitFrameRect(const core::PortraitSheet& sheet, int faceSlot) 
                          static_cast<float>(sheet.frameH)};
 }
 
-std::optional<PortraitFrame> portraitFor(engine::Engine& engine, bool headless, const std::string& roleId,
-                                         const std::string& face) {
+std::optional<PortraitFrame> PortraitBook::frameFor(engine::Engine& engine, bool headless, const std::string& roleId,
+                                                    const std::string& face) {
     if (headless) return std::nullopt;         // 没有渲染器：图本来就载不进来，不当毛病报
     if (roleId.empty()) return std::nullopt;   // 旁白
-    const core::PortraitTable& table = portraitTable(engine);
+    const core::PortraitTable& table = this->table();
     const auto it = table.find(roleId);
     if (it == table.end()) return std::nullopt;   // 没登记：照旧不带头像，不算毛病
     const core::PortraitSheet& sheet = it->second;
@@ -100,8 +81,7 @@ std::optional<PortraitFrame> portraitFor(engine::Engine& engine, bool headless, 
         warnOnce("face:" + face, "认不出的表情「" + face + "」（只有 normal / smile / angry / hurt）：按 normal 画");
         slot = 0;
     }
-    const std::string dir = shelf().source.imageDir.empty() ? std::string(kDefaultImageDir) : shelf().source.imageDir;
-    const std::string path = dir + "/" + sheet.file;
+    const std::string path = (std::filesystem::path(imageDir()) / sheet.file).string();
     const engine::TextureId texture = engine.loadTexture(path, engine::ScaleMode::Pixel);
     if (texture == engine::kInvalidTexture) {
         warnOnce("file:" + path, "头像图 " + path + " 载不进来：" + roleId + " 的对白不带头像");

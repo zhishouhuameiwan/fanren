@@ -20,6 +20,7 @@
 #include "core/rules/PathActions.h"
 #include "engine/Engine.h"
 #include "game/ChapterCardScene.h"
+#include "game/Portraits.h"
 #include "game/WorldHud.h"
 #include "game/Scene.h"
 #include "io/SettingsFile.h"
@@ -170,6 +171,9 @@ public:
     // 全局唯一的一份配色与间距。各处各自默认构造一份等于没有集中点，
     // 换皮时又要一处处改回去。
     [[nodiscard]] const ui::Theme& theme() const { return theme_; }
+
+    // 对白头像（伙伴改版 3.9）：表与图都从 init 收的游戏根取（game/Portraits.h 的 PortraitBook）。
+    [[nodiscard]] PortraitBook& portraits() { return portraits_; }
 
     // 角色 id 到显示名。查不到就回显 id，画面上一眼看出谁没进 data。
     [[nodiscard]] std::string speakerName(const std::string& roleId) const;
@@ -527,6 +531,7 @@ private:
     std::map<std::string, rules::EncounterTable> encounterTables_;
     std::string bgmOverride_;
 
+    PortraitBook portraits_;   // portraits()
     io::Settings settings_;
     // 「已落盘」的那一份：enable 时读进来生效的、之后每次写盘成功写下的。shutdown 时与 settings_ 不同就补写。
     io::Settings savedSettings_;

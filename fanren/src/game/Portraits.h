@@ -2,11 +2,12 @@
 // 对白头像：从头像表里取「这个角色、这个表情」那一格，以及它在对白框里的摆法（伙伴改版，
 // docs/interfaces-companions.md 3.9；表的形状见 docs/art-sprites.md 5.3）。
 //
-// 读在 io 层（io/PortraitLoader.h）；这里管三件事：进程里只读一次表（第一次问到时）、经引擎载图并核尺寸、
-// 摆位的纯函数。DialogueScene 只问 portraitFor 与 portraitLayout，不自己碰表与图。
+// 读在 io 层（io/PortraitLoader.h）；这里管三件事：一局里只读一次表（第一次问到时，PortraitBook）、经引擎载图并核尺寸、
+// 摆位的纯函数。DialogueScene 只问 Application::portraits().frameFor 与 portraitLayout，不自己碰表与图。
 //
 // 「缺图不崩」：表没有、读坏了、图载不进来、格子出了图——一律当作没有头像（对白照旧），各打一行警告。
 #include <optional>
+#include <set>
 #include <string>
 
 #include "core/model/Portraits.h"
@@ -14,39 +15,48 @@
 
 namespace fanren::game {
 
-// 头像从哪读。两项都空 = 缺省：表是资源根（assets/）上一层的 data/visual/portraits.json，
-// 图相对资源根的 art/portraits/。测试拿它指向夹具（setPortraitSource）。
-struct PortraitSource {
-    std::string tablePath;
-    std::string imageDir;
-};
-
-// 换来源并丢掉已读的表与已打过的警告（下次问到时按新来源重读）。**只给单线程的测试用**；游戏里从不调。
-// 来源是进程级的一份全局状态：并发的用例各换各的会互相踩。将来 Application 给出游戏根之后，
-// 缺省来源改成从游戏根找、这个开关一并收掉（协调者记在合并那一步）。
-void setPortraitSource(PortraitSource source);
-
-// 当前来源的表在哪（缺省来源经引擎的资源根往上一层找 data/visual/portraits.json）；找不到为空串。
-[[nodiscard]] std::string portraitTablePath(engine::Engine& engine);
-
-// 当前来源的头像表（第一次调时读盘；没有文件、读坏了都是空表）。
-[[nodiscard]] const core::PortraitTable& portraitTable(engine::Engine& engine);
-
 // 表情名 → kPortraitFaces 里的下标；认不出返回 -1。
 [[nodiscard]] int portraitFaceSlot(const std::string& face);
 
 // 一格头像在图集里的像素矩形。face 认不出时取 normal（调用方负责警告）。
 [[nodiscard]] engine::RectF portraitFrameRect(const core::PortraitSheet& sheet, int faceSlot);
 
-// 这一句要画的那一格：纹理、源矩形、格子大小。说话人没登记、旁白（roleId 空）、图载不进来、
-// 格子越出了图 → nullopt。表情认不出时退回 normal 并警告一次。
-// headless（没有渲染器）时一律静默返回 nullopt、不读表也不警告：那时图本来就载不进来，不是图坏了。
 struct PortraitFrame {
     engine::TextureId texture = engine::kInvalidTexture;
     engine::RectF src{};
 };
-[[nodiscard]] std::optional<PortraitFrame> portraitFor(engine::Engine& engine, bool headless, const std::string& roleId,
-                                                       const std::string& face);
+
+// 一局游戏的头像：表与图都从**游戏根**（Application::init 收的那个目录，与 data/、maps/ 同一层）取——
+// 表是 <游戏根>/data/visual/portraits.json，图是 <游戏根>/assets/art/portraits/<file>。
+// 用 --assets 指到别处时两样跟着一起走，不会与引擎自己找的资源根分家。Application 持有一份，init 时给根。
+//
+// 表在第一次真要画头像时才读（headless 时永远不读）；读不到、读坏了都当空表，各打一行警告。
+// 警告按这一份去重：同一个问题一局只报一次。
+class PortraitBook {
+public:
+    // 换根：丢掉已读的表与已打过的警告，下次用到时按新根重读。
+    void setRoot(const std::string& gameRoot);
+
+    [[nodiscard]] std::string tablePath() const;   // <游戏根>/data/visual/portraits.json（不管在不在）
+    [[nodiscard]] std::string imageDir() const;    // <游戏根>/assets/art/portraits
+
+    // 这一句要画的那一格：纹理、源矩形。说话人没登记、旁白（roleId 空）、图载不进来、格子越出了图 → nullopt。
+    // 表情认不出时退回 normal 并警告一次。headless（没有渲染器）时一律静默返回 nullopt、不读表也不警告：
+    // 那时图本来就载不进来，不是图坏了。
+    [[nodiscard]] std::optional<PortraitFrame> frameFor(engine::Engine& engine, bool headless,
+                                                        const std::string& roleId, const std::string& face);
+
+    // 当前的表（第一次调时读盘）。给测试与诊断用。
+    [[nodiscard]] const core::PortraitTable& table();
+
+private:
+    void warnOnce(const std::string& key, const std::string& message);
+
+    std::string root_;
+    bool loaded_ = false;
+    core::PortraitTable table_;
+    std::set<std::string> warned_;
+};
 
 // ---- 摆位（纯函数，不开窗口可测）----
 // 头像放在对白框正文区的左侧，按「放得进 kPortraitSlotW × kPortraitSlotH 的最大整数倍」放大

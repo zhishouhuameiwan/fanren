@@ -257,6 +257,8 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
   游戏里打一行警告、当作空表（对白一律不带头像，不挡游戏）。图载不进来、某一格越出了图：那一句不带头像，警告一次。
 - 脚本 `talk(角色, 文案, 表情)` 的表情缺省 `normal`；写了认不出的表情按 `normal` 画并警告一次。
 - 无头（没有渲染器）时不读表、不警告：图本来就载不进来。
+- 表与图都从**游戏根**取（`Application::init` 收的那个目录，`--assets` 指的就是它）：表是 `<游戏根>/data/visual/portraits.json`，
+  图是 `<游戏根>/assets/art/portraits/<file>`。一局一份（`Application::portraits()`），第一次真要画头像时才读表。
 - 带头像时正文宽 1004 像素（不带是 1136），正文排不下的行直接截断（`ui::drawTextBlock`）。2026-11-18 量过全部写死说话人的 `talk`（1235 句）：带头像时最长的一句排 2 行，框里放得下 5 行（`tests/PortraitTextFitTests.cpp` 每次构建重报）。
 - 画法（`game/Portraits.h`、`DialogueScene`）：画在对白框正文区左侧，按「放得进 128×144 的最大整数倍」放大
   （定稿 56×64 → ×2 = 112×128），贴着正文区的内边距（`Theme::padding`）左上角、在缩进后的那一块里竖直居中；正文右移「头像宽 + 20」。头像底下垫一块深色、外面一圈暗金细框，

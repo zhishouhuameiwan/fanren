@@ -3,7 +3,7 @@
 // 三组：
 //   · 读取器（io/PortraitLoader）：四个表情都要写、认不出的键整份报错、空表合法，仓库里那份读得进来；
 //   · 摆位（game/Portraits.h 的纯函数）：定稿头像 56×64 按 ×2 摆、正文让开；
-//   · 截图：软件渲染器（dummy 视频驱动）上开一台真 Application，走 Application::sayAs（脚本 talk 与截图口
+//   · 截图：软件渲染器（dummy 视频驱动）上开一台真 Application（游戏根是一份临时拷贝，头像表与图集换成夹具），走 Application::sayAs（脚本 talk 与截图口
 //     talk:<key>:<角色>:<表情> 落到的同一处）压对话框，空转帧数与截图口相同，抓帧比像素。
 //     头像那一块必须与夹具图集里「那个表情的那一格」按 ×2 放大后逐像素相同；没登记的角色与旁白，整帧与
 //     没有任何头像表时逐像素相同。夹具图集在用例里用 SDL 自己画（不经被测的引擎）。
@@ -12,6 +12,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -196,30 +197,27 @@ void writeText(const fs::path& path, const std::string& text) {
     out << text;
 }
 
-// 用例结束时把头像来源还给游戏缺省，不留给同进程里后面的用例。
-struct SourceGuard {
-    explicit SourceGuard(fanren::game::PortraitSource source) { fanren::game::setPortraitSource(std::move(source)); }
-    ~SourceGuard() { fanren::game::setPortraitSource({}); }
-    SourceGuard(const SourceGuard&) = delete;
-    SourceGuard& operator=(const SourceGuard&) = delete;
-};
-
+// 头像表与图都从游戏根取（Application::init 收的那个目录）。截图用例各用一份临时游戏根：data/、scripts/、
+// maps/ 是仓库的拷贝，data/visual/portraits.json 换成夹具表，assets/art/portraits/ 里放夹具图集。
+// 每拍一张都新开一台 Application，开之前把这一张要的表写进去（useTable）。
 class PortraitShot : public ::testing::Test {
 protected:
+    static void SetUpTestSuite() {
+        root_ = std::make_unique<fanren::test::TempDir>("fanren_portrait_root");
+        for (const char* dir : {"data", "scripts", "maps"}) {
+            fs::copy(fs::path(repoRoot()) / dir, root_->path() / dir, fs::copy_options::recursive);
+        }
+    }
+    static void TearDownTestSuite() { root_.reset(); }
+
     void SetUp() override {
         SDL_SetHint(SDL_HINT_VIDEO_DRIVER, "dummy");
         SDL_SetHint(SDL_HINT_RENDER_DRIVER, "software");
         SDL_SetHint(SDL_HINT_AUDIO_DRIVER, "dummy");
         dir_ = fanren::test::uniqueTempPath("fanren_portraits");
         fs::create_directories(dir_);
-        writeFixtureAtlas(dir_ / "fixture.png");
-        // zhang_tie 的 normal 指第 9 格：4 列 1 行的图集只有 0–3 格，第 9 格在第 3 行，越出了图。
-        writeText(dir_ / "portraits.json",
-                  R"({"portraits": {"hanli": {"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
-                      "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}},
-                      "zhang_tie": {"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
-                      "faces": {"normal": 9, "smile": 1, "angry": 2, "hurt": 3}}}})");
-        writeText(dir_ / "empty.json", R"({"portraits": {}})");
+        fs::create_directories(root_->path() / "assets" / "art" / "portraits");
+        writeFixtureAtlas(root_->path() / "assets" / "art" / "portraits" / "fixture.png");
     }
     void TearDown() override {
         SDL_ResetHint(SDL_HINT_VIDEO_DRIVER);
@@ -233,17 +231,22 @@ protected:
         fs::remove_all(dir_, ignored);
     }
 
-    fanren::game::PortraitSource fixture() const {
-        return {(dir_ / "portraits.json").string(), dir_.string()};
+    // zhang_tie 的 normal 指第 9 格：4 列 1 行的图集只有 0–3 格，第 9 格在第 3 行，越出了图。
+    static void useFixtureTable() {
+        writeText(root_->path() / "data" / "visual" / "portraits.json",
+                  R"({"portraits": {"hanli": {"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
+                      "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}},
+                      "zhang_tie": {"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
+                      "faces": {"normal": 9, "smile": 1, "angry": 2, "hurt": 3}}}})");
     }
-    fanren::game::PortraitSource emptyTable() const { return {(dir_ / "empty.json").string(), dir_.string()}; }
+    static void useEmptyTable() { writeText(root_->path() / "data" / "visual" / "portraits.json", R"({"portraits": {}})"); }
 
     // 一句对白拍一张：新开一台 Application（软件渲染），sayAs 压对话框，空转 240 帧（截图口 talk 的
     // kTalkShotFrames），再像截图口那样 beginFrame → drawScenes → captureFrame。
     Frame shoot(const std::string& role, const std::string& face, int& boxX) {
         Frame frame;
         fanren::game::Application app;
-        const auto ready = app.init(repoRoot(), /*headless=*/false);
+        const auto ready = app.init(root_->path().string(), /*headless=*/false);
         EXPECT_TRUE(ready.ok) << ready.error;
         if (!ready.ok) return frame;
         app.sayAs(role, "ch01.zhenshang.arrive", face);
@@ -275,6 +278,7 @@ protected:
         return frame;
     }
 
+    static inline std::unique_ptr<fanren::test::TempDir> root_;
     fs::path dir_;
     int shots_ = 0;
 };
@@ -306,7 +310,7 @@ std::size_t differingPixels(const Frame& a, const Frame& b) {
 }
 
 TEST_F(PortraitShot, ASpeakerWithAPortraitShowsExactlyThatFaceAtTheLeftOfTheBox) {
-    SourceGuard guard(fixture());
+    useFixtureTable();
     int boxX = 0;
     const Frame smile = shoot("hanli", "smile", boxX);
     ASSERT_GT(smile.w, 0);
@@ -330,17 +334,17 @@ TEST_F(PortraitShot, NarrationAndUnregisteredSpeakersLookExactlyAsWithoutAnyPort
     // 暖机：同一进程里第一台 Application 用软件渲染器拍的那一张，对白框的底色与字形边缘比之后几台差 1–2 级
     // （与头像无关：头像表全空时一样；第 2 台起两两逐像素相同）。比整帧之前先空拍一张，扔掉。
     {
-        SourceGuard guard(emptyTable());
+        useEmptyTable();
         (void)shoot("", "normal", boxX);
     }
     Frame narrationWith, narrationWithout, otherWith, otherWithout;
     {
-        SourceGuard guard(fixture());
+        useFixtureTable();
         narrationWith = shoot("", "normal", boxX);
         otherWith = shoot("han_mu", "normal", boxX);
     }
     {
-        SourceGuard guard(emptyTable());
+        useEmptyTable();
         narrationWithout = shoot("", "normal", boxX);
         otherWithout = shoot("han_mu", "normal", boxX);
     }
@@ -352,11 +356,11 @@ TEST_F(PortraitShot, NarrationAndUnregisteredSpeakersLookExactlyAsWithoutAnyPort
     // 阳性对照：同一套比法对「有头像」的那一句要报得出差别，否则上面两个 0 什么也没证明。
     Frame hanliWith, hanliWithout;
     {
-        SourceGuard guard(fixture());
+        useFixtureTable();
         hanliWith = shoot("hanli", "normal", boxX);
     }
     {
-        SourceGuard guard(emptyTable());
+        useEmptyTable();
         hanliWithout = shoot("hanli", "normal", boxX);
     }
     EXPECT_GT(differingPixels(hanliWith, hanliWithout), static_cast<std::size_t>(kFixtureW * kFixtureH * 4))
@@ -366,19 +370,19 @@ TEST_F(PortraitShot, NarrationAndUnregisteredSpeakersLookExactlyAsWithoutAnyPort
 TEST_F(PortraitShot, AFaceWhoseCellLiesOutsideTheAtlasLeavesThatLineWithoutAPortrait) {
     int boxX = 0;
     {
-        SourceGuard guard(emptyTable());
+        useEmptyTable();
         (void)shoot("", "normal", boxX);   // 暖机，见上一条
     }
     Frame outside, without;
     {
-        SourceGuard guard(fixture());
+        useFixtureTable();
         ::testing::internal::CaptureStderr();
         outside = shoot("zhang_tie", "normal", boxX);
         const std::string err = ::testing::internal::GetCapturedStderr();
         EXPECT_NE(err.find("zhang_tie"), std::string::npos) << "越界的那一格要警告：" << err;
     }
     {
-        SourceGuard guard(emptyTable());
+        useEmptyTable();
         without = shoot("zhang_tie", "normal", boxX);
     }
     ASSERT_GT(outside.w, 0);
@@ -387,7 +391,7 @@ TEST_F(PortraitShot, AFaceWhoseCellLiesOutsideTheAtlasLeavesThatLineWithoutAPort
 }
 
 TEST_F(PortraitShot, AnUnknownFaceFromTheScriptIsDrawnAsNormal) {
-    SourceGuard guard(fixture());
+    useFixtureTable();
     int boxX = 0;
     const Frame normal = shoot("hanli", "normal", boxX);
     const auto at = findScaledFace(normal, 0);
@@ -404,9 +408,9 @@ TEST_F(PortraitShot, AnUnknownFaceFromTheScriptIsDrawnAsNormal) {
 
 TEST_F(PortraitShot, WithoutARendererPortraitsAreSilentlySkipped) {
     // 无头（没有渲染器）时图本来就载不进来：不读表、不警告，免得头像表一填上，无头的 bot 与用例每张头像报一行「载不进来」。
-    SourceGuard guard(fixture());
+    useFixtureTable();
     fanren::game::Application app;
-    ASSERT_TRUE(app.init(repoRoot(), /*headless=*/true).ok);
+    ASSERT_TRUE(app.init(root_->path().string(), /*headless=*/true).ok);
     app.sayAs("hanli", "ch01.zhenshang.arrive", "smile");
     app.tick(1.0 / 60.0);
     ASSERT_NE(app.topScene(), nullptr);
@@ -418,14 +422,23 @@ TEST_F(PortraitShot, WithoutARendererPortraitsAreSilentlySkipped) {
     app.shutdown();
 }
 
-TEST_F(PortraitShot, TheDefaultSourceIsTheShippedTableBesideTheAssets) {
-    SourceGuard guard(fanren::game::PortraitSource{});
+TEST_F(PortraitShot, TheTableAndTheImagesComeFromTheGameRootGivenToInit) {
+    // --assets 指到别处时，头像表与图都跟着那个根走，不经引擎自己找的资源根（那会与游戏根分家）。
+    useFixtureTable();
     fanren::game::Application app;
-    ASSERT_TRUE(app.init(repoRoot(), /*headless=*/false).ok);
-    const std::string path = fanren::game::portraitTablePath(app.engine());
-    ASSERT_FALSE(path.empty()) << "缺省来源找不到 data/visual/portraits.json";
-    EXPECT_TRUE(fs::equivalent(path, fs::path(repoRoot()) / "data" / "visual" / "portraits.json")) << path;
+    ASSERT_TRUE(app.init(root_->path().string(), /*headless=*/false).ok);
+    EXPECT_TRUE(fs::equivalent(app.portraits().tablePath(), root_->path() / "data" / "visual" / "portraits.json"))
+        << app.portraits().tablePath();
+    EXPECT_TRUE(fs::equivalent(app.portraits().imageDir(), root_->path() / "assets" / "art" / "portraits"))
+        << app.portraits().imageDir();
+    EXPECT_EQ(app.portraits().table().count("hanli"), 1u) << "读的是这个根里的夹具表，不是仓库里那份空表";
     app.shutdown();
+
+    fanren::game::Application shipped;
+    ASSERT_TRUE(shipped.init(repoRoot(), /*headless=*/false).ok);
+    EXPECT_TRUE(fs::equivalent(shipped.portraits().tablePath(), fs::path(repoRoot()) / "data" / "visual" / "portraits.json"));
+    EXPECT_EQ(shipped.portraits().table().count("hanli"), 0u) << "仓库里那份现在是空表";
+    shipped.shutdown();
 }
 
 }  // namespace

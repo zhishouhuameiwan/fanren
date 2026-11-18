@@ -188,6 +188,7 @@ Application::~Application() = default;
 
 core::Result<bool> Application::init(const std::string& assetRoot, bool headless) {
     assetRoot_ = assetRoot;
+    portraits_.setRoot(assetRoot_);
     headless_ = headless;
 
     engine_ = std::make_unique<engine::Engine>();
