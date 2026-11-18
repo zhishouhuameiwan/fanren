@@ -348,6 +348,11 @@ void WorldFrame::clear() {
     dangerStars = 0;
     saveNotice.clear();
     pathActionHint.clear();
+    followers.clear();
+    chests.clear();
+    gathers.clear();
+    foes.clear();
+    gates.clear();
 }
 
 // ---------------------------------------------------------------------------

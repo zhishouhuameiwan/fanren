@@ -153,8 +153,11 @@ bool pushUiShot(fanren::game::Application& app, const std::string& kind, const s
         return true;
     }
     if (kind == "talk" && !arg.empty()) {
+        // talk:<文案 key>[:<说话人 role>[:<表情>]]，表情缺省 normal（伙伴改版 3.9）。
         const std::string speaker = parts.size() > 1 ? app.speakerName(parts[1]) : std::string{};
-        app.pushScene(std::make_unique<game::DialogueScene>(speaker, app.text(parts[0])));
+        auto scene = std::make_unique<game::DialogueScene>(speaker, app.text(parts[0]));
+        if (parts.size() > 1) scene->setPortrait(parts[1], parts.size() > 2 ? parts[2] : fanren::script::kDefaultFace);
+        app.pushScene(std::move(scene));
         warmup = kTalkShotFrames;
         return true;
     }

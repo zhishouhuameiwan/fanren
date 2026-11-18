@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "core/rules/Companions.h"
 #include "core/rules/Field.h"
 #include "core/rules/Realm.h"
 
@@ -52,6 +53,7 @@ const std::unordered_map<std::string, CommandKind>& kindTable() {
         {"play_bgm", CommandKind::PlayBgm},
         {"take_item_aged", CommandKind::TakeItemAged},
         {"realm_demote", CommandKind::RealmDemote},
+        {"bond_add", CommandKind::BondAdd},
     };
     return table;
 }
@@ -178,6 +180,7 @@ bool toCommand(const sol::object& value, Command& out, std::string& error) {
         out.x = table.get_or("x", 0);
     }
     out.y = table.get_or("y", 0);
+    out.c = table.get_or("c", std::string{});
     const sol::optional<sol::table> options = table["options"];
     if (options) {
         const std::size_t count = options->size();
@@ -328,6 +331,15 @@ struct ScriptHost::Impl {
         });
         host.set_function("magic_count", [self]() -> int {
             return self->state != nullptr ? static_cast<int>(self->state->learnedMagics.size()) : 0;
+        });
+
+        // ---- 伙伴改版：默契的只读查询（docs/interfaces-companions.md 3.8）----
+        // 写走命令队列（BondAdd），读走这里。认不出的伙伴 id 答 0 / 一档：问「熟不熟」，答案是不熟。
+        host.set_function("bond_get", [self](const std::string& companionId) -> int {
+            return self->state != nullptr ? self->state->bondOf(companionId) : 0;
+        });
+        host.set_function("bond_tier", [self](const std::string& companionId) -> int {
+            return fanren::rules::bondTier(self->state != nullptr ? self->state->bondOf(companionId) : 0);
         });
     }
 

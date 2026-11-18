@@ -5,6 +5,7 @@
 // 在对话框和将来的商店、背包里各走一样。控件只回报选择，状态变更在 Application。
 #include <optional>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "engine/Engine.h"
@@ -26,6 +27,16 @@ public:
     // 正文不逐字滚，一上来就全显。选项框里留着的「刚说完的那一句」用它：那句刚才已经
     // 一个字一个字读过了（Application::dispatch 的 Choice）。
     void revealAtOnce() { revealAtOnce_ = true; }
+
+    // 说话人的角色 id 与表情（伙伴改版，docs/interfaces-companions.md 3.9）：脚本 talk 的第三个参数
+    // 经 Application::sayAs 一路送到这里。**这里只存，不画**——头像按它画是世界画面路（A 路）的事；
+    // 没调过它的对话框（旁白、提示）两样都是空串。
+    void setPortrait(std::string roleId, std::string face) {
+        speakerRole_ = std::move(roleId);
+        face_ = std::move(face);
+    }
+    [[nodiscard]] const std::string& speakerRole() const { return speakerRole_; }
+    [[nodiscard]] const std::string& face() const { return face_; }
 
     // 名签的矩形：压在对话框上沿、靠左，一半在框外。宽度随名字长短（textWidth 是名字的
     // 像素宽）。公开是为了让测试断言「选项再多、框长到最高，名签也还在屏幕里」。
@@ -102,6 +113,9 @@ private:
     // 那几句按掉了。
     bool log_ = false;
     ui::ListView logView_;
+
+    std::string speakerRole_;   // setPortrait
+    std::string face_;
 };
 
 }  // namespace fanren::game

@@ -24,8 +24,10 @@ end
 -- ---------------------------------------------------------------------------
 
 -- text_key 走 data/text/*.json，脚本里不出现任何中文字面量。
-function talk(speaker_id, text_key)
-    emit{ kind = "talk", a = text_key or "", b = speaker_id or "" }
+-- face 是可选的表情（normal / smile / angry / hurt，伙伴改版 3.9），不给就是 normal；
+-- 说话人在 data/visual/portraits.json 里有头像时，对话框照它画。现有脚本一个字不用改。
+function talk(speaker_id, text_key, face)
+    emit{ kind = "talk", a = text_key or "", b = speaker_id or "", c = face or "" }
 end
 
 -- option_keys 是文案 key 数组。返回选中序号（1 起算），取消返回 nil。
@@ -385,3 +387,27 @@ function take_aged(item_id, count, min_age)
     local result = emit{ kind = "take_item_aged", a = item_id or "", x = count or 1, y = min_age or 0 }
     return result.ok == true
 end
+
+-- ---------------------------------------------------------------------------
+-- 默契（伙伴改版，docs/interfaces-companions.md 2.2、3.8）
+--
+-- 同一条分界：写走命令队列，读走 __host。参数是**伙伴 id**（data/companions/），不是角色 id。
+-- 只增不减、封顶 100；剧情里的默契事件「只演一次」由脚本自己保证（once 触发器或完成旗标），
+-- 这里不设每天的上限。
+-- ---------------------------------------------------------------------------
+
+bond = {
+    -- 加 n 点。返回 ok, code；code 为 ASCII 机器码，成功时是空串：
+    --   "no_companion"  data/companions/ 里没有这位
+    --   "negative"      n 是负数（默契只增不减）
+    add = function(companion_id, n)
+        assert(type(companion_id) == "string" and companion_id ~= "", "bond.add() 需要伙伴 id")
+        assert(type(n) == "number", "bond.add() 需要加多少")
+        local result = emit{ kind = "bond_add", a = companion_id, x = n }
+        return result.ok == true, result.code or ""
+    end,
+
+    -- 只读。get 是 0–100 的数，tier 是第几档（1 初识 … 5 同心）。认不出的伙伴答 0 / 1。
+    get = function(companion_id) return __host.bond_get(companion_id or "") end,
+    tier = function(companion_id) return __host.bond_tier(companion_id or "") end,
+}

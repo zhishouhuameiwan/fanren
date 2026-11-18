@@ -7,6 +7,7 @@
 #include <functional>
 #include <map>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -90,6 +91,22 @@ inline constexpr int kDangerUnit = 100;
 // 压着了（镜头贴着地图下沿、人站在屏幕下半）就整体上移到主角那一圈的上沿之上，最高到离上沿 topGap。
 // 只挪不缩：面板的尺寸与内容一点不变，玩家看到的只是它往上让了一截。
 [[nodiscard]] engine::Rect keepHeroInSight(const engine::Rect& bottomPanel, const engine::Rect& hero, int topGap);
+
+// 开战参数（伙伴改版，docs/interfaces-companions.md 3.4 与第 6 节）。开一仗带着它走，战斗场景开场
+// 从 Application::battleStart() 读。缺省值就是改版前的开法：脚本 battle()、遭遇、切磋都不带先手。
+struct BattleStart {
+    std::string battleId;
+    // 偷袭明雷得手：我方全员开场多 1 点劲，第一回合我方全员排在所有敌人之前（规则归战斗路实现）。
+    bool preemptive = false;
+};
+
+// 进一趟历练（docs/interfaces-companions.md 3.12）。组队面板定好人之后交给 Application::enterLilian。
+struct LilianEntry {
+    std::string siteId;                // 历练地 id（data/lilian/<site>.json）
+    std::string mapId;                 // 入口图
+    std::string spawn;                 // 入口图上的出生点；空 = 缺省出生点
+    std::vector<std::string> party;    // 这一趟的队员：currentRole 给的角色 id，至多 3 位
+};
 
 class Application {
 public:
@@ -300,6 +317,23 @@ public:
     // 回调里拿到的战果与脚本 battle() 拿到的是同一张 CommandResult。
     using BattleOutcome = std::function<void(const script::CommandResult&)>;
     void startBattle(const std::string& battleId, BattleOutcome onFinish);
+    // 带开战参数的那一条（明雷）。上面那条就是 BattleStart{battleId} 的简写。
+    void startBattle(const BattleStart& start, BattleOutcome onFinish);
+    // 最近一次开的那一仗的开战参数（脚本 battle() 开的也记）。战斗场景开场读它定先手。
+    [[nodiscard]] const BattleStart& battleStart() const { return battleStart_; }
+
+    // ---- 历练（伙伴改版，docs/interfaces-companions.md 3.12）----
+    //
+    // 进：把此刻的图、位置、朝向、队伍记在内存里，队伍换成 entry.party（满血），传到入口图。
+    // 出：队伍、图、位置、朝向恢复成进去之前的，日历加一天。拿到的东西、加的默契照留。
+    // 两样都不进存档：历练里不能存档（quickSave 拒绝），读档就是回到进去之前那一份。
+    // 已在历练里再进、不在历练里出，都返回失败、什么也不动。
+    core::Result<bool> enterLilian(const LilianEntry& entry);
+    core::Result<bool> leaveLilian();
+    [[nodiscard]] bool inLilian() const;
+    // 四种地图对象的状态此刻记在哪一份：历练里是「这一趟」那份（出来就扔），否则是存档里那份。
+    // 宝箱、采集点、明雷、机关的逻辑一律经它读写，别直接碰 GameState::worldObjects。
+    [[nodiscard]] core::WorldObjectState& worldObjects();
 
     // ---- 野外遭遇（docs/interfaces-octo-encounters.md）----
     //
@@ -329,7 +363,9 @@ public:
 
     // 以某个角色的口吻说一句：记进 spokenKeys 与对话回看，压对话框。脚本的 talk(role, key)
     // 也走这里——路径行动的话与剧情的话必须是同一个口径（契约 5.4）。roleId 为空是旁白。
-    void sayAs(const std::string& roleId, const std::string& textKey);
+    // face 是表情（normal / smile / angry / hurt，伙伴改版 3.9），原样送到对话框（DialogueScene::setPortrait）。
+    void sayAs(const std::string& roleId, const std::string& textKey,
+               const std::string& face = script::kDefaultFace);
 
     // ---- 脚本 ----
     core::Result<bool> startEvent(const std::string& scriptPath);
@@ -383,9 +419,12 @@ public:
     struct SpokenLine {
         std::string speaker;   // 空串是旁白
         std::string body;
+        // 说话人的角色 id 与表情（伙伴改版 3.9）：选项框留着上一句时，头像跟着一起留。
+        std::string roleId;
+        std::string face;
     };
     [[nodiscard]] const std::vector<SpokenLine>& dialogueLog() const { return dialogueLog_; }
-    void pushDialogueLine(std::string speaker, std::string body);
+    void pushDialogueLine(std::string speaker, std::string body, std::string roleId = {}, std::string face = {});
 
 private:
     // 取出脚本命令并派发。能就地完成的（给物品、置旗标）直接执行并 resume；
@@ -450,6 +489,17 @@ private:
 
     // 以回调开的那一仗的收场回调（startBattle）；空 = 此刻没有这样的仗。
     BattleOutcome battleOutcome_;
+    BattleStart battleStart_;   // battleStart()
+    // 进行中的那一趟历练（enterLilian）；空 = 不在历练里。
+    struct LilianTrip {
+        std::string siteId;
+        std::string mapId;               // 进去之前站的图、格、朝向、队伍
+        core::Point position;
+        int facing = 2;
+        std::vector<core::PartyMember> party;
+        core::WorldObjectState objects;   // 这一趟里四种地图对象的状态
+    };
+    std::optional<LilianTrip> lilian_;
     bool encountersEnabled_ = false;
     std::map<std::string, rules::EncounterTable> encounterTables_;
     std::string bgmOverride_;

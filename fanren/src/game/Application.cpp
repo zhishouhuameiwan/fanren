@@ -16,6 +16,7 @@
 
 #include "core/rules/Bottle.h"
 #include "core/rules/Calendar.h"
+#include "core/rules/Companions.h"
 #include "core/rules/Field.h"
 #include "core/rules/Realm.h"
 #include "game/AlchemyScene.h"
@@ -400,6 +401,11 @@ core::Result<std::string> Application::quickSave() {
     if (!canSave()) {
         return core::Result<std::string>::failure("这会儿存不了：剧情正演到一半");
     }
+    // 历练里不能存档（docs/interfaces-companions.md 3.12）。三个存档入口（存档点、F5、主菜单「存盘」）
+    // 都走这一个函数，闸只收在这里：存下去的会是换过的队伍与历练图，读回来原队伍就没了。
+    if (inLilian()) {
+        return core::Result<std::string>::failure("历练途中存不了，出去之后再记");
+    }
     const std::string path = quickSavePath();
     const fs::path dir = fs::path(path).parent_path();
     std::error_code ec;
@@ -546,6 +552,7 @@ core::Result<bool> Application::startNewJourney() {
     // 全新的一局：上一局（标题画面之前若有）留下的一切都不带。对话记录与台词本一并清掉，
     // 回看面板里不该翻出上一局的话。
     state_ = core::GameState{};
+    lilian_.reset();
     dialogueLog_.clear();
     spokenKeys_.clear();
     pendingCards_.clear();
@@ -562,6 +569,7 @@ core::Result<bool> Application::continueJourney(const std::string& savePath) {
     auto save = io::loadGame(savePath);
     if (!save) return core::Result<bool>::failure(save.error);
     state_ = std::move(save.value);
+    lilian_.reset();   // 档里没有历练状态：读档就是回到进去之前那一份
     // 存档里带着地图 id 与坐标：载图会把人摆到出生点，所以坐标要在载完之后放回去。
     // 载图失败时不压任何场景：标题画面还开着，把错说出来，玩家可以改选「新的旅程」
     // （那一条会把状态整个换掉，这里读进来的半截不会带过去）。
@@ -919,15 +927,18 @@ std::string Application::worldBgm() const {
     return map_ == nullptr ? std::string{} : map_->bgm;
 }
 
-void Application::sayAs(const std::string& roleId, const std::string& textKey) {
+void Application::sayAs(const std::string& roleId, const std::string& textKey, const std::string& face) {
     // 先记下 key 再建场景：建场景会把 key 换成正文，之后就查不到它了。
     if (spokenKeys_.size() >= kSpokenLogCap) spokenKeys_.erase(spokenKeys_.begin());
     spokenKeys_.push_back(textKey);
     const std::string speaker = roleId.empty() ? std::string{} : speakerName(roleId);
     const std::string body = text(textKey);
     // 同一行同时进两份记录：key 那份给测试，这份给玩家回看。
-    pushDialogueLine(speaker, body);
-    pushScene(std::make_unique<DialogueScene>(speaker, body));
+    pushDialogueLine(speaker, body, roleId, face);
+    auto scene = std::make_unique<DialogueScene>(speaker, body);
+    // 头像要的是角色 id 与表情，不是名字（伙伴改版 3.9）；画不画由对话框自己定。
+    scene->setPortrait(roleId, face);
+    pushScene(std::move(scene));
 }
 
 core::Result<bool> Application::startEvent(const std::string& scriptPath) {
@@ -937,9 +948,53 @@ core::Result<bool> Application::startEvent(const std::string& scriptPath) {
 }
 
 void Application::startBattle(const std::string& battleId, BattleOutcome onFinish) {
-    battleOutcome_ = std::move(onFinish);
-    pushScene(std::make_unique<BattleScene>(battleId));
+    startBattle(BattleStart{battleId}, std::move(onFinish));
 }
+
+void Application::startBattle(const BattleStart& start, BattleOutcome onFinish) {
+    battleOutcome_ = std::move(onFinish);
+    battleStart_ = start;
+    pushScene(std::make_unique<BattleScene>(start.battleId));
+}
+
+core::Result<bool> Application::enterLilian(const LilianEntry& entry) {
+    if (lilian_) return core::Result<bool>::failure("已经在历练里了");
+    LilianTrip trip{entry.siteId, state_.mapId, state_.position, state_.facing, state_.party, {}};
+    std::vector<core::PartyMember> members;
+    for (const std::string& roleId : entry.party) members.push_back(core::PartyMember{roleId, -1, true});
+    state_.party = std::move(members);
+    auto loaded = loadMap(entry.mapId, entry.spawn);
+    if (!loaded) {
+        // 入口图进不去：退回原样。loadMap 失败时可能已经换了图、把人摆到 (0,0)（图载进来了却找不到
+        // 出生点），所以图、格、朝向、队伍都要放回去——不然 inLilian() 为假、存档闸不拦，
+        // 半截的状态能被存进档里。
+        state_.party = std::move(trip.party);
+        (void)loadMap(trip.mapId, std::string{});
+        state_.position = trip.position;
+        state_.facing = trip.facing;
+        return loaded;
+    }
+    lilian_ = std::move(trip);
+    return core::Result<bool>::success(true);
+}
+
+core::Result<bool> Application::leaveLilian() {
+    if (!lilian_) return core::Result<bool>::failure("不在历练里");
+    // 先回原图：回不去就仍算在历练里（队伍、存档闸都不动），而不是队伍换回来了人却留在历练图上。
+    auto loaded = loadMap(lilian_->mapId, std::string{});
+    if (!loaded) return loaded;
+    LilianTrip trip = std::move(*lilian_);
+    lilian_.reset();
+    state_.party = std::move(trip.party);
+    state_.position = trip.position;
+    state_.facing = trip.facing;
+    advanceDays(1);
+    return core::Result<bool>::success(true);
+}
+
+bool Application::inLilian() const { return lilian_.has_value(); }
+
+core::WorldObjectState& Application::worldObjects() { return lilian_ ? lilian_->objects : state_.worldObjects; }
 
 void Application::completeCommand(const script::CommandResult& result) {
     // 以回调开的那一仗在收场（startBattle）：改走登记的回调，脚本那边没有人在等。
@@ -956,10 +1011,10 @@ void Application::completeCommand(const script::CommandResult& result) {
     scripts_->resumeWith(result);
 }
 
-void Application::pushDialogueLine(std::string speaker, std::string body) {
+void Application::pushDialogueLine(std::string speaker, std::string body, std::string roleId, std::string face) {
     if (body.empty()) return;
     if (dialogueLog_.size() >= kDialogueLogCap) dialogueLog_.erase(dialogueLog_.begin());
-    dialogueLog_.push_back(SpokenLine{std::move(speaker), std::move(body)});
+    dialogueLog_.push_back(SpokenLine{std::move(speaker), std::move(body), std::move(roleId), std::move(face)});
 }
 
 void Application::showMessage(const std::string& textKey) {
@@ -975,8 +1030,8 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
 
     switch (command.kind) {
         case CommandKind::Talk:
-            // 与路径行动的话同一个入口（sayAs），口径只有一处定义。
-            sayAs(command.b, command.a);
+            // 与路径行动的话同一个入口（sayAs），口径只有一处定义。表情没给就是缺省那一个。
+            sayAs(command.b, command.a, command.c.empty() ? std::string(script::kDefaultFace) : command.c);
             return false;
         case CommandKind::Choice: {
             std::vector<std::string> options;
@@ -987,17 +1042,21 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
             // 那一句刚才已经逐字读过，这回直接全显，不再滚一遍。
             std::string speaker;
             std::string prompt = text(command.a);
+            SpokenLine portrait;
             if (command.a.empty() && !dialogueLog_.empty()) {
                 speaker = dialogueLog_.back().speaker;
                 prompt = dialogueLog_.back().body;
+                portrait = dialogueLog_.back();
             }
             auto scene = std::make_unique<DialogueScene>(speaker, prompt);
+            scene->setPortrait(portrait.roleId, portrait.face);
             scene->setChoices(std::move(options));
             scene->revealAtOnce();
             pushScene(std::move(scene));
             return false;
         }
         case CommandKind::Battle: {
+            battleStart_ = BattleStart{command.a};
             pushScene(std::make_unique<BattleScene>(command.a));
             return false;
         }
@@ -1338,6 +1397,26 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
             // 只在真升上去的这一支响（终审 M-3）：原地不动、往回拨都已在上面返回，不该有动静。
             engine_->playSfx("realm_up");
             outcome.ok = true;
+            return true;
+        }
+
+        // ---- 伙伴改版：默契加分（docs/interfaces-companions.md 2.2、3.8）----
+        case CommandKind::BondAdd: {
+            // 伙伴 id 必须在 data/companions 里查得到：拼错的 id 记下一笔谁也读不到的账，
+            // 到要出追击、合招时才发现「怎么一直不熟」。
+            if (data_.companions.count(command.a) == 0) {
+                outcome.ok = false;
+                outcome.code = "no_companion";
+                return true;
+            }
+            // 只增不减（契约 2.2）。先判再记账：负数不该在存档里留下一条全 0 的空账。
+            if (command.x < 0) {
+                outcome.ok = false;
+                outcome.code = "negative";
+                return true;
+            }
+            // 脚本自己保证只演一次，这里不设每天的上限。
+            outcome.ok = rules::addBond(state_.bonds[command.a], command.x);
             return true;
         }
 

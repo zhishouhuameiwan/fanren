@@ -154,6 +154,34 @@ struct WorldFrame {
         std::string kind;
     };
 
+    // ---- 伙伴改版（docs/interfaces-companions.md 3.4–3.7 与第 6 节）：**只定结构**。----
+    // 世界逻辑路（WorldScene）照规则判好往里填，世界画面路（WorldView）照着画；两路都不另起一套。
+    // 跟着主角走的伙伴：上场伙伴按队伍次序，第 0 位紧跟主角。格是逻辑位置，滑步插值归画面。
+    struct Follower {
+        std::string roleId;        // 队伍里存的角色 id（取外观用它）
+        core::Point cell;
+        int facing = 2;            // 同 GameState::facing
+    };
+    struct Chest {
+        const core::MapObject* object = nullptr;
+        bool opened = false;       // 开过就一直是开着的样子
+    };
+    struct Gather {
+        const core::MapObject* object = nullptr;
+        bool depleted = false;     // 冷却中：画成采过的样子
+    };
+    // 只放此刻在场的明雷（清掉了、还没到重生日子的不放）。
+    struct Foe {
+        const core::MapObject* object = nullptr;
+        std::string look;          // foe 的 look 属性：画哪个角色 / 敌人
+        int facing = 2;            // foe 的 facing 属性，同 GameState::facing
+        bool elite = false;
+    };
+    struct Gate {
+        const core::MapObject* object = nullptr;
+        bool open = false;         // 开了之后不占格，画成开着的样子
+    };
+
     std::vector<Npc> npcs;                          // 只有在场的
     std::vector<Portal> portals;
     std::vector<Facility> facilities;
@@ -165,6 +193,11 @@ struct WorldFrame {
     int dangerStars = 0;                            // 野外图的危险星级（0 = 这张图没有遭遇；算法见 docs/interfaces-octo-encounters.md）
     std::string saveNotice;                         // 空串 = 不显示
     std::string pathActionHint;                     // 面向可交互 NPC 时的键位与行动名
+    std::vector<Follower> followers;                // 空 = 没人跟（改版前的样子）
+    std::vector<Chest> chests;
+    std::vector<Gather> gathers;
+    std::vector<Foe> foes;
+    std::vector<Gate> gates;
 
     void clear();
 };

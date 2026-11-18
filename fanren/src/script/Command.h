@@ -39,7 +39,13 @@ enum class CommandKind {
     TakeItemAged,
     // P3 第 9 章：按目标境界跌落，同样追加在末尾。
     RealmDemote,
+    // 伙伴改版（docs/interfaces-companions.md 3.8）：默契加分。同样追加在末尾。
+    // 读（bond.get / bond.tier）走 __host，不占命令位。
+    BondAdd,
 };
+
+// talk() 不给表情时的那一个（docs/interfaces-companions.md 3.9）。
+inline constexpr const char* kDefaultFace = "normal";
 
 // bgm() 的这个 id 不是曲子，是「撤掉点播、放回地图曲」（api.lua 的 bgm("map")）。
 // 选一个词而不是空串：bgm("") 读起来像「静音」，而它要说的恰恰相反。
@@ -50,7 +56,7 @@ inline constexpr const char* kMapBgm = "map";
 //
 //   kind        a            b            x            y      options
 //   ---------------------------------------------------------------------
-//   Talk        文案 key     说话人 id     -            -      -
+//   Talk        文案 key     说话人 id     -            -      -        （c：表情，空 = kDefaultFace）
 //   Choice      -            -            -            -      选项文案 key
 //   Battle      战斗 id      -            -            -      -
 //   Teleport    地图 id      -            目标格 x     目标格 y  -
@@ -79,6 +85,7 @@ inline constexpr const char* kMapBgm = "map";
 //   PlayBgm     曲子 id / "map" -          -            -      -
 //   TakeItemAged 物品 id     -            数量         年份下限  -
 //   RealmDemote -            -            目标境界编号 -      -
+//   BondAdd     伙伴 id      -            加多少       -      -
 //
 // 注：Talk 的 a 放文案 key 而不是说话人，与契约里「a 是主参数：文案 key /
 // 地图 id / 物品 id」的排列一致 —— 各命令的 a 一律是那条命令的主体。
@@ -88,6 +95,8 @@ struct Command {
     std::string b;
     int x{}, y{};
     std::vector<std::string> options;
+    // 追加在末尾（伙伴改版）：目前只有 Talk 用，放表情。
+    std::string c;
 };
 
 // 命令执行结果，由 game 层回填后 resume 协程。
