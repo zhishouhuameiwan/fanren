@@ -276,10 +276,11 @@ void drawTargetPointer(engine::Engine& e, const HudFrame& f) {
 // ---------------------------------------------------------------------------
 
 void drawPartyPanel(engine::Engine& e, const HudFrame& f) {
-    const RectF panel = kPartyPanelRect;
-    ui::drawPanel(e, toRect(panel), "", f.theme);
     const std::vector<Unit>& units = f.battle.units();
-    constexpr float kRow = 34.f;
+    // 我方几个人面板就几行（3 行以内是原来那一块，4 人起往上加高，见 partyPanelRect）。
+    const RectF panel = partyPanelRect(allyCount(units));
+    ui::drawPanel(e, toRect(panel), "", f.theme);
+    constexpr float kRow = kPartyRowH;
     float y = panel.y + 10.f;
     for (std::size_t i = 0; i < units.size() && i < f.shown.size(); ++i) {
         const Unit& u = units[i];

@@ -5,6 +5,7 @@
 // 无头模式下那两样一概不建：runToCompletion 与既有测试走的路一个字节也不变。
 #include <cstddef>
 #include <deque>
+#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -100,8 +101,8 @@ GrantedReward grantBattleReward(core::GameState& state, const core::BattleReward
 // ---- 动作菜单 ----
 //
 // 层级：根菜单 →（攻击：兵刃不止一样时先选兵刃 / 法术 / 物品）选一条 → 选目标 → 发起。
-// Weapon 追加在末尾：switch (menu) 不加 default，漏处理由 /W4 喊出来。
-enum class BattleMenuMode { Closed, Root, Magic, Item, Target, Weapon };
+// Weapon 追加在末尾：switch (menu) 不加 default，漏处理由 /W4 喊出来。Duo（合招的那一级：挑与谁合）再追加。
+enum class BattleMenuMode { Closed, Root, Magic, Item, Target, Weapon, Duo };
 
 // 根菜单五项，顺序固定，下标写死在 menuChoose 里。「这一项现在不能用」一律靠置灰
 // 表达，不靠删行，否则删一条要改好几处。
@@ -111,6 +112,16 @@ inline constexpr int kBattleMenuItem = 2;
 inline constexpr int kBattleMenuDefend = 3;
 inline constexpr int kBattleMenuEscape = 4;
 inline constexpr int kBattleMenuCount = 5;
+// 第六项「合招」（伙伴改版 3.3）只在这一位有合招可出的仗里出现（BattleState::duoPartners 非空），排在
+// 五项之后：前五项的下标一个不动，没有伙伴的仗（改版前的全部）菜单与从前逐行相同。出现了就一直在，
+// 默契不够、劲不够、对方已行动这些照老规矩写在下一级的条目上，不靠删行。
+inline constexpr int kBattleMenuDuo = 5;
+
+// 这一场的我方上场了谁（伙伴改版 3.1），按 GameState::party 的次序给出角色 id：不是伙伴的队员 active 的
+// 全部上场；伙伴 active 的前 kMaxCompanionsOnField 位上场，再往后的不上场。编成里已写死的同一个角色
+// 不再重复（编成优先）；data/roles 里没有的跳过。BattleScene::addPartyUnits 与测试问的都是这一个函数。
+[[nodiscard]] std::vector<std::string> fieldedPartyRoles(const core::GameData& data, const core::GameState& state,
+                                                         const std::vector<std::string>& alreadyOnField);
 
 // 玩家发起这个动作会不会被回绝，以及为什么；返回空串表示做得了。
 //
@@ -161,6 +172,9 @@ public:
 
     // 这一场收场时真的发下去的东西；还没收场、或者这一场什么也不发时为空。
     [[nodiscard]] const GrantedReward& grantedReward() const { return granted_; }
+    // 打赢之后每位上场伙伴实际加了多少默契（伙伴 id → 加了几点，按天的上限之后可能是 0）。
+    // 没打赢、或这一场没有伙伴时为空。
+    [[nodiscard]] const std::map<std::string, int>& bondGained() const { return bondGained_; }
 
     // ---- 动作菜单：纯逻辑，公开供无头测试直接驱动 ----
 
@@ -204,6 +218,12 @@ public:
     // 末项固定是「返回」。
     [[nodiscard]] static std::vector<ui::ListItem> buildWeaponItems(
         const core::battle::BattleState& battle, int actorIndex, std::vector<int>& categories);
+
+    // 合招那一级：与谁合、合哪一门（伙伴改版 3.3）。partners 与行同序（另一位的单位下标）。末项固定是「返回」。
+    // 每一行的可否与理由来自 refusePlayerAction（默契不够、劲不够、对方已行动……），这里不自己判。
+    [[nodiscard]] static std::vector<ui::ListItem> buildDuoItems(
+        const core::GameData& data, const core::GameState& state, const core::battle::BattleState& battle,
+        int actorIndex, std::vector<int>& partners);
 
     // 法术列表 = 行动者自己那份清单 ∩ 本场登记表。ids 与列表同序。末项固定是「返回」。
     [[nodiscard]] static std::vector<ui::ListItem> buildMagicItems(
@@ -256,6 +276,7 @@ private:
     // ---- 菜单内部 ----
     void enterRoot(Application& app);
     void enterWeapon(Application& app);
+    void enterDuo(Application& app);
     void enterMagic(Application& app);
     void enterItem(Application& app);
     void enterTarget(Application& app);
@@ -291,6 +312,7 @@ private:
     bool settled_ = false;
     bool finished_ = false;
     GrantedReward granted_;
+    std::map<std::string, int> bondGained_;
     // 这一场建没建韩立（契约 docs/interfaces-p3-ch05.md 第 2 节）。编成开了 hero_absent
     // 就是假：finish() 据此一个字节也不往存档里写（他在睡觉，0 号不是他）。
     bool heroPresent_ = true;
@@ -304,6 +326,7 @@ private:
     std::vector<std::string> menuIds_;    // 与法术/物品列表同序
     std::vector<int> menuCategories_;     // 与兵刃列表同序
     std::vector<int> menuTargets_;        // 与目标列表同序
+    std::vector<int> menuPartners_;       // 与合招列表同序（另一位的单位下标）
     std::string feedback_;
     int boost_ = 0;
 

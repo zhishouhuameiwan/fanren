@@ -124,11 +124,7 @@ void appendRing(std::vector<engine::Vertex>& mesh, float cx, float cy, float rx,
     }
 }
 
-[[nodiscard]] RectF lookFrameRect(const BattleLook& look, int frame) {
-    const int cols = std::max(1, look.cols);
-    return RectF{static_cast<float>((frame % cols) * look.frameW), static_cast<float>((frame / cols) * look.frameH),
-                 static_cast<float>(look.frameW), static_cast<float>(look.frameH)};
-}
+[[nodiscard]] RectF lookFrameRect(const BattleLook& look, int frame) { return battleLookFrameRect(look, frame); }
 
 }  // namespace
 
@@ -140,12 +136,17 @@ BattleLook battleLookFor(const SpriteIndex& index, const std::string& battleId, 
                          const ChapterDone& chapterDone) {
     BattleLook look;
     const auto fromSheet = [&look](const CharacterSheet& sheet) {
-        look.file = sheet.file;
-        look.frameW = sheet.frameW;
-        look.frameH = sheet.frameH;
-        look.cols = sheet.cols;
-        look.footY = sheet.footY;
-        look.headY = sheet.headY;
+        // 战斗帧的文件、格子、脚底、头顶一律经 SpriteAtlas 的 battleSheet* 取（伙伴改版 2.5）：
+        // 写了 battle_sheet 的表在另一张图上；没写的就是这张表自己，与改版前逐项相同。
+        const RectF cell = battleSheetFrameRect(sheet, 0);
+        look.file = battleSheetFile(sheet);
+        look.frameW = static_cast<int>(cell.w);
+        look.frameH = static_cast<int>(cell.h);
+        look.cols = 0;   // 人物表的格子由 sheet 管（battle_sheet 的列数与走路图不同），不在这里另存一份
+        look.footY = battleSheetFootY(sheet);
+        look.headY = battleSheetHeadY(sheet);
+        look.scale = sheet.battleScale;
+        look.sheet = sheet;
         look.poses = sheet.battle;
         look.facing = sheet.battleFacing;
         look.floating = false;
@@ -202,7 +203,19 @@ bool battleFlip(const BattleLook& look, bool ally) {
     return look.facing != wanted;
 }
 
-float battleScale(bool boss) { return boss ? 5.f : 4.f; }
+float battleScale(bool boss) { return battleScale(4, boss); }
+
+float battleScale(int sheetScale, bool boss) {
+    const int base = std::max(1, sheetScale);
+    return static_cast<float>(boss ? base + base / 4 : base);
+}
+
+RectF battleLookFrameRect(const BattleLook& look, int frame) {
+    if (look.sheet) return battleSheetFrameRect(*look.sheet, frame);
+    const int cols = std::max(1, look.cols);
+    return RectF{static_cast<float>((frame % cols) * look.frameW), static_cast<float>((frame / cols) * look.frameH),
+                 static_cast<float>(look.frameW), static_cast<float>(look.frameH)};
+}
 
 // ---------------------------------------------------------------------------
 // 内部结构
@@ -322,7 +335,7 @@ BattleView::BattleView(Application& app, const core::battle::BattleState& battle
         Actor& a = actors_[i];
         a.look = battleLookFor(index, battleId, units[i].id, chapterDone);
         a.ally = units[i].ally;
-        a.scale = battleScale(!units[i].ally && looksLikeBoss(units[i]));
+        a.scale = battleScale(a.look.scale, !units[i].ally && looksLikeBoss(units[i]));
         a.flip = battleFlip(a.look, units[i].ally);
         a.phase = static_cast<float>(i) * 0.37f;
         if (!a.look.file.empty()) a.tex = e.loadTexture("art/sprites/" + a.look.file);
@@ -540,10 +553,36 @@ void BattleView::onAct(const BattleEvent& e) {
         case ActionKind::Charge:
             a.chargeFlare = 0.6f;
             break;
+        case ActionKind::Duo: {
+            // 合招：发起人起势、光起；另一位由紧跟着的 DuoJoin（onDuoJoin）一起起势。
+            a.casting = true;
+            const StrikeLook look = strikeLook(e.category);
+            addEffect(FxSheetId::Glow, bodyCenter(e.actor), 2.6f, look.tint, false, 0.f, 0.45f);
+            eng_.playSfx(castSfx(e.category));
+            break;
+        }
         case ActionKind::Defend:
         case ActionKind::Escape:
             break;
     }
+}
+
+void BattleView::onChase(const BattleEvent& e) {
+    // 与普攻那一手同一套演法：别人收势，追的那一位冲出去，刀光由接着的 Hit 落下。
+    for (std::size_t i = 0; i < actors_.size(); ++i) {
+        if (static_cast<int>(i) == e.actor) continue;
+        actors_[i].lungeOut = false;
+        actors_[i].casting = false;
+        actors_[i].aura = 0;
+    }
+    if (!validUnit(e.actor)) return;
+    actors_[static_cast<std::size_t>(e.actor)].lungeOut = true;
+}
+
+void BattleView::onDuoJoin(int unit) {
+    if (!validUnit(unit)) return;
+    actors_[static_cast<std::size_t>(unit)].casting = true;
+    addEffect(FxSheetId::Glow, bodyCenter(unit), 2.6f, Color{255, 222, 140, 255}, false, 0.f, 0.45f);
 }
 
 void BattleView::onBoost(int unit, int level) {

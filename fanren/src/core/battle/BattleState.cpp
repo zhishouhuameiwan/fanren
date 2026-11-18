@@ -18,8 +18,9 @@ constexpr std::int64_t kOrderScale = 2520;
 
 }  // namespace
 
-void BattleState::setup(std::vector<Unit> units, std::uint32_t seed) {
+void BattleState::setup(std::vector<Unit> units, std::uint32_t seed, SetupOptions options) {
     units_ = std::move(units);
+    preemptive_ = options.preemptive;
     magics_.clear();
     items_.clear();
     order_.clear();
@@ -50,7 +51,7 @@ void BattleState::setup(std::vector<Unit> units, std::uint32_t seed) {
     }
 
     // ---- 破势与蓄劲的开局值：同样由编成推出来，不信调用方传进来的局面 ----
-    // 架势开场是满的；劲我方 1 点、敌方 0；破势、守势、蓄势一概没有。已揭开的破绽
+    // 架势开场是满的；劲我方 1 点（先手再多 1 点）、敌方 0；破势、守势、蓄势一概没有。已揭开的破绽
     // 只收 weaknesses 里真有的那几样（调用方从存档里读进来的可能比这个单位多）。
     for (Unit& u : units_) {
         u.acted = false;
@@ -59,13 +60,15 @@ void BattleState::setup(std::vector<Unit> units, std::uint32_t seed) {
         u.revealed &= u.weaknesses;
         u.tested |= u.revealed;
         u.breakRecoverRound = 0;
-        u.bp = u.ally ? kBpStart : 0;
+        u.bp = u.ally ? kBpStart + (preemptive_ ? kPreemptiveBonusBp : 0) : 0;
         u.boosted = false;
         u.guarding = false;
         u.priority = false;
         u.actions = std::max(1, u.actions);
         u.charging = false;
         u.roundsActed = 0;
+        u.chasedRound = 0;
+        u.duoSpentRound = 0;
     }
 
     // 种子是本模块唯一的随机来源，存档回放靠它复现。
@@ -170,9 +173,13 @@ std::vector<int> BattleState::computeOrder(int roundNumber) const {
     struct Entry {
         int unit = 0;
         int slot = 0;
+        bool ambush = false;      // 先手（偷袭得手）：第一回合我方全员排在所有敌人之前
         bool first = false;       // 防御给的「下回合先手」
         std::int64_t key = 0;
     };
+    // 先手只管第一回合。它是单独的一个键，排在防御的先手之前：两样都是「我方提前」，
+    // 但防御的那一位是「下回合最前」，偷袭是「第一回合我方全员在敌人之前」，我方内部仍按身法排。
+    const bool ambushRound = preemptive_ && roundNumber == 1;
     std::vector<Entry> entries;
     for (std::size_t i = 0; i < units_.size(); ++i) {
         const Unit& u = units_[i];
@@ -186,12 +193,13 @@ std::vector<int> BattleState::computeOrder(int roundNumber) const {
             const std::int64_t key =
                 static_cast<std::int64_t>(std::max(0, u.speed)) * jitter * (slots - k) * kOrderScale /
                 slots;
-            entries.push_back(Entry{index, k, u.priority && k == 0, key});
+            entries.push_back(Entry{index, k, ambushRound && u.ally, u.priority && k == 0, key});
         }
     }
-    // 全序：先手标记、排序键、单位下标、第几次行动。扰动之后同速几乎不再相等，
-    // 真相等时按下标——回放不能因为排序不稳而分叉。
+    // 全序：偷袭的先手、防御的先手、排序键、单位下标、第几次行动。扰动之后同速几乎不再相等，
+    // 真相等时按下标——回放不能因为排序不稳而分叉。没有先手时 ambush 全为假，序与改版前逐位相同。
     std::sort(entries.begin(), entries.end(), [](const Entry& a, const Entry& b) {
+        if (a.ambush != b.ambush) return a.ambush;
         if (a.first != b.first) return a.first;
         if (a.key != b.key) return a.key > b.key;
         if (a.unit != b.unit) return a.unit < b.unit;
@@ -258,9 +266,9 @@ void BattleState::beginRound() {
 void BattleState::skipIneligibleActors() {
     while (orderPos_ < order_.size()) {
         const Unit& u = unitRef(order_[orderPos_]);
-        if (u.alive() && !u.broken()) break;
+        if (u.alive() && !u.broken() && u.duoSpentRound != round_) break;
         // 这一回合里刚被打倒、刚被打破势的，排到它时一律跳过：破势的那一回合
-        //「若还没出手就失去本回合」说的就是这里。
+        //「若还没出手就失去本回合」说的就是这里。被合招用掉了这一回合行动的那一位也跳过。
         ++orderPos_;
     }
 }

@@ -20,6 +20,10 @@ constexpr float kAllyStepX = 64.f;
 constexpr float kAllyMidY = 490.f;
 constexpr float kAllyStepY = 70.f;
 constexpr float kAllyStepYCrowded = 56.f;   // 四个人以上时收紧，最下面那位别踩进面板
+// 四个人以上：面板加高了（partyPanelRect），最下面那位的脚踩在面板上沿往上 kAllyPanelGap 处，
+// 最上面那位不高过 kAllyTopY（背景地平线 y≈384 之下），中间均分（取整）、步长不超过 kAllyStepYCrowded。
+constexpr float kAllyTopY = 402.f;
+constexpr float kAllyPanelGap = 18.f;
 // 敌人：前后两排交错（后排 y 445、前排 y 572），前排插在后排两人之间的空当里。
 // 为什么不是三人一列的斜队：每人脚下还压着一行架势 / 破绽（约 50 像素），三排一列时上一排那一行
 // 正好盖住下一排的上半身（截图里看得清清楚楚）；两排交错时它落在前排两人的肩膀之间。
@@ -32,7 +36,7 @@ constexpr StagePoint kEnemyAlone{400.f, 520.f};
 
 // ---- 前冲（lungeReach）----
 constexpr float kLungeDistance = 70.f;   // 往对面冲多远：刀光落下时人已经站在前面了
-constexpr float kLungeFloorY = 600.f;    // 往下让最多让到这里：队伍面板上沿 588，脚尖压进去一点点只在冲的那一下
+constexpr float kLungeBelowPanel = 12.f;   // 往下让最多让到面板上沿之下这么多（3 人以内：588 + 12 = 600）
 
 // ---- 特效贴图表（assets/art/fx/index.json）----
 constexpr std::array<FxSheet, static_cast<std::size_t>(FxSheetId::Count)> kFxSheets{{
@@ -83,9 +87,18 @@ constexpr engine::Color kSteelTint{210, 220, 232, 255};
 StagePoint standPoint(bool ally, int rank, int count) {
     const int n = std::max(1, count);
     if (ally) {
-        const float step = n >= 4 ? kAllyStepYCrowded : kAllyStepY;
-        return StagePoint{kAllyX + static_cast<float>(rank) * kAllyStepX,
-                          kAllyMidY - static_cast<float>(n - 1) * step / 2.f + static_cast<float>(rank) * step};
+        const float x = kAllyX + static_cast<float>(rank) * kAllyStepX;
+        if (n <= kPartyPanelBaseRows) {
+            // 3 人以内：与改版前逐像素相同。
+            return StagePoint{x, kAllyMidY - static_cast<float>(n - 1) * kAllyStepY / 2.f +
+                                     static_cast<float>(rank) * kAllyStepY};
+        }
+        const float bottom = partyPanelRect(n).y - kAllyPanelGap;
+        // 步长取整：站位都落在整数像素上，前冲往下让的那一截（lungeReach）也就是整数，「头顶恰好与前一位的
+        // 脚底齐平」不会因为浮点舍入差一丝而算成叠上。
+        const float step =
+            std::min(kAllyStepYCrowded, std::floor((bottom - kAllyTopY) / static_cast<float>(n - 1)));
+        return StagePoint{x, bottom - static_cast<float>(n - 1 - rank) * step};
     }
     if (n == 1) return kEnemyAlone;
     const float spacing = n >= 5 ? kEnemySpacingCrowded : kEnemySpacing;
@@ -130,9 +143,21 @@ StagePoint lungeReach(const std::vector<Unit>& units, const std::vector<StagePoi
         side = std::max(side, body.h - rise);   // 让到我的头顶低过他的脚底
         stop = std::min(stop, ahead - apart);
     }
-    const float room = std::max(0.f, kLungeFloorY - at.y);
+    const float room = std::max(0.f, lungeFloorY(allyCount(units)) - at.y);
     if (side <= room) return StagePoint{-kLungeDistance, side};
     return StagePoint{-std::max(0.f, stop), room};
+}
+
+engine::RectF partyPanelRect(int allyRows) {
+    const int extra = std::clamp(allyRows, kPartyPanelBaseRows, kPartyPanelMaxRows) - kPartyPanelBaseRows;
+    const float grow = static_cast<float>(extra) * kPartyRowH;
+    return engine::RectF{kPartyPanelRect.x, kPartyPanelRect.y - grow, kPartyPanelRect.w, kPartyPanelRect.h + grow};
+}
+
+float lungeFloorY(int allyRows) { return partyPanelRect(allyRows).y + kLungeBelowPanel; }
+
+int allyCount(const std::vector<Unit>& units) {
+    return static_cast<int>(std::count_if(units.begin(), units.end(), [](const Unit& u) { return u.ally; }));
 }
 
 // ---------------------------------------------------------------------------

@@ -4,10 +4,12 @@
 #include <cstddef>
 #include <cstdint>
 #include <limits>
+#include <set>
 #include <string>
 #include <utility>
 #include <vector>
 
+#include "core/rules/Companions.h"
 #include "core/rules/Realm.h"
 #include "game/Application.h"
 #include "game/BattleHud.h"
@@ -110,6 +112,7 @@ constexpr int kMenuFeedbackH = 72;
         case BattleMenuMode::Item:   return "物品";
         case BattleMenuMode::Target: return "择敌";
         case BattleMenuMode::Weapon: return "兵刃";
+        case BattleMenuMode::Duo:    return "合招";
         case BattleMenuMode::Root:
         case BattleMenuMode::Closed: break;
     }
@@ -332,6 +335,7 @@ Unit makeHero(Application& app, bool mind) {
     Unit hero;
     hero.id = "hanli";
     hero.name = app.speakerName("hanli");
+    hero.hero = true;   // 追击、合招认的是这一位（伙伴改版 3.2、3.3）
     // 识海里比的是元神的体积，与肉身气血无关（kDevourPlayerVolume 的注释）。
     hero.maxHp = mind ? core::battle::kDevourPlayerVolume : std::max(1, app.state().maxHp);
     hero.hp = mind ? hero.maxHp : std::max(1, app.state().hp);
@@ -417,7 +421,24 @@ void BattleScene::buildFromSetup(Application& app, const core::BattleSetup& setu
     // 同伴跟着他走：他不在场，他们也不在（契约 2.2）。
     if (heroPresent_) addPartyUnits(app, units);
 
-    battle_.setup(std::move(units), seedFor(setup.id));
+    // 人数系数（伙伴改版 3.10）：编成写了 scale_by_party 才乘。人数是我方此刻上场的全部单位
+    //（韩立、编成里写死的友军、队员），乘的只有敌方的气血，架势不乘。编成里 wave > 0、开场还没入场的
+    // 我方单位也算在人数里——现在没有这样的编成；真写出来时要按「开场在场的」数，改这里。
+    if (setup.scaleByParty) {
+        const auto allies = static_cast<int>(
+            std::count_if(units.begin(), units.end(), [](const Unit& u) { return u.ally; }));
+        for (Unit& unit : units) {
+            if (unit.ally) continue;
+            unit.maxHp = core::battle::scaledPartyHp(unit.maxHp, allies);
+            unit.hp = unit.maxHp;
+        }
+    }
+
+    // 先手（伙伴改版 3.4）：开场从 Application::battleStart() 读。只认开的就是这一场的那一份——截图口直接
+    // 压进来的战斗场景、上一仗留下的参数都不算。
+    core::battle::SetupOptions options;
+    options.preemptive = app.battleStart().preemptive && app.battleStart().battleId == battleId_;
+    battle_.setup(std::move(units), seedFor(setup.id), options);
     battle_.setCanEscape(setup.canEscape);
     // 吞噬模式挂在地形上。梦里没有法术、没有物品、没有架势与劲、不能逃。
     battle_.setDevourMode(mind);
@@ -439,6 +460,11 @@ void BattleScene::registerFieldMagics(Application& app) {
         for (const std::string& id : unit.magics) {
             if (const core::Magic* magic = app.data().findMagic(id)) battle_.addMagic(*magic);
         }
+        // 上场伙伴的合招（伙伴改版 3.3）也登记：它只经「合招」那一项施放，不在任何人的 magics 清单里，
+        // 所以登记了也没有谁能把它当普通法术放（Unit::magicsExhaustive）。
+        if (!unit.duo.empty()) {
+            if (const core::Magic* magic = app.data().findMagic(unit.duo)) battle_.addMagic(*magic);
+        }
     }
 }
 
@@ -457,19 +483,49 @@ void BattleScene::registerBagItems(Application& app) {
     }
 }
 
-void BattleScene::addPartyUnits(Application& app, std::vector<Unit>& units) const {
-    for (const core::PartyMember& member : app.state().party) {
+std::vector<std::string> fieldedPartyRoles(const core::GameData& data, const core::GameState& state,
+                                           const std::vector<std::string>& alreadyOnField) {
+    std::vector<std::string> fielded;
+    int companions = 0;
+    for (const core::PartyMember& member : state.party) {
         if (!member.active) continue;   // 留着位置但不上场的同伴
-        // 同一个角色不得同时出现两次（契约第 1.4 节），编成里已写死的 ally 优先。
-        const bool already = std::any_of(units.begin(), units.end(), [&member](const Unit& u) {
-            return u.id == member.roleId;
-        });
-        if (already) continue;
-        const core::RoleTemplate* role = app.data().findRole(member.roleId);
-        if (role == nullptr) continue;
+        // 同一个角色不得同时出现两次（契约第 1.4 节），编成里已写死的单位优先。
+        const auto seen = [&member](const std::vector<std::string>& ids) {
+            return std::find(ids.begin(), ids.end(), member.roleId) != ids.end();
+        };
+        if (seen(alreadyOnField) || seen(fielded)) continue;
+        if (data.findRole(member.roleId) == nullptr) continue;
+        // 伙伴（伙伴改版 3.1）：前 kMaxCompanionsOnField 位上场。不是伙伴的（傀儡、化身、曲魂）不设上限。
+        if (!rules::companionOfRole(data.companions, member.roleId).empty()) {
+            if (companions >= core::battle::kMaxCompanionsOnField) continue;
+            ++companions;
+        }
+        fielded.push_back(member.roleId);
+    }
+    return fielded;
+}
+
+void BattleScene::addPartyUnits(Application& app, std::vector<Unit>& units) const {
+    std::vector<std::string> already;
+    already.reserve(units.size());
+    for (const Unit& u : units) already.push_back(u.id);
+    const std::map<std::string, core::Companion>& companions = app.data().companions;
+    for (const std::string& roleId : fieldedPartyRoles(app.data(), app.state(), already)) {
+        const auto member = std::find_if(app.state().party.begin(), app.state().party.end(),
+                                         [&roleId](const core::PartyMember& m) { return m.active && m.roleId == roleId; });
+        const core::RoleTemplate* role = app.data().findRole(roleId);
+        if (role == nullptr || member == app.state().party.end()) continue;
         Unit unit = unitFromRole(app.state(), *role, /*ally=*/true);
         // hp = -1 表示「按角色模板满血」；存下来的具体血量夹在 [1, maxHp]。
-        unit.hp = member.hp < 0 ? unit.maxHp : std::clamp(member.hp, 1, unit.maxHp);
+        unit.hp = member->hp < 0 ? unit.maxHp : std::clamp(member->hp, 1, unit.maxHp);
+        // 伙伴：追击、合招要的那几样，默契取开战这一刻的账（伙伴改版 3.2、3.3）。
+        if (const std::string id = rules::companionOfRole(companions, roleId); !id.empty()) {
+            const core::Companion& companion = companions.at(id);
+            unit.companion = id;
+            unit.bond = app.state().bondOf(id);
+            unit.canChase = companion.chase;
+            unit.duo = companion.duo;
+        }
         // 从前（战棋）这里要从主角出生点向外找一格空地；横版里站位由界面按顺序排，
         // 「站不下就不上场」这一条随之消失。
         units.push_back(std::move(unit));
@@ -574,6 +630,39 @@ std::vector<ui::ListItem> BattleScene::buildRootItems(const core::GameData& data
     escape.kind = ActionKind::Escape;
     escape.actorIndex = actorIndex;
     items.push_back(row("逃跑", {}, refusePlayerAction(state, battle, escape)));
+
+    // 合招（伙伴改版 3.3）：这一位有合招可出才有这一行（kBattleMenuDuo 的注释）。它也只是导航，
+    // 下一级列表此时一定不空；每一对出不出得来写在下一级的条目上。
+    if (validUnit(battle, actorIndex) && !battle.duoPartners(actorIndex).empty()) {
+        items.push_back(row("合招", {}, {}));
+    }
+    return items;
+}
+
+std::vector<ui::ListItem> BattleScene::buildDuoItems(const core::GameData& data, const core::GameState& state,
+                                                     const BattleState& battle, int actorIndex,
+                                                     std::vector<int>& partners) {
+    partners.clear();
+    std::vector<ui::ListItem> items;
+    if (validUnit(battle, actorIndex)) {
+        for (const int partner : battle.duoPartners(actorIndex)) {
+            Action probe;
+            probe.kind = ActionKind::Duo;
+            probe.actorIndex = actorIndex;
+            probe.partnerIndex = partner;
+            probe.magicId = battle.duoMagicOf(actorIndex, partner);
+            partners.push_back(partner);
+            const core::Magic* magic = data.findMagic(probe.magicId);
+            std::string detail = "与 " + battle.units()[static_cast<std::size_t>(partner)].name + " · 各耗劲 " +
+                                 std::to_string(core::battle::kDuoBpCost);
+            if (magic != nullptr) {
+                if (const std::string what = spellEffectLabel(*magic); !what.empty()) detail += " · " + what;
+            }
+            items.push_back(row(magic != nullptr ? magic->name : probe.magicId, detail,
+                                refuseOnAnyone(state, battle, probe, /*wantAlly=*/false)));
+        }
+    }
+    items.push_back(backRow());
     return items;
 }
 
@@ -679,7 +768,8 @@ std::vector<ui::ListItem> BattleScene::buildTargetItems(const core::GameState& s
     // 带 castMagic 的符箓按那门法术挑目标（契约 docs/interfaces-p3-ch07.md 2.5）：同施法一样只列敌人。
     const core::Item* item = shape.kind == ActionKind::Item ? battle.findItem(shape.magicId) : nullptr;
     const bool enemiesOnly = shape.kind != ActionKind::Item || (item != nullptr && !item->castMagic.empty());
-    const core::Magic* magic = shape.kind == ActionKind::Cast ? battle.findMagic(shape.magicId)
+    const core::Magic* magic = shape.kind == ActionKind::Cast || shape.kind == ActionKind::Duo
+                                   ? battle.findMagic(shape.magicId)
                                 : item != nullptr ? battle.findMagic(item->castMagic) : nullptr;
     const bool all = magic != nullptr && magic->target == core::MagicTarget::All;
     for (std::size_t i = 0; i < units.size(); ++i) {
@@ -727,6 +817,13 @@ void BattleScene::enterWeapon(Application& app) {
     menuList_.setItems(buildWeaponItems(battle_, battle_.currentActor(), menuCategories_));
 }
 
+void BattleScene::enterDuo(Application& app) {
+    menu_ = BattleMenuMode::Duo;
+    menuList_.reset();
+    menuList_.setPageSize(listPageRows(app.theme()));
+    menuList_.setItems(buildDuoItems(app.data(), app.state(), battle_, battle_.currentActor(), menuPartners_));
+}
+
 void BattleScene::enterMagic(Application& app) {
     menu_ = BattleMenuMode::Magic;
     menuList_.reset();
@@ -769,6 +866,7 @@ void BattleScene::closeMenu() {
     menuIds_.clear();
     menuCategories_.clear();
     menuTargets_.clear();
+    menuPartners_.clear();
     shape_ = Action{};
 }
 
@@ -779,9 +877,12 @@ void BattleScene::menuBack(Application& app) {
         case BattleMenuMode::Root:   closeMenu(); return;
         case BattleMenuMode::Weapon:
         case BattleMenuMode::Magic:
+        case BattleMenuMode::Duo:
         case BattleMenuMode::Item:   enterRoot(app); return;
         case BattleMenuMode::Target:
-            if (shape_.kind == ActionKind::Cast) {
+            if (shape_.kind == ActionKind::Duo) {
+                enterDuo(app);
+            } else if (shape_.kind == ActionKind::Cast) {
                 enterMagic(app);
             } else if (shape_.kind == ActionKind::Item) {
                 enterItem(app);
@@ -853,9 +954,34 @@ bool BattleScene::menuChoose(Application& app, int index) {
                     action.actorIndex = battle_.currentActor();
                     return issueFromMenu(app, action);
                 }
+                case kBattleMenuDuo:
+                    shape_ = Action{};
+                    shape_.kind = ActionKind::Duo;
+                    enterDuo(app);
+                    return true;
                 default:
                     return false;
             }
+        case BattleMenuMode::Duo: {
+            // 末项是「返回」，落在 menuPartners_ 之外。
+            if (static_cast<std::size_t>(index) >= menuPartners_.size()) {
+                enterRoot(app);
+                return true;
+            }
+            shape_.kind = ActionKind::Duo;
+            shape_.partnerIndex = menuPartners_[static_cast<std::size_t>(index)];
+            shape_.magicId = battle_.duoMagicOf(battle_.currentActor(), shape_.partnerIndex);
+            // 看破一类的合招照的是整个场子：选中就出，与法术那一级同一个口径。合招不吃劲，按 0 发。
+            const core::Magic* magic = app.data().findMagic(shape_.magicId);
+            if (magic != nullptr && magic->effect == core::MagicEffect::Reveal) {
+                shape_.actorIndex = battle_.currentActor();
+                shape_.targetIndex = -1;
+                shape_.boost = 0;
+                return issueFromMenu(app, shape_);
+            }
+            enterTarget(app);
+            return true;
+        }
         case BattleMenuMode::Weapon:
             if (static_cast<std::size_t>(index) >= menuCategories_.size()) {
                 enterRoot(app);
@@ -1015,6 +1141,17 @@ void BattleScene::settle(Application& app) {
     if (const core::BattleSetup* setup = app.battleSetup(battleId_)) {
         granted_ = grantBattleReward(app.state(), setup->reward, battle_.phase());
     }
+
+    // 默契（伙伴改版 2.2）：打赢了，场上每一位伙伴「并肩打赢一仗」记一笔。每天的上限在 rules::addBattleBond
+    // 里，这里不另算。倒下了的也算上过场、并肩打过。同一位伙伴只记一次。
+    bondGained_.clear();
+    if (battle_.phase() == BattlePhase::Won && heroPresent_ && !battle_.devourMode()) {
+        std::set<std::string> counted;
+        for (const Unit& unit : units) {
+            if (!unit.ally || unit.companion.empty() || !counted.insert(unit.companion).second) continue;
+            bondGained_[unit.companion] = rules::addBattleBond(app.state().bonds[unit.companion], app.state().day);
+        }
+    }
 }
 
 void BattleScene::finish(Application& app) {
@@ -1097,7 +1234,10 @@ double BattleScene::playEvent(Application& app, const BattleEvent& e) {
             stageActor_ = e.actor;
             view.onAct(e);
             // 施法多给一拍：剑指、光起，再落下去。
-            return static_cast<core::battle::ActionKind>(e.value) == core::battle::ActionKind::Cast ? 0.4 : 0.3;
+            return static_cast<ActionKind>(e.value) == ActionKind::Cast ||
+                           static_cast<ActionKind>(e.value) == ActionKind::Duo
+                       ? 0.4
+                       : 0.3;
         case BattleEventKind::BoostSpent:
             stageActor_ = e.actor;
             view.say(e.actor, app.text("ui.battle.boost") + " ×" + std::to_string(e.value), app.theme().goldBright);
@@ -1215,6 +1355,18 @@ double BattleScene::playEvent(Application& app, const BattleEvent& e) {
             view.onStagger(e.target, before);
             return 0.35;
         }
+        case BattleEventKind::Chase:
+            // 追击（伙伴改版 3.2）：追的那一位冲上去补一下，接下来那条 Hit 照常演。
+            lastLog_ = stageWords(wordingStage(app.state()), e.text);
+            stageActor_ = e.actor;
+            view.onChase(e);
+            view.say(e.actor, "追击", app.theme().goldBright);
+            return 0.3;
+        case BattleEventKind::DuoJoin:
+            // 合招（伙伴改版 3.3）：另一位也起势，头上飘一句「合招」（发起人那一手由 Act 演）。
+            view.onDuoJoin(e.target);
+            view.say(e.target, "合招", app.theme().goldBright);
+            return 0.3;
     }
     return 0.1;
 }
