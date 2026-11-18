@@ -13,15 +13,16 @@
 // 一帧的渲染次序（照 FxDemoScene 的调用次序写）：
 //   后处理 beginScene
 //     ① 下层：烘焙 below.png（缺图 → MapArt 旧图元：ground / overlay / building，按 48px 画）
-//     ② 地面标记：传送箭头与门光、可交互处的闪光、目标光圈、水面波光（加色）
-//     ③ 人物脚下柔影
-//     ④ 按脚底 y 排序：设施、NPC、主角（精灵；缺图 → MapArt::drawFigure / 旧设施底板）
+//     ② 地面标记：开着的机关、传送箭头与门光、可交互处的闪光、目标光圈、水面波光（加色）
+//     ③ 人物脚下柔影（NPC、明雷、跟随者、主角）
+//     ④ 按脚底 y 排序：设施、NPC、关着的机关、宝箱、采集点、明雷、跟随者、主角（精灵按每张表自己的倍数；
+//        缺图 → MapArt::drawFigure / 旧设施底板 / 新对象的占位底板，见 WorldProps.h）
 //     ⑤ 上层：烘焙 above.png，主角周围约 2 格半径渐隐（缺图 → front 层旧图元，同样渐隐）
 //     ⑥ 粒子：满屏落下的（花瓣、落叶）与世界里的（尘埃、萤火、薄雾、定点火星）
 //     ⑦ 辉光通道：灯的光晕、设施的发光帧、箭头与闪光、目标光圈、萤火
 //     ⑧ 点光源：meta.json 的灯 + 主角随行微光（夜 / 黄昏 / 室内）
 //   后处理 endScene（光照 → 辉光 → 景深 → 暗角 → 调色）
-//   UI：名牌、头顶气泡、目标菱形或边缘箭头、地名横幅、目标框、存盘提示、换图淡入的黑幕
+//   UI：名牌、头顶气泡、明雷头顶标记、目标菱形或边缘箭头、地名横幅、目标框、存盘提示、换图淡入的黑幕
 #include <array>
 #include <cstdint>
 #include <map>
@@ -37,6 +38,7 @@
 #include "game/MapVisual.h"
 #include "game/SpriteAtlas.h"
 #include "game/WorldHud.h"
+#include "game/WorldProps.h"
 
 namespace fanren::game {
 
@@ -86,12 +88,26 @@ public:
     [[nodiscard]] Vec2f position() const;
     [[nodiscard]] bool moving() const { return elapsed_ < duration_; }
     [[nodiscard]] Vec2f target() const { return to_; }
+    // 这一步已经滑了多少秒（没在滑时是整步的时长或 0）。跟随者起步时拿主角的这个数对齐进度。
+    [[nodiscard]] float elapsed() const { return elapsed_; }
 
 private:
     Vec2f from_{};
     Vec2f to_{};
     float elapsed_ = 0.f;
     float duration_ = 0.f;
+};
+
+// 走路帧的姿态：滑步在走就播走路帧，停下后再留 kWalkGraceSeconds 才回站姿（按住方向键时两步之间那不到一帧的
+// 空当，腿不闪回站姿）。主角与每位跟随者各一份，同一套规矩。
+struct WalkPose {
+    bool walking = false;
+    float walkClock = 0.f;      // 这一段连续走路累计的秒数（walkFrame 的输入）
+    float idleClock = 0.f;
+    // moving：滑步此刻还没走完。startClock：起步那一刻的 walkClock——直接落在「迈甲」那一帧，
+    // 从站立帧起播的话第一格是端着架子平移过去的。
+    void update(bool moving, float dt, float startClock);
+    void stop();
 };
 
 // 深度排序键：先比脚底的 y（越靠下越后画、越在前面），同一行再从左到右，最后按登记次序。
@@ -203,6 +219,55 @@ struct WorldFrame {
 };
 
 // ---------------------------------------------------------------------------
+// 跟随者的滑步（伙伴改版 3.7）：帧里只给格，滑不滑由画面自己判——与主角同一个做法
+// ---------------------------------------------------------------------------
+// 每位跟随者一个 StepSlide：格变了一格就滑过去，变了不止一格就瞬移。整列清掉重来（全体瞬移、重排）的三种情形：
+// 主角这一帧是瞬移的（开场、换图、脚本在同图上挪人——epoch 变了）、名单变了（人数或次序或角色 id）、第一次见。
+class FollowerTrack {
+public:
+    struct Slot {
+        std::string roleId;
+        core::Point cell{};
+        int facing = 2;
+        StepSlide slide;
+        WalkPose pose;
+    };
+
+    // epoch：主角最近一次瞬移的序号（WorldView 自己数）。leader / leaderPose：主角此刻的滑步与走路帧——
+    // 这一刻起步的跟随者直接对齐主角这一步已经走过的进度（主角没在滑就从 0 起），走路帧也跟主角同一拍。
+    // 不拿「上一帧 advance 推了多少秒」去猜：游戏里 WorldScene::update 先 advance、后 tryStep，主角要到 render 里
+    // 才起步、那一刻进度是 0；测试里也可能反过来。对齐主角此刻的进度，两种次序都同一帧起步、同一帧到。
+    void sync(const std::vector<WorldFrame::Follower>& followers, unsigned epoch, const StepSlide& leader,
+              const WalkPose& leaderPose);
+    void advance(float dt, float walkStart);
+    void clear();
+    [[nodiscard]] const std::vector<Slot>& slots() const { return slots_; }
+
+private:
+    std::vector<Slot> slots_;
+    unsigned epoch_ = 0;
+    bool seen_ = false;
+};
+
+// ---------------------------------------------------------------------------
+// 立着的东西按什么次序画（纯函数，不开窗口可测）
+// ---------------------------------------------------------------------------
+// 世界像素（48px 一格）里的脚底点排序：设施、NPC、关着的机关、宝箱、采集点、明雷、跟随者、主角一起排。
+// 登记次序就是上面这个次序——叠在主角格上的跟随者（换图之后）排在主角前面画，被主角挡住。
+// 开着的机关不在这里：它画在地面一层（WorldProps.h 的 gateStands）。
+// view 是镜头看得见的那块（世界像素）：NPC、新对象、跟随者出了它左右两格、上一格、下两格就不排（设施照旧全排，
+// 由 drawFacility 自己裁）。
+struct WorldDrawItem {
+    enum class Kind { Facility, Npc, Player, Follower, Chest, Gather, Gate, Foe };
+    DepthKey key;
+    Kind kind = Kind::Npc;
+    std::size_t index = 0;      // 在各自列表（frame.facilities / npcs / chests … / 跟随者）里的下标；主角恒为 0
+};
+[[nodiscard]] std::vector<WorldDrawItem> depthOrder(const WorldFrame& frame, Vec2f playerCell,
+                                                    const std::vector<Vec2f>& followerCells,
+                                                    const engine::RectF& view);
+
+// ---------------------------------------------------------------------------
 // 渲染器本体
 // ---------------------------------------------------------------------------
 class WorldView {
@@ -221,10 +286,15 @@ public:
 
     void render(Application& app, const WorldFrame& frame);
 
+    // 跟着帧里的跟随者名单与格走一步（伙伴改版 3.7）：render 每帧开头自己调；无头下没有 render，
+    // 测试直接调它，与 render 走的是同一条。
+    void trackFollowers(Application& app, const WorldFrame& frame);
+
     // ---- 给测试与调试看的状态 ----
     [[nodiscard]] Vec2f playerCell() const { return player_.position(); }
     [[nodiscard]] bool playerMoving() const { return player_.moving(); }
-    [[nodiscard]] bool walking() const { return walking_; }
+    [[nodiscard]] bool walking() const { return pose_.walking; }
+    [[nodiscard]] const std::vector<FollowerTrack::Slot>& followers() const { return followers_.slots(); }
     [[nodiscard]] Vec2f camera() const { return camera_; }
     [[nodiscard]] float fadeAlpha() const { return mapFadeAlpha(fadeClock_); }
     [[nodiscard]] float bannerOpacity() const { return bannerAlpha(bannerClock_, bannerAfterFade_); }
@@ -260,15 +330,8 @@ private:
         std::array<bool, kChapterSlots> chapterDone{};
     };
 
-    struct Drawable {
-        enum class Kind { Facility, Npc, Player };
-        DepthKey key;
-        Kind kind = Kind::Npc;
-        std::size_t index = 0;      // frame.facilities / frame.npcs 里的下标
-    };
-
     void sync(Application& app);
-    void updateWalk(float dt);
+    [[nodiscard]] float walkStartClock() const;
     [[nodiscard]] Vec2f focusCell() const;
 
     void ensureAtlas(Application& app);
@@ -276,7 +339,8 @@ private:
     void releaseMap(engine::Engine& engine);
     engine::TextureId loadBaked(engine::Engine& engine, const core::TileMap& map, const char* file);
     void setupParticles(const core::TileMap& map);
-    engine::TextureId sheetTexture(engine::Engine& engine, const CharacterSheet& sheet);
+    // 人物表与敌人表的图（file 相对 art/sprites/），按文件缓存；载不进来警告一次、返回无效句柄。
+    engine::TextureId sheetTexture(engine::Engine& engine, const std::string& file);
     [[nodiscard]] const ObjectSprite* objectSprite(const std::string& id) const;
     void warnOnce(const std::string& key, const std::string& message);
 
@@ -301,7 +365,15 @@ private:
     void drawShadows(engine::Engine& engine, const WorldFrame& frame, const Viewport& vp);
     void drawSorted(engine::Engine& engine, Application& app, const WorldFrame& frame, const Viewport& vp);
     void drawCharacter(engine::Engine& engine, const std::string& roleId, bool player, float footX,
-                       float footY, int facing, bool moving, const Viewport& vp);
+                       float footY, int facing, bool moving, float walkClock, const Viewport& vp);
+    // 四种新对象（伙伴改版 2.4、第 6 节）。宝箱、采集点、机关按对象矩形底边中点落地。
+    void drawProp(engine::Engine& engine, const core::MapObject& object, const char* spriteId,
+                  const PropPlaceholder& placeholder, const Viewport& vp);
+    void drawOpenGates(engine::Engine& engine, const WorldFrame& frame, const Viewport& vp);
+    void drawFoe(engine::Engine& engine, const WorldFrame::Foe& foe, const Viewport& vp);
+    [[nodiscard]] float foeHeadTop(const WorldFrame::Foe& foe, float footY, const Viewport& vp) const;
+    void drawFoeMarks(engine::Engine& engine, const WorldFrame& frame, const Viewport& vp);
+    void warnMissingProp(const char* spriteId);
     void drawFacility(engine::Engine& engine, const WorldFrame::Facility& facility, const Viewport& vp,
                       bool emissivePass);
     void drawParticles(engine::Engine& engine, const Viewport& vp, bool emissivePass);
@@ -322,9 +394,9 @@ private:
     std::string seenMap_;
     core::Point lastCell_{};
     StepSlide player_;
-    bool walking_ = false;
-    float walkClock_ = 0.f;
-    float idleClock_ = 0.f;
+    WalkPose pose_;                 // 主角的走路帧
+    unsigned snapEpoch_ = 0;        // 主角每瞬移一次加一：跟随者据此整列瞬移
+    FollowerTrack followers_;
     Vec2f camera_{};
     float clock_ = 0.f;             // 视觉时钟：闪烁、帧动画、波光的相位
     float fadeClock_ = kMapFadeSeconds;
@@ -346,7 +418,7 @@ private:
     hud::PlaceBanner banner_;
     hud::Geometry geometry_;
     std::set<std::string> warned_;
-    std::vector<Drawable> drawables_;   // 每帧复用
+    std::vector<WorldDrawItem> drawables_;   // 每帧复用
     std::vector<engine::RectF> plates_; // 本帧已经落下的名牌（后来的避开它们往上叠）
 };
 
