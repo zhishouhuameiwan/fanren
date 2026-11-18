@@ -249,6 +249,10 @@ void MenuScene::rebuildCompanionLists(Application& app) {
         if (rules::companionOfRole(data.companions, member.roleId).empty()) {
             row.detail = app.text("ui.menu.party.fixed");
         } else {
+            // 口径差（集成时核出来的，先不改）：这里只看 active，第 4 位起仍是 active 的伙伴也写「上场」；
+            // 按契约 3.1 她不上场——战斗只带 active 的前 kMaxCompanionsOnField（3）位（BattleScene 的
+            // fieldedPartyRoles）。P1 的名册不超过 3 人，这一行不会说错；名册超过 3 人的那一章（后备换人，P3）
+            // 要改成问 fieldedPartyRoles，或写成「候补」。
             row.detail = app.text(member.active ? "ui.menu.party.on" : "ui.menu.party.off");
         }
         partyRows.push_back(std::move(row));
