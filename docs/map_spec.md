@@ -235,7 +235,8 @@
 #### 历练图
 
 图名以 `lilian_` 开头，列在历练地定义 `data/lilian/<site>.json` 的 `maps` 里（形状见 D 路的 `src/io/LilianLoader.h`）。
-图上不许有存档点、打坐点（`kind=save` / `meditate`），机关不许写 `opens`（规则 39）。出口也是一处 `kind=lilian` 的设施。
+图上不许有存档点、打坐点（`kind=save` / `meditate`），机关不许写 `opens`（规则 39）。出口也是一处 `kind=lilian` 的设施，
+从入口一定要走得到一处，不必每张图都有。
 
 ---
 
@@ -447,8 +448,9 @@
 38. **插话**：`require_party` 是一个伙伴 id；写成角色 id 的、谁都不是的都报。
 39. **历练**：`kind=lilian` 的设施有 `site`、`data/lilian/<site>.json` 存在；历练地用到的图（`maps`、`entry.map`）都以 `lilian_` 开头、
     都存在（`entry.map` 也算）；`lilian_` 图上没有存档点、打坐点，机关没写 `opens`；历练图上明雷的编成修为奖励为 0；
-    `chance` 只写在历练图的 `foe` / `chest` 上、是 1–99 的整数；历练地用到的每张图上至少有一处 `kind=lilian` 的设施（出口：
-    历练里面朝它按确认就出去，里面又不能存档）。规则 13、18、19 的世界推演认得历练入口这条边：走得到的 `lilian` 设施
+    `chance` 只写在历练图的 `foe` / `chest` 上、是 1–99 的整数；从 `entry.spawn` 出发走得到这处历练地里至少一处
+    `kind=lilian` 的设施（出口：历练里面朝它按确认就出去，里面又不能存档；跨图按这处历练地自己的传送点连起来算，
+    机关按关着算。不要求每张图都有——一间只有首领的内室没有出口是正常的设计）。规则 13、18、19 的世界推演认得历练入口这条边：走得到的 `lilian` 设施
     通到它那处历练地的 `(entry.map, entry.spawn)`（规则 19 另要 `unlock_flag` 拿得到）；入口图上「从本图入口走得到」从 `entry.spawn` 算。
 40. **手绘表清单**（`assets/art/sprites/hd/index.json`，不在就不查）：`files` 里每个文件都在、sha256 与磁盘一致；表里引到的图
     （`file`、`battle_sheet.file`）都登在 `files` 里；`role_variants` 的 `look` 指向这份或生成索引里真有的表；`roles` 登记了的角色，那张表四向走路帧、战斗八个动作

@@ -2817,6 +2817,8 @@ def selftest_magic_targets(case: Case, base: Path) -> None:
 V_MAP = "ch01_hanjiacun"          # 摆探针对象的图
 V_CHOKE_MAP = CHOKE_MAP           # 外刃堂二门夹道：x=23–24、y=27–28，南北唯一的通路
 V_LILIAN_MAP = "lilian_probe"
+V_LILIAN_MAP_B = "lilian_probe_b"     # 好的一版：出口在这张第二图上，从入口图经传送点进来
+V_LILIAN_MAP_2 = "lilian_probe2"      # 坏的一版：第二处历练地的入口图，出口被墙围死
 V_SITE = "probe_site"
 V_FLAG = "ch01.done"              # 一个登记过、拿得到的旗标（伙伴的 met_flag、机关的 opens 用它）
 V_SHEET_PNG = Path("assets") / "art" / "sprites" / "chars" / "arch_bandit.png"   # 16×24、3 列、7 行
@@ -2904,7 +2906,7 @@ def v_build(work: Path, bad: bool) -> None:
     # ---- 历练地与编成（规则 37、39）----
     v_write_json(work / "data" / "lilian" / (V_SITE + ".json"), {
         "id": V_SITE, "name_key": "lilian.map.probe.name", "unlock_flag": V_FLAG, "entry": {"map": V_LILIAN_MAP},
-        "maps": [V_LILIAN_MAP] + ([V_MAP, "lilian_nowhere"] if bad else []),
+        "maps": [V_LILIAN_MAP] + ([V_MAP, "lilian_nowhere"] if bad else [V_LILIAN_MAP_B]),
         "tiers": [{"max_realm": "QiRefining13"}, {"max_realm": "FoundationEarly"}, {"max_realm": "FoundationMid"}]})
     v_battle(work, "probe_lilian_foe_t1", cultivation=0)
     v_battle(work, "probe_lilian_foe_t2", cultivation=3 if bad else 0)
@@ -2913,24 +2915,43 @@ def v_build(work: Path, bad: bool) -> None:
     v_battle(work, "probe_elite", can_escape=bad)
 
     # ---- 探针历练图：拿开局图的地形，对象只留出生点 ----
-    lilian = load_map(work, V_MAP)
-    for prop in lilian["properties"]:
-        if prop["name"] == "map_id":
-            prop["value"] = V_LILIAN_MAP
-        elif prop["name"] == "display_name_key":
-            prop["value"] = "lilian.map.probe.name"     # 规则 21：由图名推出来的那一个
-    v_write_json(work / "data" / "text" / "probe_v.json", {"lilian.map.probe.name": "探针历练图"})
-    layer = objects_layer(lilian)
-    layer[:] = [o for o in layer if o.get("type") == "spawn"]
+    def bare_lilian_map(map_id: str) -> dict:
+        payload = load_map(work, V_MAP)
+        for prop in payload["properties"]:
+            if prop["name"] == "map_id":
+                prop["value"] = map_id
+            elif prop["name"] == "display_name_key":
+                prop["value"] = validate.derived_map_name_key(map_id)     # 规则 21：由图名推出来的那一个
+        objects_layer(payload)[:] = [o for o in objects_layer(payload) if o.get("type") == "spawn"]
+        return payload
+
+    lilian = bare_lilian_map(V_LILIAN_MAP)
+    v_write_json(work / "data" / "text" / "probe_v.json", {
+        validate.derived_map_name_key(m): "探针历练图" for m in (V_LILIAN_MAP, V_LILIAN_MAP_B, V_LILIAN_MAP_2)})
+    default_spawn = next(props_of(o)["id"] for o in objects_layer(lilian)
+                         if o.get("type") == "spawn" and props_of(o).get("default") is True)
     lilian_cells = v_open_cells(work, V_MAP, 3)
     if bad:
         add_object(lilian, make_object("facility_v_save", "facility", lilian_cells[0], {"kind": "save"}))
         add_object(lilian, make_object("facility_v_sit", "facility",
                                        (lilian_cells[0][0] + 2, lilian_cells[0][1]), {"kind": "meditate"}))
+        # 第二处历练地：出口有一处，但四面是墙，从入口走不到。
+        site2 = bare_lilian_map(V_LILIAN_MAP_2)
+        walled = lilian_cells[0]
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            v_set_collision(site2, (walled[0] + dx, walled[1] + dy), 1)
+        add_object(site2, make_object("facility_v_walled_exit", "facility", walled, {"kind": "lilian", "site": "probe_site2"}))
+        save_map(work, V_LILIAN_MAP_2, site2)
+        v_write_json(work / "data" / "lilian" / "probe_site2.json", {
+            "id": "probe_site2", "name_key": validate.derived_map_name_key(V_LILIAN_MAP_2), "unlock_flag": V_FLAG,
+            "entry": {"map": V_LILIAN_MAP_2}, "maps": [V_LILIAN_MAP_2], "tiers": [{"max_realm": "QiRefining13"}]})
     else:
-        # 出口：历练里面朝任何一处 lilian 设施按确认就是出去（D 路）。
-        add_object(lilian, make_object("facility_v_exit", "facility", lilian_cells[0],
-                                       {"kind": "lilian", "site": V_SITE}))
+        # 出口不在入口图上：入口图上一道门通到第二张图，出口在那边（历练里面朝任何一处 lilian 设施按确认就是出去）。
+        add_object(lilian, make_object("portal_v_inner", "portal", lilian_cells[0], {
+            "target_map": V_LILIAN_MAP_B, "target_spawn": default_spawn, "transition": "fade"}))
+        inner = bare_lilian_map(V_LILIAN_MAP_B)
+        add_object(inner, make_object("facility_v_exit", "facility", lilian_cells[1], {"kind": "lilian", "site": V_SITE}))
+        save_map(work, V_LILIAN_MAP_B, inner)
     add_object(lilian, make_object("gate_v_lilian", "gate", lilian_cells[1], dict(
         {"id": V_LILIAN_MAP + ".gate", "skill": "break_seal"}, **({"opens": V_FLAG} if bad else {}))))
     add_object(lilian, make_object("foe_v_lilian", "foe", lilian_cells[2], {
@@ -3096,7 +3117,8 @@ V_EXPECTED = [
     ("35 会这手的伙伴进不了名册", "会 illusion 的伙伴（probe_unmet）的 met_flag 从开局都拿不到"),
     ("39 历练图上有打坐点", "历练图上不许有 kind=meditate 的设施"),
     ("39 历练地引用不存在的图", "历练地用到的图不存在：lilian_nowhere"),
-    ("39 历练图上没有出口", "历练地用到的图 lilian_probe 上没有一处 kind=lilian 的设施"),
+    ("39 整处历练地没有出口", "probe_site.json: 整处历练地一处 kind=lilian 的设施（出口）都没有"),
+    ("39 有出口但从入口走不到", "probe_site2.json: 从入口 lilian_probe2 出发走不到任何一处 kind=lilian 的设施"),
 ]
 
 

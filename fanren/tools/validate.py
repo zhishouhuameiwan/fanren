@@ -3908,6 +3908,44 @@ def sprite_looks() -> set[str] | None:
     return looks
 
 
+def check_lilian_exit(where: str, entry: tuple[str, str], site_maps: set[str],
+                      by_id: dict[str, ParsedMap], report: Report) -> None:
+    """规则 39（出口）：从 entry.spawn 出发，走得到这处历练地里至少一处 kind=lilian 的设施。
+
+    出口就是「历练里面朝任何一处 lilian 设施按确认」（D 路的 openFacility → leaveLilian），里面又不能存档：
+    走不到出口，就只能靠打输出来。不要求每张图都有——一间只有首领的内室没有出口是正常的设计。
+    跨图按这处历练地自己的传送点连起来算（只走通到 site_maps 里的门）；require_flag 不拦（与规则 18 同一份
+    宽松）。机关按**关着**算：带进去的人不一定会开，出口不能锁在机关后面。
+    """
+    nodes = [entry]
+    seen_nodes = {entry}
+    has_exit = False
+    while nodes:
+        map_id, spawn_id = nodes.pop()
+        parsed = by_id[map_id]
+        here = spawn_landing(parsed, spawn_id)
+        collision = collision_layer(parsed, report)
+        if here is None or collision is None:
+            continue
+        occupied = occupied_cells(parsed, gates_open=False)
+        seen = flood(parsed, collision, occupied, (here["x"], here["y"]))
+        for record in parsed.objects:
+            if record["type"] == "facility" and record["props"].get("kind") == "lilian":
+                has_exit = True
+                if object_halo(record) & seen:
+                    return
+            elif record["type"] == "portal" and any(c in seen for c in object_cells(record)):
+                node = (record["props"].get("target_map", ""), record["props"].get("target_spawn", ""))
+                if node[0] in site_maps and node not in seen_nodes:
+                    seen_nodes.add(node)
+                    nodes.append(node)
+    if has_exit:
+        report.error(where, f"从入口 {entry[0]} 出发走不到任何一处 kind=lilian 的设施（出口）："
+                            "有出口，但被墙、关着的机关或别的东西隔开了，历练里又不能存档，只能靠打输出来")
+    else:
+        report.error(where, "整处历练地一处 kind=lilian 的设施（出口）都没有：历练里又不能存档，只能靠打输出来")
+
+
 def check_world_object_refs(maps: list[ParsedMap], defined: dict, texts: dict[str, str],
                             flags: set[str], companions: dict[str, dict], report: Report) -> None:
     """规则 32（引用那一半）、35、37、38、39：要 data/ 才查得动的那几条。"""
@@ -3942,15 +3980,10 @@ def check_world_object_refs(maps: list[ParsedMap], defined: dict, texts: dict[st
                 report.error(where, f"历练地用到的图 {map_id} 不以 {LILIAN_MAP_PREFIX} 开头（契约 3.12）")
             elif map_id not in by_id:
                 report.error(where, f"历练地用到的图不存在：{map_id}")
-            else:
-                # 出口：历练里面朝任何一处 lilian 设施按确认就是出去（D 路的 openFacility → leaveLilian）。
-                # 里面又不能存档，一张图上没有出口，就只能靠打输出来。
-                exits = [r for r in by_id[map_id].objects
-                         if r["type"] == "facility" and r["props"].get("kind") == "lilian"]
-                if not exits:
-                    report.error(where, f"历练地用到的图 {map_id} 上没有一处 kind=lilian 的设施：没有出口，"
-                                        "历练里又不能存档，只能靠打输出来")
             tiers_of_map[map_id] = max(tiers_of_map.get(map_id, 0), lilian_tier_count(site))
+        if entry.get("map") and str(entry["map"]) in by_id:
+            check_lilian_exit(where, (str(entry["map"]), str(entry.get("spawn", "") or "")),
+                              {m for m in used if m in by_id}, by_id, report)
 
     def battle_ids_of(parsed: ParsedMap, base: str) -> list[str]:
         if not parsed.map_id.startswith(LILIAN_MAP_PREFIX):
