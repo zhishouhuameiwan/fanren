@@ -35,9 +35,10 @@ int walkFrame(const SpriteIndex& index, const CharacterSheet& sheet, int facing,
     const std::vector<int>& frames = sheet.walk[dir];
     if (!moving) return frames.front();
     const auto step = static_cast<long long>(std::floor(std::max(0.f, walkClock) * index.walkFps));
-    const auto slot = static_cast<std::size_t>(step % static_cast<long long>(index.walkCycle.size()));
+    // 播放序是每张表自己的（伙伴改版：旧表 [0,1,0,2]，高清表 [0,1,2,3]）；速度仍是全局一份。
+    const auto slot = static_cast<std::size_t>(step % static_cast<long long>(sheet.walkCycle.size()));
     // 下标不越界由读取器（io/VisualLoader.cpp）那条「每一向的帧数多于 walk_cycle 的最大下标」保证。
-    return frames[static_cast<std::size_t>(index.walkCycle[slot])];
+    return frames[static_cast<std::size_t>(sheet.walkCycle[slot])];
 }
 
 engine::RectF sheetFrameRect(const CharacterSheet& sheet, int frame) {

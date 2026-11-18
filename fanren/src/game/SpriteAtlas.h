@@ -38,7 +38,7 @@ using ChapterDone = std::function<bool(int)>;
 [[nodiscard]] const CharacterSheet* sheetForRole(const SpriteIndex& index, const std::string& roleId,
                                                  const ChapterDone& chapterDone);
 
-// 这一刻该画哪一帧。moving 为假时是那一向的站立帧；为真时按 walk_cycle 以 walk_fps 轮播，
+// 这一刻该画哪一帧。moving 为假时是那一向的站立帧；为真时按这张表的 walk_cycle 以 walk_fps 轮播，
 // walkClock 是这一段连续走路累计的秒数。facing 同 GameState::facing。
 [[nodiscard]] int walkFrame(const SpriteIndex& index, const CharacterSheet& sheet, int facing,
                             bool moving, float walkClock);

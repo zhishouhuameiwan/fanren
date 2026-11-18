@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <filesystem>
 #include <map>
 #include <optional>
 #include <utility>
@@ -167,7 +168,25 @@ struct SpriteReader : Reader {
             if (out.walk[d].empty()) return fail(at, "走路帧不能是空表");
         }
         return readBattleFrames(v, where, out.battle) && readFacing(v, where, out.battleFacing) &&
-               optionalString(v, "weapon", where, out.weapon);
+               optionalString(v, "weapon", where, out.weapon) && readSheetScales(v, where, out);
+    }
+
+    // 按表的倍数、播放序与战斗图（伙伴改版，docs/interfaces-companions.md 2.5）。都可缺，缺了是改版前的行为；
+    // 播放序缺了的那份缺省由调用方先放进 out.walkCycle（顶层的 walk_cycle）。
+    bool readSheetScales(const json& v, const std::string& where, core::CharacterSheet& out) {
+        if (!optionalInt(v, "scale", where, out.scale) || !optionalInt(v, "battle_scale", where, out.battleScale) ||
+            !optionalString(v, "battle_file", where, out.battleFile)) {
+            return false;
+        }
+        if (out.scale <= 0 || out.battleScale <= 0) return fail(where, "scale、battle_scale 都必须是正数");
+        if (member(v, "battle_file") != nullptr && out.battleFile.empty()) {
+            return fail(where + ".battle_file", "写了就不能是空串");
+        }
+        if (const json* cycle = member(v, "walk_cycle")) {
+            if (!intList(*cycle, where + ".walk_cycle", out.walkCycle)) return false;
+            if (out.walkCycle.empty()) return fail(where + ".walk_cycle", "不能是空表");
+        }
+        return true;
     }
 
     // 非人形敌人只有战斗帧：没有战斗帧的敌人图什么也画不了，当生成器坏了报。
@@ -269,19 +288,62 @@ struct SpriteReader : Reader {
     bool readSheets(const json& root, DefaultFrame frame, core::SpriteIndex& index) {
         const json* sheets = member(root, "sheets");
         if (sheets == nullptr || !sheets->is_object()) return fail("sheets", "缺少人物表");
-        const int maxCycle = *std::max_element(index.walkCycle.begin(), index.walkCycle.end());
+        for (const auto& item : sheets->items()) {
+            core::CharacterSheet sheet;
+            if (!readCheckedSheet(item.value(), "sheets." + item.key(), frame, index.walkCycle, sheet)) return false;
+            index.sheets.emplace(item.key(), std::move(sheet));
+        }
+        return true;
+    }
+
+    // 读一张人物表并查它自己的播放序不越界。walkCycle 是表上没写 walk_cycle 时取的那一份。
+    bool readCheckedSheet(const json& v, const std::string& where, DefaultFrame frame,
+                          const std::vector<int>& walkCycle, core::CharacterSheet& sheet) {
+        sheet.walkCycle = walkCycle;
+        if (!readSheet(v, where, frame, sheet)) return false;
+        // walk_cycle 是每一向帧表的下标：表比它短，播到那一格就越界了。在这里一次查清，
+        // 渲染时就不必每帧再去夹。查的是这张表自己的那一份（高清表每向 4 帧、播 [0,1,2,3]）。
+        const int maxCycle = *std::max_element(sheet.walkCycle.begin(), sheet.walkCycle.end());
+        for (const std::vector<int>& frames : sheet.walk) {
+            if (static_cast<int>(frames.size()) <= maxCycle) {
+                return fail(where + ".walk", "每一向的帧数必须多于 walk_cycle 里最大的下标");
+            }
+        }
+        return true;
+    }
+
+    // hd/index.json（docs/interfaces-companions.md 2.5）：人工维护的手绘表，覆盖同名角色。
+    // 形状 {"sheets": {表 id: 与 index.json 的人物表同形}, "roles": {角色 id: 表 id}, "files": {文件: sha256}}。
+    // 表的 file / battle_file 相对 hd/，读进来补上「hd/」前缀，与生成的表同样相对 art/sprites/。
+    // sha256 由门禁核（tools/validate.py），这里只认形状。
+    bool mergeHd(const json& root, core::SpriteIndex& index) {
+        if (!root.is_object()) return fail("顶层", "应当是对象");
+        const json* sheets = member(root, "sheets");
+        if (sheets == nullptr || !sheets->is_object()) return fail("sheets", "缺少人物表");
+        std::map<std::string, core::CharacterSheet> added;
         for (const auto& item : sheets->items()) {
             const std::string where = "sheets." + item.key();
+            // 与生成的表同名就分不清谁是谁：覆盖的是角色，不是表。
+            if (index.sheets.count(item.key()) != 0) return fail(where, "与 index.json 里的人物表同名");
             core::CharacterSheet sheet;
-            if (!readSheet(item.value(), where, frame, sheet)) return false;
-            // walk_cycle 是每一向帧表的下标：表比它短，播到那一格就越界了。在这里一次查清，
-            // 渲染时就不必每帧再去夹。
-            for (const std::vector<int>& frames : sheet.walk) {
-                if (static_cast<int>(frames.size()) <= maxCycle) {
-                    return fail(where + ".walk", "每一向的帧数必须多于 walk_cycle 里最大的下标");
-                }
-            }
-            index.sheets.emplace(item.key(), std::move(sheet));
+            if (!readCheckedSheet(item.value(), where, DefaultFrame{}, index.walkCycle, sheet)) return false;
+            sheet.file = "hd/" + sheet.file;
+            if (!sheet.battleFile.empty()) sheet.battleFile = "hd/" + sheet.battleFile;
+            added.emplace(item.key(), std::move(sheet));
+        }
+        std::map<std::string, std::string> roles;
+        std::map<std::string, std::string> files;
+        if (!stringMap(member(root, "roles"), "roles", roles) || !stringMap(member(root, "files"), "files", files)) {
+            return false;
+        }
+        for (const auto& [roleId, sheetId] : roles) {
+            if (added.count(sheetId) == 0) return fail("roles." + roleId, "指向的表不在 hd/index.json 里");
+        }
+        index.sheets.merge(added);
+        for (const auto& [roleId, sheetId] : roles) {
+            // 同名角色整个由手绘表接管：生成的按章变体不再作数，否则 lookForRole 先看变体，覆盖等于没覆盖。
+            index.roles[roleId] = sheetId;
+            index.variants.erase(roleId);
         }
         return true;
     }
@@ -539,11 +601,27 @@ core::Result<core::SpriteIndex> parseSpriteIndex(std::string_view json) {
 }
 
 core::Result<core::SpriteIndex> loadSpriteIndex(const std::string& path) {
+    using R = core::Result<core::SpriteIndex>;
     auto text = detail::readTextFile(path);
-    if (!text) return core::Result<core::SpriteIndex>::failure(text.error);
+    if (!text) return R::failure(text.error);
     auto parsed = detail::parseStrictJson(text.value);
-    if (!parsed) return core::Result<core::SpriteIndex>::failure(path + " " + parsed.error);
-    return readSpriteIndex(parsed.value);
+    if (!parsed) return R::failure(path + " " + parsed.error);
+    auto index = readSpriteIndex(parsed.value);
+    if (!index) return index;
+
+    // 同目录下的 hd/index.json（手绘的高清表）：在就覆盖同名角色，不在什么都不做。
+    // 世界画面、主菜单、战斗画面三处都经这一个函数读索引，所以只在这里接一次。
+    const std::string hdPath = (std::filesystem::path(path).parent_path() / "hd" / "index.json").string();
+    std::error_code ec;
+    if (!std::filesystem::exists(hdPath, ec)) return index;
+    auto hdText = detail::readTextFile(hdPath);
+    if (!hdText) return R::failure(hdText.error);
+    auto hdParsed = detail::parseStrictJson(hdText.value);
+    if (!hdParsed) return R::failure(hdPath + " " + hdParsed.error);
+    SpriteReader hd;
+    hd.fileName = "hd/index.json";
+    if (!hd.mergeHd(hdParsed.value, index.value)) return R::failure(hdPath + "：" + hd.error);
+    return index;
 }
 
 core::Result<core::MapMeta> parseMapMeta(std::string_view json) {

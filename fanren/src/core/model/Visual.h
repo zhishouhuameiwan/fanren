@@ -50,6 +50,13 @@ struct CharacterSheet {
     std::map<std::string, std::vector<int>> battle;
     BattleFacing battleFacing = BattleFacing::Left;
     std::string weapon;   // sword / dao / staff / knife / fist / none …（缺 = 空串）
+
+    // ---- 按表的倍数与播放序（伙伴改版，docs/interfaces-companions.md 2.5）----
+    // 缺省值就是改版前写死的行为，旧表一个字不用改；高清手绘表（assets/art/sprites/hd/）自己写。
+    int scale = 3;                            // 世界层按几倍画（高清表 2）；3 即 WorldView 的 kArtScale
+    std::vector<int> walkCycle{0, 1, 0, 2};   // 走路播放序（walk 每一向的下标）；读取器缺省取 index.json 顶层的 walk_cycle
+    std::string battleFile;                   // 战斗立姿另一张图（相对 art/sprites/）；空 = 与 file 同一张
+    int battleScale = 4;                      // 战斗层按几倍画
 };
 
 // 一个非人形敌人（兽、光球）：只有战斗帧，没有走路帧。帧号 → 像素与人物表同一条公式。
@@ -84,7 +91,8 @@ struct LookVariant {
 };
 
 struct SpriteIndex {
-    // 行走播放序（站、迈甲、站、迈乙）与播放速度。
+    // 行走播放序（站、迈甲、站、迈乙）与播放速度。播放序是**每张表各自的缺省**：表上没写
+    // walk_cycle 的取这一份（CharacterSheet::walkCycle），播的时候只看表上那一份。
     std::vector<int> walkCycle{0, 1, 0, 2};
     float walkFps = 8.f;
     std::map<std::string, CharacterSheet> sheets;                  // 外观 id → 人物表
