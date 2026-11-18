@@ -5,8 +5,10 @@
 #include <utility>
 
 #include "core/rules/Calendar.h"
+#include "core/rules/Companions.h"
 #include "core/rules/Objectives.h"
 #include "core/rules/Realm.h"
+#include "core/rules/Roster.h"
 #include "engine/TextLayout.h"
 #include "game/Application.h"
 #include "game/BoardScene.h"
@@ -23,10 +25,13 @@ constexpr float kW = static_cast<float>(engine::kLogicalWidth);
 constexpr float kH = static_cast<float>(engine::kLogicalHeight);
 
 // 左栏命令块容纳八行列表与上下各 12，下面的盘缠块仍从 y = 540 开始。
+// 名册上有人时多出两行（队伍、名册），命令块按行高往下长（MenuScene::commandPanel），盘缠块不动。
 constexpr engine::Rect kCommandPanel{48, 48, 300, 312};
+constexpr int kCommandRows = 8;
 constexpr engine::Rect kInfoPanel{48, 540, 300, 132};
 constexpr engine::Rect kPagePanel{372, 48, 860, 624};
-constexpr int kPageCount = 8;
+// Page 枚举里一共几项（menuStrings 逐项取字）。
+constexpr int kPageCount = 10;
 
 // 「设置」页的摘要列哪几行（系统设置面板的行下标）：有值的那九项（含手柄震动，docs/gamepad.md 第 8 节），
 // 按键设置、恢复默认不列。
@@ -36,10 +41,16 @@ constexpr int kSettingsSummaryRows = SettingsScene::kPadRumble + 1;
 constexpr int kDescriptionH = 150;
 
 // 状态页一人一行：小像框 96×132，里面贴 16×24 的行走帧 ×4（64×96，施工图 1.1 的战斗尺度）。
+// 倍数按表取（MenuScene::menuSpriteScale）：世界层倍数的 kMenuScaleNum / kMenuScaleDen，取整。
 constexpr int kMemberRowH = 188;
 constexpr int kPortraitW = 96;
 constexpr int kPortraitH = 132;
-constexpr int kSpriteScale = 4;
+constexpr int kMenuScaleNum = 4;
+constexpr int kMenuScaleDen = 3;
+
+// 队伍页下方「上场 / 歇着」「赠与」两行。
+constexpr int kPartyActionToggle = 0;
+constexpr int kPartyActionGift = 1;
 // 人物表四向走路帧里「下」（面朝镜头）的下标，与 GameState::facing 同一套。
 constexpr std::size_t kFacingDown = 2;
 
@@ -69,6 +80,8 @@ constexpr const char* kSfxSaved = "save";
         case MenuScene::Page::Settings: return "ui.menu.settings";
         case MenuScene::Page::Home: return "ui.menu.home";
         case MenuScene::Page::Back: return "ui.menu.back";
+        case MenuScene::Page::Party: return "ui.menu.party";
+        case MenuScene::Page::Roster: return "ui.menu.roster";
     }
     return "";
 }
@@ -113,7 +126,14 @@ std::vector<std::string> MenuScene::menuStrings(const core::GameData& data, Pane
                             "ui.menu.save.hint", "ui.menu.save.ok", "ui.menu.save.failed",
                             "ui.menu.settings.hint", "ui.menu.home.warning", "ui.menu.home.cancel",
                             "ui.menu.keys", "ui.menu.money", "ui.menu.date",
-                            "ui.menu.place", "ui.status.attack", "ui.status.defence", "ui.status.speed"}) {
+                            "ui.menu.place", "ui.status.attack", "ui.status.defence", "ui.status.speed",
+                            // 伙伴改版：队伍、名册两页与赠与的几句话
+                            "ui.menu.party.hint", "ui.menu.party.on", "ui.menu.party.off",
+                            "ui.menu.party.fixed", "ui.menu.party.toggle", "ui.menu.party.gift",
+                            "ui.menu.party.gift.hint", "ui.menu.party.gift.empty", "ui.menu.party.empty",
+                            "ui.menu.gift.liked", "ui.menu.gift.plain", "ui.menu.gift.disliked",
+                            "ui.menu.gift.already", "ui.menu.roster.hint", "ui.bond.tier1", "ui.bond.tier2",
+                            "ui.bond.tier3", "ui.bond.tier4", "ui.bond.tier5"}) {
         out.push_back(data.lookupText(key));
     }
     out.push_back(data.lookupText(magicEmptyKey(stage)));
@@ -144,33 +164,126 @@ std::vector<ui::ListItem> MenuScene::itemRows(const core::GameData& data,
     return rows;
 }
 
+int MenuScene::menuSpriteScale(int sheetScale) {
+    return std::max(1, sheetScale * kMenuScaleNum / kMenuScaleDen);
+}
+
 void MenuScene::onEnter(Application& app) {
     fx_ = std::make_unique<engine::PostFx>(app.engine());
     backdropReady_ = false;
 
+    // 左栏有哪几项：前八项照旧；名册上有人才在「状态」后面插进队伍、名册（文件头）。
+    pages_ = {Page::Status, Page::Items, Page::Magic, Page::Journal,
+              Page::Save,   Page::Settings, Page::Home, Page::Back};
+    if (!rules::roster(app.data().companions, app.state()).empty()) {
+        pages_.insert(pages_.begin() + 1, {Page::Party, Page::Roster});
+    }
     std::vector<ui::ListItem> commands;
-    for (int i = 0; i < kPageCount; ++i) {
+    for (const Page entry : pages_) {
         ui::ListItem row;
-        row.label = pageLabel(app.data(), app.state(), static_cast<Page>(i));
+        row.label = pageLabel(app.data(), app.state(), entry);
         commands.push_back(std::move(row));
     }
     commands_.reset();
-    commands_.setPageSize(kPageCount);
+    commands_.setPageSize(static_cast<int>(pages_.size()));
     commands_.setItems(std::move(commands));
-    for (int i = 0; i < static_cast<int>(initial_); ++i) commands_.moveDown();
+    // 要停的那一项此刻不在左栏上（名册空着却要队伍页）：停在「状态」。
+    const auto at = std::find(pages_.begin(), pages_.end(), initial_);
+    if (at == pages_.end()) initial_ = Page::Status;
+    for (auto it = pages_.begin(); it != pages_.end() && *it != initial_; ++it) commands_.moveDown();
 
     homeChoices_.setPageSize(2);
     homeChoices_.setItems({{app.text("ui.menu.home.cancel")}, {app.text("ui.menu.home")}});
     homeChoices_.reset();
 
     rebuildLists(app);
+    rebuildCompanionLists(app);
     loadMembers(app);
     focus_ = Focus::Commands;
     journalOpen_ = false;
     if (focusList_ && initial_ == Page::Items && items_.hasSelectable()) focus_ = Focus::Items;
     if (focusList_ && initial_ == Page::Magic && magics_.hasSelectable()) focus_ = Focus::Magic;
     if (focusList_ && initial_ == Page::Home) focus_ = Focus::Home;
+    if (focusList_ && initial_ == Page::Party && party_.hasSelectable()) focus_ = Focus::Party;
     app.engine().playSfx(kSfxOpen);
+}
+
+void MenuScene::rebuildCompanionLists(Application& app) {
+    const core::GameData& data = app.data();
+    const core::GameState& state = app.state();
+    const int rows = ui::listRowsThatFit(
+        kPagePanel.h - ui::panelTitleBandHeight(true, app.theme()) - kDescriptionH, app.theme());
+
+    // 队伍：GameState::party 里的每一位（歇着的也列，不然改回上场无从下手）。
+    std::vector<ui::ListItem> partyRows;
+    partyIndex_.clear();
+    for (std::size_t i = 0; i < state.party.size(); ++i) {
+        const core::PartyMember& member = state.party[i];
+        ui::ListItem row;
+        const core::RoleTemplate* role = data.findRole(member.roleId);
+        row.label = role != nullptr ? role->name : member.roleId;
+        if (rules::companionOfRole(data.companions, member.roleId).empty()) {
+            row.detail = app.text("ui.menu.party.fixed");
+        } else {
+            row.detail = app.text(member.active ? "ui.menu.party.on" : "ui.menu.party.off");
+        }
+        partyRows.push_back(std::move(row));
+        partyIndex_.push_back(i);
+    }
+    const int partySelection = party_.selection();
+    party_.reset();
+    party_.setEmptyHint(app.text("ui.menu.party.empty"));
+    party_.setPageSize(rows);
+    party_.setItems(std::move(partyRows));
+    for (int i = 0; i < partySelection; ++i) party_.moveDown();   // 改完一位，光标还停在她那一行
+
+    partyActions_.setPageSize(2);
+    partyActions_.setItems({{app.text("ui.menu.party.toggle")}, {app.text("ui.menu.party.gift")}});
+
+    // 赠与：背包里除了钱、剧情物以外的每一堆。剧情物（ItemKind::Story）送出去，等着收它的那段戏就演不下去。
+    std::vector<ui::ListItem> giftRows;
+    giftChoices_.clear();
+    std::vector<ui::ListItem> bagRows = itemRows(data, state);
+    std::size_t bagRow = 0;
+    for (const core::BagEntry& entry : state.bag) {
+        if (entry.itemId == kSpiritStoneItemId || entry.count <= 0) continue;
+        const ui::ListItem& row = bagRows[bagRow++];   // itemRows 与这里同一道过滤、同一个次序
+        const core::Item* item = data.findItem(entry.itemId);
+        if (item == nullptr || item->kind == core::ItemKind::Story) continue;
+        giftRows.push_back(row);
+        giftChoices_.push_back(GiftChoice{entry.itemId, entry.herbAge});
+    }
+    gifts_.reset();
+    gifts_.setEmptyHint(app.text("ui.menu.party.gift.empty"));
+    gifts_.setPageSize(rows);
+    gifts_.setItems(std::move(giftRows));
+
+    roster_.reset();
+    roster_.setPageSize(rows);
+    roster_.setItems(rosterRows(data, state));
+}
+
+std::vector<ui::ListItem> MenuScene::rosterRows(const core::GameData& data, const core::GameState& state) {
+    std::vector<ui::ListItem> rows;
+    for (const std::string& id : rules::roster(data.companions, state)) {
+        // 名字取此刻的那个角色（问名之前是「白衣女子」，之后是「南宫婉」）。
+        const std::string role = rules::currentRole(data.companions, id, state);
+        const core::RoleTemplate* tmpl = role.empty() ? nullptr : data.findRole(role);
+        ui::ListItem row;
+        row.label = tmpl != nullptr ? tmpl->name : id;
+        row.detail = data.lookupText("ui.bond.tier" + std::to_string(rules::bondTier(state.bondOf(id))));
+        rows.push_back(std::move(row));
+    }
+    return rows;
+}
+
+std::string MenuScene::selectedCompanion(Application& app) const {
+    const int index = party_.selection();
+    if (index < 0 || index >= static_cast<int>(partyIndex_.size())) return {};
+    const std::vector<core::PartyMember>& party = app.state().party;
+    const std::size_t at = partyIndex_[static_cast<std::size_t>(index)];
+    if (at >= party.size()) return {};
+    return rules::companionOfRole(app.data().companions, party[at].roleId);
 }
 
 void MenuScene::rebuildLists(Application& app) {
@@ -238,6 +351,7 @@ void MenuScene::loadMembers(Application& app) {
         const engine::RectF frame = sheetFrameRect(*sheet, sheet->walk[kFacingDown].front());
         member.portraitFrame = engine::Rect{static_cast<int>(frame.x), static_cast<int>(frame.y),
                                             static_cast<int>(frame.w), static_cast<int>(frame.h)};
+        member.portraitScale = menuSpriteScale(sheet->scale);
     };
 
     members_.clear();
@@ -277,8 +391,17 @@ void MenuScene::loadMembers(Application& app) {
 }
 
 MenuScene::Page MenuScene::page() const {
-    const int index = std::clamp(commands_.selection(), 0, kPageCount - 1);
-    return static_cast<Page>(index);
+    if (pages_.empty()) return Page::Status;
+    const int index = std::clamp(commands_.selection(), 0, static_cast<int>(pages_.size()) - 1);
+    return pages_[static_cast<std::size_t>(index)];
+}
+
+engine::Rect MenuScene::commandPanel(const ui::Theme& theme) const {
+    // 八行时就是 kCommandPanel 原样（逐像素不变）；多一行，往下长一行的高度。
+    const int rows = std::max(kCommandRows, static_cast<int>(pages_.size()));
+    engine::Rect panel = kCommandPanel;
+    panel.h += ui::listAreaHeight(rows, theme) - ui::listAreaHeight(kCommandRows, theme);
+    return panel;
 }
 
 void MenuScene::close(Application& app) {
@@ -331,8 +454,100 @@ bool MenuScene::activate(Application& app) {
         case Page::Back:
             close(app);
             return false;
+        case Page::Party:
+            if (!party_.hasSelectable()) {
+                e.playSfx(kSfxError);
+                return true;
+            }
+            e.playSfx(kSfxConfirm);
+            focus_ = Focus::Party;
+            return true;
+        case Page::Roster:
+            // 只读的一页，与「状态」一样：确认只响一声。
+            e.playSfx(kSfxConfirm);
+            return true;
     }
     return true;
+}
+
+void MenuScene::updateParty(Application& app, bool confirmed) {
+    engine::Engine& e = app.engine();
+    if (party_.cancelled()) {
+        party_.reset();
+        focus_ = Focus::Commands;
+        e.playSfx(kSfxCancel);
+        return;
+    }
+    if (!confirmed) return;
+    // 不是伙伴的队员（傀儡、化身）照老规矩全部上场（契约 3.1），也不收礼：确认只响一声错。
+    if (selectedCompanion(app).empty()) {
+        e.playSfx(kSfxError);
+        return;
+    }
+    e.playSfx(kSfxConfirm);
+    partyActions_.reset();
+    focus_ = Focus::PartyActions;
+}
+
+void MenuScene::updatePartyActions(Application& app, bool confirmed) {
+    engine::Engine& e = app.engine();
+    if (partyActions_.cancelled()) {
+        partyActions_.reset();
+        focus_ = Focus::Party;
+        e.playSfx(kSfxCancel);
+        return;
+    }
+    if (!confirmed) return;
+    if (partyActions_.selection() == kPartyActionToggle) {
+        const int index = party_.selection();
+        core::PartyMember& member = app.state().party[partyIndex_[static_cast<std::size_t>(index)]];
+        member.active = !member.active;
+        e.playSfx(kSfxConfirm);
+        rebuildCompanionLists(app);
+        loadMembers(app);   // 状态页只列上场的人
+        focus_ = Focus::Party;
+        return;
+    }
+    if (partyActions_.selection() == kPartyActionGift) {
+        e.playSfx(kSfxConfirm);
+        gifts_.reset();
+        focus_ = Focus::Gift;
+    }
+}
+
+void MenuScene::giveSelected(Application& app) {
+    engine::Engine& e = app.engine();
+    const std::string companionId = selectedCompanion(app);
+    const int index = gifts_.selection();
+    const auto found = app.data().companions.find(companionId);
+    if (found == app.data().companions.end() || index < 0 || index >= static_cast<int>(giftChoices_.size())) {
+        e.playSfx(kSfxError);
+        return;
+    }
+    const GiftChoice choice = giftChoices_[static_cast<std::size_t>(index)];
+    core::GameState& state = app.state();
+    // 今天送过了就一样不动：账不记、东西不扣、说一句（契约 2.2「每人每天一次」，记账在 rules::giveGift）。
+    const rules::GiftOutcome outcome =
+        rules::giveGift(state.bonds[companionId], found->second, choice.itemId, state.day);
+    if (!outcome.given) {
+        e.playSfx(kSfxError);
+        app.showMessage("ui.menu.gift.already");
+        focus_ = Focus::Party;
+        return;
+    }
+    if (!state.removeItemOfAge(choice.itemId, 1, choice.herbAge)) {
+        // 列表就是从背包这一刻拼出来的，扣不成只能是有人在别处动了背包：说出来，不默默吞掉。
+        std::fprintf(stderr, "[menu] 赠与时背包里已经没有 %s 了\n", choice.itemId.c_str());
+    }
+    e.playSfx(kSfxConfirm);
+    switch (outcome.taste) {
+        case rules::GiftTaste::Liked: app.showMessage("ui.menu.gift.liked"); break;
+        case rules::GiftTaste::Plain: app.showMessage("ui.menu.gift.plain"); break;
+        case rules::GiftTaste::Disliked: app.showMessage("ui.menu.gift.disliked"); break;
+    }
+    rebuildLists(app);
+    rebuildCompanionLists(app);
+    focus_ = Focus::Party;
 }
 
 bool MenuScene::update(Application& app, double) {
@@ -363,11 +578,33 @@ bool MenuScene::update(Application& app, double) {
         return confirmed ? activate(app) : true;
     }
 
-    ui::ListView& list = focus_ == Focus::Home ? homeChoices_
-                                            : focus_ == Focus::Items ? items_ : magics_;
+    ui::ListView& list = focus_ == Focus::Home           ? homeChoices_
+                         : focus_ == Focus::Items        ? items_
+                         : focus_ == Focus::Party        ? party_
+                         : focus_ == Focus::PartyActions ? partyActions_
+                         : focus_ == Focus::Gift         ? gifts_
+                                                         : magics_;
     const int before = list.selection();
     const bool confirmed = list.update(e);
     if (list.selection() != before) e.playSfx(kSfxCursor);
+    if (focus_ == Focus::Party) {
+        updateParty(app, confirmed);
+        return true;
+    }
+    if (focus_ == Focus::PartyActions) {
+        updatePartyActions(app, confirmed);
+        return true;
+    }
+    if (focus_ == Focus::Gift) {
+        if (gifts_.cancelled()) {
+            gifts_.reset();
+            focus_ = Focus::PartyActions;
+            e.playSfx(kSfxCancel);
+        } else if (confirmed) {
+            giveSelected(app);
+        }
+        return true;
+    }
     if (list.cancelled()) {
         // Esc 退一级：回到左栏，列表的光标一并复位（下次进来从第一件看起）。
         list.reset();
@@ -420,9 +657,9 @@ void MenuScene::drawBackdrop(Application& app) {
 void MenuScene::drawCommands(Application& app) const {
     engine::Engine& e = app.engine();
     const ui::Theme& theme = app.theme();
-    ui::drawPanel(e, kCommandPanel, std::string{}, theme);
-    const engine::Rect list{kCommandPanel.x, kCommandPanel.y + 12, kCommandPanel.w,
-                            kCommandPanel.h - 24};
+    const engine::Rect panel = commandPanel(theme);
+    ui::drawPanel(e, panel, std::string{}, theme);
+    const engine::Rect list{panel.x, panel.y + 12, panel.w, panel.h - 24};
     // 光标进了右栏的列表时，左栏只做「目录」不亮光标：两处都亮，方向键推的是哪一边就说不清了。
     if (focus_ == Focus::Commands) {
         commands_.render(e, list, theme);
@@ -506,7 +743,33 @@ void MenuScene::drawPage(Application& app) const {
             break;
         case Page::Back:
             break;
+        case Page::Party:
+            if (focus_ == Focus::Gift) {
+                drawListPage(app, area, gifts_, true, app.text("ui.menu.party.gift.hint"));
+            } else {
+                drawParty(app, area);
+            }
+            break;
+        case Page::Roster:
+            drawListPage(app, area, roster_, false, app.text("ui.menu.roster.hint"));
+            break;
     }
+}
+
+void MenuScene::drawParty(Application& app, const engine::Rect& area) const {
+    engine::Engine& e = app.engine();
+    const ui::Theme& theme = app.theme();
+    if (focus_ != Focus::PartyActions) {
+        drawListPage(app, area, party_, focus_ == Focus::Party, app.text("ui.menu.party.hint"));
+        return;
+    }
+    // 选了一位：上面的队伍停在她那一行，下面说明区换成两项动作。
+    const engine::Rect listArea{area.x, area.y, area.w, std::max(0, area.h - kDescriptionH)};
+    party_.render(e, listArea, theme);
+    const int ruleY = area.y + area.h - kDescriptionH;
+    ui::drawRuleH(e, static_cast<float>(area.x + theme.padding), static_cast<float>(ruleY),
+                  static_cast<float>(area.w - theme.padding * 2), theme);
+    partyActions_.render(e, engine::Rect{area.x, ruleY + 4, area.w, ui::listAreaHeight(2, theme)}, theme);
 }
 
 void MenuScene::drawStatus(Application& app, const engine::Rect& area) const {
@@ -572,8 +835,8 @@ void MenuScene::drawPortrait(Application& app, const Member& member, const engin
 
     if (member.portrait != engine::kInvalidTexture) {
         const engine::Rect& src = member.portraitFrame;
-        const float w = static_cast<float>(src.w * kSpriteScale);
-        const float h = static_cast<float>(src.h * kSpriteScale);
+        const float w = static_cast<float>(src.w * member.portraitScale);
+        const float h = static_cast<float>(src.h * member.portraitScale);
         e.drawTexture(member.portrait, toRectF(src),
                       engine::RectF{frame.x + (frame.w - w) / 2.f, frame.y + frame.h - h - 16.f, w,
                                     h},

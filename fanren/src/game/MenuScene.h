@@ -16,6 +16,15 @@
 //（scripts/ch06/guaipo.lua；G-13 已按第 6 章拍板收口）。不置时钱叫「碎银」、境界说「口诀第几层」、
 // 法力叫「气力」、「法术」一栏叫「法门」。面板上能出现的固有字全部由 menuStrings 列出，
 // tests/UiStyleTests.cpp 拿禁词表扫它。
+//
+// 伙伴改版（docs/interfaces-companions.md 2.2、3.1）：名册上有人（rules::roster 非空）时，左栏「状态」下面
+// 多出两项——
+//   队伍：列出队里每个人。伙伴那一行确认后可以「上场 / 歇着」（改 PartyMember::active；3.1：active 只在
+//         这里改）或「赠与」（挑一件东西，rules::giveGift 记账：每人每天一次，今天送过的不扣东西、说一句）。
+//         不是伙伴的队员（傀儡、化身）显示「随行」，不能改、不能送。
+//   名册：已结识的伙伴与默契的档（rules::bondTier）。
+// 名册是空的（第 1–6 章、截图口的默认情形）时这两项不出现，菜单与改版前逐像素相同。
+// 小像的倍数读每张人物表自己的 scale（menuSpriteScale）：旧表 scale 3 → ×4，与改版前一样。
 #include <memory>
 #include <string>
 #include <vector>
@@ -30,8 +39,14 @@ namespace fanren::game {
 
 class MenuScene : public Scene {
 public:
-    // 次序即画面上的次序；返回首页需要确认，「返回」只关闭菜单。
-    enum class Page { Status, Items, Magic, Journal, Save, Settings, Home, Back };
+    // 前八项的次序即画面上的次序；返回首页需要确认，「返回」只关闭菜单。
+    // Party（队伍）、Roster（名册）追加在末尾是为了不挪动前八项的值（截图口按名字取它们）；
+    // 画面上它俩排在「状态」后面，且只在名册上有人时出现（见文件头）。
+    enum class Page { Status, Items, Magic, Journal, Save, Settings, Home, Back, Party, Roster };
+
+    // 小像按几倍画：人物表的世界层倍数的三分之四，取整（旧表 3 → 4，高清表 2 → 2），至少 1。
+    // 菜单的小像一向比走在地图上的大三分之一（16×24 的旧表：地图 ×3、菜单 ×4）。
+    [[nodiscard]] static int menuSpriteScale(int sheetScale);
 
     // initial：打开时光标停在哪一项；focusList：物品 / 法术页直接把光标放进右栏的列表，
     // 记事页直接翻开告示板，首页页直接进入确认（截图口用；游戏里按 Tab 打开时停在「状态」）。
@@ -55,6 +70,13 @@ public:
     [[nodiscard]] static std::vector<ui::ListItem> itemRows(const core::GameData& data,
                                                             const core::GameState& state);
 
+    // 名册页的行：名册上每位伙伴（rules::roster 的次序），左边是她此刻那个角色的名字，右边是默契的档名。
+    [[nodiscard]] static std::vector<ui::ListItem> rosterRows(const core::GameData& data,
+                                                              const core::GameState& state);
+
+    // 左栏此刻有哪几项，按画面次序（测试读它：名册空着时就是改版前那八项）。
+    [[nodiscard]] const std::vector<Page>& pages() const { return pages_; }
+
     void onEnter(Application& app) override;
     bool update(Application& app, double deltaSeconds) override;
     void render(Application& app) override;
@@ -64,7 +86,7 @@ public:
     [[nodiscard]] std::string name() const override { return "Menu"; }
 
 private:
-    enum class Focus { Commands, Items, Magic, Home };
+    enum class Focus { Commands, Items, Magic, Home, Party, PartyActions, Gift };
 
     // 一个在队的人：状态页一行。小像在打开菜单时就解析好（贴图句柄 + 取哪一帧），
     // 不在 render 里每帧去查索引、载图——缺图的那一行每帧都会打一次 WARNING。
@@ -76,11 +98,24 @@ private:
         bool hero = false;   // 韩立：多一行境界（同伴不练那段口诀）
         engine::TextureId portrait = engine::kInvalidTexture;
         engine::Rect portraitFrame{};
+        int portraitScale = 4;   // menuSpriteScale(这张表的 scale)
+    };
+    // 赠与列表的一行是背包里的哪一堆（灵草按年份分堆）。
+    struct GiftChoice {
+        std::string itemId;
+        int herbAge = 0;
     };
 
     [[nodiscard]] Page page() const;
+    [[nodiscard]] engine::Rect commandPanel(const ui::Theme& theme) const;
     void rebuildLists(Application& app);
+    void rebuildCompanionLists(Application& app);
     void loadMembers(Application& app);
+    // 队伍页光标所在那一行的伙伴 id；不是伙伴（或没有选中）时为空串。
+    [[nodiscard]] std::string selectedCompanion(Application& app) const;
+    void updateParty(Application& app, bool confirmed);
+    void updatePartyActions(Application& app, bool confirmed);
+    void giveSelected(Application& app);
     // 确认了左栏的某一项。返回 false 表示菜单就此关闭。
     bool activate(Application& app);
     void close(Application& app);
@@ -98,6 +133,7 @@ private:
     void drawSave(Application& app, const engine::Rect& area) const;
     void drawSettings(Application& app, const engine::Rect& area) const;
     void drawHome(Application& app, const engine::Rect& area) const;
+    void drawParty(Application& app, const engine::Rect& area) const;
 
     Page initial_;
     bool focusList_;
@@ -108,6 +144,13 @@ private:
     ui::ListView homeChoices_;
     std::vector<std::string> itemIds_;    // items_ 的第 i 行是哪件东西
     std::vector<Member> members_;
+    std::vector<Page> pages_;             // 左栏此刻有哪几项，按画面次序
+    ui::ListView party_;                  // 队伍页：队里每个人
+    std::vector<std::size_t> partyIndex_; // party_ 的第 i 行是 GameState::party 的第几位
+    ui::ListView partyActions_;           // 「上场 / 歇着」「赠与」
+    ui::ListView gifts_;                  // 赠与：背包里送得出去的东西
+    std::vector<GiftChoice> giftChoices_;
+    ui::ListView roster_;                 // 名册页
     std::string saveNote_;                // 最近一次存盘的结果
     bool saveOk_ = false;
     std::unique_ptr<engine::PostFx> fx_;

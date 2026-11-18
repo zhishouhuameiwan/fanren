@@ -18,6 +18,7 @@
 #include "core/rules/Calendar.h"
 #include "core/rules/Companions.h"
 #include "core/rules/Field.h"
+#include "core/rules/Lilian.h"
 #include "core/rules/Realm.h"
 #include "game/AlchemyScene.h"
 #include "game/BattleScene.h"
@@ -27,6 +28,7 @@
 #include "game/FadeScene.h"
 #include "game/FieldScene.h"
 #include "game/KeyConfigScene.h"
+#include "game/LilianPartyScene.h"
 #include "game/MenuScene.h"
 #include "game/PathActionScene.h"
 #include "game/SettingsScene.h"
@@ -36,6 +38,7 @@
 #include "io/BattleLoader.h"
 #include "io/DataLoader.h"
 #include "io/EncounterLoader.h"
+#include "io/LilianLoader.h"
 #include "io/RecipeLoader.h"
 #include "io/SaveFile.h"
 #include "io/ShopLoader.h"
@@ -233,6 +236,18 @@ core::Result<bool> Application::init(const std::string& assetRoot, bool headless
     auto recipes = io::loadRecipes(assetRoot_ + "/data/recipes", data_);
     if (!recipes) return core::Result<bool>::failure(recipes.error);
     recipes_ = std::move(recipes.value);
+
+    // 历练地（docs/interfaces-companions.md 3.12）。存在这里、不进 GameData（契约第 6 节）。
+    // 没有这个目录是合法的（一处历练也没有）；写坏了拦启动，与编成、遭遇表同一个态度。
+    // 名字的文案 key 在这里对一遍：组队面板的标题查不到正文就会把 key 本身画出来。
+    auto sites = io::loadLilianSites(assetRoot_ + "/data/lilian");
+    if (!sites) return core::Result<bool>::failure(sites.error);
+    for (const auto& [id, site] : sites.value) {
+        if (data_.text.count(site.nameKey) == 0) {
+            return core::Result<bool>::failure("历练地 " + id + " 的 name_key（" + site.nameKey + "）查不到文案");
+        }
+    }
+    lilianSites_ = std::move(sites.value);
 
     scripts_ = std::make_unique<script::ScriptHost>();
     // 脚本出错不该静默：错误直接汇进引擎日志，开发期一眼看见。
@@ -760,6 +775,11 @@ void Application::openFacility(const core::MapObject& facility) {
         return;
     }
 
+    if (kind == "lilian") {
+        openLilianFacility(facility);
+        return;
+    }
+
     if (kind == "save") {
         // 存档点走的是与 F5 完全相同的那一个入口，不另开一套——两套存盘迟早
         // 一套带着某个字段、另一套不带。成败都如实说给玩家听。
@@ -952,10 +972,67 @@ void Application::startBattle(const std::string& battleId, BattleOutcome onFinis
 }
 
 void Application::startBattle(const BattleStart& start, BattleOutcome onFinish) {
+    BattleStart actual = start;
+    // 历练里按韩立的境界拼档的后缀（契约 3.12「难度」）。只在这里拼：世界逻辑递进来的是 foe.battle 原样。
+    // 拼出来的那一场不存在时不退回原 id——那会悄悄开一场没分档的仗；门禁（每一档的编成都在）管它。
+    if (lilian_) {
+        const core::LilianSite* site = lilianSite(lilian_->siteId);
+        const int tier = site == nullptr ? 0 : rules::lilianTier(*site, state_.realm);
+        actual.battleId = rules::tieredBattleId(start.battleId, tier);
+        if (battleSetup(actual.battleId) == nullptr) {
+            std::fprintf(stderr, "[lilian] 历练 %s 里要开的编成 %s 不存在\n", lilian_->siteId.c_str(),
+                         actual.battleId.c_str());
+        }
+    }
     battleOutcome_ = std::move(onFinish);
-    battleStart_ = start;
-    pushScene(std::make_unique<BattleScene>(start.battleId));
+    battleStart_ = actual;
+    pushScene(std::make_unique<BattleScene>(actual.battleId));
 }
+
+const core::LilianSite* Application::lilianSite(const std::string& siteId) const {
+    const auto it = lilianSites_.find(siteId);
+    return it == lilianSites_.end() ? nullptr : &it->second;
+}
+
+namespace {
+
+// 进一趟历练时的 chance 抽签（契约 3.12「每趟不同」）：没抽中的明雷记成已清、宝箱记成已开，
+// 记进这一趟的账。图读不进来就整个失败——不拿半张账进去。
+// 入口图在这之前已经 loadMap 过一遍，这里照样按文件再读一次：抽签只看对象，与哪张图正载着无关。
+[[nodiscard]] core::Result<core::WorldObjectState> rollLilianObjects(const std::string& mapsRoot,
+                                                                    const std::vector<std::string>& maps,
+                                                                    const std::string& siteId, int day) {
+    using Out = core::Result<core::WorldObjectState>;
+    core::WorldObjectState objects;
+    const std::uint32_t seed = rules::lilianSeed(day, siteId);
+    for (const std::string& mapId : maps) {
+        auto loaded = io::loadTileMap(mapsRoot + "/" + mapId + ".tmj");
+        if (!loaded) return Out::failure(loaded.error);
+        for (const core::MapObject& object : loaded.value.objects) {
+            if (object.type != "foe" && object.type != "chest") continue;
+            const std::string raw = object.property("chance");
+            const std::string id = object.property("id");
+            if (raw.empty() || id.empty()) continue;   // 没写 chance 的每趟都在；没 id 的门禁报
+            // chance 是 1–99 的整数（出现的百分比）。写坏了不吞：打一行警告，按「一定出现」办——
+            // 少一只明雷玩家看不出来，多一只看得出来。
+            const int chance = propertyInt(raw, -1);
+            if (chance < 1 || chance > 99) {
+                std::fprintf(stderr, "[lilian] %s 上 %s 的 chance（%s）不是 1–99 的整数，按一定出现办\n",
+                             mapId.c_str(), id.c_str(), raw.c_str());
+                continue;
+            }
+            if (rules::lilianChanceShows(seed, id, chance)) continue;
+            if (object.type == "foe") {
+                objects.clearedFoes[id] = day;
+            } else {
+                objects.openedChests.insert(id);
+            }
+        }
+    }
+    return Out::success(std::move(objects));
+}
+
+}  // namespace
 
 core::Result<bool> Application::enterLilian(const LilianEntry& entry) {
     if (lilian_) return core::Result<bool>::failure("已经在历练里了");
@@ -964,18 +1041,69 @@ core::Result<bool> Application::enterLilian(const LilianEntry& entry) {
     for (const std::string& roleId : entry.party) members.push_back(core::PartyMember{roleId, -1, true});
     state_.party = std::move(members);
     auto loaded = loadMap(entry.mapId, entry.spawn);
+    if (loaded) {
+        // 抽签要读这处历练地的每一张图（没登记的历练地只抽入口图）；有一张读不进来就按「进不去」退回。
+        const core::LilianSite* site = lilianSite(entry.siteId);
+        const std::vector<std::string> maps =
+            site != nullptr ? site->maps : std::vector<std::string>{entry.mapId};
+        auto rolled = rollLilianObjects(assetRoot_ + "/maps", maps, entry.siteId, state_.day);
+        if (rolled) {
+            trip.objects = std::move(rolled.value);
+        } else {
+            loaded = core::Result<bool>::failure(rolled.error);
+        }
+    }
     if (!loaded) {
         // 入口图进不去：退回原样。loadMap 失败时可能已经换了图、把人摆到 (0,0)（图载进来了却找不到
         // 出生点），所以图、格、朝向、队伍都要放回去——不然 inLilian() 为假、存档闸不拦，
         // 半截的状态能被存进档里。
         state_.party = std::move(trip.party);
-        (void)loadMap(trip.mapId, std::string{});
+        auto back = loadMap(trip.mapId, std::string{});
         state_.position = trip.position;
         state_.facing = trip.facing;
+        if (!back) {
+            // 原图也读不回来：画面上留着的是哪张图已经说不准了，但**存档里记的图**必须是原图——
+            // 此刻存下去、读回来，人就回到进去之前那一格。两样失败都如实交回给调用方说给玩家听，
+            // 再打到标准错误：这是数据坏了，不是玩家能绕开的事。
+            state_.mapId = trip.mapId;
+            const std::string why =
+                "入口图进不去（" + loaded.error + "），原图也读不回来（" + back.error + "）";
+            std::fprintf(stderr, "[lilian] %s\n", why.c_str());
+            return core::Result<bool>::failure(why);
+        }
         return loaded;
     }
     lilian_ = std::move(trip);
     return core::Result<bool>::success(true);
+}
+
+void Application::openLilianFacility(const core::MapObject& facility) {
+    // 历练里：这就是出口（契约 3.12「出来：走到出口」）。不另设一种对象，世界逻辑不必认识历练。
+    if (lilian_) {
+        auto left = leaveLilian();
+        if (!left) {
+            const std::string said = "回不去：" + left.error;
+            pushDialogueLine(std::string{}, said);
+            pushScene(std::make_unique<DialogueScene>(std::string{}, said));
+            return;
+        }
+        showMessage("ui.lilian.back");
+        return;
+    }
+    const std::string siteId = facility.property("site");
+    const core::LilianSite* site = lilianSite(siteId);
+    if (site == nullptr) {
+        // 地图写错了 site（门禁查得到，这里只是不崩）：与「功用尚未开启」同一个态度，再留一行日志。
+        std::fprintf(stderr, "[lilian] 设施 %s 的 site（%s）不在 data/lilian 里\n", facility.name.c_str(),
+                     siteId.c_str());
+        showMessage("ui.lilian.unknown");
+        return;
+    }
+    if (state_.flag(site->unlockFlag) == 0) {
+        showMessage("ui.lilian.locked");
+        return;
+    }
+    pushScene(std::make_unique<LilianPartyScene>(site->id));
 }
 
 core::Result<bool> Application::leaveLilian() {

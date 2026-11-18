@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "core/model/Lilian.h"
 #include "core/model/Types.h"
 #include "core/rules/Crafting.h"
 #include "core/rules/Economy.h"
@@ -334,6 +335,20 @@ public:
     // 四种地图对象的状态此刻记在哪一份：历练里是「这一趟」那份（出来就扔），否则是存档里那份。
     // 宝箱、采集点、明雷、机关的逻辑一律经它读写，别直接碰 GameState::worldObjects。
     [[nodiscard]] core::WorldObjectState& worldObjects();
+    //
+    // 进去那一刻另做一件事：这处历练地用到的每张图上，带 chance 的 foe / chest 按
+    // rules::lilianSeed(日历日, 历练地) 各抽一次；没抽中的直接记进「这一趟」——明雷记成已清、
+    // 宝箱记成已开（看上去是被人先开过的）——不另设状态。图读不进来就不进去，什么也不动。
+    // 历练地没登记（data/lilian 里没有这个 id）时只抽入口图，也不分档。
+    //
+    // 在历练里开的仗（startBattle）编成 id 拼上档的后缀（_t1 / _t2 / _t3，rules::lilianTier）；
+    // 世界逻辑只管把 foe.battle 原样递进来。battleStart().battleId 记的是拼过之后真开的那一场。
+    //
+    // 出口：历练里面朝任何一处 kind = lilian 的设施按确认，就是出去（openFacility → leaveLilian）。
+
+    // 历练地的定义（data/lilian/*.json，init 时读）。查不到返回 nullptr。
+    [[nodiscard]] const core::LilianSite* lilianSite(const std::string& siteId) const;
+    [[nodiscard]] const std::map<std::string, core::LilianSite>& lilianSites() const { return lilianSites_; }
 
     // ---- 野外遭遇（docs/interfaces-octo-encounters.md）----
     //
@@ -500,6 +515,9 @@ private:
         core::WorldObjectState objects;   // 这一趟里四种地图对象的状态
     };
     std::optional<LilianTrip> lilian_;
+    std::map<std::string, core::LilianSite> lilianSites_;   // lilianSite()
+    // 设施 kind = lilian：历练外弹组队面板，历练里就是出口（openFacility 的一支）。
+    void openLilianFacility(const core::MapObject& facility);
     bool encountersEnabled_ = false;
     std::map<std::string, rules::EncounterTable> encounterTables_;
     std::string bgmOverride_;
