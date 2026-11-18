@@ -26,6 +26,7 @@
 #include "game/MenuScene.h"
 #include "game/SettingsScene.h"
 #include "game/ShopScene.h"
+#include "game/ShotScenes.h"
 #include "game/TitleScene.h"
 #include "game/WorldScene.h"
 #include "io/GameRoot.h"
@@ -114,6 +115,7 @@ std::vector<std::string> splitSpec(const std::string& spec, char separator) {
 //   choice:<选项 key,选项 key…>[:<上一句 key>[:<说话人>]]   选项对话框
 //   ending:<标题 key>:<正文 key>            结局卡
 //   cultivate / shop:<店 id>                修炼面板 / 商店面板
+// 伙伴改版另加的 lilian:<历练地>、menu:party|roster、walk:<方向串> 在 game/ShotScenes.h。
 bool pushUiShot(fanren::game::Application& app, const std::string& kind, const std::string& arg,
                 int& warmup) {
     namespace game = fanren::game;
@@ -135,6 +137,8 @@ bool pushUiShot(fanren::game::Application& app, const std::string& kind, const s
     }
     if (kind == "menu") {
         using Page = game::MenuScene::Page;
+        // 菜单开场比对白多做一些事，改版前截图时世界层那一步落在另一档（game/ShotScenes.h）。
+        app.setFixedWorldClock(game::kShotMenuWorldClockSeconds);
         const std::string page = arg.empty() ? std::string("status") : arg;
         if (page == "status") app.pushScene(std::make_unique<game::MenuScene>(Page::Status));
         else if (page == "items") app.pushScene(std::make_unique<game::MenuScene>(Page::Items, true));
@@ -330,6 +334,8 @@ int main(int argc, char** argv) {
         // 不要悄悄拍一张世界层——那种「成功」会让人以为面板画出来了。
         // 标题画面自己有 1.2 秒的淡入：照三帧拍就是一片黑。
         int warmup = titleFlow ? kTitleShotFrames : kShotWarmupFrames;
+        // 世界层被压着时的时钟按定数走，拍几次都一样（game/ShotScenes.h）。
+        app.setFixedWorldClock(fanren::game::kShotWorldClockSeconds);
         const std::string& scene = sceneSpec;
         if (!scene.empty()) {
             const std::size_t colon = scene.find(':');
@@ -343,6 +349,8 @@ int main(int argc, char** argv) {
                 app.pushScene(std::make_unique<fanren::game::BattleScene>(battleId, battleShot));
             } else if (kind == "board") {
                 app.pushScene(std::make_unique<fanren::game::BoardScene>());
+            } else if (fanren::game::pushCompanionShot(app, kind, arg, warmup)) {
+                // 伙伴改版的几个入口（历练组队面板、队伍页、名册页、走几步再拍），见 game/ShotScenes.h。
             } else if (pushUiShot(app, kind, arg, warmup)) {
                 // 界面路的截图口（标题、章节卡、主菜单、对白、选项、结局卡、两块面板），见上。
             } else if (kind == "path" && pushPathShot(app, arg)) {

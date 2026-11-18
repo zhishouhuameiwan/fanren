@@ -769,7 +769,8 @@ void WorldView::render(Application& app, const WorldFrame& frame) {
     engine::Engine& engine = app.engine();
     // 对话框压在世界层上时，主循环只 update 最上面那一层，世界层的 advance 轮不到：
     // 这里用引擎的帧间隔补上，树叶照落、灯照闪、那一步照样滑完——不然一开口说话世界就冻住。
-    if (!advanced_) advance(app, engine.deltaSeconds());
+    // 截图口给了定数（Application::fixedWorldClock）就按定数补，同一屏拍几次都一样。
+    if (!advanced_) advance(app, app.fixedWorldClock() > 0.0 ? app.fixedWorldClock() : engine.deltaSeconds());
     advanced_ = false;
     sync(app);
     ensureAtlas(app);

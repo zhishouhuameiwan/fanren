@@ -172,6 +172,11 @@ public:
     // 换皮时又要一处处改回去。
     [[nodiscard]] const ui::Theme& theme() const { return theme_; }
 
+    // 世界层被对白、菜单压着时补一步用的时钟步长（秒）。0（缺省）= 按引擎的真实帧间隔走；截图口设成定数，
+    // 不然同一屏拍两次灯的明灭不一样（game/ShotScenes.h 的 kShotWorldClockSeconds）。
+    void setFixedWorldClock(double seconds) { fixedWorldClock_ = seconds; }
+    [[nodiscard]] double fixedWorldClock() const { return fixedWorldClock_; }
+
     // 对白头像（伙伴改版 3.9）：表与图都从 init 收的游戏根取（game/Portraits.h 的 PortraitBook）。
     [[nodiscard]] PortraitBook& portraits() { return portraits_; }
 
@@ -532,6 +537,7 @@ private:
     std::string bgmOverride_;
 
     PortraitBook portraits_;   // portraits()
+    double fixedWorldClock_ = 0.0;   // fixedWorldClock()
     io::Settings settings_;
     // 「已落盘」的那一份：enable 时读进来生效的、之后每次写盘成功写下的。shutdown 时与 settings_ 不同就补写。
     io::Settings savedSettings_;
