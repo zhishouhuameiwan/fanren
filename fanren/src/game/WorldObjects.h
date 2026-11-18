@@ -90,9 +90,11 @@ using Companions = std::map<std::string, core::Companion>;
 inline constexpr std::size_t kFieldedCompanions = 3;
 [[nodiscard]] std::vector<std::string> fieldedCompanionRoles(const core::GameState& state,
                                                              const Companions& companions);
-// 队里有没有人会这手场地技；有就返回那位伙伴的 id，没有为空串。
-[[nodiscard]] std::string partyFieldSkillHolder(const core::GameState& state, const Companions& companions,
-                                                const std::string& skill);
+// 队里有没有人会这手场地技；有就返回那位队员**实际的角色 id**（GameState::party 里存的那一个，
+// 脚本 party.add 定的，可能与 currentRole 推出来的不同），没有为空串。取名要用它：
+// 旁白里的名字得是图上跟着的那个人。
+[[nodiscard]] std::string partyFieldSkillRole(const core::GameState& state, const Companions& companions,
+                                              const std::string& skill);
 // 名册里（met_flag 已置）会这手的伙伴，按伙伴 id 排第一位；没有为空串。
 [[nodiscard]] std::string rosterFieldSkillHolder(const core::GameState& state, const Companions& companions,
                                                  const std::string& skill);

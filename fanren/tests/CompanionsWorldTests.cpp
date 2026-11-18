@@ -1,8 +1,9 @@
 // 伙伴改版·C 路「世界逻辑」（docs/interfaces-companions.md 2.4、3.4–3.8、3.11，第 5 节「跟随」「四种对象」）。
 //
 // 全部驱动真的 WorldScene::tryStep / interact，挂在真的 Application 上：跟随者从 describeFrame 取（画面拿到的
-// 就是这一份），对象状态从 Application::worldObjects() 与存档取，开战从 Application::battleStart() 取，
-// 仗的收场走 Application::completeCommand（BattleScene::finish 收场时调的就是它）。
+// 就是这一份），对象状态从 Application::worldObjects() 与存档取，开战从 Application::battleStart() 取。
+// 明雷的胜、逃、负各有一条**真打**的：BattleScene 由 tests/BattleHand.h 那只手按真菜单打完，收场照真流程
+// 先回写气血、发奖励，再走明雷登记的回调。偷袭判定、敌人跑了、历练里清掉这几条只看回调，替战斗场景报战果。
 //
 // 资产根是一份临时拷贝（与 CompanionsBaseWiringTests 同一个做法）：data/companions/ 里放四位探针伙伴，
 // maps/ 里放一张探针图 probe_world（四种新对象、插话触发器、伙伴 NPC 各一处），scripts/t/ 里放两段小脚本。
@@ -16,6 +17,7 @@
 #include <string>
 #include <vector>
 
+#include "BattleHand.h"
 #include "TempDir.h"
 #include "core/model/Types.h"
 #include "game/Application.h"
@@ -28,7 +30,9 @@ namespace {
 
 namespace fs = std::filesystem;
 using fanren::core::Point;
+using fanren::core::battle::BattlePhase;
 using fanren::game::Application;
+using fanren::game::BattleScene;
 using fanren::game::WorldFrame;
 using fanren::game::WorldScene;
 
@@ -55,9 +59,9 @@ constexpr const char* kCompanionB = R"({"id": "probe_b", "met_flag": "probe.met_
 constexpr const char* kCompanionC = R"({"id": "probe_c", "met_flag": "probe.met_c", "roles": [{"role": "chen_shimei"}]})";
 constexpr const char* kCompanionD = R"({"id": "probe_d", "met_flag": "probe.met_d", "roles": [{"role": "baiyi_shaonv"}]})";
 
-// ---- 探针图 probe_world：12×8，全是空地 ----
-constexpr int kW = 12;
-constexpr int kH = 8;
+// ---- 探针图 probe_world：16×12，全是空地 ----
+constexpr int kW = 16;
+constexpr int kH = 12;
 
 std::string prop(const std::string& name, const std::string& value) {
     return R"({"name":")" + name + R"(","type":"string","value":")" + value + R"("})";
@@ -69,13 +73,25 @@ std::string propBool(const std::string& name, bool value) {
     return R"({"name":")" + name + R"(","type":"bool","value":)" + (value ? "true" : "false") + "}";
 }
 std::string object(const std::string& name, const std::string& type, int x, int y,
-                   const std::vector<std::string>& props) {
+                   const std::vector<std::string>& props, int w = 1) {
     std::string list;
     for (const std::string& p : props) list += (list.empty() ? "" : ",") + p;
     return R"({"id":0,"name":")" + name + R"(","type":")" + type + R"(","x":)" + std::to_string(x * 32) +
-           R"(,"y":)" + std::to_string(y * 32) + R"(,"width":32,"height":32,"rotation":0,"visible":true,)" +
-           R"("properties":[)" + list + "]}";
+           R"(,"y":)" + std::to_string(y * 32) + R"(,"width":)" + std::to_string(w * 32) +
+           R"(,"height":32,"rotation":0,"visible":true,)" + R"("properties":[)" + list + "]}";
 }
+std::string foeAt(const std::string& name, int x, int y, const std::string& facing, const std::string& battle,
+                  const std::vector<std::string>& extra = {}) {
+    std::vector<std::string> props{prop("id", "probe_world." + name), prop("battle", battle), prop("look", "wild_wolf"),
+                                   prop("facing", facing)};
+    props.insert(props.end(), extra.begin(), extra.end());
+    return object(name, "foe", x, y, props);
+}
+
+// 两份不致命、可以逃的夹具编成：谷外孤狼（现成的野外遭遇，打得过）与 probe_foe_hard（同一张编成换上
+// 第 13 章的强敌，凡人打不过）。明雷的编成一律不致命、普通明雷可逃（契约 3.4）。
+constexpr const char* kWolfBattle = "be03_guwai_gulang";
+constexpr const char* kHardBattle = "probe_foe_hard";
 
 std::string probeMap() {
     std::string zeros;
@@ -97,9 +113,20 @@ std::string probeMap() {
         object("chest_a", "chest", 2, 4, {prop("id", "probe_world.chest_a"), prop("loot", "material_dansha:2,material_fuzhi")}),
         object("gather_a", "gather", 4, 4,
                {prop("id", "probe_world.gather_a"), prop("item", "herb_huangjing_cao"), propInt("respawn_days", 3)}),
-        object("foe_a", "foe", 8, 4,
-               {prop("id", "probe_world.foe_a"), prop("battle", "b04_gongfang_weijian"), prop("look", "wild_wolf"),
-                prop("facing", "left"), propInt("respawn_days", 2)}),
+        foeAt("foe_a", 8, 4, "left", kWolfBattle, {propInt("respawn_days", 2)}),
+        foeAt("foe_hard", 14, 2, "left", kHardBattle),           // 面前 (13,2)
+        foeAt("foe_up", 2, 10, "up", kWolfBattle),               // 面前 (2,9)
+        foeAt("foe_right", 5, 10, "right", kWolfBattle),         // 面前 (6,10)
+        foeAt("foe_down", 8, 9, "down", kWolfBattle),            // 面前 (8,10)
+        foeAt("foe_trap", 11, 10, "left", kWolfBattle),          // 面前 (10,10)，那一格另压着一个踏入触发器
+        object("trigger_trap", "trigger", 10, 10, {prop("script", "t/noop.lua"), prop("mode", "enter"), propBool("once", false)}),
+        // require_flag 没置时都不在。
+        object("chest_r", "chest", 13, 9, {prop("id", "probe_world.chest_r"), prop("loot", "material_fuzhi"),
+                                          prop("require_flag", "probe.show")}),
+        object("gather_r", "gather", 14, 9, {prop("id", "probe_world.gather_r"), prop("item", "herb_huangjing_cao"),
+                                            propInt("respawn_days", 1), prop("require_flag", "probe.show")}),
+        foeAt("foe_r", 15, 11, "up", kWolfBattle, {prop("require_flag", "probe.show")}),   // 面前 (15,10)
+        object("gate_wide", "gate", 12, 6, {prop("id", "probe_world.gate_wide"), prop("skill", "illusion")}, 2),
         object("gate_a", "gate", 10, 4, {prop("id", "probe_world.gate_a"), prop("skill", "break_seal"), prop("opens", "probe.gate_a_open")}),
         object("gate_b", "gate", 10, 6, {prop("id", "probe_world.gate_b"), prop("skill", "illusion")}),
         object("gate_c", "gate", 11, 6, {prop("id", "probe_world.gate_c"), prop("skill", "nobody"), prop("hint", "ui.facility.locked")}),
@@ -128,6 +155,16 @@ protected:
         writeFile(root_->path() / "maps" / "probe_world.tmj", probeMap());
         writeFile(root_->path() / "scripts" / "t" / "noop.lua", R"(flag.set("probe.noop"))");
         writeFile(root_->path() / "scripts" / "t" / "chat.lua", R"(flag.set("probe.chatted"))");
+        // probe_foe_hard：照谷外孤狼那张编成（可逃、不致命），敌人换成第 13 章的强敌。
+        std::ifstream in(root_->path() / "data" / "battles" / (std::string(kWolfBattle) + ".json"), std::ios::binary);
+        std::string battle((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        for (const auto& [from, to] : {std::pair<std::string, std::string>{kWolfBattle, kHardBattle},
+                                       std::pair<std::string, std::string>{"wild_wolf", "feng_xi"}}) {
+            for (std::size_t at = battle.find(from); at != std::string::npos; at = battle.find(from, at + to.size())) {
+                battle.replace(at, from.size(), to);
+            }
+        }
+        writeFile(root_->path() / "data" / "battles" / (std::string(kHardBattle) + ".json"), battle);
     }
     static void TearDownTestSuite() { root_.reset(); }
 
@@ -205,6 +242,29 @@ protected:
     }
     int count(const std::string& item) { return app_.state().itemCount(item); }
 
+    // 真打一场：开战那一下之后一帧，战斗场景压上栈顶；那只手按真菜单打到分出胜负；再一帧，战斗场景照真流程
+    // 收场（回写气血、发奖励、调 completeCommand → 明雷的回调）、出栈。flee 为真时一开打就逃。
+    BattlePhase fight(bool flee = false) {
+        tick();
+        auto* battle = dynamic_cast<BattleScene*>(app_.topScene());
+        EXPECT_NE(battle, nullptr) << "该开打了";
+        if (battle == nullptr) return BattlePhase::Ongoing;
+        fanren::test::BattleHand hand(app_);
+        hand.fleeAtOnce(flee);
+        const BattlePhase phase = hand.play(*battle);
+        tick();
+        EXPECT_NE(dynamic_cast<WorldScene*>(app_.topScene()), nullptr) << "收场之后回到世界层";
+        return phase;
+    }
+    void sturdyHero() {
+        app_.state().maxHp = 400;
+        app_.state().hp = 400;
+    }
+    bool battling() {
+        tick();
+        return dynamic_cast<BattleScene*>(app_.topScene()) != nullptr;
+    }
+
     static std::unique_ptr<fanren::test::TempDir> root_;
     Application app_;
 };
@@ -220,6 +280,14 @@ std::vector<std::string> roles(const WorldFrame& frame) {
     std::vector<std::string> out;
     for (const auto& f : frame.followers) out.push_back(f.roleId);
     return out;
+}
+// 这一帧里名为 name 的那个对象（宝箱、采集点、明雷、机关各一张表）；不在为 nullptr。
+template <typename Entry>
+const Entry* named(const std::vector<Entry>& list, const std::string& name) {
+    for (const Entry& entry : list) {
+        if (entry.object != nullptr && entry.object->name == name) return &entry;
+    }
+    return nullptr;
 }
 
 constexpr Point kSpawn{1, 1};
@@ -253,13 +321,16 @@ TEST_F(CompanionsWorld, FieldedCompanionsWalkTheHeroTrailOneCellApart) {
     // 面朝前面那个人：都在往右走。
     for (const auto& f : frame().followers) EXPECT_EQ(f.facing, 1);
 
-    // 撞墙（越界）不算一步：转了身，足迹不动。
-    stand({4, 2}, 1);
-    ASSERT_TRUE(step(0, -1));   // 上到 (4,1)：那里是踏入触发器，下一条用例单独看
+    // 再走一步到 (5,2)；右边 (6,2) 站着张铁的 NPC（没入队时在场），撞上去不算一步：转了身，足迹不动。
+    ASSERT_TRUE(step(1, 0));
     EXPECT_EQ(cells(frame()), (std::vector<Point>{{4, 2}, {3, 2}, {2, 2}}));
+    party({{"chen_shimei", true}, {"baiyi_shaonv", true}});   // 换一队不含张铁的：图上的张铁在场、挡路
+    EXPECT_FALSE(step(1, 0));
+    EXPECT_EQ(app_.state().position, (Point{5, 2}));
+    EXPECT_EQ(cells(frame()), (std::vector<Point>{{4, 2}, {3, 2}}));
 }
 
-TEST_F(CompanionsWorld, FollowersNeitherBlockNpcsNorOccupyCells) {
+TEST_F(CompanionsWorld, FollowersDoNotOccupyTheirCells) {
     party({{"zhang_tie", true}});
     ASSERT_TRUE(step(1, 0));
     ASSERT_TRUE(step(-1, 0)) << "往回走一步：踩的正是跟随者站着的那一格，不占格";
@@ -329,8 +400,8 @@ TEST_F(CompanionsWorld, NoCompanionNoFollowers) {
 
 TEST_F(CompanionsWorld, AChestOpensOnceAndStaysOpenAcrossASave) {
     stand({2, 3}, 2);   // 面朝 (2,4) 的宝箱
-    ASSERT_EQ(frame().chests.size(), 1u);
-    EXPECT_FALSE(frame().chests[0].opened);
+    ASSERT_NE(named(frame().chests, "chest_a"), nullptr);
+    EXPECT_FALSE(named(frame().chests, "chest_a")->opened);
     EXPECT_FALSE(step(0, 1)) << "宝箱占格";
     stand({2, 3}, 2);
 
@@ -340,7 +411,7 @@ TEST_F(CompanionsWorld, AChestOpensOnceAndStaysOpenAcrossASave) {
     EXPECT_EQ(lastLine(), "打开箱子，得了丹砂×2、符纸。");
     EXPECT_EQ(app_.state().worldObjects.openedChests.count("probe_world.chest_a"), 1u);
     drain();
-    EXPECT_TRUE(frame().chests[0].opened);
+    EXPECT_TRUE(named(frame().chests, "chest_a")->opened);
 
     // 再按：空的，不再给。
     ASSERT_TRUE(scene().interact(app_));
@@ -349,7 +420,7 @@ TEST_F(CompanionsWorld, AChestOpensOnceAndStaysOpenAcrossASave) {
     drain();
 
     saveAndReload();
-    EXPECT_TRUE(frame().chests[0].opened) << "存档读回后还是开着的";
+    EXPECT_TRUE(named(frame().chests, "chest_a")->opened) << "存档读回后还是开着的";
     stand({2, 3}, 2);
     ASSERT_TRUE(scene().interact(app_));
     EXPECT_EQ(count("material_dansha"), 2);
@@ -365,7 +436,7 @@ TEST_F(CompanionsWorld, AFullBagLeavesTheChestClosedAndTheBagUntouched) {
     EXPECT_EQ(count("material_fuzhi"), 0);
     EXPECT_TRUE(app_.state().worldObjects.openedChests.empty());
     drain();
-    EXPECT_FALSE(frame().chests[0].opened);
+    EXPECT_FALSE(named(frame().chests, "chest_a")->opened);
 
     ASSERT_TRUE(app_.state().removeItem("material_dansha", 1));   // 腾出一件的地方：998 - 1 + 2 = 999 放得下
     ASSERT_TRUE(scene().interact(app_));
@@ -385,7 +456,7 @@ TEST_F(CompanionsWorld, AGatherPointCoolsDownByTheCalendar) {
     EXPECT_EQ(lastLine(), "采得黄精。");
     EXPECT_EQ(app_.state().worldObjects.gatheredDay.at("probe_world.gather_a"), day);
     drain();
-    EXPECT_TRUE(frame().gathers[0].depleted);
+    EXPECT_TRUE(named(frame().gathers, "gather_a")->depleted);
 
     ASSERT_TRUE(scene().interact(app_));
     EXPECT_EQ(lastLine(), "这里刚采过，过些日子再来。");
@@ -393,11 +464,11 @@ TEST_F(CompanionsWorld, AGatherPointCoolsDownByTheCalendar) {
     drain();
 
     saveAndReload();
-    EXPECT_TRUE(frame().gathers[0].depleted) << "存档读回后仍在冷却";
+    EXPECT_TRUE(named(frame().gathers, "gather_a")->depleted) << "存档读回后仍在冷却";
     app_.advanceDays(2);
-    EXPECT_TRUE(frame().gathers[0].depleted) << "respawn_days=3：过两天还没好";
+    EXPECT_TRUE(named(frame().gathers, "gather_a")->depleted) << "respawn_days=3：过两天还没好";
     app_.advanceDays(1);
-    EXPECT_FALSE(frame().gathers[0].depleted) << "第三天刷新";
+    EXPECT_FALSE(named(frame().gathers, "gather_a")->depleted) << "第三天刷新";
     stand({4, 3}, 2);
     ASSERT_TRUE(scene().interact(app_));
     EXPECT_EQ(count("herb_huangjing_cao"), 2);
@@ -411,7 +482,7 @@ TEST_F(CompanionsWorld, AFullBagLeavesTheGatherPointReady) {
     EXPECT_EQ(count("herb_huangjing_cao"), 999);
     EXPECT_TRUE(app_.state().worldObjects.gatheredDay.empty());
     drain();
-    EXPECT_FALSE(frame().gathers[0].depleted);
+    EXPECT_FALSE(named(frame().gathers, "gather_a")->depleted);
 }
 
 // ---------------------------------------------------------------------------
@@ -422,29 +493,29 @@ constexpr Point kFoe{8, 4};
 constexpr Point kFoeFront{7, 4};   // 它面朝左
 
 TEST_F(CompanionsWorld, SteppingInFrontOfAFoeStartsAPlainFightAndWinningClearsIt) {
-    ASSERT_EQ(frame().foes.size(), 1u);
-    EXPECT_EQ(frame().foes[0].look, "wild_wolf");
-    EXPECT_EQ(frame().foes[0].facing, 3);
+    ASSERT_NE(named(frame().foes, "foe_a"), nullptr);
+    EXPECT_EQ(named(frame().foes, "foe_a")->look, "wild_wolf");
+    EXPECT_EQ(named(frame().foes, "foe_a")->facing, 3);
     stand({6, 4}, 1);
     ASSERT_TRUE(scene().tryStep(app_, 1, 0));
     tick();
     EXPECT_EQ(app_.state().position, kFoeFront);
-    EXPECT_EQ(app_.battleStart().battleId, "b04_gongfang_weijian") << "foe.battle 原样递过去";
+    EXPECT_EQ(app_.battleStart().battleId, "be03_guwai_gulang") << "foe.battle 原样递过去";
     EXPECT_FALSE(app_.battleStart().preemptive) << "被看见：不加不减";
 
     const int day = app_.state().day;
     finishBattle(true, "");
     EXPECT_EQ(app_.state().worldObjects.clearedFoes.at("probe_world.foe_a"), day);
-    EXPECT_TRUE(frame().foes.empty()) << "打赢就消失";
+    EXPECT_EQ(named(frame().foes, "foe_a"), nullptr) << "打赢就消失";
     ASSERT_TRUE(step(1, 0)) << "不在场的明雷不占格";
     EXPECT_EQ(app_.state().position, kFoe);
 
     saveAndReload();
-    EXPECT_TRUE(frame().foes.empty()) << "存档读回后还是清掉的";
+    EXPECT_EQ(named(frame().foes, "foe_a"), nullptr) << "存档读回后还是清掉的";
     app_.advanceDays(1);
-    EXPECT_TRUE(frame().foes.empty());
+    EXPECT_EQ(named(frame().foes, "foe_a"), nullptr);
     app_.advanceDays(1);
-    EXPECT_EQ(frame().foes.size(), 1u) << "respawn_days=2：第二天重新出现";
+    EXPECT_NE(named(frame().foes, "foe_a"), nullptr) << "respawn_days=2：第二天重新出现";
 }
 
 TEST_F(CompanionsWorld, FacingAFoeFromTheSideOrBehindIsAnAmbush) {
@@ -454,7 +525,7 @@ TEST_F(CompanionsWorld, FacingAFoeFromTheSideOrBehindIsAnAmbush) {
     EXPECT_TRUE(app_.battleStart().preemptive) << "侧面偷袭占先手";
     finishBattle(false, "escaped");
     EXPECT_EQ(app_.state().position, (Point{8, 3})) << "逃跑：退回开打前站的那一格";
-    EXPECT_EQ(frame().foes.size(), 1u) << "逃跑：它留在原地";
+    EXPECT_NE(named(frame().foes, "foe_a"), nullptr) << "逃跑：它留在原地";
     EXPECT_TRUE(app_.state().worldObjects.clearedFoes.empty());
 
     stand({9, 4}, 3);   // 背后
@@ -470,34 +541,128 @@ TEST_F(CompanionsWorld, FacingAFoeFromTheSideOrBehindIsAnAmbush) {
     finishBattle(false, "escaped");
 }
 
-TEST_F(CompanionsWorld, EscapingASightedFightStepsBackToWhereTheHeroStood) {
+TEST_F(CompanionsWorld, ARealWinClearsTheFoeAndPaysTheBattleReward) {
+    sturdyHero();
+    const int stones = count("material_lingshi");
+    const int cultivation = app_.state().cultivation;
     stand({6, 4}, 1);
     ASSERT_TRUE(scene().tryStep(app_, 1, 0));
-    tick();
-    finishBattle(false, "escaped");
-    EXPECT_EQ(app_.state().position, (Point{6, 4}));
-    EXPECT_EQ(frame().foes.size(), 1u);
+    const int day = app_.state().day;
+    ASSERT_EQ(fight(), BattlePhase::Won);
+    EXPECT_EQ(app_.state().worldObjects.clearedFoes.at("probe_world.foe_a"), day) << "打赢记档";
+    EXPECT_EQ(named(frame().foes, "foe_a"), nullptr);
+    // 谷外孤狼的编成奖励：灵石 1、修为 3（data/battles/be03_guwai_gulang.json）。战斗场景收场时先发奖励、再走回调。
+    EXPECT_EQ(count("material_lingshi"), stones + 1);
+    EXPECT_EQ(app_.state().cultivation, cultivation + 3);
+    EXPECT_EQ(app_.state().position, kFoeFront) << "打赢：人站在原地";
 }
 
-TEST_F(CompanionsWorld, LosingToAFoeSendsTheHeroToTheDefaultSpawn) {
+TEST_F(CompanionsWorld, ARealEscapeStepsBackToWhereTheHeroStood) {
+    sturdyHero();
     stand({6, 4}, 1);
     ASSERT_TRUE(scene().tryStep(app_, 1, 0));
-    tick();
-    finishBattle(false, "lost");
+    ASSERT_EQ(fight(/*flee=*/true), BattlePhase::Escaped);
+    EXPECT_EQ(app_.state().position, (Point{6, 4})) << "退回开打前站的那一格";
+    EXPECT_NE(named(frame().foes, "foe_a"), nullptr) << "它留在原地";
+    EXPECT_TRUE(app_.state().worldObjects.clearedFoes.empty());
+}
+
+TEST_F(CompanionsWorld, ARealLossSendsTheHeroToTheDefaultSpawn) {
+    stand({12, 2}, 1);
+    ASSERT_TRUE(scene().tryStep(app_, 1, 0));   // 踏进 foe_hard 面前那一格 (13,2)
+    ASSERT_EQ(fight(), BattlePhase::Lost);
     EXPECT_EQ(app_.state().mapId, "probe_world");
-    EXPECT_EQ(app_.state().position, kSpawn);
-    EXPECT_EQ(frame().foes.size(), 1u) << "打输：它还在";
+    EXPECT_EQ(app_.state().position, kSpawn) << "打输回本图的缺省出生点";
+    EXPECT_GE(app_.state().hp, 1) << "不致命：气血至少 1";
+    EXPECT_NE(named(frame().foes, "foe_hard"), nullptr) << "打输：它还在";
 }
 
-TEST_F(CompanionsWorld, LosingInsideALilianEndsTheWholeTrip) {
+TEST_F(CompanionsWorld, WhenTheEnemyFleesTheFoeStaysAndSoDoesTheHero) {
+    stand({6, 4}, 1);
+    ASSERT_TRUE(scene().tryStep(app_, 1, 0));
+    tick();
+    finishBattle(false, "enemy_fled");
+    EXPECT_EQ(app_.state().position, kFoeFront);
+    EXPECT_NE(named(frame().foes, "foe_a"), nullptr);
+    EXPECT_TRUE(app_.state().worldObjects.clearedFoes.empty());
+}
+
+TEST_F(CompanionsWorld, EveryFacingSeesOnlyItsFrontCell) {
+    struct Case {
+        const char* foe;
+        Point from;
+        int dx, dy;     // 迈进面前那一格
+        Point sideFrom;
+        int sdx, sdy;   // 迈进它的侧面：不开打
+    };
+    const Case cases[] = {
+        {"foe_up", {2, 8}, 0, 1, {0, 10}, 1, 0},      // 面前 (2,9)；侧面 (1,10)
+        {"foe_right", {7, 10}, -1, 0, {5, 8}, 0, 1},  // 面前 (6,10)；侧面 (5,9)
+        {"foe_down", {8, 11}, 0, -1, {6, 9}, 1, 0},   // 面前 (8,10)；侧面 (7,9)
+    };
+    for (const Case& c : cases) {
+        SCOPED_TRACE(c.foe);
+        stand(c.sideFrom, 1);
+        ASSERT_TRUE(scene().tryStep(app_, c.sdx, c.sdy));
+        EXPECT_FALSE(battling()) << "侧面不在它眼里";
+        stand(c.from, 1);
+        ASSERT_TRUE(scene().tryStep(app_, c.dx, c.dy));
+        ASSERT_TRUE(battling()) << "踏进面前那一格就开打";
+        EXPECT_FALSE(app_.battleStart().preemptive);
+        finishBattle(false, "escaped");
+        EXPECT_EQ(app_.state().position, c.from);
+    }
+}
+
+TEST_F(CompanionsWorld, BeingSeenComesBeforeAnEnterTriggerOnTheSameCell) {
+    app_.state().setFlag("probe.noop", 0);
+    stand({9, 10}, 1);
+    ASSERT_TRUE(scene().tryStep(app_, 1, 0));   // (10,10)：foe_trap 的面前，也压着 trigger_trap
+    ASSERT_TRUE(battling());
+    EXPECT_EQ(app_.state().flag("probe.noop"), 0) << "这一步先被看见，踏入触发器没响";
+    finishBattle(false, "escaped");
+}
+
+TEST_F(CompanionsWorld, ObjectsWithAnUnsetRequireFlagAreNotThere) {
+    auto present = [&] {
+        const WorldFrame& f = frame();
+        return std::make_tuple(named(f.chests, "chest_r") != nullptr, named(f.gathers, "gather_r") != nullptr,
+                               named(f.foes, "foe_r") != nullptr);
+    };
+    EXPECT_EQ(present(), std::make_tuple(false, false, false));
+    stand({12, 9}, 1);
+    EXPECT_TRUE(step(1, 0)) << "不在的宝箱不占格";
+    EXPECT_TRUE(step(1, 0)) << "不在的采集点不占格";
+    stand({13, 8}, 2);
+    EXPECT_FALSE(scene().interact(app_)) << "按了不响";
+    stand({15, 10}, 2);
+    EXPECT_TRUE(step(0, 1)) << "不在的明雷不占格";
+    stand({14, 10}, 1);
+    ASSERT_TRUE(scene().tryStep(app_, 1, 0));
+    EXPECT_FALSE(battling()) << "不在的明雷看不见人";
+
+    app_.state().setFlag("probe.show");
+    EXPECT_EQ(present(), std::make_tuple(true, true, true));
+    stand({12, 9}, 1);
+    EXPECT_FALSE(step(1, 0)) << "置了旗标：宝箱占格";
+    stand({13, 8}, 2);
+    ASSERT_TRUE(scene().interact(app_));
+    EXPECT_EQ(count("material_fuzhi"), 1);
+    drain();
+    stand({14, 10}, 1);
+    ASSERT_TRUE(scene().tryStep(app_, 1, 0));
+    EXPECT_TRUE(battling()) << "置了旗标：明雷看得见人";
+    finishBattle(false, "escaped");
+}
+
+TEST_F(CompanionsWorld, ALosingTripInsideALilianEndsTheWholeTrip) {
     ASSERT_TRUE(app_.loadMap("ch01_hanjiacun", std::string{}).ok);
     const Point before = app_.state().position;
     ASSERT_TRUE(app_.enterLilian(fanren::game::LilianEntry{"probe_site", "probe_world", "", {"li_feiyu"}}).ok);
     tick();
-    stand({6, 4}, 1);
+    stand({12, 2}, 1);
     ASSERT_TRUE(scene().tryStep(app_, 1, 0));
-    tick();
-    finishBattle(false, "lost");
+    ASSERT_EQ(fight(), BattlePhase::Lost) << "真打：探针强敌，这一队打不过";
     EXPECT_FALSE(app_.inLilian()) << "历练里打输：整趟退出";
     EXPECT_EQ(app_.state().mapId, "ch01_hanjiacun");
     EXPECT_EQ(app_.state().position, before);
@@ -510,7 +675,7 @@ TEST_F(CompanionsWorld, AFoeClearedInsideALilianIsOnlyClearedForThatTrip) {
     ASSERT_TRUE(scene().interact(app_));
     tick();
     finishBattle(true, "");
-    EXPECT_TRUE(frame().foes.empty());
+    EXPECT_EQ(named(frame().foes, "foe_a"), nullptr);
     EXPECT_TRUE(app_.state().worldObjects.clearedFoes.empty()) << "永久集合没被写";
     EXPECT_EQ(app_.worldObjects().clearedFoes.count("probe_world.foe_a"), 1u);
 }
@@ -534,7 +699,7 @@ TEST_F(CompanionsWorld, AGateOpensForACompanionWithTheSkillAndStaysOpen) {
     ASSERT_TRUE(scene().interact(app_));
     EXPECT_EQ(lastLine(), "这里要厉飞雨来才行。") << "换了角色就叫新名字";
     drain();
-    EXPECT_FALSE(frame().gates[0].open);
+    EXPECT_FALSE(named(frame().gates, "gate_a")->open);
     EXPECT_FALSE(step(1, 0)) << "关着的机关占格";
 
     // 她入队（不上场也算：场地技不是战斗）。
@@ -545,14 +710,14 @@ TEST_F(CompanionsWorld, AGateOpensForACompanionWithTheSkillAndStaysOpen) {
     EXPECT_EQ(app_.state().worldObjects.openedGates.count("probe_world.gate_a"), 1u);
     EXPECT_EQ(app_.state().flag("probe.gate_a_open"), 1) << "写了 opens 的置那面旗标";
     drain();
-    EXPECT_TRUE(frame().gates[0].open);
+    EXPECT_TRUE(named(frame().gates, "gate_a")->open);
     EXPECT_FALSE(scene().interact(app_)) << "开了的机关按了不响";
     ASSERT_TRUE(step(1, 0)) << "开了之后不占格";
     EXPECT_EQ(app_.state().position, (Point{10, 4}));
 
     party({});
     saveAndReload();
-    EXPECT_TRUE(frame().gates[0].open) << "存档读回后还开着，人走了也开着";
+    EXPECT_TRUE(named(frame().gates, "gate_a")->open) << "存档读回后还开着，人走了也开着";
 }
 
 TEST_F(CompanionsWorld, AGateWithoutOpensSetsNoFlagAndTheHintReplacesTheGenericLine) {
@@ -569,6 +734,32 @@ TEST_F(CompanionsWorld, AGateWithoutOpensSetsNoFlagAndTheHintReplacesTheGenericL
     EXPECT_EQ(app_.state().worldObjects.openedGates.count("probe_world.gate_c"), 0u);
 }
 
+TEST_F(CompanionsWorld, AWideGateBlocksAndOpensAsOne) {
+    party({{"mo_daifu", true}});
+    for (const Point at : {Point{12, 5}, Point{13, 5}}) {
+        stand(at, 2);
+        EXPECT_FALSE(step(0, 1)) << "两格都挡";
+    }
+    stand({13, 5}, 2);   // 面朝右半边按
+    ASSERT_TRUE(scene().interact(app_));
+    EXPECT_EQ(app_.state().worldObjects.openedGates.count("probe_world.gate_wide"), 1u);
+    drain();
+    for (const Point at : {Point{12, 5}, Point{13, 5}}) {
+        stand(at, 2);
+        EXPECT_TRUE(step(0, 1)) << "开了之后两格都不挡";
+    }
+}
+
+TEST_F(CompanionsWorld, TheOpeningLineNamesTheRoleActuallyInTheParty) {
+    // 队里存的是张铁（脚本 party.add 定的），probe.grown 也置了——currentRole 会推成厉飞雨。
+    // 旁白里的名字要是图上跟着的那个人：张铁。
+    app_.state().setFlag("probe.grown");
+    party({{"zhang_tie", true}});
+    stand({9, 4}, 1);
+    ASSERT_TRUE(scene().interact(app_));
+    EXPECT_EQ(lastLine(), "张铁上前施为，前路开了。");
+}
+
 TEST_F(CompanionsWorld, AGateOpenedInsideALilianSetsNoFlagAndIsClosedNextTrip) {
     const fanren::game::LilianEntry trip{"probe_site", "probe_world", "", {"li_feiyu"}};
     ASSERT_TRUE(app_.enterLilian(trip).ok);
@@ -576,13 +767,13 @@ TEST_F(CompanionsWorld, AGateOpenedInsideALilianSetsNoFlagAndIsClosedNextTrip) {
     stand({9, 4}, 1);
     ASSERT_TRUE(scene().interact(app_));
     drain();
-    EXPECT_TRUE(frame().gates[0].open);
+    EXPECT_TRUE(named(frame().gates, "gate_a")->open);
     EXPECT_EQ(app_.state().flag("probe.gate_a_open"), 0) << "历练里不置永久旗标";
     EXPECT_TRUE(app_.state().worldObjects.openedGates.empty());
     ASSERT_TRUE(app_.leaveLilian().ok);
     ASSERT_TRUE(app_.enterLilian(trip).ok);
     tick();
-    EXPECT_FALSE(frame().gates[0].open) << "第二趟进去是关着的";
+    EXPECT_FALSE(named(frame().gates, "gate_a")->open) << "第二趟进去是关着的";
 }
 
 // ---------------------------------------------------------------------------

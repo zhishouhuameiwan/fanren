@@ -190,13 +190,13 @@ std::vector<std::string> fieldedCompanionRoles(const core::GameState& state, con
     return roles;
 }
 
-std::string partyFieldSkillHolder(const core::GameState& state, const Companions& companions,
-                                  const std::string& skill) {
+std::string partyFieldSkillRole(const core::GameState& state, const Companions& companions,
+                                const std::string& skill) {
     if (skill.empty()) return {};
     for (const core::PartyMember& member : state.party) {
         const std::string who = rules::companionOfRole(companions, member.roleId);
         const auto it = companions.find(who);
-        if (it != companions.end() && it->second.fieldSkill == skill) return who;
+        if (it != companions.end() && it->second.fieldSkill == skill) return member.roleId;
     }
     return {};
 }

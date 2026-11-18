@@ -1,6 +1,7 @@
 #include "game/WorldScene.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <memory>
 #include <string>
 #include <vector>
@@ -316,7 +317,7 @@ std::string describeItems(Application& app, const std::vector<worldobj::ItemStac
     return out;
 }
 
-// 伙伴此刻的名字：她现在用的那个角色的名字（问名之前叫「白衣女子」，之后叫「南宫婉」）。
+// 不在队里的伙伴此刻的名字：她现在该用的那个角色的名字（问名之前叫「白衣女子」，之后叫「南宫婉」）。
 std::string companionName(Application& app, const std::string& companionId) {
     const std::string role = rules::currentRole(app.data().companions, companionId, app.state());
     return app.speakerName(role.empty() ? companionId : role);
@@ -369,7 +370,8 @@ bool WorldScene::operateGate(Application& app, const core::MapObject& gate) {
     const Companions& companions = app.data().companions;
     const std::string skill = gate.property("skill");
     // 队里任意一位伙伴会这手（契约 3.6），上不上场都算：场地技不是战斗。
-    if (const std::string who = worldobj::partyFieldSkillHolder(app.state(), companions, skill); !who.empty()) {
+    // 名字取她在队里实际用的那个角色（图上跟着的就是她），不经 currentRole。
+    if (const std::string role = worldobj::partyFieldSkillRole(app.state(), companions, skill); !role.empty()) {
         app.worldObjects().openedGates.insert(gate.property("id"));
         // opens 是永久旗标：历练里只记在「这一趟」，不许落进旗标（门禁也不许历练图写 opens）。
         if (const std::string opens = gate.property("opens"); !opens.empty() && !app.inLilian()) {
@@ -377,10 +379,11 @@ bool WorldScene::operateGate(Application& app, const core::MapObject& gate) {
         }
         // 「一小段演出」：开门声 + 一句她出手的旁白。
         app.engine().playSfx("door_open");
-        narrate(app, fill(app.text("ui.world.gate.open"), "{name}", companionName(app, who)));
+        narrate(app, fill(app.text("ui.world.gate.open"), "{name}", app.speakerName(role)));
         return true;
     }
-    // 没人会：名册里已有会这手的人，就点她的名；还没有，就只说要别的法子。
+    // 没人会：名册里已有会这手的人，就点她的名；还没有，就只说要别的法子。她此刻不在队里，
+    // 没有「实际的角色 id」可问，只能问 currentRole（契约 2.1 许可的第三处）。
     if (const std::string who = worldobj::rosterFieldSkillHolder(app.state(), companions, skill); !who.empty()) {
         narrate(app, fill(app.text("ui.world.gate.need"), "{name}", companionName(app, who)));
         return true;
@@ -414,8 +417,16 @@ void WorldScene::startFoeBattle(Application& app, const core::MapObject& foe, bo
                         // 打输：在历练里整趟退出（3.12）；不在历练里回这张图的缺省出生点（3.4，
                         // 明雷的编成一律不致命，门禁钉着）。退出失败（原图读不回来）时也退到出生点，
                         // 不把人留在一场打输了的仗的原地。
-                        if (app.inLilian() && app.leaveLilian().ok) return;
-                        (void)app.loadMap(mapId, std::string{});
+                        if (app.inLilian()) {
+                            const auto left = app.leaveLilian();
+                            if (left.ok) return;
+                            std::fprintf(stderr, "[world] WARNING: 历练里打输，退出历练失败（%s），退到 %s 的出生点\n",
+                                         left.error.c_str(), mapId.c_str());
+                        }
+                        if (const auto back = app.loadMap(mapId, std::string{}); !back.ok) {
+                            std::fprintf(stderr, "[world] WARNING: 明雷打输后回不了 %s 的出生点：%s\n", mapId.c_str(),
+                                         back.error.c_str());
+                        }
                     });
 }
 

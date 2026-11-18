@@ -2890,13 +2890,21 @@ def v_build(work: Path, bad: bool) -> None:
         v_write_json(companions / "probe_bad.json", {
             "id": "probe_bad", "met_flag": V_FLAG, "romance": 1, "duo": "no_such_magic",
             "roles": [{"role": "no_such_role"}], "gifts": {"like": ["no_such_item"]}})
+        v_write_json(companions / "probe_misnamed.json", {
+            "id": "probe_other_name", "met_flag": V_FLAG, "roles": [{"role": "chen_shimei"}]})
+        v_write_json(companions / "probe_nomet.json", {"id": "probe_nomet", "roles": []})
+        # 会 illusion 的只有她，而她的 met_flag 是一面登记了、却谁也不置的旗标。
+        register_probe_flag(work, "probe.never_met")
+        v_write_json(companions / "probe_unmet.json", {
+            "id": "probe_unmet", "met_flag": "probe.never_met", "field_skill": "illusion",
+            "roles": [{"role": "mo_daifu"}]})
         v_write_json(companions / "probe_dup.json", {
             "id": "probe_dup", "met_flag": V_FLAG, "roles": [{"role": "zhang_tie"}]})
 
     # ---- 历练地与编成（规则 37、39）----
     v_write_json(work / "data" / "lilian" / (V_SITE + ".json"), {
         "id": V_SITE, "name_key": "lilian.map.probe.name", "unlock_flag": V_FLAG, "entry": {"map": V_LILIAN_MAP},
-        "maps": [V_LILIAN_MAP] + ([V_MAP] if bad else []),
+        "maps": [V_LILIAN_MAP] + ([V_MAP, "lilian_nowhere"] if bad else []),
         "tiers": [{"max_realm": "QiRefining13"}, {"max_realm": "FoundationEarly"}, {"max_realm": "FoundationMid"}]})
     v_battle(work, "probe_lilian_foe_t1", cultivation=0)
     v_battle(work, "probe_lilian_foe_t2", cultivation=3 if bad else 0)
@@ -2917,6 +2925,12 @@ def v_build(work: Path, bad: bool) -> None:
     lilian_cells = v_open_cells(work, V_MAP, 3)
     if bad:
         add_object(lilian, make_object("facility_v_save", "facility", lilian_cells[0], {"kind": "save"}))
+        add_object(lilian, make_object("facility_v_sit", "facility",
+                                       (lilian_cells[0][0] + 2, lilian_cells[0][1]), {"kind": "meditate"}))
+    else:
+        # 出口：历练里面朝任何一处 lilian 设施按确认就是出去（D 路）。
+        add_object(lilian, make_object("facility_v_exit", "facility", lilian_cells[0],
+                                       {"kind": "lilian", "site": V_SITE}))
     add_object(lilian, make_object("gate_v_lilian", "gate", lilian_cells[1], dict(
         {"id": V_LILIAN_MAP + ".gate", "skill": "break_seal"}, **({"opens": V_FLAG} if bad else {}))))
     add_object(lilian, make_object("foe_v_lilian", "foe", lilian_cells[2], {
@@ -2941,9 +2955,25 @@ def v_build(work: Path, bad: bool) -> None:
         "look": "no_such_look" if bad else "wild_wolf", "facing": "north" if bad else "left"}))
     add_object(payload, make_object("foe_v_elite", "foe", c[5], {
         "id": prefix + "foe_elite", "battle": "probe_elite", "look": "wild_wolf", "facing": "down", "elite": True}))
+    if bad:
+        # 形状坏的另一只：占两格、elite 不是布尔。
+        add_object(payload, make_object("foe_v_shape", "foe", (c[5][0] - 1, c[5][1] - 2), {
+            "id": prefix + "foe_shape", "battle": "be03_guwai_gulang", "look": "wild_wolf", "facing": "up",
+            "elite": "yes"}, size=(2, 1)))
     add_object(payload, make_object("foe_v_fatal", "foe", c[6], {
         "id": prefix + "foe_fatal", "battle": "b03_gu_wai_elang" if bad else "be03_guwai_gulang",
         "look": "wild_wolf", "facing": "down"}))
+    if bad:
+        # 明雷 foe_v_fatal 面朝下，面前那一格摆一只宝箱：既压着别的新对象，又走不上去。
+        add_object(payload, make_object("chest_v_front", "chest", (c[6][0], c[6][1] + 1), {
+            "id": prefix + "chest_front", "loot": "material_fuzhi"}))
+        # 机关写了引擎不认的 require_flag；会 illusion 的伙伴进不了名册。
+        add_object(payload, make_object("gate_v_flagged", "gate", (c[7][0] + 2, c[7][1]), {
+            "id": prefix + "gate_flagged", "skill": "break_seal", "require_flag": V_FLAG}))
+        add_object(payload, make_object("gate_v_unmet", "gate", (c[7][0], c[7][1] + 2), {
+            "id": prefix + "gate_unmet", "skill": "illusion"}))
+        # trigger 的 mode 写成规范删掉了的 auto。
+        set_prop(find_object(payload, "trigger_dongqu"), "mode", "auto")
     add_object(payload, make_object("gate_v_a", "gate", c[7], {
         "id": prefix + "gate_a", "skill": "nobody_knows" if bad else "break_seal",
         "opens": "probe.unregistered" if bad else V_FLAG, "hint": "no.such.key" if bad else "ui.facility.locked"}))
@@ -3002,8 +3032,13 @@ def v_build(work: Path, bad: bool) -> None:
     if bad:
         sheet["battle_sheet"] = {"file": "unlisted.png", "frame_w": 16, "frame_h": 24, "cols": 3,
                                  "foot_y": 23, "head_y": 0}
+    roles = {"zhang_tie": "probe_hd"}
+    variants = {"zhang_tie": [{"look": "probe_hd", "max_chapter": 2}]}
+    if bad:
+        roles["li_feiyu"] = "no_such_sheet"
+        variants["li_feiyu"] = [{"look": "no_such_look_sheet", "max_chapter": 2}]
     v_write_json(hd / "index.json", {
-        "sheets": {"probe_hd": sheet}, "roles": {"zhang_tie": "probe_hd"},
+        "sheets": {"probe_hd": sheet}, "roles": roles, "role_variants": variants,
         "files": {"probe.png": ("0" * 64) if bad else digest}})
 
 
@@ -3047,6 +3082,21 @@ V_EXPECTED = [
     ("40 走路帧缺一向", "走路帧缺 ['up']"),
     ("40 战斗帧缺动作", "战斗帧缺 ['guard']"),
     ("40 帧号越界", "走路帧 down 的帧号 [999] 超出图里的 21 格"),
+    ("40 角色指向不存在的表", "角色 li_feiyu（表 no_such_sheet）: 指向的表不在这份索引的 sheets 里"),
+    ("40 变体指向不存在的表", "role_variants 里 li_feiyu 的一项指向不存在的表：'no_such_look_sheet'"),
+    ("31 伙伴 id 与文件名不一致", "id='probe_other_name' 要与文件名 probe_misnamed 相同"),
+    ("31 缺 met_flag", "probe_nomet.json: 缺少 met_flag"),
+    ("31 roles 为空", "probe_nomet.json: roles 要是非空的数组"),
+    ("32 foe 不是 1×1", "foe_v_shape: foe 只许占一格"),
+    ("32 elite 不是布尔", "elite='yes' 要是 bool"),
+    ("32 明雷面前格压着别的新对象", "foe_v_fatal: 面前那一格"),
+    ("32 明雷面前格走不上去", "走不上去（chest_v_front）"),
+    ("32 gate 写了 require_flag", "gate_v_flagged: gate 不认 require_flag"),
+    ("32 trigger 的 mode 写成 auto", "trigger 的 mode=auto 不认"),
+    ("35 会这手的伙伴进不了名册", "会 illusion 的伙伴（probe_unmet）的 met_flag 从开局都拿不到"),
+    ("39 历练图上有打坐点", "历练图上不许有 kind=meditate 的设施"),
+    ("39 历练地引用不存在的图", "历练地用到的图不存在：lilian_nowhere"),
+    ("39 历练图上没有出口", "历练地用到的图 lilian_probe 上没有一处 kind=lilian 的设施"),
 ]
 
 
@@ -3063,12 +3113,30 @@ def selftest_v_companions(case: Case, base: Path) -> None:
     good_work = make_full_workdir(base / "v_good")
     v_build(good_work, bad=False)
     errors = run_validate_full(good_work)
-    # 探针历练图只靠历练入口进（入口本身由 D 路接），所以「从开局走不到」是本节之外的事，放过这一条。
-    stray = [e for e in errors if not (V_LILIAN_MAP + ".tmj" in e and "走不到这张图" in e)]
-    case.check("改好之后新规则一条都不报（全量 0 错误）", not stray, chr(10).join(stray[:8]))
-    case.check("改好的一版仍有对照：机关后面的宝箱在、明雷在、历练三档都在",
-               any(o.get("name") == "chest_v_pocket" for o in objects_layer(load_map(good_work, V_MAP)))
-               and (good_work / "data" / "battles" / "probe_lilian_foe_t3.json").exists())
+    # 不放过任何一条：探针历练图经开局图上那处走得到的 lilian 设施进去，世界推演认得这条边。
+    case.check("改好之后全量 0 错误（历练图经入口设施走得到）", not errors, chr(10).join(errors[:8]))
+
+    # 判别力：同一份好副本里，口袋里的宝箱「机关开着」走得到、「机关关着」走不到；历练图从开局走得到，
+    # 把入口设施拿掉就走不到——绿灯确实是机关与入口这两样给的，不是别的什么让它碰巧过了。
+    saved_root = validate.ROOT
+    validate.ROOT = good_work
+    try:
+        report = validate.Report()
+        maps = [validate.check_map(path, report) for path in sorted((good_work / "maps").glob("*.tmj"))]
+        maps = [m for m in maps if m is not None]
+        opened = validate.world_targets(maps, report, gates_open=True) or set()
+        closed = validate.world_targets(maps, report, gates_open=False) or set()
+        pocket = (V_MAP, "chest_v_pocket")
+        case.check("口袋里的宝箱：机关开着走得到、关着走不到", pocket in opened and pocket not in closed,
+                   "开着 %s、关着 %s" % (pocket in opened, pocket in closed))
+        world = validate.load_world(maps, report)
+        reached_with, _ = validate.world_closure(world, honour_flags=False)
+        world.lilian_entries = {}
+        reached_without, _ = validate.world_closure(world, honour_flags=False)
+        case.check("历练图：有入口设施这条边才走得到", V_LILIAN_MAP in reached_with and V_LILIAN_MAP not in reached_without,
+                   "有边 %s、没边 %s" % (V_LILIAN_MAP in reached_with, V_LILIAN_MAP in reached_without))
+    finally:
+        validate.ROOT = saved_root
 
 
 def main() -> int:

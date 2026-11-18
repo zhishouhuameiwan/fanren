@@ -64,6 +64,8 @@ public:
     // 两条新规矩都要问「这个角色是哪位伙伴」，所以要伙伴数据（GameData::companions）。
     // 引擎里的入口（tryStep、interact、pathAction、describe）一律走带 companions 的这几个；
     // 上面不带的旧签名等于传一张空的伙伴表——没有伙伴数据，就没有哪个角色属于伙伴。
+    // **旧签名不含插话的 require_party（3.8）、一人一身（3.11），也不认四种新对象**（它们挡不挡路
+    // 归 worldobj::blockerAt）：各章测试里照旧签名寻路的 bot，图上放了新对象就要一起换。
     using Companions = std::map<std::string, core::Companion>;
 
     // 插话（3.8）：trigger 写了 require_party（**伙伴 id**）时，这位伙伴不论用的是哪个角色 id，
@@ -97,6 +99,7 @@ public:
                                                             const core::TileMap& map,
                                                             core::Point cell);
     // 带伙伴数据的那一个：在场判据换成 npcPresent（多一条一人一身）。引擎里的入口都走它。
+    // 上面那个旧签名不含一人一身、不认新对象（见 triggerReady 带 companions 那一段的说明）。
     [[nodiscard]] static const core::MapObject* visibleNpcAt(const core::GameState& state,
                                                             const core::TileMap& map,
                                                             core::Point cell,
