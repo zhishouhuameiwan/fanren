@@ -138,6 +138,10 @@ public:
     // 跟随者站在哪、宝箱开没开、明雷在不在，要从画面拿到的那一份上断言，不另算一遍。
     const WorldFrame& describeFrame(Application& app);
 
+    // 画这一层的那个 WorldView（只读）。公开给跨路的用例：世界逻辑填的帧，经世界画面画出来之后
+    // 跟随者滑在哪、与主角同不同一帧到格，要从真正在画的那一份上看。
+    [[nodiscard]] const WorldView& view() const { return view_; }
+
     // 主角走过的格子（最近的在前，至多三格）。跟随者照它排；公开给测试看足迹记没记上。
     [[nodiscard]] const std::vector<core::Point>& footprints() const { return trail_; }
 
