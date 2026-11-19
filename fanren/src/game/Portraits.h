@@ -39,7 +39,8 @@ struct PortraitFrame {
 
 // 一局游戏的头像：表与图都从**游戏根**（Application::init 收的那个目录，与 data/、maps/ 同一层）取——
 // 表是 <游戏根>/data/visual/portraits.json，图是 <游戏根>/assets/art/portraits/<file>。
-// 用 --assets 指到别处时两样跟着一起走，不会与引擎自己找的资源根分家。Application 持有一份，init 时给根。
+// 用 --assets 指到别处时两样跟着一起走：头像与 data 同根（游戏根）；别的美术仍从引擎找到的 assets 目录取。
+// Application 持有一份，init 时给根。
 //
 // 表在第一次真要画头像时才读（headless 时永远不读）；读不到、读坏了都当空表，各打一行警告。
 // 警告按这一份去重：同一个问题一局只报一次。

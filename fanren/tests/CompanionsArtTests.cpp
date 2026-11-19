@@ -8,12 +8,17 @@
 //     软件渲染器上开一台真 Application，sayAs 压一句韩立的对白，第 7 章画出的是打包出来的那一格、第 2 / 8 章不带头像。
 // 期望值照契约与 tools/artgen/hd_pack.py 的实测写死（走路格 64×60、脚底第 57 行；战斗格 132×84、脚底第 81 行；
 // 头像格 128×136、×1），不取自被测代码。
+#include <algorithm>
 #include <array>
 #include <cstdint>
 #include <cstdlib>
+#include <cstdio>
 #include <filesystem>
+#include <fstream>
+#include <regex>
 #include <functional>
 #include <set>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -22,11 +27,14 @@
 #include <gtest/gtest.h>
 
 #include "TempDir.h"
+#include "engine/TextLayout.h"
 #include "game/Application.h"
+#include "game/DialogueScene.h"
 #include "game/Portraits.h"
 #include "game/SpriteAtlas.h"
 #include "io/PortraitLoader.h"
 #include "io/VisualLoader.h"
+#include "ui/Widgets.h"
 
 namespace {
 
@@ -246,6 +254,91 @@ TEST(PortraitChapters, TheShippedTableGivesHanliAFaceOnlyInChapterSeven) {
     EXPECT_FALSE(faceIn("hanli", 8));
     EXPECT_TRUE(faceIn("chen_shimei", 7));
     EXPECT_TRUE(faceIn("chen_shimei", 2)) << "没写章的那一条每章都生效";
+    app.shutdown();
+}
+
+// ---------------------------------------------------------------------------
+// 带真头像时正文还装不装得下（只报告，不判红；与 tests/PortraitTextFitTests.cpp 同一套量法）
+// ---------------------------------------------------------------------------
+// A 路那条按「定稿 56×64 → ×2 = 112 宽」量；打包出来的头像是 128×136、×1 = 128 宽，正文又窄 16 像素。
+// 这里取仓库头像表里真的格子尺寸再量一遍：全部写死说话人的 talk 按带头像的宽度排，另单列已登记头像的角色。
+
+std::vector<std::pair<std::string, std::string>> spokenLines(const fs::path& scripts) {
+    const std::regex call(R"re(talk\(\s*"([a-z0-9_]+)"\s*,\s*"([^"]+)")re");
+    std::set<std::pair<std::string, std::string>> seen;
+    for (const auto& entry : fs::recursive_directory_iterator(scripts)) {
+        if (!entry.is_regular_file() || entry.path().extension() != ".lua") continue;
+        std::ifstream in(entry.path(), std::ios::binary);
+        std::stringstream buffer;
+        buffer << in.rdbuf();
+        const std::string text = buffer.str();
+        for (auto it = std::sregex_iterator(text.begin(), text.end(), call); it != std::sregex_iterator(); ++it) {
+            seen.emplace((*it)[1].str(), (*it)[2].str());
+        }
+    }
+    return {seen.begin(), seen.end()};
+}
+
+TEST(PortraitChapters, ReportsSpokenLinesThatNoLongerFitBesideTheShippedPortraits) {
+    const auto table = fanren::io::loadPortraits((fs::path(repoRoot()) / "data" / "visual" / "portraits.json").string());
+    ASSERT_TRUE(table.ok) << table.error;
+    ASSERT_FALSE(table.value.empty());
+    int frameW = 0, frameH = 0;
+    for (const auto& [role, list] : table.value) {
+        for (const auto& sheet : list) {
+            frameW = std::max(frameW, sheet.frameW * fanren::game::portraitScale(sheet.frameW, sheet.frameH));
+            frameH = std::max(frameH, sheet.frameH * fanren::game::portraitScale(sheet.frameW, sheet.frameH));
+        }
+    }
+    EXPECT_EQ(frameW, 128) << "打包的头像格 128×136、×1";
+
+    fanren::game::Application app;
+    ASSERT_TRUE(app.init(repoRoot(), /*headless=*/true).ok);
+    const fanren::ui::Theme& theme = app.theme();
+    const fanren::engine::Rect box = fanren::game::DialogueScene::boxAreaFor(0, theme);
+    const fanren::engine::Rect area = fanren::ui::panelContentArea(box, std::string{}, theme);
+    const auto layout = fanren::game::portraitLayout(area, theme.padding, frameW, frameH);
+    const int width = layout.text.w - theme.padding * 2;
+    int rows = 0;
+    for (int y = theme.padding; y + theme.bodyFontSize <= area.h - theme.padding;
+         y += theme.bodyFontSize + theme.lineSpacing) {
+        ++rows;
+    }
+    ASSERT_GT(rows, 0);
+    fanren::engine::Engine& engine = app.engine();
+    const auto measure = [&engine, &theme](const std::string& sample) {
+        return engine.measureText(sample, theme.bodyFontSize).x;
+    };
+    ASSERT_GT(measure("韩立"), 0) << "无头引擎量不出字宽：字体没载进来";
+    std::string tooLong;
+    for (int i = 0; i < 6; ++i) tooLong += app.text("ch01.zhenshang.arrive");
+    ASSERT_GT(static_cast<int>(fanren::engine::layoutText(tooLong, width, measure).size()), rows) << "阳性对照";
+
+    const auto lines = spokenLines(fs::path(repoRoot()) / "scripts");
+    std::size_t over = 0, registered = 0, registeredOver = 0, longest = 0;
+    std::string longestKey;
+    for (const auto& [role, key] : lines) {
+        const auto n = fanren::engine::layoutText(app.text(key), width, measure).size();
+        const bool hasPortrait = table.value.count(role) != 0;
+        registered += hasPortrait ? 1u : 0u;
+        if (n > longest) {
+            longest = n;
+            longestKey = key;
+        }
+        if (static_cast<int>(n) > rows) {
+            ++over;
+            if (hasPortrait) ++registeredOver;
+            std::printf("    %s %s（%zu 行）\n", role.c_str(), key.c_str(), n);
+        }
+    }
+    std::printf("[portrait fit · 真头像] 头像 %d×%d；正文宽 %d 像素；框里放得下 %d 行；量了 %zu 句写死说话人的 talk\n",
+                frameW, frameH, width, rows, lines.size());
+    std::printf("[portrait fit · 真头像] 全按带头像排：装不下 %zu 句；最长一句 %zu 行（%s）\n", over, longest,
+                longestKey.c_str());
+    std::printf("[portrait fit · 真头像] 已登记头像的角色说的 %zu 句里装不下 %zu 句\n", registered, registeredOver);
+    RecordProperty("portrait_over", static_cast<int>(over));
+    RecordProperty("registered_over", static_cast<int>(registeredOver));
+    EXPECT_GT(lines.size(), 1000u) << "正则没认出来就什么也没量";
     app.shutdown();
 }
 

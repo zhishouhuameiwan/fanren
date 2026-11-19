@@ -3,17 +3,20 @@
 把协调者定稿的人物图、头像、首领图（Seedream 出图、已还原成真像素）做成游戏能读的资产：
 
   assets/art/sprites/hd/<人>_walk.png、<人>_battle.png   人物走路表（64×60，4×4）与战斗表（132×84，4×2），原样转存
-  assets/art/sprites/hd/<敌人 id>.png                     非人形敌人：四个动作统一进一套格子（身躯、脚底对齐）、去残影
+  assets/art/sprites/hd/<敌人 id>.png                     非人形敌人：四个动作统一进一套格子（身躯、脚底对齐），照源图原样
   assets/art/sprites/hd/index.json                        手绘索引：sheets、roles、role_variants、enemies、files（sha256）
   assets/art/portraits/<人>.png                           对白头像：四个表情排一行，格子统一、×1 画
   data/visual/portraits.json                              头像表（角色 id → 按章生效的头像列表）
 
-    python tools/artgen/hd_pack.py [--src <定稿目录>]           # 写出上面这些
-    python tools/artgen/hd_pack.py [--src <定稿目录>] --check   # 磁盘上的与重新打出来的逐字节一致才退出 0
+    python tools/artgen/hd_pack.py [--src <定稿目录>]           # 写出上面这些（要源图）
+    python tools/artgen/hd_pack.py [--src <定稿目录>] --check   # 核：图与索引对得上；有源图时再重打一遍逐字节比
 
-确定性：不读时钟、没有随机数；缩放、对齐、去残影都是整数运算或按固定次序的取舍；JSON 键排序、UTF-8 无 BOM、LF。
-重跑逐字节相同（--check 就是这么比的）。源目录在主检出里、不入库，所以 --check 不进四道门禁；
-门禁规则 40 另核 index.json 里登记的 sha256 与磁盘上的图一致。
+产物进仓库，源图不进（定稿帧在主检出的 docs/companions-overhaul/，未入库）。所以 --check 分两半：
+图与 hd/index.json 里的 sha256 一致、头像表引的图都在且放得下格子——这一半随时能跑；
+从源图重新打包、与磁盘逐字节相同——源目录在才跑，不在时如实打印「跳过，没核」，不报成通过。
+门禁规则 40 另核 sha256（validate.py）。
+
+确定性：不读时钟、没有随机数；缩放、对齐都是整数运算或按固定次序的取舍；JSON 键排序、UTF-8 无 BOM、LF。
 """
 
 from __future__ import annotations
@@ -97,13 +100,12 @@ class Enemy:
     name: str
     kind: str
     match_size_of: str = ""   # 非空：整体缩到与这一只的待机帧一样大（同一条蛟，白的那套像素网格测得不同）
-    ghost: str = ""           # 去残影的规则名（见 GHOST_RULES）
 
 
 ENEMIES = (
-    Enemy("mo_jiao", "boss_mojiao", "墨蛟", "beast", ghost="mojiao"),
-    Enemy("mo_jiao_tuipi", "boss_mojiao_white", "墨蛟（蜕皮）", "beast", match_size_of="boss_mojiao", ghost="mojiao"),
-    Enemy("bishui_e", "boss_bishuie", "碧水鳄", "beast", ghost="bishuie"),
+    Enemy("mo_jiao", "boss_mojiao", "墨蛟", "beast"),
+    Enemy("mo_jiao_tuipi", "boss_mojiao_white", "墨蛟（蜕皮）", "beast", match_size_of="boss_mojiao"),
+    Enemy("bishui_e", "boss_bishuie", "碧水鳄", "beast"),
 )
 ENEMY_ACTIONS = ("idle", "attack", "hurt", "down")
 # 世界层（明雷）×1、战斗层 ×2：战斗里人高约 64×2 = 128 像素，墨蛟待机约 92×2 = 184，明显比人大，又不顶出画面。
@@ -271,89 +273,6 @@ def crop_to_content(img: Image.Image) -> Image.Image:
     return img.crop(box)
 
 
-def components(mask: np.ndarray) -> list[list[tuple[int, int]]]:
-    """八连通的块，按先行后列扫到的次序给出（确定性）。每块是 (y, x) 的列表。"""
-    h, w = mask.shape
-    seen = np.zeros_like(mask, dtype=bool)
-    out = []
-    for y0 in range(h):
-        for x0 in range(w):
-            if not mask[y0, x0] or seen[y0, x0]:
-                continue
-            seen[y0, x0] = True
-            stack, block = [(y0, x0)], []
-            while stack:
-                y, x = stack.pop()
-                block.append((y, x))
-                for dy in (-1, 0, 1):
-                    for dx in (-1, 0, 1):
-                        yy, xx = y + dy, x + dx
-                        if 0 <= yy < h and 0 <= xx < w and mask[yy, xx] and not seen[yy, xx]:
-                            seen[yy, xx] = True
-                            stack.append((yy, xx))
-            out.append(block)
-    return out
-
-
-def erase(img: Image.Image, blocks: list[list[tuple[int, int]]]) -> Image.Image:
-    px = np.asarray(img).copy()
-    for block in blocks:
-        for y, x in block:
-            px[y, x] = (0, 0, 0, 0)
-    return Image.fromarray(px, "RGBA")
-
-
-def ghost_mojiao(img: Image.Image) -> Image.Image:
-    """墨蛟：去掉尾巴那段半透明的残影——最左边那截细尾尖。
-
-    判据：竖着量不透明的那一段不超过 6 像素厚（细），落在图的左四分之一，连成 10 像素以上的一块。
-    后层的身圈也泛蓝、对比度低，但它连着身子，去掉身子就断了，所以留着。"""
-    a = alpha_mask(img)
-    h, w = a.shape
-    thickness = np.zeros((h, w), dtype=np.int32)
-    for x in range(w):
-        y = 0
-        while y < h:
-            if not a[y, x]:
-                y += 1
-                continue
-            top = y
-            while y < h and a[y, x]:
-                y += 1
-            thickness[top:y, x] = y - top
-    thin = a & (thickness <= 6)
-    thin[:, w // 4:] = False
-    img = erase(img, [b for b in components(thin) if len(b) >= 10])
-    # 尾尖去掉之后剩下的碎点：整块落在左四分之一、不足 30 像素、不连着身子的，一并清掉。
-    left = w // 4
-    return erase(img, [b for b in components(alpha_mask(img))
-                       if len(b) < 30 and all(x < left for _, x in b)])
-
-
-def ghost_bishuie(img: Image.Image) -> Image.Image:
-    """碧水鳄：去掉腹下那几块半透明的残影——远侧腿脚背光处泛蓝的暗色块（原稿在 Seedream 的蓝灰垫底色上抠出，
-    半透明的地方混进了垫底色）。
-
-    判据：偏蓝（蓝 ≥ 绿 × 0.85、且绿 > 红；鳄身是黄绿，蓝远小于绿），连成 6 像素以上的一块，
-    重心在图的下 40%、横向在 20%–85% 之间（腹下；尾巴在左上，留着）。"""
-    px = np.asarray(img).astype(np.int32)
-    r, g, b, a = px[..., 0], px[..., 1], px[..., 2], px[..., 3]
-    h, w = a.shape
-    bluish = (a > 0) & (b * 100 >= g * 85) & (g > r)
-    kill = []
-    for block in components(bluish):
-        if len(block) < 6:
-            continue
-        cy = sum(y for y, _ in block) / len(block)
-        cx = sum(x for _, x in block) / len(block)
-        if cy > h * 0.6 and w * 0.2 < cx < w * 0.85:
-            kill.append(block)
-    return erase(img, kill)
-
-
-GHOST_RULES = {"mojiao": ghost_mojiao, "bishuie": ghost_bishuie}
-
-
 def best_shift(ref: np.ndarray, mask: np.ndarray, limit: int) -> int:
     """两张底边对齐的剪影，水平挪多少重合得最多（身躯对齐）。同分取挪得少的、再取往左的，确定性。"""
     rh, rw = ref.shape
@@ -380,8 +299,9 @@ def build_enemy(src: Path, enemy: Enemy, out: dict[str, bytes]) -> dict:
         # 按面积配：同一条蛟两套像素网格测得不同，体形一处没变，所以整体乘同一个比例。
         factor = math.sqrt((ref.width * ref.height) / (acts[0].width * acts[0].height))
         acts = [majority_downscale(a, max(1, round(a.width * factor)), max(1, round(a.height * factor))) for a in acts]
-    rule = GHOST_RULES[enemy.ghost] if enemy.ghost else (lambda im: im)
-    acts = [crop_to_content(rule(a)) for a in acts]
+    # 不去「残影」：还原成真像素之后 alpha 只有 0 / 255，看着发虚的尾巴、腹下是远处的身圈与远侧的腿，
+    # 是身体的一部分（协调者 2026-11-18 定的，E.md「去掉半透明的残影」那半句作废）。
+    acts = [crop_to_content(a) for a in acts]
     # 身躯对齐：每个动作底边对齐，水平方向挪到与待机帧的剪影重合最多的地方。
     idle_mask = alpha_mask(acts[0])
     shifts = [0] + [best_shift(idle_mask, alpha_mask(a), acts[0].width // 4) for a in acts[1:]]
@@ -436,32 +356,90 @@ def build(src: Path) -> tuple[dict[Path, bytes], list[str]]:
     return result, notes
 
 
+def check_committed(out: Path) -> list[str]:
+    """不需要源图的那一半：仓库里的图与索引对得上。
+
+    · hd/index.json 的 files：每个文件都在、sha256 与磁盘一致；hd/ 下除 index.json 外没有没登记的文件；
+    · portraits.json：每一条引的头像图都在，宽高放得下它的格子（头像表的形状由读取器管，它不带 sha256）；
+      portraits/ 下没有没被引用的图。"""
+    problems: list[str] = []
+    hd_index = out / HD_REL / "index.json"
+    if not hd_index.exists():
+        return [f"缺  {(HD_REL / 'index.json').as_posix()}"]
+    files = json.loads(hd_index.read_text(encoding="utf-8")).get("files", {})
+    for name, digest in sorted(files.items()):
+        target = out / HD_REL / name
+        if not target.exists():
+            problems.append(f"缺  {(HD_REL / name).as_posix()}（index.json 登记了）")
+        elif hashlib.sha256(target.read_bytes()).hexdigest() != digest:
+            problems.append(f"变  {(HD_REL / name).as_posix()}（sha256 与 index.json 不一致）")
+    for f in sorted((out / HD_REL).glob("*")):
+        if f.is_file() and f.name != "index.json" and f.name not in files:
+            problems.append(f"多  {(HD_REL / f.name).as_posix()}（index.json 没登记）")
+    table_path = out / PORTRAIT_JSON_REL
+    if not table_path.exists():
+        return problems + [f"缺  {PORTRAIT_JSON_REL.as_posix()}"]
+    used: set[str] = set()
+    for role, entries in sorted(json.loads(table_path.read_text(encoding="utf-8")).get("portraits", {}).items()):
+        for entry in entries:
+            image = out / PORTRAIT_REL / entry["file"]
+            used.add(entry["file"])
+            if not image.exists():
+                problems.append(f"缺  {(PORTRAIT_REL / entry['file']).as_posix()}（{role} 的头像）")
+                continue
+            with Image.open(image) as im:
+                need = (entry["frame_w"] * entry["cols"], entry["frame_h"])
+                if im.width < need[0] or im.height < need[1]:
+                    problems.append(f"小  {(PORTRAIT_REL / entry['file']).as_posix()}：{im.size}，格子要 {need}")
+    for f in sorted((out / PORTRAIT_REL).glob("*")) if (out / PORTRAIT_REL).exists() else []:
+        if f.is_file() and f.name not in used:
+            problems.append(f"多  {(PORTRAIT_REL / f.name).as_posix()}（portraits.json 没引用）")
+    return problems
+
+
+def check_repack(src: Path, out: Path) -> list[str]:
+    """要源图的那一半：从源图重新打一遍，与磁盘上的逐字节相同。"""
+    files, _ = build(src)
+    problems = []
+    for rel, data in sorted(files.items()):
+        target = out / rel
+        if not target.exists():
+            problems.append(f"缺  {rel.as_posix()}")
+        elif target.read_bytes() != data:
+            problems.append(f"变  {rel.as_posix()}（与从源图重新打包的不一致）")
+    for d in (HD_REL, PORTRAIT_REL):
+        for f in sorted((out / d).glob("*")) if (out / d).exists() else []:
+            if f.is_file() and f.relative_to(out) not in files:
+                problems.append(f"多  {f.relative_to(out).as_posix()}（打包脚本已不产出它）")
+    return problems
+
+
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="手绘高清美术打包")
-    ap.add_argument("--src", type=Path, default=DEFAULT_SRC, help="定稿图目录（缺省：主检出 docs/companions-overhaul）")
+    ap.add_argument("--src", type=Path, default=None,
+                    help=f"定稿图目录（不入库；缺省：{DEFAULT_SRC}，那里不在就当没有源图）")
     ap.add_argument("--out", type=Path, default=REPO, help="输出根（缺省：仓库的 fanren/）")
-    ap.add_argument("--check", action="store_true", help="只比对：磁盘上的与重新打出来的逐字节一致才退出 0")
+    ap.add_argument("--check", action="store_true",
+                    help="只比对：图与索引的 sha256 对得上；有源图时再从源图重打一遍逐字节比")
     args = ap.parse_args(argv)
-    files, notes = build(args.src)
+    src = args.src if args.src is not None else DEFAULT_SRC
+    have_src = src.is_dir()
     if args.check:
-        diffs = []
-        for rel, data in sorted(files.items()):
-            target = args.out / rel
-            if not target.exists():
-                diffs.append(f"缺  {rel.as_posix()}")
-            elif target.read_bytes() != data:
-                diffs.append(f"变  {rel.as_posix()}")
-        for d in (HD_REL, PORTRAIT_REL):
-            for f in sorted((args.out / d).glob("*")) if (args.out / d).exists() else []:
-                if f.is_file() and f.relative_to(args.out) not in files:
-                    diffs.append(f"多  {f.relative_to(args.out).as_posix()}（打包脚本已不产出它）")
-        for line in diffs:
+        problems = check_committed(args.out)
+        if have_src:
+            problems += check_repack(src, args.out)
+        for line in problems:
             print("  " + line)
-        if diffs:
-            print(f"HD_PACK_OUT_OF_SYNC：{len(diffs)} 个文件与打包结果不一致")
+        if problems:
+            print(f"HD_PACK_OUT_OF_SYNC：{len(problems)} 处不一致")
             return 1
-        print(f"HD_PACK_IN_SYNC：{len(files)} 个文件与打包结果逐字节一致")
+        print("HD_PACK_IN_SYNC：图与索引的 sha256 一致；" +
+              ("从源图重新打包逐字节相同" if have_src else f"源目录 {src} 不在，「从源图重新打包」那一半跳过，没核"))
         return 0
+    if not have_src:
+        print(f"hd_pack: 源目录 {src} 不在，打不了（用 --src 指定）")
+        return 1
+    files, notes = build(src)
     for rel, data in sorted(files.items()):
         target = args.out / rel
         target.parent.mkdir(parents=True, exist_ok=True)
