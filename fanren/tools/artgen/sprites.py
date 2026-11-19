@@ -46,6 +46,7 @@ FACILITY_OBJECTS = {
     "shop": "facility.shop",
     "board": "facility.board",
     "save": "facility.save",
+    "lilian": "facility.lilian",   # 历练入口与出口（伙伴改版，docs/art-sprites.md 5.4）
 }
 
 # 识海之战里韩立不是人形，是光球（b03_shihai_duoshe）

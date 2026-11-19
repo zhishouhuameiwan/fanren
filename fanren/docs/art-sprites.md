@@ -210,20 +210,23 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
 
 ### 5.2 手绘表 `sprites/hd/index.json`
 
-具名角色的手绘表放 `sprites/hd/`，有自己的一份索引，**人工维护**，`artgen.py --check` 不管它。
+具名角色的手绘表放 `sprites/hd/`，有自己的一份索引，由 **`tools/artgen/hd_pack.py`** 从协调者定稿的图打包
+（不是 `artgen.py` 的产物，`artgen.py --check` 跳过 `sprites/hd/`；打包怎么做见下面 5.5）。
 `io::loadSpriteIndex` 读完生成的 `index.json` 后顺带读同目录的 `hd/index.json`，不在就什么都不做；
 世界画面、主菜单、战斗画面都经这一个函数，所以三处一起生效。
 
 ```jsonc
 {
-  "sheets": {"hanli_hd": {"file": "hanli.png", "frame_w": 64, "frame_h": 60, "cols": 4,
-                          "scale": 2, "walk_cycle": [0, 1, 2, 3],
-                          "walk": {...}, "battle": {...},
+  "sheets": {"hanli_hd": {"file": "hanli_walk.png", "frame_w": 64, "frame_h": 60, "cols": 4,
+                          "scale": 2, "walk_cycle": [0, 1, 2, 3], "battle_scale": 2,
+                          "walk": {...}, "battle": {...}, "foot_y": 57, "head_y": 10,
                           "battle_sheet": {"file": "hanli_battle.png", "frame_w": 132, "frame_h": 84,
-                                           "cols": 4, "foot_y": 82, "head_y": 3}}},
-  "roles": {"hanli": "hanli_hd"},                                          // 角色 → 手绘表，覆盖生成的
-  "role_variants": {"hanli": [{"look": "hanli_child", "max_chapter": 2}]}, // 可不写；与上面同形
-  "files": {"hanli.png": "<sha256>", "hanli_battle.png": "<sha256>"}
+                                           "cols": 4, "foot_y": 81, "head_y": 18}}},
+  "roles": {"chen_shimei": "chen_shimei_hd"},                              // 角色 → 手绘表，覆盖生成的
+  "role_variants": {"hanli": [{"look": "hanli_child", "max_chapter": 2},   // 可不写；与上面同形
+                              {"look": "hanli_hd", "min_chapter": 7, "max_chapter": 7}]},
+  "enemies": {"mo_jiao": {...}},                                           // 可不写；见下
+  "files": {"hanli_walk.png": "<sha256>", "hanli_battle.png": "<sha256>"}
 }
 ```
 
@@ -241,22 +244,28 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
 
 ### 5.3 对白头像 `data/visual/portraits.json`（伙伴改版，`docs/interfaces-companions.md` 2.5、3.9）
 
-人工维护（不归 `artgen.py` 生成，`--check` 不管它）。键是**角色 id**：同一个人的不同装束是不同的角色 id，各登记一条
+由 `tools/artgen/hd_pack.py` 与头像图一起打包（不归 `artgen.py` 生成）。键是**角色 id**：同一个人的不同装束是不同的角色 id，各登记一条
 （白衣女子戴面纱那一套挂在 `baiyi_shaonv` 上，问名之后的挂在她那时的角色 id 上）。没登记的角色、旁白，对白框与改版前逐像素相同。
 
 ```jsonc
 {
   "_doc": "……",                                         // 可不写：给人看的说明
   "portraits": {                                        // 必填，可以是空表
-    "baiyi_shaonv": {
-      "file": "nangong_wan_veil.png",                   // 相对 assets/art/portraits/
-      "frame_w": 56, "frame_h": 64, "cols": 4,          // 格子（正整数）；帧号 → 像素与人物表同一条公式
-      "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}   // 四个表情都写，帧号 ≥ 0
-    }
+    "hanli": [                                          // 非空数组：按章生效，取第一条成立的；都不成立就不带头像
+      {
+        "file": "hanli.png",                            // 相对 assets/art/portraits/
+        "frame_w": 128, "frame_h": 136, "cols": 4,      // 格子（正整数）；帧号 → 像素与人物表同一条公式
+        "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3},  // 四个表情都写，帧号 ≥ 0
+        "min_chapter": 7, "max_chapter": 7              // 可不写（0 = 不限）
+      }
+    ]
   }
 }
 ```
 
+- **按章生效**：`min_chapter` / `max_chapter` 与 `role_variants` 同一个意思、同一种判法——`max_chapter` 那一章还没演完、
+  且 `min_chapter` 的前一章已经演完（「演完」问章节表的 `done_flag`，与取外观同一个判据，`game/Portraits.h` 的 `portraitForChapter`）。
+  韩立第 1–2 章是十岁的孩子：青年的头像只登记在第 7 章，其余章节他说话不出脸。改版前「一个角色一个对象」的写法不再认。
 - 读取器 `io/PortraitLoader.h`，严格：缺项、类型错、认不出的键（含第五个表情、`scale` 之类引擎不判的字段）整份报错，
   游戏里打一行警告、当作空表（对白一律不带头像，不挡游戏）。图载不进来、某一格越出了图：那一句不带头像，警告一次。
 - 脚本 `talk(角色, 文案, 表情)` 的表情缺省 `normal`；写了认不出的表情按 `normal` 画并警告一次。
@@ -265,9 +274,12 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
   图是 `<游戏根>/assets/art/portraits/<file>`。一局一份（`Application::portraits()`），第一次真要画头像时才读表。
 - 带头像时正文宽 1004 像素（不带是 1136），正文排不下的行直接截断（`ui::drawTextBlock`）。2026-11-18 量过全部写死说话人的 `talk`（1235 句）：带头像时最长的一句排 2 行，框里放得下 5 行（`tests/PortraitTextFitTests.cpp` 每次构建重报）。
 - 画法（`game/Portraits.h`、`DialogueScene`）：画在对白框正文区左侧，按「放得进 128×144 的最大整数倍」放大
-  （定稿 56×64 → ×2 = 112×128），贴着正文区的内边距（`Theme::padding`）左上角、在缩进后的那一块里竖直居中；正文右移「头像宽 + 20」。头像底下垫一块深色、外面一圈暗金细框，
+  （定稿打包成 128×136 的格子 → ×1），贴着正文区的内边距（`Theme::padding`）左上角、在缩进后的那一块里竖直居中；正文右移「头像宽 + 20」。头像底下垫一块深色、外面一圈暗金细框，
   图里透明的地方不透出地图。选项框沿用上一句的说话人（`Application` 那边），头像照画，选项列表不让开。
-- 打包（美术路）：一个人一张图，四个表情排成一行（`cols` = 4）是最省事的写法；格子尺寸以定稿为准，不必凑 16 的倍数。
+- 打包（`hd_pack.py`）：一个人一张图，表情排成一行（`cols` = 张数）。定稿头像原生就是 100–131 宽、86–136 高
+  （先前写的「定稿 56×64、按 ×2 画」是把尺寸读错了），所有人共用一种格子：放得下最大的那张、但不超过 128×144，现在是 128×136、×1 画。
+  源图不缩放，底边对齐、按图的中线摆进格子；南宫婉露脸前期的 bust_0 / bust_1 宽 130 / 131，两侧是衣袖、不是透明边，
+  摆进 128 宽的格子两侧各裁 1–2 列（共 4 / 7 个不透明像素）。面纱版只有「平常」一张，四个表情都指它。
 - 截图口 `talk:<文案键>:<角色 id>[:<表情>]` 拍得到带头像的对白。
 
 ### 5.4 地图新对象的物件图（伙伴改版，`docs/interfaces-companions.md` 2.4、第 6 节）
@@ -285,8 +297,48 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
 
 - 物件一律 ×3（16px 美术那一套），`blend` 照旧：写 `add` 的加色画。
 - 明雷本体不是物件：按 `foe.look` 先当角色 id（`role_variants` → `roles`），再当外观 id（`sheets`），再当敌人 id（`enemies`）取表；
-  人物表画那一向的站立帧（按表自己的 `scale`），敌人表画 `idle` 的第一帧（没有画第 0 帧）、×3，帧的朝向与 `facing` 左右相反时水平翻转。
+  人物表画那一向的站立帧（按表自己的 `scale`），敌人表画 `idle` 的第一帧（没有画第 0 帧）、按表自己的 `scale`（生成的缺省 ×3），帧的朝向与 `facing` 左右相反时水平翻转。
   三处都查不到：旧图元小人 + 一行警告（每个 look 整个进程一行）。
+- 画法（`sprites_objects.py` 末尾的 `COMPANION_OBJECTS`，与旧物件同一套字符模板 + 材质色阶 + 自动描边）：
+  宝箱是朱漆木箱、金箍金锁扣（开着的箱盖立在后面、箱里空着，箱身同一块、锚点不变）；采集点是一丛挂着玉色灵实的灵草
+  （灵实进发光层），采过只剩几截枯茬；关着的机关是一块立着的石门、正中一道玉色禁制符纹（16×32，进发光层），开着的是石门沉进地里、
+  地上只剩一道齐地的石缝（画小是有意的：开了不再像挡路的一整块）；明雷标记是朱红菱形里一只竖瞳，精英的两侧多一对金角。设施 `lilian`（历练入口与出口）是路口一块朱笔刻字的石碑（16×32），
+  登在 `facilities` 表里。
+- 这九件追加在 `OBJECTS` 的末尾：图集按「货架」从前往后装，排在后面的不挪动前面任何一件，旧物件的像素与矩形逐一不变
+  （图集从 256×128 长到 256×160，多出来的是底下两行格子）。
+
+### 5.5 手绘美术的打包 `tools/artgen/hd_pack.py`（伙伴改版 E 路）
+
+```
+python tools/artgen/hd_pack.py [--src <定稿目录>]           # 写出 sprites/hd/**、portraits/**、data/visual/portraits.json
+python tools/artgen/hd_pack.py [--src <定稿目录>] --check   # 重新打一遍逐字节比对，一致才退出 0
+```
+
+源目录缺省是主检出的 `docs/companions-overhaul/`（协调者用 Seedream 出图、已还原成真像素的定稿，不入库），所以 `--check`
+不进四道门禁；门禁规则 40 另核 `hd/index.json` 里登记的 sha256 与磁盘上的图一致。确定性：不读时钟、没有随机数，重跑逐字节相同。
+
+| 产物 | 怎么来 |
+| --- | --- |
+| `sprites/hd/<人>_walk.png`、`<人>_battle.png` | 定稿的走路表（256×240 = 4×4 格 64×60，行序朝下、朝左、朝右、朝上）与战斗表（528×168 = 4×2 格 132×84，八个动作依次 idle … guard）原样转存。量过：走路格脚底第 57 行、头顶第 10 行；战斗格脚底第 81 行（任务书写的 82 是把「脚底下一行」算进去了）、头顶取八格里最高的那一行 |
+| `sprites/hd/<敌人 id>.png` | 四个动作（待机、出招、受击、倒下）各自裁到内容，底边对齐、水平挪到与待机帧剪影重合最多处（身躯对齐），统一进一套格子、四周留 2 像素透明边 |
+| `sprites/hd/index.json` | 四张人物表、三张敌人表、`roles`、`role_variants`、`files`（sha256） |
+| `portraits/<人>.png`、`data/visual/portraits.json` | 见 5.3 |
+
+角色与表：`baiyi_shaonv` → 南宫婉面纱版、`nangong_wan_ch07` → 南宫婉露脸前期、`chen_shimei` → 陈师妹，这三个角色只在第 7 章出场，直接写进 `roles`；
+韩立每一章都在，写进 `role_variants`：第 1–2 章仍是生成的 `hanli_child`，第 7 章 `hanli_hd`，其余章节落回生成索引 `roles` 里的 `hanli`。
+头像：韩立只第 7 章，另外三个角色不限章。
+
+非人形敌人：`mo_jiao`（墨蛟蜕皮前，覆盖生成索引里同 id 的那只）、`mo_jiao_tuipi`（蜕皮后）、`bishui_e`（碧水鳄）。面朝右、不翻转。
+白蛟的定稿（约 213×146）比黑蛟（约 132×92）大一圈，是还原时测出的像素网格不同（体形一处没变），按待机帧的面积比整体缩到与黑蛟一样大；
+缩法是「每格看盖住的源像素，过半不透明才算实心，颜色取最多的那种」，不插值。
+
+去残影（定稿的 alpha 只有 0 / 255，「半透明」指的是看上去发虚的那几块，原稿垫在蓝灰底色上抠出时混进了底色）：
+- 墨蛟（黑、白两套同一条规则）：最左边那截细尾尖——竖着量不超过 6 像素厚、落在图的左四分之一、连成 10 像素以上的一块；
+  去掉之后左四分之一里不连着身子、不足 30 像素的碎点一并清掉。后层的身圈也泛蓝、对比度低，但连着身子，留着。
+- 碧水鳄：腹下远侧腿脚背光处泛蓝的暗色块——蓝 ≥ 绿 × 0.85 且绿 > 红、连成 6 像素以上、重心在图的下 40% 且横向在 20%–85% 之间（尾巴在左上，留着）。
+
+倍数：世界层（明雷）×1、战斗层 ×2（首领在战斗层「加四分之一取整」，2 仍是 2）。战斗里人是 64 像素高的格 ×2，
+墨蛟待机约 92 像素高 ×2 ≈ 184，明显比人大；量过的画面见 E 路汇报。
 
 ## 6. 特效与图标
 

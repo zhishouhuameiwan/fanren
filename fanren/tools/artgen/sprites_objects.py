@@ -47,6 +47,10 @@ RAMPS = {
     "glow": [P.mix("gold2", "paper", 0.2), P.mix("gold3", "paper", 0.3), P.mix("gold4", "paper", 0.4), P.c("paper")],
     "white": _ramp("stone4", "plaster2", "plaster3", "paper"),
     "leaf": _ramp("leaf2", "leaf3", "leaf5", "leaf6"),
+    # 伙伴改版的新物件（宝箱、采集点、机关、明雷标记、历练入口）用到的。只往表尾加，旧材质一个不动。
+    "soil": _ramp("soil1", "soil2", "soil3", "soil4"),
+    "lacquer": [P.mix("red0", "wood0", 0.5), P.mix("red1", "wood1", 0.45), P.mix("red2", "wood2", 0.4), P.mix("red3", "wood3", 0.4)],
+    "wither": [P.mix("soil1", "wood1", 0.5), P.mix("soil2", "wood2", 0.5), P.c("soil3"), P.c("soil4")],
 }
 MATS = Materials.build(RAMPS)
 
@@ -664,8 +668,194 @@ BUBBLES = [
     ], 2, 1),), BUBBLE_CODES, note="路径行动·切磋（交叉的两把剑）。"),
 ]
 
+# ===========================================================================
+# 伙伴改版的地图新对象（docs/art-sprites.md 5.4）：宝箱、采集点、机关、明雷标记，以及历练入口（设施 lilian）。
+# 物件 id 由契约定死（WorldProps.h 照这几个名字取）。追加在 OBJECTS 的末尾：图集按「货架」从前往后装，
+# 排在后面的不会挪动前面任何一件的位置，旧物件的像素与矩形都不变。
+# ===========================================================================
+
+_CHEST_BODY = (
+    "..ABBBZkkZBBBC..",
+    "..ABBBBZZBBBBC..",
+    "..ABBBBZZBBBBC..",
+    "..CCCCCzzCCCCD..",
+)
+CHEST_CODES = codes("lacquer", "darkwood")
+
+CHEST_CLOSED = Obj("chest_closed", "宝箱（关）", 16, 16, (pad_top((
+    "...AAAAAAAAAA...",
+    "..ABBBBZZBBBBC..",
+    "..ABBBBZZBBBBC..",
+    "..HHHHHzzHHHHH..",
+    *_CHEST_BODY,
+    "................",
+    "................",
+    "................",
+), 5),), CHEST_CODES,
+    note="朱漆木箱，一道金箍、金锁扣。与人物一起按脚底排序。")
+
+CHEST_OPEN = Obj("chest_open", "宝箱（开）", 16, 16, (pad_top((
+    "...AAAAAAAAAA...",
+    "..ABBBBZZBBBBC..",
+    "..AGGGGGGGGGGD..",
+    "..AGGGGGGGGGGD..",
+    "..HHHHHHHHHHHH..",
+    "..AkkkkkkkkkkC..",
+    "..HHHHHzzHHHHH..",
+    "..ABBBBZZBBBBC..",
+    *_CHEST_BODY[1:],
+    "................",
+    "................",
+    "................",
+), 2),), CHEST_CODES,
+    note="箱盖掀起立在后面，箱里空着。箱身与关着时同一块，锚点不变。")
+
+_GATHER_SOIL = (
+    "....EEEEEEEE....",
+    "...GFFFFFFFFG...",
+    "................",
+)
+GATHER_READY = Obj("gather_ready", "采集点（可采）", 16, 16, (F("""
+    ................
+    ................
+    .......j........
+    ......jJj.......
+    .......j....j...
+    ..j....A...jJj..
+    .jJj...A....j...
+    ..j..B.A.B..A...
+    ..A...BAB..B....
+    ...B..BAB.B.....
+    ....BBCACBB.....
+    ..BB.CCACC.BB...
+    .B...CCCCC...B..
+    """) + _GATHER_SOIL,), codes("leaf", "soil", j=("jade", 2), J=("jade", 3)),
+    note="一丛灵草，草尖挂着几粒发光的玉色灵实（发光层）。")
+
+GATHER_SPENT = Obj("gather_spent", "采集点（采过）", 16, 16, (F("""
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ......A...A.....
+    ....B.A.A.B.....
+    ...B.BCACB.B....
+    """) + _GATHER_SOIL,), codes("wither", "soil"),
+    note="采过之后只剩几截枯茬。土堆与可采时同一块，锚点不变。")
+
+GATE_CLOSED = Obj("gate_closed", "机关（关）", 16, 32, (pad_top(F("""
+    ...AAAAAAAAAA...
+    ..ABBBBBBBBBBC..
+    ..ABBCCCCCCBBC..
+    ..ABCBBBBBBCBC..
+    ..ABCBBjjBBCBC..
+    ..ABCBjJJjBCBC..
+    ..ABCBBjjBBCBC..
+    ..ABCBBjjBBCBC..
+    ..ABCBjJJjBCBC..
+    ..ABCBBjjBBCBC..
+    ..ABCBBBBBBCBC..
+    ..ABBCCCCCCBBC..
+    ..ABBBBBBBBBBC..
+    ..ABBBCBBBBBBC..
+    ..ABBBBCBBBBBC..
+    ..ABBBBBBBBBBC..
+    ..ABBBBBBBBBBC..
+    ..ACCCCCCCCCCD..
+    .AEEEEEEEEEEEEH.
+    .GFFFFFFFFFFFFH.
+    ................
+    ................
+    """), 10),), codes("stone", "stone", j=("jade", 2), J=("jade", 3)),
+    note="一块立着的石门，正中一道玉色禁制符纹（发光层）。挡在路上，与人物一起按脚底排序。")
+
+GATE_OPEN = Obj("gate_open", "机关（开）", 16, 16, (F("""
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ................
+    ..ABBBCDDCBBBC..
+    ................
+    ................
+    """),), codes("stone"),
+    note="石门沉进地里，地上只剩一道与地面齐平的石缝。画在地面一层，不参与排序、不挡路——"
+         "画小是有意的：开了的机关在那一格里占的面积不到关着时的四分之一（tests/WorldViewCompanionsTests.cpp）。")
+
+_FOE_EYE = (
+    ".....ABBBC......",
+    "....ABBqBBC.....",
+    "...ABBkkkBBC....",
+    "..ABBkkqkkBBC...",
+    "...CBBkkkBBD....",
+    "....CBBBBBD.....",
+    ".....CBBBD......",
+    "......CBD.......",
+    ".......D........",
+    "................",
+    "................",
+)
+FOE_CODES = codes("cinnabar")
+
+FOE_MARK = Obj("foe_mark", "明雷标记", 16, 16, ((
+    "................",
+    "................",
+    "................",
+    ".......A........",
+    "......ABA.......",
+    *_FOE_EYE,
+),), FOE_CODES,
+    note="朱红菱形里一只竖瞳：这只会追人。画在界面层、明雷头顶，上下漂一个美术像素。")
+
+FOE_MARK_ELITE = Obj("foe_mark_elite", "明雷标记（精英）", 16, 16, ((
+    "................",
+    "..z.........z...",
+    "..Zz.......zZ...",
+    "...Zz..A..zZ....",
+    "....ZzABAzZ.....",
+    *_FOE_EYE,
+),), FOE_CODES,
+    note="同一只朱红竖瞳，两侧多一对金角：精英，打不过别碰。")
+
+LILIAN = Obj("facility.lilian", "历练入口", 16, 32, (pad_top(F("""
+    .....AAAAA......
+    ....ABBBBBC.....
+    ...ABBBBBBBC....
+    ...ABBBBBBBC....
+    ...ABBccBBBC....
+    ...ABBBcBBBC....
+    ...ABccBBBBC....
+    ...ABBBBBBBC....
+    ...ABBcccBBC....
+    ...ABBBcBBBC....
+    ...ABBcBcBBC....
+    ...ABBBBBBBC....
+    ...ABBBBBBBC....
+    ...ABBBBBBBC....
+    ...ACCCCCCCD....
+    .l.EEEEEEEEEH.l.
+    lAlGFFFFFFFFHlAl
+    """), 13),), codes("stone", "stone", l=("leaf", 2)),
+    note="路口一块石碑，朱笔刻着字，碑脚两丛草。历练地的入口与出口（设施 kind = lilian）。")
+
+COMPANION_OBJECTS: tuple[Obj, ...] = (CHEST_CLOSED, CHEST_OPEN, GATHER_READY, GATHER_SPENT, GATE_CLOSED, GATE_OPEN,
+                                      FOE_MARK, FOE_MARK_ELITE, LILIAN)
+
 OBJECTS: tuple[Obj, ...] = (ALCHEMY, FORGE, TALISMAN, FORMATION, FIELD, MEDITATE, SHOP, BOARD, SAVE,
-                            *ARROWS, DOORLIGHT, SPARKLE, *BUBBLES)
+                            *ARROWS, DOORLIGHT, SPARKLE, *BUBBLES, *COMPANION_OBJECTS)
 
 
 GLOW_ALPHA = {3: 255, 2: 200, 1: 136, 0: 72}
