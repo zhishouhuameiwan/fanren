@@ -3065,6 +3065,13 @@ def v_build(work: Path, bad: bool) -> None:
         enemies["probe_beast_bad"] = {"file": "unlisted_beast.png", "frame_w": 16, "frame_h": 24, "cols": 3,
                                       "scale": 2, "battle": {"attack": [2]}}
         enemies["probe_beast"]["battle"]["attack"] = [99]
+        enemies["probe_beast_nofile"] = {"frame_w": 16, "frame_h": 24, "cols": 3, "scale": 2, "battle_scale": 3,
+                                         "battle": {"idle": [0]}}
+        enemies["probe_beast_numfile"] = {"file": 123, "frame_w": 16, "frame_h": 24, "cols": 3, "scale": 2,
+                                          "battle_scale": 3, "battle": {"idle": [0]}}
+        # 没写 frame_h：按加载器缺省 24 算，probe.png 是 21 格，50 号越界。
+        enemies["probe_beast_noh"] = {"file": "probe.png", "frame_w": 16, "scale": 2, "battle_scale": 3,
+                                      "battle": {"idle": [0], "attack": [50]}}
     v_write_json(hd / "index.json", {
         "sheets": {"probe_hd": sheet}, "roles": roles, "role_variants": variants, "enemies": enemies,
         "files": {"probe.png": ("0" * 64) if bad else digest}})
@@ -3116,6 +3123,9 @@ V_EXPECTED = [
     ("40 敌人缺 battle_scale", "敌人 probe_beast_bad: battle_scale 要自己写、是正整数"),
     ("40 敌人缺 idle", "敌人 probe_beast_bad: 战斗帧缺 idle"),
     ("40 敌人帧号越界", "敌人 probe_beast: 战斗帧 attack 的帧号 [99] 超出图里的 21 格"),
+    ("40 敌人缺 file", "敌人 probe_beast_nofile: 缺 file（或不是非空字符串）"),
+    ("40 敌人 file 不是字符串", "敌人 probe_beast_numfile: 缺 file（或不是非空字符串）"),
+    ("40 敌人没写 frame_h 也查帧号越界", "敌人 probe_beast_noh: 战斗帧 attack 的帧号 [50] 超出图里的 21 格"),
     ("31 伙伴 id 与文件名不一致", "id='probe_other_name' 要与文件名 probe_misnamed 相同"),
     ("31 缺 met_flag", "probe_nomet.json: 缺少 met_flag"),
     ("31 roles 为空", "probe_nomet.json: roles 要是非空的数组"),

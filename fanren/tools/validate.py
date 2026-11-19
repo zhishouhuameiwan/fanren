@@ -4179,7 +4179,11 @@ def check_hd_enemies(report: Report, rel: str, payload: dict, hd_dir: Path, file
             report.error(where, "要是对象")
             continue
         image = enemy.get("file")
-        if image and image not in files:
+        if not isinstance(image, str) or not image:
+            # 加载器（io::loadSpriteIndex）缺 file 整份拒收：游戏里人物与物件一律退回旧画法。
+            report.error(where, "缺 file（或不是非空字符串）：加载器会整份拒收这份索引")
+            image = None
+        elif image not in files:
             report.error(rel, f"敌人 {enemy_id} 引的图 {image} 没登在 files 里：改了图门禁核不到")
         for key in ("scale", "battle_scale"):
             value = enemy.get(key)
@@ -4189,7 +4193,8 @@ def check_hd_enemies(report: Report, rel: str, payload: dict, hd_dir: Path, file
         if not battle.get("idle"):
             report.error(where, "战斗帧缺 idle（明雷站着与战斗待机都画它）")
         size = png_size(hd_dir / image) if image else None
-        frame_h, cols = enemy.get("frame_h"), enemy.get("cols", 3)
+        # 没写 frame_h / cols 时按加载器的缺省（16×24、3 列）算，不跳过越界检查。
+        frame_h, cols = enemy.get("frame_h", 24), enemy.get("cols", 3)
         if size is None or not isinstance(frame_h, int) or not isinstance(cols, int) or frame_h <= 0:
             continue
         limit = cols * (size[1] // frame_h)

@@ -199,9 +199,47 @@ TEST_F(CompanionShots, TheWalkEntryLaysOutTwoFollowersAmongTheFourNewObjects) {
     EXPECT_EQ(frame.gathers.size(), 1u);
     EXPECT_EQ(frame.foes.size(), 1u);
     EXPECT_EQ(frame.gates.size(), 1u);
+    // 画面上（WorldView 真在画的那一份）两位跟随者已经滑到那两格、停下了：拍的不是半路上的样子。
+    const auto& slots = world->view().followers();
+    ASSERT_EQ(slots.size(), 2u);
+    EXPECT_FLOAT_EQ(slots[0].slide.position().x, 13.f);
+    EXPECT_FLOAT_EQ(slots[1].slide.position().x, 12.f);
+    EXPECT_FALSE(slots[0].slide.moving());
+    EXPECT_FALSE(slots[1].slide.moving());
+    EXPECT_FALSE(world->view().playerMoving());
     const Shot shot = capture(app);
     ASSERT_GT(shot.w, 0);
     EXPECT_GT(distinctColours(shot), 50u);
+    app.shutdown();
+}
+
+// 认得却拍不成的，一律报失败，不悄悄拍一张看着正常的图。
+TEST_F(CompanionShots, EntriesThatCannotBeShotAsAskedFailInsteadOfShootingSomethingElse) {
+    Application app;
+    ASSERT_TRUE(start(app, root_->path().string(), "probe_home"));
+    tick(app, 1);
+    EXPECT_FALSE(shoot(app, "lilian", "no_such_site")) << "历练地不存在";
+    EXPECT_FALSE(shoot(app, "menu", "party")) << "名册上没人：没有队伍页";
+    EXPECT_FALSE(shoot(app, "menu", "roster")) << "名册上没人：没有名册页";
+    EXPECT_FALSE(shoot(app, "walk", "DX")) << "认不出的方向";
+    tick(app, 1);
+    EXPECT_EQ(top(app), "World") << "失败的入口什么都没压";
+    // 阳性对照：同一台，名册上有了人，队伍页就拍得成。
+    app.state().setFlag("probe.a.met");
+    EXPECT_TRUE(shoot(app, "menu", "party"));
+    app.shutdown();
+}
+
+TEST_F(CompanionShots, AWalkThatRunsIntoAFoesSightStopsAndFails) {
+    writeObjectsMap(root_->path());
+    Application app;
+    ASSERT_TRUE(start(app, root_->path().string(), "probe_objects"));
+    // 明雷在 (16,9) 面朝下，看着 (16,10)。从 (12,11) 往右四步到 (16,11)，再往上一步踏进它面前那一格，开打；
+    // 后面那一步不该再对着压住的世界层走。
+    EXPECT_FALSE(shoot(app, "walk", "RRRRUR"));
+    EXPECT_EQ(top(app), "Battle");
+    EXPECT_EQ(app.state().position.x, 16) << "停在开打那一格，没有再往下走";
+    EXPECT_EQ(app.state().position.y, 10);
     app.shutdown();
 }
 
