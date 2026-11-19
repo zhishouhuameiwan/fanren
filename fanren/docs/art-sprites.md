@@ -312,16 +312,18 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
 
 ```
 python tools/artgen/hd_pack.py [--src <定稿目录>]           # 写出 sprites/hd/**、portraits/**、data/visual/portraits.json
-python tools/artgen/hd_pack.py [--src <定稿目录>] --check   # 核：图与索引对得上；有源图时再重打一遍逐字节比
+python tools/artgen/hd_pack.py [--src <定稿目录>] --check   # 核：图与索引对得上；有源图时再重打一遍比像素
 ```
 
-产物（游戏运行要用的图与两份索引）进仓库；源目录缺省是主检出的 `docs/companions-overhaul/`（协调者用 Seedream 出图、
+产物（游戏运行要用的图与两份索引）进仓库；源目录是 `--src`，没给就取环境变量 `FANREN_HD_SRC`，再没有就是仓库里的 `docs/companions-overhaul/`（协调者用 Seedream 出图、
 已还原成真像素的定稿），**不入库**。所以 `--check` 分两半：
 - 随时能跑的一半：`sprites/hd/` 下的图与 `hd/index.json` 里的 sha256 一致、没有没登记的文件；`portraits.json` 引的头像图都在、放得下格子、
   `portraits/` 下没有没被引用的图（头像表不带 sha256）。
-- 要源图的一半：从源图重新打包、与磁盘逐字节相同。源目录不在时打印「跳过，没核」，不报成通过。
+- 要源图的一半：从源图重新打包，与磁盘比**解码后的尺寸与 RGBA 像素**（PNG 字节取决于本机 Pillow / zlib，像素相同、字节不同只提示一行，
+  不算不同步；`hd/index.json` 只比登记了哪些文件，sha256 由前一半核）。全过打印 `HD_PACK_IN_SYNC`；源目录不在时只核了前一半，
+  打印 `HD_PACK_IN_SYNC_PARTIAL` 并写明「跳过，没核」，不报成全过。
 
-`--check` 不进四道门禁（源图不在仓库里）；门禁规则 40 另核 sha256。确定性：不读时钟、没有随机数，重跑逐字节相同。
+`--check` 不进四道门禁（源图不在仓库里）；门禁规则 40 另核 sha256。确定性：不读时钟、没有随机数，同一台机器上重跑逐字节相同。
 
 | 产物 | 怎么来 |
 | --- | --- |
