@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 15,
+  "nextobjectid": 21,
   "tilesets": [
     {
       "firstgid": 1,
@@ -554,34 +554,197 @@
         },
         {
           "id": 14,
-          "name": "encounter_shanlu",
-          "type": "encounter",
-          "x": 544,
-          "y": 544,
-          "width": 512,
-          "height": 672,
+          "name": "chest_shanjiao",
+          "type": "chest",
+          "x": 32,
+          "y": 1184,
+          "width": 32,
+          "height": 32,
           "rotation": 0,
           "visible": true,
           "properties": [
             {
-              "name": "require_flag",
+              "name": "id",
               "type": "string",
-              "value": "ch07.yueyang"
+              "value": "ch07_huanxingshan.chest_shanjiao"
             },
             {
-              "name": "table_id",
+              "name": "loot",
               "type": "string",
-              "value": "encounter_ch07_huanxingshan"
+              "value": "pill_yangjing_dan"
+            }
+          ]
+        },
+        {
+          "id": 15,
+          "name": "chest_beipo",
+          "type": "chest",
+          "x": 1472,
+          "y": 32,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_huanxingshan.chest_beipo"
             },
             {
-              "name": "steps_min",
-              "type": "int",
-              "value": 18
+              "name": "loot",
+              "type": "string",
+              "value": "material_huolong_cao,pill_jinchuang_yao"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "name": "chest_dongpo",
+          "type": "chest",
+          "x": 1472,
+          "y": 544,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_huanxingshan.chest_dongpo"
             },
             {
-              "name": "steps_max",
+              "name": "loot",
+              "type": "string",
+              "value": "pill_huiqi_dan"
+            }
+          ]
+        },
+        {
+          "id": 17,
+          "name": "gather_huolong",
+          "type": "gather",
+          "x": 96,
+          "y": 384,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_huanxingshan.gather_huolong"
+            },
+            {
+              "name": "item",
+              "type": "string",
+              "value": "material_huolong_cao"
+            },
+            {
+              "name": "respawn_days",
               "type": "int",
-              "value": 32
+              "value": 30
+            }
+          ]
+        },
+        {
+          "id": 18,
+          "name": "foe_tuishan",
+          "type": "foe",
+          "x": 640,
+          "y": 640,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_huanxingshan.foe_tuishan"
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "down"
+            },
+            {
+              "name": "battle",
+              "type": "string",
+              "value": "be07_tuishan_shou"
+            },
+            {
+              "name": "look",
+              "type": "string",
+              "value": "tuishan_shou"
+            }
+          ]
+        },
+        {
+          "id": 19,
+          "name": "foe_tiebi",
+          "type": "foe",
+          "x": 1408,
+          "y": 768,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_huanxingshan.foe_tiebi"
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "left"
+            },
+            {
+              "name": "battle",
+              "type": "string",
+              "value": "be07_tiebi_yuan"
+            },
+            {
+              "name": "look",
+              "type": "string",
+              "value": "tiebi_yuan"
+            }
+          ]
+        },
+        {
+          "id": 20,
+          "name": "foe_huoyan",
+          "type": "foe",
+          "x": 896,
+          "y": 1056,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_huanxingshan.foe_huoyan"
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "left"
+            },
+            {
+              "name": "battle",
+              "type": "string",
+              "value": "be07_huoyan_shu"
+            },
+            {
+              "name": "look",
+              "type": "string",
+              "value": "huoyan_shu"
             }
           ]
         }

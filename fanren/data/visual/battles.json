@@ -350,6 +350,106 @@
       "backdrop": "cliff_top",
       "map": "ch13_wuzhong",
       "why": "第13章施工图第8.2节：② 雾中岛西海珊瑚礁诱妖（trigger_youyao），白天的礁石，用现有 cliff_top（第11章红瑚岛同组）"
+    },
+    "be07_hanbing_chan": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch07_jindi_waiwei",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "be07_cai_e": {
+      "backdrop": "mountain_forest_dusk",
+      "map": "ch07_jindi_waiwei",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "be07_fei_she": {
+      "backdrop": "mountain_forest",
+      "map": "ch07_jindi_zhongxin",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "be07_zhaoze_chan": {
+      "backdrop": "cave_tunnel",
+      "map": "ch07_dixia_zhaoze",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "be07_shenchu_shu": {
+      "backdrop": "cave_tunnel",
+      "map": "ch07_zhaoze_shenchu",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "be07_shenchu_she": {
+      "backdrop": "cave_tunnel",
+      "map": "ch07_zhaoze_shenchu",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "be07_bishui_e": {
+      "backdrop": "cave_tunnel",
+      "map": "ch07_zhaoze_shenchu",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "b07_poding": {
+      "backdrop": "cave_tunnel",
+      "map": "ch07_dixia_shiku",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_bishui_e_t1": {
+      "backdrop": "cave_tunnel",
+      "map": "lilian_jindi_shenchu",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_bishui_e_t2": {
+      "backdrop": "cave_tunnel",
+      "map": "lilian_jindi_shenchu",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_bishui_e_t3": {
+      "backdrop": "cave_tunnel",
+      "map": "lilian_jindi_shenchu",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_fei_she_t1": {
+      "backdrop": "mountain_forest",
+      "map": "lilian_jindi_zhongxin",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_fei_she_t2": {
+      "backdrop": "mountain_forest",
+      "map": "lilian_jindi_zhongxin",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_fei_she_t3": {
+      "backdrop": "mountain_forest",
+      "map": "lilian_jindi_zhongxin",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_hanbing_chan_t1": {
+      "backdrop": "cave_tunnel",
+      "map": "lilian_jindi_zhaoze",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_hanbing_chan_t2": {
+      "backdrop": "cave_tunnel",
+      "map": "lilian_jindi_zhaoze",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_hanbing_chan_t3": {
+      "backdrop": "cave_tunnel",
+      "map": "lilian_jindi_zhaoze",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_huoyan_shu_t1": {
+      "backdrop": "mountain_forest",
+      "map": "lilian_jindi_huanxingshan",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_huoyan_shu_t2": {
+      "backdrop": "mountain_forest",
+      "map": "lilian_jindi_huanxingshan",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
+    },
+    "bl07_huoyan_shu_t3": {
+      "backdrop": "mountain_forest",
+      "map": "lilian_jindi_huanxingshan",
+      "why": "伙伴改版样板：明雷 / 精英 / 破顶 / 历练的这一仗在哪张图上打，背景随那张图（与 data/visual/maps.json 的 backdrop 一致）"
     }
   }
 }

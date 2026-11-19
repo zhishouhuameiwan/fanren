@@ -1,0 +1,28 @@
+{
+  "id": "bl07_bishui_e_t2",
+  "name": "旧境·碧水鳄（第2档）",
+  "chapter": 7,
+  "terrain": "cave",
+  "can_escape": false,
+  "defeat_is_fatal": false,
+  "scale_by_party": true,
+  "units": [
+    {
+      "role_id": "bishui_e_t2",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 18,
+    "drops": [
+      {
+        "item_id": "material_yaoshou_cai",
+        "count": 2,
+        "rate": 100
+      }
+    ]
+  },
+  "origin": "改编",
+  "note": "历练「禁地旧境」第 2 档（契约 3.12：foe.battle 写「bl07_bishui_e」，引擎按韩立的境界拼 _t1/_t2/_t3）。修为奖励一律为 0（否则是一条刷修为的路）；不致命，打输整趟退出；人数系数开着；奖励是兽材与少量灵石（施工图第 7 节）。精英：不能逃。"
+}

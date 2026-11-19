@@ -1,0 +1,137 @@
+{
+ "map": "ch07_dixia_shiku",
+ "tile": 16,
+ "width": 36,
+ "height": 28,
+ "theme": "cave",
+ "time": "indoor",
+ "season": "summer",
+ "ambient": [
+  70,
+  92,
+  96
+ ],
+ "dof": 0.45,
+ "bloom": 0.5,
+ "vignette": 0.45,
+ "particles": [
+  {
+   "kind": "dust",
+   "rate": 0.25
+  }
+ ],
+ "lights": [
+  {
+   "x": 5.5,
+   "y": 3.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 17.5,
+   "y": 13.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 24.5,
+   "y": 13.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 31.5,
+   "y": 13.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 33.5,
+   "y": 17.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  },
+  {
+   "x": 0.5,
+   "y": 21.6,
+   "r": 4.0,
+   "color": [
+    228,
+    158,
+    96
+   ],
+   "intensity": 0.85,
+   "flicker": 0.4,
+   "kind": "torch"
+  }
+ ],
+ "water": [],
+ "emitters": [
+  {
+   "kind": "ember",
+   "x": 5.5,
+   "y": 3.4
+  },
+  {
+   "kind": "ember",
+   "x": 17.5,
+   "y": 13.4
+  },
+  {
+   "kind": "ember",
+   "x": 24.5,
+   "y": 13.4
+  },
+  {
+   "kind": "ember",
+   "x": 31.5,
+   "y": 13.4
+  },
+  {
+   "kind": "ember",
+   "x": 33.5,
+   "y": 17.4
+  },
+  {
+   "kind": "ember",
+   "x": 0.5,
+   "y": 21.4
+  }
+ ],
+ "backdrop": "cave_tunnel"
+}

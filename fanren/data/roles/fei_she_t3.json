@@ -1,0 +1,19 @@
+{
+  "id": "fei_she_t3",
+  "name": "飞蛇",
+  "realm": "FoundationMid",
+  "maxHp": 182,
+  "maxMp": 0,
+  "attack": 36,
+  "defence": 21,
+  "speed": 16,
+  "element": 2,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "金",
+    "火"
+  ],
+  "origin": "改编",
+  "note": "历练「禁地旧境」第 3 档（FoundationMid）里的飞蛇：同一种妖兽，按韩立的境界换一档数值（样板施工图第 7 节「三档：炼气、筑基初、筑基中」；契约 3.12）。原种见 data/roles/fei_she.json。数值是初值。"
+}

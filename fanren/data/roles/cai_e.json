@@ -1,0 +1,19 @@
+{
+  "id": "cai_e",
+  "name": "彩蛾",
+  "realm": "QiRefining7",
+  "maxHp": 26,
+  "maxMp": 0,
+  "attack": 9,
+  "defence": 4,
+  "speed": 14,
+  "element": 2,
+  "magics": [],
+  "toughness": 1,
+  "weaknesses": [
+    "火",
+    "金"
+  ],
+  "origin": "原著",
+  "note": "灵兽山二人放出的彩蛾，警戒范围里一有人接近就会被得知（ch181）。样板 5.2：外围的明雷（野放在外围是改编）。非人形。木；破绽火、金。"
+}

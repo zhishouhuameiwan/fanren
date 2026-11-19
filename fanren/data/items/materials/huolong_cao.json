@@ -1,0 +1,11 @@
+{
+  "id": "material_huolong_cao",
+  "name": "火龙草",
+  "descKey": "item.desc.material_huolong_cao",
+  "kind": "material",
+  "grade": 1,
+  "price": 8,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "禁地中心区里几个人约好一齐动手平分的灵草（ch191）。样板施工图 5.2：中心区外、环形山各一处采集点（摆在哪是改编）。历练材料与赠礼，不能直接服用。"
+}

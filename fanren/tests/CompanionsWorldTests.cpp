@@ -148,6 +148,9 @@ protected:
         for (const char* dir : {"data", "scripts", "maps"}) {
             fs::copy(repoRoot() / dir, root_->path() / dir, fs::copy_options::recursive);
         }
+        // 真树里从样板段起有了伙伴数据（nangong_wan、chen_qiaoqian），它们的角色与下面的探针伙伴重叠
+        // （一个角色只能属于一位伙伴，加载器拒收）。这些用例量的是探针伙伴，拷进来之后先把真伙伴拿掉。
+        fs::remove_all(root_->path() / "data" / "companions");
         writeFile(root_->path() / "data" / "companions" / "probe_a.json", kCompanionA);
         writeFile(root_->path() / "data" / "companions" / "probe_b.json", kCompanionB);
         writeFile(root_->path() / "data" / "companions" / "probe_c.json", kCompanionC);

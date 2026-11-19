@@ -93,15 +93,19 @@ from genmaps import (  # noqa: E402
     Grid,
     build_map,
     check_maps,
+    chest,
     dump_map,
     facility,
+    foe,
+    gate,
+    gather,
     npc,
     portal,
     spawn,
     trigger,
     write_tileset,
 )
-from genmaps_ch05 import border, eaves_row, encounter, floor, road, scatter, tilled, tree, water  # noqa: E402
+from genmaps_ch05 import border, eaves_row, floor, road, scatter, tilled, tree, water  # noqa: E402
 
 CHAPTER = 7
 PREFIX = "ch07_"
@@ -114,6 +118,19 @@ JINDI_WAI_CHUKOU = (23, 34)
 WAIWEI_LUODIAN = (5, 31)
 ZHAOZE_SHIJIE = (3, 2)
 HXS_POKONG = (38, 35)
+
+# 伙伴改版样板（docs/ch07-companions-design.md）：地底石窟里破顶的那一处。
+# 岩层最薄处在 SHIKU_YANCENG（实体格，挂 trigger_poding）；人站在它正下方 SHIKU_DING_XIA 按确认。
+# 破顶打赢，poding.lua 把人送回再下一格 SHIKU_TUIBU（碎石塌落、退开一步），再往上一迈踩 trigger_wenming。
+# 打输：poding.lua 送到打坐点旁 SHIKU_DAZUO_PANG（施工图 5.1「破顶打输了从这里重来」）。
+SHIKU_YANCENG = (21, 2)
+SHIKU_DING_XIA = (21, 3)
+SHIKU_TUIBU = (21, 4)
+SHIKU_DAZUO_PANG = (24, 15)
+
+# 伙伴的 id（插话的 require_party 只收伙伴 id，契约 2.4）
+NANGONG = "nangong_wan"
+CHEN = "chen_qiaoqian"
 
 
 def map_props(map_id, bgm, outdoor=True):
@@ -536,7 +553,7 @@ def make_jindi_waiwei():
                 guard_flag="ch07.sixian", set_flag="ch07.yixiantian"),
 
         facility("facility_cunji", 4, 30, "save"),
-    ]
+    ] + explore_waiwei("ch07_jindi_waiwei")
     return build_map("ch07_jindi_waiwei", W, H, "terrain_jindi_waiwei",
                      map_props("ch07_jindi_waiwei", "bgm_wild"), g, objects)
 
@@ -592,7 +609,7 @@ def make_jindi_zhongxin():
         facility("facility_dazuo_shuguan", 31, 25, "meditate"),
         facility("facility_dazuo_shudong", 8, 6, "meditate"),
         facility("facility_cunji", 20, 33, "save"),
-    ]
+    ] + explore_zhongxin("ch07_jindi_zhongxin")
     return build_map("ch07_jindi_zhongxin", W, H, "terrain_jindi_zhongxin",
                      map_props("ch07_jindi_zhongxin", "bgm_wild"), g, objects)
 
@@ -673,21 +690,22 @@ def make_huanxingshan():
         facility("facility_dazuo_shidong", 12, 4, "meditate"),
         facility("facility_cunji", 26, 37, "save"),
         facility("facility_cunji_dian", 25, 14, "save"),
-
-        encounter("encounter_shanlu", 17, 17, 16, 21, "encounter_ch07_huanxingshan", 18, 32,
-                  require_flag="ch07.yueyang"),
-    ]
+        # 伙伴改版样板 5.2：原先这里是一块暗雷遭遇区（encounter_shanlu，表 encounter_ch07_huanxingshan），
+        # 撤掉，换成三只明雷，编成沿用那张表的三份（be07_tuishan_shou / tiebi_yuan / huoyan_shu）。
+    ] + explore_huanxingshan("ch07_huanxingshan")
     return build_map("ch07_huanxingshan", W, H, "terrain_huanxingshan",
                      map_props("ch07_huanxingshan", "bgm_mountain_path"), g, objects)
 
 
 # ---------------------------------------------------------------------------
-# 地图 9：地下沼泽 36x28 —— 节点 30、31
+# 地图 9：地下沼泽 36x28 —— 节点 30、31；伙伴改版样板 4.1–4.3
 #
 # 西北石阶口（落点、存档点），下了石阶夹在两堆黑土之间（黑土堆后 30）；当中一大片沼泽（水面），
-# 沼泽当中一座白玉小亭（装饰）；西岸蛟尸旁（31）；东岸边上长着一片奇花灵草（装饰）。
+# 沼泽当中一座白玉小亭（装饰）；西岸蛟尸旁（31，样板里改成「困在地下」那一步）；东岸边上长着一片奇花灵草（装饰）。
+# 样板 5.1：加两个出入口接沼泽深处——东壁一道（往右走出去）、南壁一道（往下走出去），都要 ch07.kundi 才开
+# （困在地下、两人商定去找火灵石之后）。探索层 5.2：一个宝箱、一只明雷。
 # ---------------------------------------------------------------------------
-def make_dixia_zhaoze():
+def zhaoze_terrain():
     W, H = 36, 28
     g = Grid(W, H)
     rnd = random.Random(709)
@@ -705,21 +723,387 @@ def make_dixia_zhaoze():
         rock(g, x0, y0, x0 + 1, y0 + 1)
     g.rect("overlay", 29, 8, 32, 20, 6)      # 东岸的奇花灵草
     edge_fronts(g, rnd, 0.4)
+    # 样板 5.1：两个出口（在 edge_fronts 之后挖，前面那一步的随机数一个不变）
+    floor(g, 34, 24, 35, 25)                 # 东壁的岩缝
+    floor(g, 16, 27, 17, 27)                 # 南壁的岩缝
+    return g, W, H
 
+
+ZHAOZE_DONG = (34, 24)       # 从沼泽深处回来、落在东壁岩缝里（面朝左）
+ZHAOZE_NAN = (16, 26)        # 从沼泽深处回来、落在南壁岩缝口（面朝上）
+
+
+def zhaoze_links(target, require=None, deny=None):
+    return [
+        spawn("spawn_from_shenchu_dong", ZHAOZE_DONG[0], ZHAOZE_DONG[1], "left"),
+        spawn("spawn_from_shenchu_nan", ZHAOZE_NAN[0], ZHAOZE_NAN[1], "up"),
+        portal("portal_to_shenchu_dong", 35, 24, target, "spawn_from_zhaoze_dong", h=2,
+               require_flag=require, deny_text_key=deny),
+        portal("portal_to_shenchu_nan", 16, 27, target, "spawn_from_zhaoze_nan", w=2,
+               require_flag=require, deny_text_key=deny),
+    ]
+
+
+def make_dixia_zhaoze():
+    g, W, H = zhaoze_terrain()
+    mid = "ch07_dixia_zhaoze"
     objects = [
         spawn("spawn_shijie", ZHAOZE_SHIJIE[0], ZHAOZE_SHIJIE[1], "down", default=True),
 
         # ---- 30：黑土堆后 ----
         trigger("trigger_guanzhan", 3, 7, "ch07/guanzhan.lua", "enter", True, w=2,
                 guard_flag="ch07.didao", set_flag="ch07.mojiao"),
-        # ---- 31：蛟尸旁 ----
+        # ---- 31 / 样板 4.3「困在地下」：蛟尸旁 ----
         trigger("trigger_jiaoshi", 9, 15, "ch07/jiaoshi.lua", "interact", True,
-                guard_flag="ch07.mojiao", set_flag="ch07.nangong"),
+                guard_flag="ch07.mojiao", set_flag="ch07.kundi"),
 
         facility("facility_cunji", 2, 4, "save"),
+    ] + zhaoze_links("ch07_zhaoze_shenchu", "ch07.kundi", "ch07.block.zhaoze_shenchu") + [
+        # ---- 样板 5.2 探索层：东岸一个宝箱、一只明雷（寒冰蟾，地下是改编）----
+        chest("chest_dongan", 32, 4, mid, "chest_dongan", [("pill_huiqi_dan", 1), ("material_hanyan_cao", 1)]),
+        foe("foe_chan", 31, 17, mid, "foe_chan", "be07_zhaoze_chan", "hanbing_chan", "left"),
     ]
-    return build_map("ch07_dixia_zhaoze", W, H, "terrain_dixia_zhaoze",
-                     map_props("ch07_dixia_zhaoze", "bgm_cave", outdoor=False), g, objects)
+    return build_map(mid, W, H, "terrain_dixia_zhaoze",
+                     map_props(mid, "bgm_cave", outdoor=False), g, objects)
+
+
+# ---------------------------------------------------------------------------
+# 样板 5.2：禁地原有三张图的探索层（宝箱、采集点、明雷；主线这几张图上不放机关）
+# ---------------------------------------------------------------------------
+def explore_waiwei(mid):
+    return [
+        chest("chest_yaxia", 12, 6, mid, "chest_yaxia", [("pill_jinchuang_yao", 2)]),      # 崖下遗落的储物袋
+        chest("chest_tanbei", 46, 1, mid, "chest_tanbei", [("pill_huiqi_dan", 1)]),
+        gather("gather_hanyan", 36, 6, mid, "gather_hanyan", "material_hanyan_cao", 30),    # 寒烟草，乌龙潭边（ch180）
+        foe("foe_chan", 42, 10, mid, "foe_chan", "be07_hanbing_chan", "hanbing_chan", "down"),
+        foe("foe_e", 3, 18, mid, "foe_e", "be07_cai_e", "cai_e", "right"),
+    ]
+
+
+def explore_zhongxin(mid):
+    return [
+        chest("chest_linbian", 1, 33, mid, "chest_linbian", [("pill_jinchuang_yao", 2)]),
+        chest("chest_huayuan", 2, 1, mid, "chest_huayuan", [("material_huolong_cao", 1), ("pill_huiqi_dan", 1)]),
+        gather("gather_huolong", 45, 24, mid, "gather_huolong", "material_huolong_cao", 30),   # 火龙草（ch191）
+        foe("foe_she_lin", 8, 26, mid, "foe_she_lin", "be07_fei_she", "fei_she", "right"),
+        foe("foe_she_yuan", 30, 4, mid, "foe_she_yuan", "be07_fei_she", "fei_she", "down"),
+    ]
+
+
+def explore_huanxingshan(mid):
+    return [
+        chest("chest_shanjiao", 1, 37, mid, "chest_shanjiao", [("pill_yangjing_dan", 1)]),
+        chest("chest_beipo", 46, 1, mid, "chest_beipo", [("material_huolong_cao", 1), ("pill_jinchuang_yao", 1)]),
+        chest("chest_dongpo", 46, 17, mid, "chest_dongpo", [("pill_huiqi_dan", 1)]),
+        gather("gather_huolong", 3, 12, mid, "gather_huolong", "material_huolong_cao", 30),
+        foe("foe_tuishan", 20, 20, mid, "foe_tuishan", "be07_tuishan_shou", "tuishan_shou", "down"),
+        foe("foe_tiebi", 44, 24, mid, "foe_tiebi", "be07_tiebi_yuan", "tiebi_yuan", "left"),
+        foe("foe_huoyan", 28, 33, mid, "foe_huoyan", "be07_huoyan_shu", "huoyan_shu", "left"),
+    ]
+
+
+# ---------------------------------------------------------------------------
+# 地图 10：沼泽深处 44x32 —— 伙伴改版样板 4.3、5.1
+#
+# 浅水、枯木、发光的菌。西口、北口接地下沼泽，东口一条岩缝通地底石窟。
+# 主线：两处火灵石矿脉（采集点）采一处，到东口岩缝里把火灵石交给她（trigger_huolingshi），岩缝那头的门才开。
+# 北边一处矿脉在主路边上；东南一条岔道里精英碧水鳄守着一个宝箱和另一处矿脉。
+# 西南、东北两条岔道上各一处插话（只在她在队时演），三只明雷，一处打坐点。
+# ---------------------------------------------------------------------------
+SHENCHU_XI = (1, 5)          # 从地下沼泽东口来，落在西口（面朝右）
+SHENCHU_BEI = (10, 1)        # 从地下沼泽南口来，落在北口（面朝下）
+SHENCHU_DONG = (42, 22)      # 从地底石窟回来，落在东口岩缝里（面朝左）
+
+
+def shenchu_terrain():
+    W, H = 44, 32
+    g = Grid(W, H)
+    rnd = random.Random(7010)
+    g.fill("ground", 1)
+    solid_all(g)
+
+    floor(g, 1, 3, 39, 28)                   # 洞底
+    floor(g, 0, 5, 0, 6)                     # 西口
+    floor(g, 10, 0, 11, 2)                   # 北口
+    floor(g, 40, 22, 43, 23)                 # 东口岩缝
+    water(g, 13, 9, 20, 15)                  # 浅水（挡路）
+    water(g, 24, 15, 31, 20)
+    water(g, 4, 18, 8, 21)
+    rock(g, 32, 10, 34, 10)                  # 东北岔道：一道石棱只留 (35,10) 一个口
+    rock(g, 36, 10, 39, 10)
+    rock(g, 31, 3, 31, 9)
+    rock(g, 9, 23, 9, 25)                    # 西南岔道：一道石棱只留 (9,26) 一个口
+    rock(g, 9, 27, 9, 28)
+    rock(g, 1, 23, 8, 23)
+    rock(g, 29, 23, 29, 25)                  # 东南岔道：碧水鳄的水湾，口在 (29,26)
+    rock(g, 29, 27, 29, 28)
+    rock(g, 30, 23, 39, 23)
+    for x0, y0 in ((6, 9), (24, 6), (36, 18), (12, 27), (22, 22), (18, 4)):
+        thing(g, x0, y0)                     # 枯木
+    water(g, 35, 26, 36, 27)                 # 鳄鱼背后那一小汪水
+    g.rect("overlay", 32, 4, 39, 9, 6)       # 东北岔道里一片发光的菌
+    g.rect("overlay", 2, 24, 8, 28, 7)
+    edge_fronts(g, rnd, 0.4)
+    scatter(g, rnd, 60, 1, 3, 39, 28, grass=0.5)
+    return g, W, H
+
+
+def shenchu_links():
+    return [
+        spawn("spawn_from_zhaoze_dong", SHENCHU_XI[0], SHENCHU_XI[1], "right", default=True),
+        spawn("spawn_from_zhaoze_nan", SHENCHU_BEI[0], SHENCHU_BEI[1], "down"),
+        spawn("spawn_from_shiku", SHENCHU_DONG[0], SHENCHU_DONG[1], "left"),
+    ]
+
+
+def make_zhaoze_shenchu():
+    g, W, H = shenchu_terrain()
+    mid = "ch07_zhaoze_shenchu"
+    objects = shenchu_links() + [
+        portal("portal_to_zhaoze_dong", 0, 5, "ch07_dixia_zhaoze", "spawn_from_shenchu_dong", h=2),
+        portal("portal_to_zhaoze_nan", 10, 0, "ch07_dixia_zhaoze", "spawn_from_shenchu_nan", w=2),
+        portal("portal_to_shiku", 43, 22, "ch07_dixia_shiku", "spawn_from_shenchu", h=2,
+               require_flag="ch07.huolingshi", deny_text_key="ch07.block.dixia_shiku"),
+
+        # ---- 样板 4.3：把火灵石交给她（东口岩缝里，过门之前）----
+        trigger("trigger_huolingshi", 40, 22, "ch07/huolingshi.lua", "enter", True, h=2,
+                guard_flag="ch07.kundi", set_flag="ch07.huolingshi"),
+        # ---- 插话（4.6：都摆在岔路上）----
+        trigger("trigger_chahua_jun", 35, 9, "ch07/chahua_jun.lua", "enter", True,
+                set_flag="ch07.chahua_jun", require_party=NANGONG),
+        trigger("trigger_chahua_kumu", 8, 26, "ch07/chahua_kumu.lua", "enter", True,
+                set_flag="ch07.chahua_kumu", require_party=NANGONG),
+
+        gather("gather_huolingshi_bei", 22, 3, mid, "gather_huolingshi_bei", "material_huolingshi", 30),
+        gather("gather_huolingshi_wan", 39, 24, mid, "gather_huolingshi_wan", "material_huolingshi", 30),
+        chest("chest_ewan", 38, 27, mid, "chest_ewan", [("pill_yangjing_dan", 1), ("material_huolingshi", 1)]),
+        foe("foe_chan", 12, 21, mid, "foe_chan", "be07_zhaoze_chan", "hanbing_chan", "up"),
+        foe("foe_shu", 25, 4, mid, "foe_shu", "be07_shenchu_shu", "huoyan_shu", "left"),
+        foe("foe_she", 36, 14, mid, "foe_she", "be07_shenchu_she", "fei_she", "left"),
+        foe("foe_bishui_e", 33, 26, mid, "foe_bishui_e", "be07_bishui_e", "bishui_e", "left", elite=True),
+
+        facility("facility_dazuo", 20, 26, "meditate"),
+    ]
+    return build_map(mid, W, H, "terrain_zhaoze_shenchu",
+                     map_props(mid, "bgm_cave", outdoor=False), g, objects)
+
+
+# ---------------------------------------------------------------------------
+# 地图 11：地底石窟 36x28 —— 伙伴改版样板 4.3–4.5、5.1
+#
+# 残破的石室。西口接沼泽深处；入口大厅往东一条甬道进中央大厅；大厅北边一条甬道一直走到岩层最薄处（破顶，4.4）。
+# 西北一间残破石室（插话、一个宝箱），东边一道残禁（她的场地技开，后面一间小室里一个宝箱），
+# 东北一条死胡同（插话），大厅里一处打坐点（破顶打输从这里重来）。
+# ---------------------------------------------------------------------------
+SHIKU_XI = (1, 22)           # 从沼泽深处来，落在西口（面朝右）
+
+
+def shiku_terrain():
+    W, H = 36, 28
+    g = Grid(W, H)
+    rnd = random.Random(7011)
+    g.fill("ground", 1)
+    solid_all(g)
+
+    floor(g, 0, 22, 0, 23)                   # 西口
+    floor(g, 1, 18, 10, 25)                  # 入口大厅
+    floor(g, 11, 21, 16, 22)                 # 东去的甬道
+    floor(g, 17, 14, 27, 25)                 # 中央大厅
+    floor(g, 2, 4, 9, 12)                    # 西北残破石室
+    floor(g, 5, 13, 6, 17)                   # 石室与入口大厅之间的甬道
+    floor(g, 21, 4, 22, 13)                  # 北去的甬道
+    floor(g, SHIKU_DING_XIA[0], SHIKU_DING_XIA[1], SHIKU_DING_XIA[0], SHIKU_DING_XIA[1])   # 岩层最薄处正下方
+    floor(g, 28, 21, 28, 21)                 # 残禁那一格
+    floor(g, 29, 18, 34, 24)                 # 残禁后面的小室
+    floor(g, 28, 14, 33, 15)                 # 东北的死胡同
+    for x0, y0 in ((3, 5), (8, 11), (19, 16), (25, 23), (2, 19), (33, 23)):
+        thing(g, x0, y0)                     # 塌下来的石块、断柱
+    g.rect("overlay", 2, 4, 9, 12, 7)
+    edge_fronts(g, rnd, 0.4)
+    scatter(g, rnd, 40, 1, 4, 34, 25, grass=0.2)
+    return g, W, H
+
+
+def make_dixia_shiku():
+    g, W, H = shiku_terrain()
+    mid = "ch07_dixia_shiku"
+    objects = [
+        spawn("spawn_from_shenchu", SHIKU_XI[0], SHIKU_XI[1], "right", default=True),
+        portal("portal_to_shenchu", 0, 22, "ch07_zhaoze_shenchu", "spawn_from_shiku", h=2),
+
+        # ---- 样板 4.4：岩层最薄处（实体格，人站在正下方按确认）----
+        trigger("trigger_poding", SHIKU_YANCENG[0], SHIKU_YANCENG[1], "ch07/poding.lua", "interact", True,
+                guard_flag="ch07.huolingshi", set_flag="ch07.poding"),
+        # ---- 样板 4.5：破开之后爬出去、问名（岩层正下方那一格，踏入）----
+        trigger("trigger_wenming", SHIKU_DING_XIA[0], SHIKU_DING_XIA[1], "ch07/wenming.lua", "enter", True,
+                guard_flag="ch07.poding", set_flag="ch07.nangong"),
+        # ---- 插话 ----
+        trigger("trigger_chahua_shishi", 5, 13, "ch07/chahua_shishi.lua", "enter", True, w=2,
+                set_flag="ch07.chahua_shishi", require_party=NANGONG),
+        trigger("trigger_chahua_yanbi", 29, 14, "ch07/chahua_yanbi.lua", "enter", True, h=2,
+                set_flag="ch07.chahua_yanbi", require_party=NANGONG),
+
+        # ---- 样板 5.1：一道残禁（她的场地技能开），后面一个宝箱；另一个宝箱在残破石室里 ----
+        gate("gate_canjin", 28, 21, mid, "gate_canjin", "break_seal", hint="ch07.gate.canjin.hint"),
+        chest("chest_xiaoshi", 33, 20, mid, "chest_xiaoshi", [("pill_yangjing_dan", 1), ("material_huolingshi", 1)]),
+        chest("chest_shishi", 2, 4, mid, "chest_shishi", [("pill_jinchuang_yao", 2)]),
+
+        facility("facility_dazuo", SHIKU_DAZUO_PANG[0] + 1, SHIKU_DAZUO_PANG[1], "meditate"),
+    ]
+    return build_map(mid, W, H, "terrain_dixia_shiku",
+                     map_props(mid, "bgm_cave", outdoor=False), g, objects)
+
+
+# ---------------------------------------------------------------------------
+# 历练「禁地旧境」的六张图（样板施工图第 7 节、契约 3.12）
+#
+# 禁地四张原图与两张新图的副本：底图（瓦片、碰撞）与原图逐格相同，对象另是一套——
+# 原图上的存档点、打坐点、剧情触发器、闸门一律不带过来；六张图之间用不设闸的门连成一串；
+# 每张图都有一处 kind=lilian 的设施当出口（面朝它按确认就出去）；明雷、宝箱带 chance（每趟不同）；
+# 两道机关：残禁（南宫婉开）、幻阵（陈师妹开）。历练图上的机关不写 opens（门禁规则 39）。
+# foe.battle 写编成 id 的前半（bl07_*），引擎按韩立的境界拼 _t1/_t2/_t3。
+# ---------------------------------------------------------------------------
+LILIAN_SITE = "jindi"
+
+
+def lilian_props(map_id, bgm, outdoor=True):
+    return [
+        ("map_id", map_id),
+        ("display_name_key", "lilian.map.%s.name" % map_id[len("lilian_"):]),
+        ("region", "jianzhou"),
+        ("bgm", bgm),
+        ("chapter", CHAPTER),
+        ("outdoor", outdoor),
+        ("can_leave_edge", False),
+    ]
+
+
+def lilian_copy(original, map_id, bgm, outdoor, objects, openings=()):
+    """拿原图的产出换掉图名属性与对象层：底图与原图逐格相同，只多挖开 openings 那几格（图边上的门）。"""
+    payload = original
+    for x, y in openings:
+        _open(payload, x, y, ground=1)
+    for i, o in enumerate(objects, 1):
+        o["id"] = i
+    for layer in payload["layers"]:
+        if layer.get("type") == "objectgroup":
+            layer["objects"] = objects
+    payload["nextobjectid"] = len(objects) + 1
+    payload["properties"] = [genmaps.prop(k, v) for k, v in lilian_props(map_id, bgm, outdoor)]
+    return payload
+
+
+def exit_facility(x, y):
+    return facility("facility_lilian_exit", x, y, "lilian", site=LILIAN_SITE)
+
+
+def make_lilian_waiwei():
+    mid = "lilian_jindi_waiwei"
+    objects = [
+        spawn("spawn_rukou", WAIWEI_LUODIAN[0], WAIWEI_LUODIAN[1], "up", default=True),
+        spawn("spawn_from_zhongxin", 22, 1, "down"),
+        portal("portal_to_zhongxin", 22, 0, "lilian_jindi_zhongxin", "spawn_from_waiwei", w=2),
+        exit_facility(4, 30),
+        # ---- 幻阵：陈师妹开（样板第 7 节「带对的人才开得了」）。罩住乌龙潭边矮树丛的缺口，潭边那一片只从这里进 ----
+        gate("gate_huanzhen", 38, 12, mid, "gate_huanzhen", "see_through_illusion", w=2,
+             hint="lilian.gate.huanzhen.hint"),
+        chest("chest_yaxia", 12, 6, mid, "chest_yaxia", [("material_lingshi", 5), ("material_hanyan_cao", 1)],
+              chance=60),
+        chest("chest_tanbei", 46, 1, mid, "chest_tanbei", [("pill_huiqi_dan", 1)], chance=50),
+        gather("gather_hanyan", 36, 6, mid, "gather_hanyan", "material_hanyan_cao", 1),
+        foe("foe_chan", 42, 10, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "down", chance=70),
+        foe("foe_she", 3, 18, mid, "foe_she", "bl07_fei_she", "fei_she", "right", chance=70),
+        foe("foe_shu", 30, 30, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "left", chance=50),
+    ]
+    return lilian_copy(make_jindi_waiwei(), mid, "bgm_wild", True, objects)
+
+
+def make_lilian_zhongxin():
+    mid = "lilian_jindi_zhongxin"
+    objects = [
+        spawn("spawn_from_waiwei", 22, 34, "up", default=True),
+        spawn("spawn_from_huanxingshan", 40, 1, "down"),
+        portal("portal_to_waiwei", 22, 35, "lilian_jindi_waiwei", "spawn_from_zhongxin", w=2),
+        portal("portal_to_huanxingshan", 40, 0, "lilian_jindi_huanxingshan", "spawn_from_zhongxin", w=2),
+        exit_facility(20, 33),
+        chest("chest_linbian", 1, 33, mid, "chest_linbian", [("pill_jinchuang_yao", 2)], chance=60),
+        chest("chest_huayuan", 2, 1, mid, "chest_huayuan", [("material_lingshi", 8), ("material_huolong_cao", 1)]),
+        gather("gather_huolong", 45, 24, mid, "gather_huolong", "material_huolong_cao", 1),
+        foe("foe_she_lin", 8, 26, mid, "foe_she_lin", "bl07_fei_she", "fei_she", "right", chance=70),
+        foe("foe_she_yuan", 30, 4, mid, "foe_she_yuan", "bl07_fei_she", "fei_she", "down", chance=70),
+    ]
+    return lilian_copy(make_jindi_zhongxin(), mid, "bgm_wild", True, objects, openings=((22, 35), (23, 35)))
+
+
+def make_lilian_huanxingshan():
+    mid = "lilian_jindi_huanxingshan"
+    objects = [
+        spawn("spawn_from_zhongxin", 24, 38, "up", default=True),
+        spawn("spawn_from_zhaoze", 39, 35, "up"),
+        portal("portal_to_zhongxin", 24, 39, "lilian_jindi_zhongxin", "spawn_from_huanxingshan"),
+        portal("portal_to_zhaoze", 38, 35, "lilian_jindi_zhaoze", "spawn_from_huanxingshan"),
+        exit_facility(26, 37),
+        chest("chest_shanjiao", 1, 37, mid, "chest_shanjiao", [("pill_yangjing_dan", 1)], chance=50),
+        chest("chest_beipo", 46, 1, mid, "chest_beipo", [("material_lingshi", 6), ("material_huolong_cao", 1)],
+              chance=60),
+        gather("gather_huolong", 3, 12, mid, "gather_huolong", "material_huolong_cao", 1),
+        foe("foe_shu", 20, 20, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "down", chance=70),
+        foe("foe_chan", 44, 24, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "left", chance=70),
+        foe("foe_she", 28, 33, mid, "foe_she", "bl07_fei_she", "fei_she", "left", chance=60),
+    ]
+    return lilian_copy(make_huanxingshan(), mid, "bgm_mountain_path", True, objects, openings=((24, 39),))
+
+
+def make_lilian_zhaoze():
+    g, W, H = zhaoze_terrain()
+    mid = "lilian_jindi_zhaoze"
+    base = build_map(mid, W, H, "terrain_dixia_zhaoze", map_props("ch07_dixia_zhaoze", "bgm_cave", False), g, [])
+    objects = [
+        spawn("spawn_from_huanxingshan", ZHAOZE_SHIJIE[0], ZHAOZE_SHIJIE[1], "left", default=True),
+        portal("portal_to_huanxingshan", 2, 1, "lilian_jindi_huanxingshan", "spawn_from_zhaoze", w=3),
+        exit_facility(2, 4),
+    ] + zhaoze_links("lilian_jindi_shenchu") + [
+        chest("chest_dongan", 32, 4, mid, "chest_dongan", [("material_lingshi", 6), ("pill_huiqi_dan", 1)],
+              chance=60),
+        foe("foe_chan", 31, 17, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "left", chance=70),
+    ]
+    return lilian_copy(base, mid, "bgm_cave", False, objects)
+
+
+def make_lilian_shenchu():
+    g, W, H = shenchu_terrain()
+    mid = "lilian_jindi_shenchu"
+    base = build_map(mid, W, H, "terrain_zhaoze_shenchu", map_props("ch07_zhaoze_shenchu", "bgm_cave", False), g, [])
+    objects = shenchu_links() + [
+        portal("portal_to_zhaoze_dong", 0, 5, "lilian_jindi_zhaoze", "spawn_from_shenchu_dong", h=2),
+        portal("portal_to_zhaoze_nan", 10, 0, "lilian_jindi_zhaoze", "spawn_from_shenchu_nan", w=2),
+        portal("portal_to_shiku", 43, 22, "lilian_jindi_shiku", "spawn_from_shenchu", h=2),
+        exit_facility(20, 26),
+        gather("gather_huolingshi_bei", 22, 3, mid, "gather_huolingshi_bei", "material_huolingshi", 1),
+        chest("chest_ewan", 38, 27, mid, "chest_ewan", [("material_lingshi", 12), ("material_huolingshi", 1)]),
+        foe("foe_shu", 25, 4, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "left", chance=70),
+        foe("foe_she", 36, 14, mid, "foe_she", "bl07_fei_she", "fei_she", "left", chance=70),
+        foe("foe_bishui_e", 33, 26, mid, "foe_bishui_e", "bl07_bishui_e", "bishui_e", "left", elite=True,
+            chance=60),
+    ]
+    return lilian_copy(base, mid, "bgm_cave", False, objects)
+
+
+def make_lilian_shiku():
+    g, W, H = shiku_terrain()
+    mid = "lilian_jindi_shiku"
+    base = build_map(mid, W, H, "terrain_dixia_shiku", map_props("ch07_dixia_shiku", "bgm_cave", False), g, [])
+    objects = [
+        spawn("spawn_from_shenchu", SHIKU_XI[0], SHIKU_XI[1], "right", default=True),
+        portal("portal_to_shenchu", 0, 22, "lilian_jindi_shenchu", "spawn_from_shiku", h=2),
+        exit_facility(SHIKU_DAZUO_PANG[0] + 1, SHIKU_DAZUO_PANG[1]),
+        # ---- 残禁：南宫婉开 ----
+        gate("gate_canjin", 28, 21, mid, "gate_canjin", "break_seal", hint="ch07.gate.canjin.hint"),
+        chest("chest_xiaoshi", 33, 20, mid, "chest_xiaoshi", [("material_lingshi", 15), ("pill_yangjing_dan", 1)]),
+        chest("chest_shishi", 2, 4, mid, "chest_shishi", [("pill_jinchuang_yao", 2)], chance=60),
+        foe("foe_chan", 24, 20, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "up", chance=60),
+    ]
+    return lilian_copy(base, mid, "bgm_cave", False, objects)
 
 
 # ---------------------------------------------------------------------------
@@ -842,6 +1226,8 @@ def patch_baiyaoyuan(payload):
 
         facility("facility_field_jiao", 9, 19, "field", w=2, ref_id="field_baiyaoyuan_jiao", slots=2,
                  require_flag="ch07.chaibao"),
+        # ---- 伙伴改版样板 5.3：历练「禁地旧境」的入口，茅屋里一处专门的设施（现有的打坐点不动）----
+        facility("facility_lilian", 25, 3, "lilian", site="jindi", require_flag="ch07.chujindi"),
     ])
 
 
@@ -858,13 +1244,22 @@ def build_all():
         "ch07_jindi_zhongxin": make_jindi_zhongxin(),
         "ch07_huanxingshan": make_huanxingshan(),
         "ch07_dixia_zhaoze": make_dixia_zhaoze(),
+        "ch07_zhaoze_shenchu": make_zhaoze_shenchu(),
+        "ch07_dixia_shiku": make_dixia_shiku(),
+        "lilian_jindi_waiwei": make_lilian_waiwei(),
+        "lilian_jindi_zhongxin": make_lilian_zhongxin(),
+        "lilian_jindi_huanxingshan": make_lilian_huanxingshan(),
+        "lilian_jindi_zhaoze": make_lilian_zhaoze(),
+        "lilian_jindi_shenchu": make_lilian_shenchu(),
+        "lilian_jindi_shiku": make_lilian_shiku(),
         "ch06_huangfenggu": patch_huangfenggu(genmaps_ch06.make_huangfenggu()),
         "ch06_baiyaoyuan": patch_baiyaoyuan(genmaps_ch06.make_baiyaoyuan()),
     }
 
 
 TILESETS = ("terrain_yuelu_dian", "terrain_dihuo", "terrain_fangshi", "terrain_shandong", "terrain_jindi_wai",
-            "terrain_jindi_waiwei", "terrain_jindi_zhongxin", "terrain_huanxingshan", "terrain_dixia_zhaoze")
+            "terrain_jindi_waiwei", "terrain_jindi_zhongxin", "terrain_huanxingshan", "terrain_dixia_zhaoze",
+            "terrain_zhaoze_shenchu", "terrain_dixia_shiku")
 
 
 def main(argv=None):

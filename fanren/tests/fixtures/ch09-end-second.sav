@@ -1,5 +1,5 @@
 {
-  "checksum": "6c07fba5f74cbf89",
+  "checksum": "e6c99f8051f57b59",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -400,6 +400,14 @@
         "itemId": "herb_zishen_cao"
       }
     ],
+    "bonds": {
+      "nangong_wan": {
+        "battleDay": 2390,
+        "battleGained": 4,
+        "giftDay": 0,
+        "value": 37
+      }
+    },
     "bottle": {
       "capacity": 6,
       "drops": 6,
@@ -408,6 +416,7 @@
       "owned": true
     },
     "chapter": 1,
+    "clearedFoes": {},
     "cultivation": 0,
     "cultivationRemainder": 0,
     "day": 6766,
@@ -685,9 +694,11 @@
       "ch07.feidan": 1,
       "ch07.fengyue": 2,
       "ch07.fudan_fa": 1,
+      "ch07.huolingshi": 1,
       "ch07.jiaoyao1": 1,
       "ch07.jihe": 1,
       "ch07.kuitan": 1,
+      "ch07.kundi": 1,
       "ch07.lianqi": 1,
       "ch07.likai": 1,
       "ch07.ma_songyao": 1,
@@ -695,6 +706,7 @@
       "ch07.mojiao": 2,
       "ch07.murong": 1,
       "ch07.nangong": 1,
+      "ch07.poding": 1,
       "ch07.pojin": 1,
       "ch07.qiannian": 1,
       "ch07.qipai": 1,
@@ -809,6 +821,9 @@
     "forgeProficiency": 0,
     "formationProficiency": 0,
     "formerRealm": 22,
+    "gatheredDay": {
+      "ch07_zhaoze_shenchu.gather_huolingshi_bei": 2390
+    },
     "hp": 60,
     "knownWeaknesses": {
       "chuanshan_shou": [
@@ -841,6 +856,10 @@
       ],
       "jinguang_shangren": [
         "火"
+      ],
+      "jinzhi_yanceng": [
+        "火",
+        "土"
       ],
       "long_zhong_shou": [
         "剑"
@@ -937,6 +956,8 @@
     "maxHp": 60,
     "maxMp": 30,
     "mp": 30,
+    "openedChests": [],
+    "openedGates": [],
     "party": [
       {
         "active": true,
@@ -944,7 +965,7 @@
         "roleId": "kuilei_shou"
       }
     ],
-    "playSecondsGameplay": 514.8666666665271,
+    "playSecondsGameplay": 515.24999999986,
     "playSecondsSystem": 0.0,
     "position": {
       "x": 12,
@@ -954,5 +975,5 @@
     "realmCap": 3,
     "talismanProficiency": 0
   },
-  "save_version": 9
+  "save_version": 10
 }

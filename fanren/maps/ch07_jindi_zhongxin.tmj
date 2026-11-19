@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 9,
+  "nextobjectid": 14,
   "tilesets": [
     {
       "firstgid": 1,
@@ -359,6 +359,146 @@
               "name": "kind",
               "type": "string",
               "value": "save"
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "name": "chest_linbian",
+          "type": "chest",
+          "x": 32,
+          "y": 1056,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_jindi_zhongxin.chest_linbian"
+            },
+            {
+              "name": "loot",
+              "type": "string",
+              "value": "pill_jinchuang_yao:2"
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "name": "chest_huayuan",
+          "type": "chest",
+          "x": 64,
+          "y": 32,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_jindi_zhongxin.chest_huayuan"
+            },
+            {
+              "name": "loot",
+              "type": "string",
+              "value": "material_huolong_cao,pill_huiqi_dan"
+            }
+          ]
+        },
+        {
+          "id": 11,
+          "name": "gather_huolong",
+          "type": "gather",
+          "x": 1440,
+          "y": 768,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_jindi_zhongxin.gather_huolong"
+            },
+            {
+              "name": "item",
+              "type": "string",
+              "value": "material_huolong_cao"
+            },
+            {
+              "name": "respawn_days",
+              "type": "int",
+              "value": 30
+            }
+          ]
+        },
+        {
+          "id": 12,
+          "name": "foe_she_lin",
+          "type": "foe",
+          "x": 256,
+          "y": 832,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_jindi_zhongxin.foe_she_lin"
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "right"
+            },
+            {
+              "name": "battle",
+              "type": "string",
+              "value": "be07_fei_she"
+            },
+            {
+              "name": "look",
+              "type": "string",
+              "value": "fei_she"
+            }
+          ]
+        },
+        {
+          "id": 13,
+          "name": "foe_she_yuan",
+          "type": "foe",
+          "x": 960,
+          "y": 128,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "value": "ch07_jindi_zhongxin.foe_she_yuan"
+            },
+            {
+              "name": "facing",
+              "type": "string",
+              "value": "down"
+            },
+            {
+              "name": "battle",
+              "type": "string",
+              "value": "be07_fei_she"
+            },
+            {
+              "name": "look",
+              "type": "string",
+              "value": "fei_she"
             }
           ]
         }

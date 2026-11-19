@@ -181,13 +181,21 @@ TEST(CompanionsSave, MalformedNewFieldsAreRejectedNotDropped) {
 
 // 契约 5：「v9 的全部交接档读进 v10、写出、再读回，除新增字段外逐字段相同」。
 // 第 3–8 章的档是 v8（formerRealm 是 v9 新加的，那一项与 v10 的五项一样算「新增」）。
+// 样板段（第 7 章）起第 7–13 章的交接档按 v10 重生成了（带着默契账）；改版前的那一份（v8 / v9）原样留在
+// tests/fixtures/companions/pre-v10/，这一条照旧拿它们核「旧档读得回」——旧档一份不少：第 3–6 章的仍在原处，
+// 第 7–13 章的在 pre-v10/。
 TEST(CompanionsSave, EveryHandoverFixtureReadsIntoV10AndWritesBackFieldForField) {
     std::vector<fs::path> fixtures;
-    for (const auto& entry : fs::directory_iterator(repoRoot() / "tests" / "fixtures")) {
-        const std::string name = entry.path().filename().string();
-        if (name.rfind("ch", 0) == 0 && entry.path().extension() == ".sav") fixtures.push_back(entry.path());
+    const fs::path pre = repoRoot() / "tests" / "fixtures" / "companions" / "pre-v10";
+    for (const fs::path& folder : {repoRoot() / "tests" / "fixtures", pre}) {
+        for (const auto& entry : fs::directory_iterator(folder)) {
+            const std::string name = entry.path().filename().string();
+            if (name.rfind("ch", 0) != 0 || entry.path().extension() != ".sav") continue;
+            const json probe = json::parse(readFile(entry.path()));
+            if (probe.at("save_version").get<int>() < 10) fixtures.push_back(entry.path());
+        }
     }
-    ASSERT_EQ(fixtures.size(), 22u) << "第 3–13 章各两份";
+    ASSERT_EQ(fixtures.size(), 22u) << "第 3–13 章各两份改版前的交接档（v8 / v9）";
     fanren::test::TempDir dir("fanren_companions_fixtures");
     for (const fs::path& fixture : fixtures) {
         const std::string label = fixture.filename().string();

@@ -1,5 +1,5 @@
 {
-  "checksum": "efa49cb370161357",
+  "checksum": "a4b1055c3a931814",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -370,6 +370,14 @@
         "itemId": "talisman_huoqiu_fu"
       }
     ],
+    "bonds": {
+      "nangong_wan": {
+        "battleDay": 2415,
+        "battleGained": 4,
+        "giftDay": 0,
+        "value": 37
+      }
+    },
     "bottle": {
       "capacity": 6,
       "drops": 6,
@@ -378,6 +386,7 @@
       "owned": true
     },
     "chapter": 1,
+    "clearedFoes": {},
     "cultivation": 4579,
     "cultivationRemainder": 1412,
     "day": 6732,
@@ -658,9 +667,11 @@
       "ch07.feidan": 1,
       "ch07.fengyue": 1,
       "ch07.fudan_fa": 1,
+      "ch07.huolingshi": 1,
       "ch07.jiaoyao1": 1,
       "ch07.jihe": 1,
       "ch07.kuitan": 1,
+      "ch07.kundi": 1,
       "ch07.lianqi": 1,
       "ch07.likai": 1,
       "ch07.ma_songyao": 1,
@@ -668,6 +679,7 @@
       "ch07.mojiao": 1,
       "ch07.murong": 1,
       "ch07.nangong": 1,
+      "ch07.poding": 1,
       "ch07.pojin": 1,
       "ch07.qiannian": 1,
       "ch07.qipai": 1,
@@ -758,6 +770,10 @@
     },
     "forgeProficiency": 0,
     "formationProficiency": 0,
+    "formerRealm": 0,
+    "gatheredDay": {
+      "ch07_zhaoze_shenchu.gather_huolingshi_bei": 2415
+    },
     "hp": 380,
     "knownWeaknesses": {
       "chuanshan_shou": [
@@ -787,6 +803,10 @@
       ],
       "jinguang_shangren": [
         "火"
+      ],
+      "jinzhi_yanceng": [
+        "火",
+        "土"
       ],
       "long_zhong_shou": [
         "剑"
@@ -881,6 +901,8 @@
     "maxHp": 380,
     "maxMp": 250,
     "mp": 250,
+    "openedChests": [],
+    "openedGates": [],
     "party": [
       {
         "active": true,
@@ -888,7 +910,7 @@
         "roleId": "kuilei_shou"
       }
     ],
-    "playSecondsGameplay": 504.1999999998701,
+    "playSecondsGameplay": 504.5833333332031,
     "playSecondsSystem": 0.0,
     "position": {
       "x": 7,
@@ -898,5 +920,5 @@
     "realmCap": 22,
     "talismanProficiency": 0
   },
-  "save_version": 8
+  "save_version": 10
 }

@@ -426,6 +426,8 @@ std::string facilityGlyph(const std::string& kind) {
     if (kind == "shop") return "市";
     if (kind == "board") return "榜";
     if (kind == "save") return "存";
+    // 历练的入口 / 出口（伙伴改版契约 2.4；样板段第一次把它摆上真图）：打坐时以神识重走旧地。
+    if (kind == "lilian") return "游";
     return "?";
 }
 
@@ -439,6 +441,7 @@ engine::Color facilityColor(const std::string& kind) {
     if (kind == "shop") return engine::Color{198, 160, 76, 255};
     if (kind == "board") return engine::Color{140, 128, 108, 255};
     if (kind == "save") return engine::Color{104, 168, 140, 255};
+    if (kind == "lilian") return engine::Color{150, 120, 176, 255};
     return engine::Color{200, 0, 160, 255};
 }
 

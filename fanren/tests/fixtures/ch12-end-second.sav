@@ -1,5 +1,5 @@
 {
-  "checksum": "d09d62ef25de1691",
+  "checksum": "0603be028db29f96",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -585,6 +585,14 @@
         "itemId": "story_yanghun_mugen"
       }
     ],
+    "bonds": {
+      "nangong_wan": {
+        "battleDay": 2390,
+        "battleGained": 4,
+        "giftDay": 0,
+        "value": 37
+      }
+    },
     "bottle": {
       "capacity": 9,
       "drops": 9,
@@ -593,6 +601,7 @@
       "owned": true
     },
     "chapter": 1,
+    "clearedFoes": {},
     "cultivation": 4011,
     "cultivationRemainder": 1290,
     "day": 49535,
@@ -950,9 +959,11 @@
       "ch07.feidan": 1,
       "ch07.fengyue": 2,
       "ch07.fudan_fa": 1,
+      "ch07.huolingshi": 1,
       "ch07.jiaoyao1": 1,
       "ch07.jihe": 1,
       "ch07.kuitan": 1,
+      "ch07.kundi": 1,
       "ch07.lianqi": 1,
       "ch07.likai": 1,
       "ch07.ma_songyao": 1,
@@ -960,6 +971,7 @@
       "ch07.mojiao": 2,
       "ch07.murong": 1,
       "ch07.nangong": 1,
+      "ch07.poding": 1,
       "ch07.pojin": 1,
       "ch07.qiannian": 1,
       "ch07.qipai": 1,
@@ -1194,6 +1206,9 @@
     "forgeProficiency": 3,
     "formationProficiency": 0,
     "formerRealm": 22,
+    "gatheredDay": {
+      "ch07_zhaoze_shenchu.gather_huolingshi_bei": 2390
+    },
     "hp": 614,
     "knownWeaknesses": {
       "chuanshan_shou": [
@@ -1238,6 +1253,10 @@
       ],
       "jinguang_shangren": [
         "火"
+      ],
+      "jinzhi_yanceng": [
+        "火",
+        "土"
       ],
       "langxing_qiling": [
         "水"
@@ -1369,8 +1388,10 @@
     "maxHp": 700,
     "maxMp": 470,
     "mp": 470,
+    "openedChests": [],
+    "openedGates": [],
     "party": [],
-    "playSecondsGameplay": 634.9666666664178,
+    "playSecondsGameplay": 635.3499999997508,
     "playSecondsSystem": 0.0,
     "position": {
       "x": 6,
@@ -1380,5 +1401,5 @@
     "realmCap": 31,
     "talismanProficiency": 0
   },
-  "save_version": 9
+  "save_version": 10
 }

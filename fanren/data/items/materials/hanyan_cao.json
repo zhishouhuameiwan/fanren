@@ -1,0 +1,11 @@
+{
+  "id": "material_hanyan_cao",
+  "name": "寒烟草",
+  "descKey": "item.desc.material_hanyan_cao",
+  "kind": "material",
+  "grade": 1,
+  "price": 8,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "禁地外围乌龙潭中心的水潭边每隔十几年随机长出的奇草，用途极广（ch180）。样板施工图 5.2：外围一处采集点。历练材料与赠礼，不能直接服用。"
+}
