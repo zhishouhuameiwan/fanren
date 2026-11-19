@@ -229,6 +229,28 @@ TEST(PortraitChapters, BadListsAndWindowsRejectTheWholeFile) {
     EXPECT_NE(bad.error.find("portraits.hanli[1].chapter"), std::string::npos) << bad.error;
 }
 
+TEST(PortraitChapters, AnUnlimitedEntryFollowedByMoreEntriesRejectsTheWholeFile) {
+    // 取的是第一条生效的：不限章的那条后面再跟条目，后面的永远取不到——次序写反了，整份报错。
+    const auto shadowed = fanren::io::parsePortraits(std::string(R"({"portraits": {"hanli": [)") + entry("") + ", " +
+                                                     entry(R"(, "min_chapter": 7, "max_chapter": 7)") + "]}}");
+    ASSERT_FALSE(shadowed.ok);
+    EXPECT_NE(shadowed.error.find("portraits.hanli[0]"), std::string::npos) << shadowed.error;
+    EXPECT_NE(shadowed.error.find("永远取不到"), std::string::npos) << shadowed.error;
+    EXPECT_FALSE(fanren::io::parsePortraits(std::string(R"({"portraits": {"hanli": [)") +
+                                            entry(R"(, "min_chapter": 1)") + ", " + entry(R"(, "max_chapter": 2)") +
+                                            "]}}")
+                     .ok)
+        << "min_chapter 1、不写 max 也是不限章";
+    // 反过来写（限章的在前、不限章的放最后）是对的；两条都限章也对。
+    EXPECT_TRUE(fanren::io::parsePortraits(std::string(R"({"portraits": {"hanli": [)") +
+                                           entry(R"(, "min_chapter": 7, "max_chapter": 7)") + ", " + entry("") + "]}}")
+                    .ok);
+    EXPECT_TRUE(fanren::io::parsePortraits(std::string(R"({"portraits": {"hanli": [)") +
+                                           entry(R"(, "max_chapter": 2)") + ", " + entry(R"(, "min_chapter": 7)") +
+                                           "]}}")
+                    .ok);
+}
+
 TEST(PortraitChapters, TheShippedTableGivesHanliAFaceOnlyInChapterSeven) {
     const auto table = fanren::io::loadPortraits((fs::path(repoRoot()) / "data" / "visual" / "portraits.json").string());
     ASSERT_TRUE(table.ok) << table.error;

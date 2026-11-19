@@ -9,11 +9,12 @@
   data/visual/portraits.json                              头像表（角色 id → 按章生效的头像列表）
 
     python tools/artgen/hd_pack.py [--src <定稿目录>]           # 写出上面这些（要源图）
-    python tools/artgen/hd_pack.py [--src <定稿目录>] --check   # 核：图与索引对得上；有源图时再重打一遍逐字节比
+    python tools/artgen/hd_pack.py [--src <定稿目录>] --check   # 核：图与索引对得上；有源图时再重打一遍比像素
 
 产物进仓库，源图不进（定稿帧在主检出的 docs/companions-overhaul/，未入库）。所以 --check 分两半：
 图与 hd/index.json 里的 sha256 一致、头像表引的图都在且放得下格子——这一半随时能跑；
-从源图重新打包、与磁盘逐字节相同——源目录在才跑，不在时如实打印「跳过，没核」，不报成通过。
+从源图重新打包、与磁盘的像素相同——源目录在才跑，不在时打印 HD_PACK_IN_SYNC_PARTIAL 并写明「跳过，没核」。
+源目录：--src 优先，其次环境变量 FANREN_HD_SRC，再其次仓库里的 docs/companions-overhaul（不入库）。
 门禁规则 40 另核 sha256（validate.py）。
 
 确定性：不读时钟、没有随机数；缩放、对齐都是整数运算或按固定次序的取舍；JSON 键排序、UTF-8 无 BOM、LF。
@@ -26,6 +27,7 @@ import hashlib
 import io
 import json
 import math
+import os
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -34,7 +36,16 @@ import numpy as np
 from PIL import Image
 
 REPO = Path(__file__).resolve().parents[2]
-DEFAULT_SRC = Path(r"H:\Work\Kys\fanren\docs\companions-overhaul")
+# 定稿源图（不入库）：命令行 --src 优先，其次环境变量 FANREN_HD_SRC，都没有就找仓库里的 docs/companions-overhaul
+# （主检出里有、工作树与公开仓库里没有——那时 --check 只核不靠源图的那一半）。
+SRC_ENV = "FANREN_HD_SRC"
+REPO_SRC = REPO / "docs" / "companions-overhaul"
+
+
+def default_src() -> Path:
+    env = os.environ.get(SRC_ENV, "").strip()
+    return Path(env) if env else REPO_SRC
+
 HD_REL = Path("assets") / "art" / "sprites" / "hd"
 PORTRAIT_REL = Path("assets") / "art" / "portraits"
 PORTRAIT_JSON_REL = Path("data") / "visual" / "portraits.json"
@@ -381,6 +392,10 @@ def check_committed(out: Path) -> list[str]:
         return problems + [f"缺  {PORTRAIT_JSON_REL.as_posix()}"]
     used: set[str] = set()
     for role, entries in sorted(json.loads(table_path.read_text(encoding="utf-8")).get("portraits", {}).items()):
+        if not isinstance(entries, list) or not all(isinstance(e, dict) and "file" in e for e in entries):
+            problems.append(f"形  {PORTRAIT_JSON_REL.as_posix()} 的 {role}：应当是头像列表（每条一个带 file 的对象），"
+                            f"是改版前一个角色一个对象的写法？")
+            continue
         for entry in entries:
             image = out / PORTRAIT_REL / entry["file"]
             used.add(entry["file"])
@@ -397,44 +412,81 @@ def check_committed(out: Path) -> list[str]:
     return problems
 
 
-def check_repack(src: Path, out: Path) -> list[str]:
-    """要源图的那一半：从源图重新打一遍，与磁盘上的逐字节相同。"""
+def same_pixels(a: bytes, b: bytes) -> bool:
+    """两份 PNG 解码后尺寸与 RGBA 像素是否相同。"""
+    with Image.open(io.BytesIO(a)) as ia, Image.open(io.BytesIO(b)) as ib:
+        return ia.size == ib.size and ia.convert("RGBA").tobytes() == ib.convert("RGBA").tobytes()
+
+
+def check_repack(src: Path, out: Path) -> tuple[list[str], list[str]]:
+    """要源图的那一半：从源图重新打一遍，与磁盘上的比。返回 (不同步, 提示)。
+
+    图比的是解码后的尺寸与 RGBA 像素：PNG 的字节取决于本机 Pillow / zlib 的压缩，换机器或升级后没改过的图
+    也可能字节不同——像素相同、字节不同只提示一行，不算不同步。hd/index.json 里的 sha256 跟着字节走，
+    所以比索引时不比 files 的值（只比登记了哪些文件）；sha256 与磁盘一致由 check_committed 另核。"""
     files, _ = build(src)
-    problems = []
+    problems: list[str] = []
+    notes: list[str] = []
     for rel, data in sorted(files.items()):
         target = out / rel
         if not target.exists():
             problems.append(f"缺  {rel.as_posix()}")
-        elif target.read_bytes() != data:
-            problems.append(f"变  {rel.as_posix()}（与从源图重新打包的不一致）")
+            continue
+        disk = target.read_bytes()
+        if disk == data:
+            continue
+        if rel.suffix == ".png":
+            if same_pixels(disk, data):
+                notes.append(f"{rel.as_posix()}：像素相同、PNG 字节不同（本机压缩库不同），不算不同步")
+            else:
+                problems.append(f"变  {rel.as_posix()}（像素与从源图重新打包的不一致）")
+            continue
+        if rel == HD_REL / "index.json":
+            mine, theirs = json.loads(disk), json.loads(data)
+            listed = sorted(mine.get("files", {})) == sorted(theirs.get("files", {}))
+            mine.pop("files", None)
+            theirs.pop("files", None)
+            if listed and mine == theirs:
+                notes.append(f"{rel.as_posix()}：只有 sha256 跟着 PNG 字节不同，内容相同")
+                continue
+        problems.append(f"变  {rel.as_posix()}（与从源图重新打包的不一致）")
     for d in (HD_REL, PORTRAIT_REL):
         for f in sorted((out / d).glob("*")) if (out / d).exists() else []:
             if f.is_file() and f.relative_to(out) not in files:
                 problems.append(f"多  {f.relative_to(out).as_posix()}（打包脚本已不产出它）")
-    return problems
+    return problems, notes
 
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(description="手绘高清美术打包")
     ap.add_argument("--src", type=Path, default=None,
-                    help=f"定稿图目录（不入库；缺省：{DEFAULT_SRC}，那里不在就当没有源图）")
+                    help=f"定稿图目录（不入库；缺省取环境变量 {SRC_ENV}，再没有就是仓库里的 docs/companions-overhaul，"
+                         "那里不在就当没有源图）")
     ap.add_argument("--out", type=Path, default=REPO, help="输出根（缺省：仓库的 fanren/）")
     ap.add_argument("--check", action="store_true",
-                    help="只比对：图与索引的 sha256 对得上；有源图时再从源图重打一遍逐字节比")
+                    help="只比对：图与索引的 sha256 对得上；有源图时再从源图重打一遍比像素")
     args = ap.parse_args(argv)
-    src = args.src if args.src is not None else DEFAULT_SRC
+    src = args.src if args.src is not None else default_src()
     have_src = src.is_dir()
     if args.check:
         problems = check_committed(args.out)
+        notes: list[str] = []
         if have_src:
-            problems += check_repack(src, args.out)
+            repacked, notes = check_repack(src, args.out)
+            problems += repacked
         for line in problems:
             print("  " + line)
+        for line in notes:
+            print("  提示：" + line)
         if problems:
             print(f"HD_PACK_OUT_OF_SYNC：{len(problems)} 处不一致")
             return 1
-        print("HD_PACK_IN_SYNC：图与索引的 sha256 一致；" +
-              ("从源图重新打包逐字节相同" if have_src else f"源目录 {src} 不在，「从源图重新打包」那一半跳过，没核"))
+        if not have_src:
+            # 只核了一半：换一个标记，免得只抓 HD_PACK_IN_SYNC 的人当成全过。
+            print(f"HD_PACK_IN_SYNC_PARTIAL：图与索引的 sha256 一致；源目录 {src} 不在，"
+                  "「从源图重新打包」那一半跳过，没核")
+            return 0
+        print("HD_PACK_IN_SYNC：图与索引的 sha256 一致；从源图重新打包，像素与索引都相同")
         return 0
     if not have_src:
         print(f"hd_pack: 源目录 {src} 不在，打不了（用 --src 指定）")

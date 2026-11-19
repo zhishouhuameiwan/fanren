@@ -266,6 +266,7 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
 - **按章生效**：`min_chapter` / `max_chapter` 与 `role_variants` 同一个意思、同一种判法——`max_chapter` 那一章还没演完、
   且 `min_chapter` 的前一章已经演完（「演完」问章节表的 `done_flag`，与取外观同一个判据，`game/Portraits.h` 的 `portraitForChapter`）。
   韩立第 1–2 章是十岁的孩子：青年的头像只登记在第 7 章，其余章节他说话不出脸。改版前「一个角色一个对象」的写法不再认。
+  一条不限章的（没写章号，或 `min_chapter` ≤ 1 且不写 `max_chapter`）后面再跟条目，后面的永远取不到：整份报错——限章的写在前面，不限章的放最后。
 - 读取器 `io/PortraitLoader.h`，严格：缺项、类型错、认不出的键（含第五个表情、`scale` 之类引擎不判的字段）整份报错，
   游戏里打一行警告、当作空表（对白一律不带头像，不挡游戏）。图载不进来、某一格越出了图：那一句不带头像，警告一次。
 - 脚本 `talk(角色, 文案, 表情)` 的表情缺省 `normal`；写了认不出的表情按 `normal` 画并警告一次。

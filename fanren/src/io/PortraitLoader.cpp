@@ -102,6 +102,14 @@ std::string readList(const json& list, const std::string& where, std::vector<cor
         }
         out.push_back(std::move(sheet));
     }
+    // 取的是第一条在这一章生效的：一条不限章的（没写章号，或 min ≤ 1 且不写 max）后面再跟条目，后面的永远取不到。
+    // 那多半是次序写反了（该把限章的写在前面），与读取器一贯的口径一样，整份报错。
+    for (std::size_t i = 0; i + 1 < out.size(); ++i) {
+        if (out[i].minChapter <= 1 && out[i].maxChapter <= 0) {
+            return "portraits.json 的 " + where + "[" + std::to_string(i) + "]：这一条不限章，后面的 " +
+                   std::to_string(out.size() - i - 1) + " 条永远取不到（限章的写在前面，不限章的放最后）";
+        }
+    }
     return {};
 }
 
