@@ -28,6 +28,62 @@
       "name": "碧水鳄",
       "scale": 1
     },
+    "bishui_e_t2": {
+      "alias_of": "bishui_e",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "bishui_e.png",
+      "foot_y": 62,
+      "frame_h": 65,
+      "frame_w": 160,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "碧水鳄",
+      "scale": 1
+    },
+    "bishui_e_t3": {
+      "alias_of": "bishui_e",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "bishui_e.png",
+      "foot_y": 62,
+      "frame_h": 65,
+      "frame_w": 160,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "碧水鳄",
+      "scale": 1
+    },
     "mo_jiao": {
       "battle": {
         "attack": [

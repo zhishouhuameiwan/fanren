@@ -36,6 +36,7 @@ JSON 键排序、UTF-8 无 BOM、LF。两次独立运行（不同 `PYTHONHASHSEE
 | `sprites_looks.py` | 读 / 校验 / 继承外观表；衣料色表 `CLOTH`；衣型 → 区域配色 |
 | `sprites_render.py` | 一条外观 → 一张 21 帧的人物表 |
 | `sprites_enemies.py` | 非人形敌人（恶狼、笼中兽、僵兽、墨府尸傀、野猪）与元神光球（韩立、墨居仁、余子童） |
+| `sprites_ch07_beasts.py` | 伙伴改版样板段（第 7 章）新加的寒冰蟾、彩蛾、飞蛇与机关敌人封禁岩层（`Beast` 可另给待机第二帧、受击帧、落地行） |
 | `sprites_objects.py` | 地图物件：九种设施、传送箭头、门光、交互闪光、头顶气泡 |
 | `fx.py` | 入口：`build(out_root)`，写特效贴图、`fx/index.json`、`ui/icons.png`、`ui/icons.json` |
 | `fx_textures.py` / `fx_particles.py` / `fx_combat.py` / `fx_icons.py` | 柔光与雾纹 / 粒子 / 战斗特效与气焰 / UI 图标 |
@@ -346,6 +347,10 @@ python tools/artgen/hd_pack.py [--src <定稿目录>] --check   # 核：图与�
 
 倍数：世界层（明雷）×1、战斗层 ×2。战斗里人是 64 像素高的格 ×2 = 128，墨蛟待机约 92 像素高 ×2 ≈ 184（连格 96 高 ×2 = 192），
 明显比人大，又不顶出画面、不压面板（第 7 章墨蛟之战的截图量过：约 272×192）。
+
+历练按境界分档的第 2、3 档是同一只妖兽换一档数值、另起的角色 id（`data/roles/*_t2` / `*_t3`），长相不变，借本体的图：
+生成的那几只（`hanbing_chan`、`fei_she`、`huoyan_shu`）登在 `sprites.py` 的 `ENEMY_ALIASES`，手绘的碧水鳄（`bishui_e`）登在
+`hd_pack.py` 的 `HD_ENEMY_ALIASES`，两边都写成带 `alias_of` 的一整条。样板段再加分档的妖兽时，两处照这个加。
 
 手绘敌人的三条规矩（写 `hd/index.json` 的 `enemies` 时照办）：
 - **首领在战斗层另放大**：首领的战斗倍数是在表上的 `battle_scale` 上「加四分之一、取整」（`BattleView` 的 `battleScale`：

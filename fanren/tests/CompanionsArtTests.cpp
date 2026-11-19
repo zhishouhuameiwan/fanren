@@ -29,9 +29,11 @@
 #include "TempDir.h"
 #include "engine/TextLayout.h"
 #include "game/Application.h"
+#include "game/BattleView.h"
 #include "game/DialogueScene.h"
 #include "game/Portraits.h"
 #include "game/SpriteAtlas.h"
+#include "game/WorldProps.h"
 #include "io/PortraitLoader.h"
 #include "io/VisualLoader.h"
 #include "ui/Widgets.h"
@@ -187,6 +189,58 @@ TEST(HdArt, TheNewMapObjectsAndTheLilianFacilityAreInTheShippedObjectTable) {
     EXPECT_EQ(index.objects.at("chest_closed").anchorY, index.objects.at("chest_open").anchorY)
         << "开箱不让箱子跳一下";
     EXPECT_EQ(index.objects.at("gather_ready").anchorY, index.objects.at("gather_spent").anchorY);
+}
+
+// 样板段（第 7 章）新加的普通妖兽与机关敌人：程序画（tools/artgen/sprites_ch07_beasts.py），16 像素美术那一档。
+// 明雷站在图上取 foe.look（世界层画敌人表 idle 的第一帧），开打按编成的角色 id 取（战斗层）：同一个 id 两处都要取得到。
+// id 照样板段的数据（data/battles/be07_* / bl07_* / b07_poding、maps/ch07_* 与 lilian_jindi_* 的 foe.look）。
+TEST(HdArt, TheChapterSevenBeastsAreFoundOnTheMapAndInBattle) {
+    const SpriteIndex index = shippedIndex();
+    const fanren::game::ChapterDone noneDone = [](int) { return false; };
+    struct Expect {
+        const char* id;
+        int w, h;
+    };
+    for (const Expect& e : {Expect{"hanbing_chan", 32, 24}, Expect{"cai_e", 32, 24}, Expect{"fei_she", 32, 24},
+                            Expect{"jinzhi_yanceng", 40, 32}}) {
+        SCOPED_TRACE(e.id);
+        ASSERT_EQ(index.enemies.count(e.id), 1u);
+        const auto& enemy = index.enemies.at(e.id);
+        EXPECT_EQ(enemy.file, std::string("enemies/") + e.id + ".png") << "生成的，不是手绘的";
+        EXPECT_EQ(enemy.frameW, e.w);
+        EXPECT_EQ(enemy.frameH, e.h);
+        EXPECT_EQ(enemy.battleFacing, fanren::core::BattleFacing::Right) << "与现有非人形敌人一致：面朝右";
+        EXPECT_EQ(enemy.scale, 3) << "16 像素美术的缺省倍数，与旧兽一致";
+        EXPECT_EQ(enemy.battleScale, 4);
+        for (const char* pose : {"idle", "attack", "hurt", "down"}) EXPECT_EQ(enemy.battle.count(pose), 1u) << pose;
+        // 世界层：明雷的 look 走 foeBodyFor，落到敌人表上。
+        const auto body = fanren::game::foeBodyFor(index, e.id, noneDone);
+        EXPECT_EQ(body.enemy, &enemy);
+        EXPECT_EQ(body.sheet, nullptr);
+        // 战斗层：编成里的角色 id 走 battleLookFor。
+        const auto look = fanren::game::battleLookFor(index, "be07_any", e.id, noneDone);
+        EXPECT_EQ(look.file, enemy.file);
+        EXPECT_FALSE(look.humanoid);
+    }
+    EXPECT_EQ(index.enemies.at("cai_e").footY, 23) << "彩蛾悬在半空：落地点取帧底";
+    EXPECT_EQ(fanren::game::battleLookFor(index, "b07_poding", "jinzhi_yanceng", noneDone).frameW, 40)
+        << "破顶战的对手";
+
+    // 历练按境界分档的第 2、3 档：另起的角色 id，长相借本体（生成的借生成的，手绘的碧水鳄借手绘的）。
+    const char* const kTiers[][2] = {
+        {"hanbing_chan_t2", "hanbing_chan"}, {"hanbing_chan_t3", "hanbing_chan"}, {"fei_she_t2", "fei_she"},
+        {"fei_she_t3", "fei_she"},           {"huoyan_shu_t2", "huoyan_shu"},     {"huoyan_shu_t3", "huoyan_shu"},
+        {"bishui_e_t2", "bishui_e"},         {"bishui_e_t3", "bishui_e"},
+    };
+    for (const auto& tier : kTiers) {
+        SCOPED_TRACE(tier[0]);
+        ASSERT_EQ(index.enemies.count(tier[0]), 1u);
+        EXPECT_EQ(index.enemies.at(tier[0]).file, index.enemies.at(tier[1]).file);
+        EXPECT_EQ(index.enemies.at(tier[0]).aliasOf, tier[1]);
+        EXPECT_EQ(fanren::game::battleLookFor(index, "bl07_any", tier[0], noneDone).file,
+                  index.enemies.at(tier[1]).file);
+    }
+    EXPECT_EQ(index.enemies.at("bishui_e_t3").file, "hd/bishui_e.png");
 }
 
 // ---------------------------------------------------------------------------

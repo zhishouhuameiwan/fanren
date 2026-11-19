@@ -10,6 +10,33 @@
   }
  },
  "enemies": {
+  "cai_e": {
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/cai_e.png",
+   "foot_y": 23,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 1,
+   "kind": "beast",
+   "name": "彩蛾",
+   "note": "灵兽山二人放出的彩蛾（ch181）：翅上紫粉、金边、一对玉色眼斑，悬在半空；出招扑翅撒一片鳞粉；倒下翅膀摊在地上。"
+  },
   "chuanshan_shou": {
    "battle": {
     "attack": [
@@ -37,6 +64,89 @@
    "name": "穿山甲兽",
    "note": "络腮胡子的另一头灵兽：拱背、一身交叠的土黄鳞甲、尖长的嘴、粗尾拖地、短腿大爪；出招是人立起来抡爪；倒下时缩成一团。"
   },
+  "fei_she": {
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/fei_she.png",
+   "foot_y": 19,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 7,
+   "kind": "beast",
+   "name": "飞蛇",
+   "note": "「绷直了身子像个死物，一扇翅就飞起来」（ch192）：土褐的蛇身直挺挺横着、背上一对收着的膜翅；出招张翅昂首扑咬；倒下软成一摊。"
+  },
+  "fei_she_t2": {
+   "alias_of": "fei_she",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/fei_she.png",
+   "foot_y": 19,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 7,
+   "kind": "beast",
+   "name": "飞蛇",
+   "note": "「绷直了身子像个死物，一扇翅就飞起来」（ch192）：土褐的蛇身直挺挺横着、背上一对收着的膜翅；出招张翅昂首扑咬；倒下软成一摊。"
+  },
+  "fei_she_t3": {
+   "alias_of": "fei_she",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/fei_she.png",
+   "foot_y": 19,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 7,
+   "kind": "beast",
+   "name": "飞蛇",
+   "note": "「绷直了身子像个死物，一扇翅就飞起来」（ch192）：土褐的蛇身直挺挺横着、背上一对收着的膜翅；出招张翅昂首扑咬；倒下软成一摊。"
+  },
   "gui_yecha": {
    "battle": {
     "attack": [
@@ -63,6 +173,89 @@
    "kind": "beast",
    "name": "鬼夜叉",
    "note": "第 12 章战斗①第 0 波：头生两角的鬼物，紫黑皮色、红眼，双手一柄骨叉（role note「手持骨叉」）。"
+  },
+  "hanbing_chan": {
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/hanbing_chan.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 9,
+   "kind": "beast",
+   "name": "寒冰蟾",
+   "note": "禁地外围乌龙潭成群潜伏的一级下阶妖兽（ch180）：蹲伏的冰蓝大蟾、背上霜白的疣、金眼；出招张口喷一串冰碴；倒下翻了肚皮。"
+  },
+  "hanbing_chan_t2": {
+   "alias_of": "hanbing_chan",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/hanbing_chan.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 9,
+   "kind": "beast",
+   "name": "寒冰蟾",
+   "note": "禁地外围乌龙潭成群潜伏的一级下阶妖兽（ch180）：蹲伏的冰蓝大蟾、背上霜白的疣、金眼；出招张口喷一串冰碴；倒下翻了肚皮。"
+  },
+  "hanbing_chan_t3": {
+   "alias_of": "hanbing_chan",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/hanbing_chan.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 9,
+   "kind": "beast",
+   "name": "寒冰蟾",
+   "note": "禁地外围乌龙潭成群潜伏的一级下阶妖兽（ch180）：蹲伏的冰蓝大蟾、背上霜白的疣、金眼；出招张口喷一串冰碴；倒下翻了肚皮。"
   },
   "hanli_yuanshen": {
    "battle": {
@@ -200,6 +393,62 @@
    "name": "火焰鼠",
    "note": "环形山里一级下阶的小兽，成群出没：个头小，赤红的毛，背上一溜火苗、尾尖一点火星；出招是冲着人喷一口火星；倒下时火灭成灰。"
   },
+  "huoyan_shu_t2": {
+   "alias_of": "huoyan_shu",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/huoyan_shu.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 11,
+   "kind": "beast",
+   "name": "火焰鼠",
+   "note": "环形山里一级下阶的小兽，成群出没：个头小，赤红的毛，背上一溜火苗、尾尖一点火星；出招是冲着人喷一口火星；倒下时火灭成灰。"
+  },
+  "huoyan_shu_t3": {
+   "alias_of": "huoyan_shu",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/huoyan_shu.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 11,
+   "kind": "beast",
+   "name": "火焰鼠",
+   "note": "环形山里一级下阶的小兽，成群出没：个头小，赤红的毛，背上一溜火苗、尾尖一点火星；出招是冲着人喷一口火星；倒下时火灭成灰。"
+  },
   "jiang_shou": {
    "battle": {
     "attack": [
@@ -253,6 +502,33 @@
    "kind": "beast",
    "name": "鸡冠蛟",
    "note": "第 11 章六级妖兽：长身青鳞、头顶红冠、背鳍一排；出招是张口前探。"
+  },
+  "jinzhi_yanceng": {
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/jinzhi_yanceng.png",
+   "foot_y": 29,
+   "frame_h": 32,
+   "frame_w": 40,
+   "head_y": 4,
+   "kind": "beast",
+   "name": "封禁岩层",
+   "note": "地底石窟岩层最薄的那一处、压着禁地的禁制（施工图 4.4「破顶」）：一面岩壁、正中一圈金色禁制符纹；待机符纹一明一暗；出招顶上落碎石；受击裂纹加深；倒下崩成一堆碎岩。不是活物。"
   },
   "kuilei_shou": {
    "battle": {

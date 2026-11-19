@@ -49,6 +49,11 @@ class Beast:
     codes: dict[str, tuple[str, int]]
     leg_top: int          # 待机呼吸时，这一行以上整体下沉
     note: str = ""
+    # 下面三个可不写（缺省 = 改版前的推法）。伙伴改版第 7 章的机关敌人（封禁岩层，sprites_ch07_beasts.py）不是活物：
+    # 待机第二帧不是「呼吸」，受击也不是「往后一缩、闭眼」，各自另画一张；悬空的（彩蛾）落地点取帧底而不是最低的不透明行。
+    idle2: tuple[str, ...] | None = None
+    hurt: tuple[str, ...] | None = None
+    foot_y: int | None = None
 
 
 def _codes(extra: dict[str, tuple[str, int]] | None = None) -> dict[str, tuple[str, int]]:
@@ -2024,9 +2029,9 @@ def render_beast(beast: Beast) -> tuple[Image.Image, dict[str, list[int]]]:
     idle0 = _canvas_from(beast.idle, beast)
     frames = [
         idle0,
-        _breath(idle0, beast.leg_top),
+        _canvas_from(beast.idle2, beast) if beast.idle2 is not None else _breath(idle0, beast.leg_top),
         _canvas_from(beast.attack, beast),
-        _hurt(idle0),
+        _canvas_from(beast.hurt, beast) if beast.hurt is not None else _hurt(idle0),
         _canvas_from(beast.down, beast),
     ]
     imgs = [to_image(add_outline(f, mats), mats) for f in frames]
