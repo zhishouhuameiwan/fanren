@@ -96,7 +96,12 @@ protected:
     void tick(int frames = 1) {
         for (int i = 0; i < frames; ++i) app_.tick(1.0 / 60.0);
     }
-    WorldScene& world() { return *dynamic_cast<WorldScene*>(app_.topScene()); }
+    // 栈顶的世界层；不是世界层（压着战斗、对白）时记一条失败并返回空，调用方判空——不解引用空指针崩掉。
+    WorldScene* world() {
+        auto* scene = dynamic_cast<WorldScene*>(app_.topScene());
+        EXPECT_NE(scene, nullptr) << "栈顶不是世界层：" << (app_.topScene() != nullptr ? app_.topScene()->name() : "空栈");
+        return scene;
+    }
     void enter() {
         ASSERT_TRUE(app_.enterLilian({"probe_cross", "lilian_probe_cross", "rukou", {"zhang_tie"}}).ok);
         tick();
@@ -107,10 +112,14 @@ protected:
     // 绕到明雷背后（它面朝右，背后是左边那一格），面朝它按确认：偷袭（契约 3.4）。真开打，交给那只手打完。
     BattlePhase ambushAndFight(const std::vector<std::pair<int, int>>& path, const std::string& expectedBattle) {
         for (const auto& [dx, dy] : path) {
-            EXPECT_TRUE(world().tryStep(app_, dx, dy));
+            WorldScene* scene = world();
+            if (scene == nullptr) return BattlePhase::Ongoing;
+            EXPECT_TRUE(scene->tryStep(app_, dx, dy));
             tick(10);
         }
-        EXPECT_TRUE(world().interact(app_));
+        WorldScene* scene = world();
+        if (scene == nullptr) return BattlePhase::Ongoing;
+        EXPECT_TRUE(scene->interact(app_));
         tick();
         auto* battle = dynamic_cast<BattleScene*>(app_.topScene());
         EXPECT_NE(battle, nullptr) << "面朝明雷按确认就开打";
@@ -140,12 +149,17 @@ TEST_F(CrossLane, AnAmbushInsideALilianFightsTheTieredBattleWithTheInitiativeAnd
     EXPECT_TRUE(app_.inLilian()) << "打赢了还在历练里";
     EXPECT_EQ(app_.worldObjects().clearedFoes.count("lilian_probe_cross.foe_wolf"), 1u) << "记进这一趟";
     EXPECT_TRUE(app_.state().worldObjects.clearedFoes.empty()) << "永久那份没被写";
-    for (const auto& foe : world().describeFrame(app_).foes) {
+    WorldScene* scene = world();
+    ASSERT_NE(scene, nullptr);
+    for (const auto& foe : scene->describeFrame(app_).foes) {
         EXPECT_NE(foe.object->name, "foe_wolf") << "这一趟里它不在了";
     }
 }
 
 TEST_F(CrossLane, LosingAnAmbushInsideALilianEndsTheTripAndTheHpWrittenBackStaysWithTheTripsParty) {
+    // 原队伍与这一趟的队伍是同一个人：张铁进去前带着伤（17 / 32），这一趟又选了他（进去时满血）。
+    // 战场回写按角色 id 找人——两份队伍里都有张铁，回写落在哪一份，出来之后他的气血就看得出来。
+    app_.state().party = {{"zhang_tie", 17, true}};
     enter();
     // (12,11) → (12,12) → (12,13) → (13,13)：强敌在 (14,13) 面朝右，(13,13) 是它背后。
     ASSERT_EQ(ambushAndFight({{0, 1}, {0, 1}, {1, 0}}, "probe_hard_t1"), BattlePhase::Lost);
@@ -153,11 +167,12 @@ TEST_F(CrossLane, LosingAnAmbushInsideALilianEndsTheTripAndTheHpWrittenBackStays
     EXPECT_EQ(app_.state().mapId, "probe_home");
     EXPECT_EQ(app_.state().position, (Point{12, 11})) << "回到进去之前那一格";
     EXPECT_EQ(app_.state().day, 41) << "出来日历加一天";
-    // 战场上回写的气血落在这一趟的队伍（张铁）上，那份队伍出来就扔了；原队伍是进去之前那一份：
-    // 曲魂还是那一位，带着进去前的伤，只多了出来那一天的静养（上限 55 的一成，17 + 5）。
+    // 战场上回写的气血（打输了，他只剩 1）落在这一趟的队伍上，那份队伍出来就扔了；原队伍的张铁还是
+    // 进去之前那一份：17，加出来那一天的静养（上限 32 的一成取整 3）= 20。回写要是错落到原队伍上
+    //（先退出历练、后回写），这里会是战场上剩的那个 1。
     ASSERT_EQ(app_.state().party.size(), 1u);
-    EXPECT_EQ(app_.state().party[0].roleId, "qu_hun");
-    EXPECT_EQ(app_.state().party[0].hp, 22);
+    EXPECT_EQ(app_.state().party[0].roleId, "zhang_tie");
+    EXPECT_EQ(app_.state().party[0].hp, 20);
     EXPECT_GE(app_.state().hp, 1) << "韩立打输了也至少留 1 点气血（BattleScene 的老规矩）";
     EXPECT_TRUE(app_.state().worldObjects.clearedFoes.empty());
 }
@@ -216,7 +231,9 @@ TEST_F(CrossLane, TwoCompanionsFollowTheHerosTrailOnARealMapAndArriveOnTheSameFr
     for (int frame = 0; frame < 90 && app_.state().position.x < from.x + 5; ++frame) {
         app_.tick(1.0 / 60.0);
         app_.drawScenes();
-        const auto& view = world().view();
+        WorldScene* scene = world();
+        ASSERT_NE(scene, nullptr);
+        const auto& view = scene->view();
         const auto& slots = view.followers();
         if (slots.size() != 2u || app_.state().position.x < from.x + 3) continue;   // 头两步队伍还在排开
         SCOPED_TRACE(frame);
@@ -235,16 +252,18 @@ TEST_F(CrossLane, TwoCompanionsFollowTheHerosTrailOnARealMapAndArriveOnTheSameFr
     EXPECT_EQ(app_.state().position.x, from.x + 5);
 
     // 停下来之后：画面上的跟随者站在主角走过的最后两格上，与世界逻辑填的帧一致。
-    const auto& frame = world().describeFrame(app_);
+    WorldScene* scene = world();
+    ASSERT_NE(scene, nullptr);
+    const auto& frame = scene->describeFrame(app_);
     ASSERT_EQ(frame.followers.size(), 2u);
     EXPECT_EQ(frame.followers[0].cell, (Point{from.x + 4, from.y}));
     EXPECT_EQ(frame.followers[1].cell, (Point{from.x + 3, from.y}));
-    const auto& slots = world().view().followers();
+    const auto& slots = scene->view().followers();
     ASSERT_EQ(slots.size(), 2u);
     EXPECT_EQ(slots[0].roleId, "zhang_tie");
     EXPECT_EQ(slots[1].roleId, "baiyi_shaonv");
     EXPECT_NEAR(slots[0].slide.position().x, static_cast<float>(from.x + 4), 1e-4f);
     EXPECT_NEAR(slots[1].slide.position().x, static_cast<float>(from.x + 3), 1e-4f);
     EXPECT_FALSE(slots[0].slide.moving());
-    EXPECT_FALSE(world().view().playerMoving());
+    EXPECT_FALSE(scene->view().playerMoving());
 }
