@@ -26,3 +26,7 @@ __pycache__/
 # fanren：游戏运行时写出的本机文件（F5 快速存档、系统设置，见 fanren/docs/settings.md）
 /fanren/saves/quick.sav
 /fanren/saves/settings.json
+
+# fanren：伙伴改版的设计图、原稿与出图工作笔记——只留在本地，不入库（游戏运行要用的图在 fanren/assets/ 下，照常入库）
+/fanren/docs/companions-overhaul/
+/fanren/work-notes/
