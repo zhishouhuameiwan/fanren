@@ -7,7 +7,7 @@
 //   lilian:<历练地 id>        历练的组队面板（LilianPartyScene），压在当前世界层上
 //   menu:party / menu:roster  主菜单的队伍页 / 名册页（名册上有人时才有这两页；没人时退回状态页）
 //   walk:<方向串>             让主角照真入口（WorldScene::tryStep）走几步再拍：U 上 D 下 L 左 R 右，
-//                             跟随者排开、明雷与宝箱等新对象照常画。撞墙的那一步不算错，照样往下走
+//                             每一步照游戏的次序一帧帧走到主角与跟随者都停下；撞墙的那一步不算错，照样往下走
 //
 // 带伙伴的世界层、四人战斗面板不另开入口：存档里有伙伴（--load）、编成照旧（battle:<编成 id>）就拍得到。
 #include <string>
@@ -16,8 +16,11 @@ namespace fanren::game {
 
 class Application;
 
-// 认得 kind（与 arg）就压场景 / 走路、定好空转帧数并返回 true；认不得返回 false，什么也不做。
-// warmup 是截图前空转的帧数，只在需要更多时调大。
+// 认得 kind（与 arg）就压场景 / 走路并返回 true；认不得返回 false，什么也不做。
+// 认得却拍不成也返回 false（标准错误写一行为什么），截图口照「认不出的 --scene」报错退出，不悄悄拍一张：
+// 历练地不存在；名册上没人（主菜单没有队伍页、名册页）；walk 的方向串里有认不出的字、或走到半路栈顶已不是
+// 世界层（撞上明雷、踩响触发器，压上了战斗或对白）。
+// warmup 是截图前空转的帧数，只在需要更多时调大（现在这几个入口都不用）。
 bool pushCompanionShot(Application& app, const std::string& kind, const std::string& arg, int& warmup);
 
 // 截图模式下世界层的时钟步长（秒）。世界层被对白、菜单压着时不走自己的 update，画的时候按「这一帧过了多久」

@@ -1,8 +1,9 @@
 #include "game/ShotScenes.h"
 
-#include <algorithm>
+#include <cstdio>
 #include <memory>
 
+#include "core/rules/Roster.h"
 #include "game/Application.h"
 #include "game/LilianPartyScene.h"
 #include "game/MenuScene.h"
@@ -11,13 +12,28 @@
 namespace fanren::game {
 namespace {
 
-// 一步走完（滑步 0.12 秒、走路冷却 0.12 秒）再走下一步要的帧数，按 1/60 秒一帧往宽里取。
-constexpr int kFramesPerStep = 12;
+// 照游戏一帧的次序走一帧：update（WorldScene 推画面、受理输入），再 render（世界逻辑填帧、世界画面排跟随者）。
+// 截图口不走 run()，跟随者的滑步要在 render 里才起步，只 tick 不画的话拍照那一刻他们还没出发。
+void frame(Application& app) {
+    app.tick(1.0 / 60.0);
+    app.drawScenes();
+}
 
-bool walk(Application& app, const std::string& steps, int& warmup) {
-    app.tick(1.0 / 60.0);   // 压进去的世界层帧末才真正入栈
-    auto* world = dynamic_cast<WorldScene*>(app.topScene());
-    if (world == nullptr) return false;
+bool settled(const WorldView& view) {
+    if (view.playerMoving()) return false;
+    for (const FollowerTrack::Slot& slot : view.followers()) {
+        if (slot.slide.moving()) return false;
+    }
+    return true;
+}
+
+// 一步至多等多少帧滑完（一步 0.12 秒、约 8 帧；这里只是防死循环的上限，不是步长本身）。
+constexpr int kMaxFramesPerStep = 120;
+
+WorldScene* topWorld(Application& app) { return dynamic_cast<WorldScene*>(app.topScene()); }
+
+bool walk(Application& app, const std::string& steps) {
+    frame(app);   // 压进去的世界层帧末才真正入栈
     for (const char step : steps) {
         int dx = 0;
         int dy = 0;
@@ -26,28 +42,55 @@ bool walk(Application& app, const std::string& steps, int& warmup) {
             case 'D': dy = 1; break;
             case 'L': dx = -1; break;
             case 'R': dx = 1; break;
-            default: return false;
+            default:
+                std::fprintf(stderr, "walk: 认不出的方向 %c（只认 U D L R）\n", step);
+                return false;
+        }
+        // 每一步之前核栈顶仍是世界层：上一步撞上明雷、踩响触发器，压上来的是战斗或对白，
+        // 再往下走就是对着被压住的那一层乱走，拍出来的也不是要的那一屏。
+        WorldScene* world = topWorld(app);
+        if (world == nullptr) {
+            std::fprintf(stderr, "walk: 走 %c 那一步之前栈顶已不是世界层，停下\n", step);
+            return false;
         }
         (void)world->tryStep(app, dx, dy);
-        for (int frame = 0; frame < kFramesPerStep; ++frame) app.tick(1.0 / 60.0);
+        // 空转到这一步滑完（主角与跟随者都停下）：滑多久问画面自己，不从别处抄步长。
+        for (int i = 0; i < kMaxFramesPerStep; ++i) {
+            frame(app);
+            if (topWorld(app) != world || settled(world->view())) break;
+        }
     }
-    warmup = std::max(warmup, kFramesPerStep);
+    if (topWorld(app) == nullptr) {
+        std::fprintf(stderr, "walk: 走完之后栈顶不是世界层（踩响了什么），不拍\n");
+        return false;
+    }
     return true;
 }
 
 }  // namespace
 
 bool pushCompanionShot(Application& app, const std::string& kind, const std::string& arg, int& warmup) {
+    (void)warmup;   // 这几个入口都不用比缺省更长的空转
     if (kind == "lilian" && !arg.empty()) {
+        // 认不出的历练地如实报错：组队面板照样画得出来，拍出一张看着正常、其实什么都不是的图最难查。
+        if (app.lilianSite(arg) == nullptr) {
+            std::fprintf(stderr, "lilian: 没有这处历练地：%s\n", arg.c_str());
+            return false;
+        }
         app.pushScene(std::make_unique<LilianPartyScene>(arg));
         return true;
     }
     if (kind == "menu" && (arg == "party" || arg == "roster")) {
+        // 名册上没人时主菜单没有这两页（会退回状态页）：要拍的那一页根本不存在，如实报错。
+        if (rules::roster(app.data().companions, app.state()).empty()) {
+            std::fprintf(stderr, "menu:%s：名册上没人，主菜单没有这一页\n", arg.c_str());
+            return false;
+        }
         app.setFixedWorldClock(kShotMenuWorldClockSeconds);
         app.pushScene(std::make_unique<MenuScene>(arg == "party" ? MenuScene::Page::Party : MenuScene::Page::Roster));
         return true;
     }
-    if (kind == "walk" && !arg.empty()) return walk(app, arg, warmup);
+    if (kind == "walk" && !arg.empty()) return walk(app, arg);
     return false;
 }
 
