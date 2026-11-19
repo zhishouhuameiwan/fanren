@@ -9,11 +9,14 @@
 //   {
 //     "_doc": "……",                                   // 可不写：给人看的说明
 //     "portraits": {                                  // 必填，可以是空表
-//       "<角色 id>": {
-//         "file": "nangong_wan.png",                  // 相对 assets/art/portraits/
-//         "frame_w": 56, "frame_h": 64, "cols": 4,    // 格子，正整数
-//         "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}   // 四个表情都写，帧号 ≥ 0
-//       }
+//       "<角色 id>": [                                // 非空数组：按章生效的头像，取第一条成立的
+//         {
+//           "file": "nangong_wan.png",                // 相对 assets/art/portraits/
+//           "frame_w": 128, "frame_h": 136, "cols": 4,  // 格子，正整数
+//           "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3},  // 四个表情都写，帧号 ≥ 0
+//           "min_chapter": 7, "max_chapter": 7        // 可不写（0 = 不限），与 role_variants 同一个意思
+//         }
+//       ]
 //     }
 //   }
 #include <string>

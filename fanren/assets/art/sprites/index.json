@@ -1017,6 +1017,7 @@
   "field": "facility.field",
   "forge": "facility.forge",
   "formation": "facility.formation",
+  "lilian": "facility.lilian",
   "meditate": "facility.meditate",
   "save": "facility.save",
   "shop": "facility.shop",
@@ -1136,6 +1137,42 @@
     ],
     "name": "打探气泡",
     "note": "路径行动·打探（问号）。"
+   },
+   "chest_closed": {
+    "anchor": [
+     8,
+     14
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      0,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "宝箱（关）",
+    "note": "朱漆木箱，一道金箍、金锁扣。与人物一起按脚底排序。"
+   },
+   "chest_open": {
+    "anchor": [
+     8,
+     14
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      16,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "宝箱（开）",
+    "note": "箱盖掀起立在后面，箱里空着。箱身与关着时同一块，锚点不变。"
    },
    "facility.alchemy": {
     "anchor": [
@@ -1263,6 +1300,24 @@
     "name": "阵盘",
     "note": "平放在地上的石阵盘：刻着八个方位的纹路，纹路里的青光三帧流转。"
    },
+   "facility.lilian": {
+    "anchor": [
+     8,
+     31
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      128,
+      128,
+      16,
+      32
+     ]
+    ],
+    "name": "历练入口",
+    "note": "路口一块石碑，朱笔刻着字，碑脚两丛草。历练地的入口与出口（设施 kind = lilian）。"
+   },
    "facility.meditate": {
     "anchor": [
      8,
@@ -1346,6 +1401,114 @@
     ],
     "name": "符案",
     "note": "矮脚长案：一叠黄符（上有朱砂）、笔架、镇纸。"
+   },
+   "foe_mark": {
+    "anchor": [
+     7,
+     15
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      96,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "明雷标记",
+    "note": "朱红菱形里一只竖瞳：这只会追人。画在界面层、明雷头顶，上下漂一个美术像素。"
+   },
+   "foe_mark_elite": {
+    "anchor": [
+     7,
+     15
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      112,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "明雷标记（精英）",
+    "note": "同一只朱红竖瞳，两侧多一对金角：精英，打不过别碰。"
+   },
+   "gate_closed": {
+    "anchor": [
+     8,
+     31
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      64,
+      128,
+      16,
+      32
+     ]
+    ],
+    "name": "机关（关）",
+    "note": "一块立着的石门，正中一道玉色禁制符纹（发光层）。挡在路上，与人物一起按脚底排序。"
+   },
+   "gate_open": {
+    "anchor": [
+     8,
+     14
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      80,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "机关（开）",
+    "note": "石门沉进地里，地上只剩一道与地面齐平的石缝。画在地面一层，不参与排序、不挡路——画小是有意的：开了的机关在那一格里占的面积不到关着时的四分之一（tests/WorldViewCompanionsTests.cpp）。"
+   },
+   "gather_ready": {
+    "anchor": [
+     8,
+     16
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      32,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "采集点（可采）",
+    "note": "一丛灵草，草尖挂着几粒发光的玉色灵实（发光层）。"
+   },
+   "gather_spent": {
+    "anchor": [
+     8,
+     16
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      48,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "采集点（采过）",
+    "note": "采过之后只剩几截枯茬。土堆与可采时同一块，锚点不变。"
    },
    "mark.sparkle": {
     "anchor": [

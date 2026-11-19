@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -55,6 +56,10 @@ std::string readSheet(const json& entry, const std::string& where, core::Portrai
         } else if (key == "cols") {
             if (!intAtLeast(value, 1, out.cols)) return bad(key, "应当是正整数");
             hasCols = true;
+        } else if (key == "min_chapter") {
+            if (!intAtLeast(value, 0, out.minChapter)) return bad(key, "应当是非负整数（0 = 不限）");
+        } else if (key == "max_chapter") {
+            if (!intAtLeast(value, 0, out.maxChapter)) return bad(key, "应当是非负整数（0 = 不限）");
         } else if (key == "faces") {
             if (!value.is_object()) return bad(key, "应当是对象（表情 → 帧号）");
             std::array<bool, core::kPortraitFaces.size()> seen{};
@@ -79,6 +84,32 @@ std::string readSheet(const json& entry, const std::string& where, core::Portrai
     if (!hasH) return bad("frame_h", "缺少");
     if (!hasCols) return bad("cols", "缺少");
     if (!hasFaces) return bad("faces", "缺少");
+    if (out.minChapter > 0 && out.maxChapter > 0 && out.minChapter > out.maxChapter) {
+        return bad("", "min_chapter 大于 max_chapter：哪一章都不生效");
+    }
+    return {};
+}
+
+// 一个角色的头像列表：非空数组，每一条是一张头像（带可选的 min_chapter / max_chapter）。
+std::string readList(const json& list, const std::string& where, std::vector<core::PortraitSheet>& out) {
+    if (!list.is_array() || list.empty()) {
+        return "portraits.json 的 " + where + "：应当是非空数组（每一条一张头像，可带 min_chapter / max_chapter）";
+    }
+    for (std::size_t i = 0; i < list.size(); ++i) {
+        core::PortraitSheet sheet;
+        if (std::string error = readSheet(list[i], where + "[" + std::to_string(i) + "]", sheet); !error.empty()) {
+            return error;
+        }
+        out.push_back(std::move(sheet));
+    }
+    // 取的是第一条在这一章生效的：一条不限章的（没写章号，或 min ≤ 1 且不写 max）后面再跟条目，后面的永远取不到。
+    // 那多半是次序写反了（该把限章的写在前面），与读取器一贯的口径一样，整份报错。
+    for (std::size_t i = 0; i + 1 < out.size(); ++i) {
+        if (out[i].minChapter <= 1 && out[i].maxChapter <= 0) {
+            return "portraits.json 的 " + where + "[" + std::to_string(i) + "]：这一条不限章，后面的 " +
+                   std::to_string(out.size() - i - 1) + " 条永远取不到（限章的写在前面，不限章的放最后）";
+        }
+    }
     return {};
 }
 
@@ -105,11 +136,11 @@ core::Result<core::PortraitTable> parsePortraits(std::string_view text) {
 
     core::PortraitTable table;
     for (const auto& [roleId, entry] : portraits->items()) {
-        core::PortraitSheet sheet;
-        if (std::string error = readSheet(entry, "portraits." + roleId, sheet); !error.empty()) {
+        std::vector<core::PortraitSheet> sheets;
+        if (std::string error = readList(entry, "portraits." + roleId, sheets); !error.empty()) {
             return Out::failure(std::move(error));
         }
-        table.emplace(roleId, std::move(sheet));
+        table.emplace(roleId, std::move(sheets));
     }
     return Out::success(std::move(table));
 }

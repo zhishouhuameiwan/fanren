@@ -1,4 +1,63 @@
 {
-  "_doc": "对白头像（人工维护，形状见 docs/art-sprites.md 5.3）：角色 id → 头像图集（相对 assets/art/portraits/）与 normal / smile / angry / hurt 四个表情各自的帧号。同一个人的不同装束是不同角色 id 的条目。没登记的角色对白照旧不带头像。",
-  "portraits": {}
+  "_doc": "对白头像（由 tools/artgen/hd_pack.py 生成，形状见 docs/art-sprites.md 5.3）：角色 id → 头像列表，每条可带 min_chapter / max_chapter（与 role_variants 同一个意思），取第一条成立的；都不成立就不带头像。图相对 assets/art/portraits/，normal / smile / angry / hurt 四个表情各指一格。没登记的角色对白照旧不带头像。",
+  "portraits": {
+    "baiyi_shaonv": [
+      {
+        "cols": 1,
+        "faces": {
+          "angry": 0,
+          "hurt": 0,
+          "normal": 0,
+          "smile": 0
+        },
+        "file": "nangong_wan_veil.png",
+        "frame_h": 136,
+        "frame_w": 128
+      }
+    ],
+    "chen_shimei": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "chen_shimei.png",
+        "frame_h": 136,
+        "frame_w": 128
+      }
+    ],
+    "hanli": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "hanli.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "nangong_wan_ch07": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "nangong_wan_ch07.png",
+        "frame_h": 136,
+        "frame_w": 128
+      }
+    ]
+  }
 }
