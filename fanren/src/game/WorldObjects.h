@@ -87,6 +87,8 @@ using Companions = std::map<std::string, core::Companion>;
                                     const std::string& companionId);
 // 上场的伙伴：active 的伙伴按队伍次序的前 kFieldedCompanions 位，返回她们的角色 id。
 // 不是伙伴的队员（傀儡、化身、曲魂）不算、也不占位（契约 3.1、3.7）。
+// 与战斗那一边的 core::battle::kMaxCompanionsOnField 是同一条规矩的两处写法（地图上跟着走的就是战斗里上场的），
+// WorldObjects.cpp 里有一道 static_assert 钉着两者相等；名册超过 3 人的那一期收成一个函数。
 inline constexpr std::size_t kFieldedCompanions = 3;
 [[nodiscard]] std::vector<std::string> fieldedCompanionRoles(const core::GameState& state,
                                                              const Companions& companions);

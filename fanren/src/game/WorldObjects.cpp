@@ -5,7 +5,14 @@
 #include <cstddef>
 #include <utility>
 
+#include "core/battle/Battle.h"
 #include "core/rules/Companions.h"
+
+// 「上场的伙伴取 active 的前几位」有两处写法：跟随（这里）与战斗（core::battle）。地图上跟着走的就是战斗里
+// 上场的那几位，两个数必须相等（集成验收时核出来的；收成一个函数留到名册超过 3 人的那一期）。
+static_assert(fanren::game::worldobj::kFieldedCompanions ==
+                  static_cast<std::size_t>(fanren::core::battle::kMaxCompanionsOnField),
+              "跟随的人数与上场的人数不一致");
 
 namespace fanren::game::worldobj {
 namespace {

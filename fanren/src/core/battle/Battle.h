@@ -80,6 +80,8 @@ inline constexpr int kFleeBittenDenominator = 3;
 // 数字都是初值，平衡路用 tests/BattleHand.h 量过之后改，改了回写契约。
 //
 // 谁上场：伙伴（rules::companionOfRole 查得到的队员）按队伍次序前 3 位上场；不是伙伴的队员不设上限。
+// 地图上跟随的伙伴是另一处写法（game/WorldObjects.h 的 worldobj::kFieldedCompanions），两者必须相等，
+// 那边的 static_assert 钉着；名册超过 3 人的那一期收成一个函数。
 inline constexpr int kMaxCompanionsOnField = 3;
 // 追击：默契到第 2 档「相熟」起；合招：到第 4 档「知己」起（档的门槛在 rules::kBondTierThresholds）。
 inline constexpr int kChaseMinBondTier = 2;
