@@ -99,7 +99,7 @@ const std::vector<CompositionSpec>& designSaysSo() {
         {"④", "b07_zhongxinqu_duoyao", {}, {"yan_wuchi"}, false, true, "mountain_forest"},
         // 伙伴改版样板（docs/ch07-companions-design.md 4.2、第 6 节⑤）：白衣少女从编成里的友军改成由队伍带入，
         // 编成里不再写死她（否则场上两个她）。玩家操控两个人这一点不变——见 Ch07IntentHand 那几条的起点。
-        {"⑤", "b07_zhaoze_shouyao", {}, {"mo_jiao"}, false, true, "cave_tunnel"},
+        {"⑤", "b07_zhaoze_shouyao", {}, {"mo_jiao_tuipi"}, false, true, "cave_tunnel"},   // 蜕皮之后那一条（样板段起）
         // 可选：环形山遭遇（可逃、不致命），be07_tiebi_yuan 兼作 Z2 东坡那一场。
         {"可选·推山兽", "be07_tuishan_shou", {}, {"tuishan_shou"}, true, false, "mountain_forest"},
         {"可选·铁臂猿", "be07_tiebi_yuan", {}, {"tiebi_yuan", "tiebi_yuan"}, true, false, "mountain_forest"},
@@ -143,7 +143,7 @@ const std::vector<RoleSpec>& rolesSaySo() {
          "③ 封岳（十三层顶峰，土；架势 6；破绽火、木；行动 2；蓄势「小刀符宝」每 2 回合 ×1.8 单体）"},
         {"yan_wuchi", Realm::QiRefining13, kElementMetal, 5, cats({"暗器", "火"}), 0, 3, 2.0, false,
          "④ 赤脚大汉（十三层，金；架势 5；破绽暗器、火；蓄势「银盘」每 3 回合 ×2.0 单体）"},
-        {"mo_jiao", Realm::QiRefining13, kElementWater, 6, cats({"土", "火"}), 2, 3, 1.8, true,
+        {"mo_jiao_tuipi", Realm::QiRefining13, kElementWater, 6, cats({"土", "火"}), 2, 3, 1.8, true,
          "⑤ 墨蛟（数据写炼气十三层，水；架势 6；破绽土、火；行动 2；蓄势「紫液」每 3 回合 ×1.8 全体）"},
         {"tuishan_shou", Realm::Mortal, kElementEarth, -1, cats({"木", "暗器"}), 0, 0, 0, false, "可选 推山兽（土；破绽木、暗器）"},
         {"tiebi_yuan", Realm::Mortal, -1, -1, cats({"火", "剑"}), 0, 0, 0, false, "可选 铁臂猿（破绽火、剑）"},
@@ -186,7 +186,7 @@ TEST_F(Ch07BattleData, TheCompositionsAreTheOnesTableEightTwoDraws) {
         EXPECT_EQ(app_.battleBackdrop(spec.id), spec.backdrop) << spec.mark << "：8.2 表下的战斗背景（走 Application 的真实入口）";
     }
     // 验收 4 原文单点：⑤ killable_by == ["土"]、友军恰一人；五张 can_escape false、defeat_is_fatal true。
-    const RoleTemplate* mojiao = app_.data().findRole("mo_jiao");
+    const RoleTemplate* mojiao = app_.data().findRole("mo_jiao_tuipi");   // ⑤ 打的是蜕皮之后那一条
     ASSERT_NE(mojiao, nullptr);
     EXPECT_EQ(mojiao->killableBy, cats({"土"})) << "验收 4：⑤ killable_by == [\"土\"]";
     const BattleSetup* zhaoze = app_.battleSetup("b07_zhaoze_shouyao");

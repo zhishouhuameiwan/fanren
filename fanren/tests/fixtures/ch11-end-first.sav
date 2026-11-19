@@ -1,5 +1,5 @@
 {
-  "checksum": "c84aa63e35679ffe",
+  "checksum": "91dc3cd7ead289cc",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -1094,7 +1094,7 @@
       "matou_dashou": [
         "拳"
       ],
-      "mo_jiao": [
+      "mo_jiao_tuipi": [
         "火",
         "土"
       ],

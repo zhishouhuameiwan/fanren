@@ -725,7 +725,10 @@ TEST(Ch07CompanionsHandOver, No5_TheMinimalRouteEndingDiffersFromTheOldOneOnlyWh
                 for (const std::string& f : kNewFlags) trimmed.erase(f);
                 EXPECT_EQ(trimmed, old[key]) << side << "：旗标只许多出第 9 节的新旗标";
             } else if (key == "knownWeaknesses") {
-                for (const auto& [role, cats] : old[key].items()) {
+                for (const auto& [oldRole, cats] : old[key].items()) {
+                    // 唯一的例外：⑤ 的敌人从蜕皮前的 mo_jiao 换成了蜕皮后的 mo_jiao_tuipi（协调者 2026-11-18 转来的定稿：
+                    // 文案写的就是白蛟），揭开的破绽记在新 id 上；mo_jiao 此后不再出场。
+                    const std::string role = oldRole == "mo_jiao" ? "mo_jiao_tuipi" : oldRole;
                     ASSERT_TRUE(now[key].contains(role)) << side << "：破绽表少了 " << role;
                     for (const auto& c : cats) {
                         EXPECT_NE(std::find(now[key][role].begin(), now[key][role].end(), c), now[key][role].end())
