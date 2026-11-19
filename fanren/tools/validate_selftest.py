@@ -143,6 +143,10 @@ def make_workdir(base: Path) -> Path:
     work.mkdir(parents=True, exist_ok=True)
     shutil.copytree(ROOT / "maps", work / "maps")
     shutil.copytree(ROOT / "scripts", work / "scripts")
+    # 历练图不经传送点进，而经 data/lilian/<site>.json 的入口（契约 3.12）：--maps 这一档的规则 18 照样要读它
+    # （validate.lilian_entries）。样板段之前仓库里没有历练图，少拷这一个目录从没露出来。
+    if (ROOT / "data" / "lilian").exists():
+        shutil.copytree(ROOT / "data" / "lilian", work / "data" / "lilian")
     return work
 
 
