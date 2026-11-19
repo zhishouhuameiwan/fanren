@@ -753,9 +753,12 @@ def make_dixia_zhaoze():
         # ---- 30：黑土堆后 ----
         trigger("trigger_guanzhan", 3, 7, "ch07/guanzhan.lua", "enter", True, w=2,
                 guard_flag="ch07.didao", set_flag="ch07.mojiao"),
-        # ---- 31 / 样板 4.3「困在地下」：蛟尸旁 ----
+        # ---- 31 / 样板 4.2 末：蛟尸旁（毒囊、醒来、金箱灵药）----
         trigger("trigger_jiaoshi", 9, 15, "ch07/jiaoshi.lua", "interact", True,
-                guard_flag="ch07.mojiao", set_flag="ch07.kundi"),
+                guard_flag="ch07.mojiao", set_flag="ch07.xinglai"),
+        # ---- 样板 4.3「困在地下」：石阶口最上面那一格的岩壁（人站在 (3,1) 面朝上），回头去看封死的通道 ----
+        trigger("trigger_fengkou", 3, 0, "ch07/fengkou.lua", "interact", True,
+                guard_flag="ch07.xinglai", set_flag="ch07.kundi"),
 
         facility("facility_cunji", 2, 4, "save"),
     ] + zhaoze_links("ch07_zhaoze_shenchu", "ch07.kundi", "ch07.block.zhaoze_shenchu") + [
@@ -1004,6 +1007,11 @@ def make_lilian_waiwei():
         spawn("spawn_from_zhongxin", 22, 1, "down"),
         portal("portal_to_zhongxin", 22, 0, "lilian_jindi_zhongxin", "spawn_from_waiwei", w=2),
         exit_facility(4, 30),
+        # ---- 入口前两格：两人头一回开口（内容审查 2026-11-18 第 6 条：神游这件事要在玩家看得见的文字里落地）----
+        trigger("trigger_lilian_chen", 5, 30, "ch07/lilian_chen.lua", "enter", True,
+                set_flag="ch07.lilian_chen", require_party=CHEN),
+        trigger("trigger_lilian_nangong", 5, 29, "ch07/lilian_nangong.lua", "enter", True,
+                set_flag="ch07.lilian_nangong", require_party=NANGONG),
         # ---- 幻阵：陈师妹开（样板第 7 节「带对的人才开得了」）。罩住乌龙潭边矮树丛的缺口，潭边那一片只从这里进 ----
         gate("gate_huanzhen", 38, 12, mid, "gate_huanzhen", "see_through_illusion", w=2,
              hint="lilian.gate.huanzhen.hint"),
@@ -1101,7 +1109,8 @@ def make_lilian_shiku():
         gate("gate_canjin", 28, 21, mid, "gate_canjin", "break_seal", hint="ch07.gate.canjin.hint"),
         chest("chest_xiaoshi", 33, 20, mid, "chest_xiaoshi", [("material_lingshi", 15), ("pill_yangjing_dan", 1)]),
         chest("chest_shishi", 2, 4, mid, "chest_shishi", [("pill_jinchuang_yao", 2)], chance=60),
-        foe("foe_chan", 24, 20, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "up", chance=60),
+        # 石窟大厅这一只每趟都在（不写 chance）：历练至少有一仗是定了的，用例也不靠抽签。
+        foe("foe_chan", 24, 20, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "up"),
     ]
     return lilian_copy(base, mid, "bgm_cave", False, objects)
 

@@ -125,7 +125,9 @@ const std::vector<HookSpec>& designSaysSo() {
          "伏在黑土堆后，外面的事发生在他眼前"},
         // 伙伴改版样板（docs/ch07-companions-design.md 第 4 节、5.1）：节点 31 拆成「困在地下 → 火灵石 → 破顶 → 问名」，
         // ch07.nangong 的意思不变（问出她的名字），由 wenming.lua 置；蛟尸那一格改置 ch07.kundi。
-        {"31/4.3", "trigger_jiaoshi", kZhaoze, "interact", true, "ch07.mojiao", "ch07.kundi", "", "拿银剑剖蛟尸是他"},
+        {"31/4.2", "trigger_jiaoshi", kZhaoze, "interact", true, "ch07.mojiao", "ch07.xinglai", "", "拿银剑剖蛟尸是他"},
+        // 内容审查 2026-11-18 第 5 条：困在地下那一段拆出来，玩家自己走回石阶口去看封死的通道。
+        {"4.3", "trigger_fengkou", kZhaoze, "interact", true, "ch07.xinglai", "ch07.kundi", "", "回石阶口看封死的通道是他"},
         {"4.3", "trigger_huolingshi", kShenchu, "enter", true, "ch07.kundi", "ch07.huolingshi", "",
          "走进东口岩缝，把火灵石交给她"},
         {"4.4", "trigger_poding", kShiku, "interact", true, "ch07.huolingshi", "ch07.poding", "b07_poding",
@@ -226,7 +228,7 @@ protected:
 // 先验：表里每一处挂点确实在图上，是 trigger，而且 mode / once / script 真的写了
 // ---------------------------------------------------------------------------
 TEST_F(Ch07TriggerMode, EveryHookTheDesignTableNamesIsReallyOnItsMap) {
-    ASSERT_EQ(designSaysSo().size(), 46u + 3u + 4u)
+    ASSERT_EQ(designSaysSo().size(), 46u + 4u + 4u)
         << "判据表的行数变了。改它之前先改 docs/ch07-design.md 3.1 与伙伴改版样板第 4 节——那两张表是上游";
     for (const HookSpec& spec : designSaysSo()) {
         const MapObject object = objectOn(spec.mapId, spec.object);
@@ -331,8 +333,8 @@ TEST_F(Ch07TriggerMode, NoAutoOneObjectPerCellAndNothingOutsideTheTable) {
             }
         }
     }
-    EXPECT_EQ(triggersSeen, 46 + 3 + 4)
-        << "先验：十三张图上一共 53 处本章的 trigger（3.1 表 46 行 ＋ 样板 3 处挂点、4 处插话）";
+    EXPECT_EQ(triggersSeen, 46 + 4 + 4)
+        << "先验：十三张图上一共 54 处本章的 trigger（3.1 表 46 行 ＋ 样板 4 处挂点、4 处插话）";
 }
 
 // 3.1 表末几行：园角两畦灵田、北街收药摊、十九号地火、禁地三处打坐点、九张新图各有存档点。

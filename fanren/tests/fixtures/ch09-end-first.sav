@@ -1,5 +1,5 @@
 {
-  "checksum": "13305628d84b92ba",
+  "checksum": "cc0abc9a6e2cb90f",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -712,6 +712,7 @@
       "ch07.xiang": 1,
       "ch07.xiashan": 1,
       "ch07.xieshili": 1,
+      "ch07.xinglai": 1,
       "ch07.yeyu": 1,
       "ch07.yinsi": 1,
       "ch07.yixiantian": 1,
@@ -963,7 +964,7 @@
         "roleId": "kuilei_shou"
       }
     ],
-    "playSecondsGameplay": 516.7666666665253,
+    "playSecondsGameplay": 516.8499999998586,
     "playSecondsSystem": 0.0,
     "position": {
       "x": 12,

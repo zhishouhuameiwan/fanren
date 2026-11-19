@@ -1018,16 +1018,24 @@ def sync():
     """只把与生成器不一致的图写盘（产出与 --check 同一份：各章的修补都在里面）。
 
     单跑某一章的生成器会把后几章补在共用图上的对象抹掉（第 7 章写百药园会丢第 8 章的对象），
-    改了某一章的生成器之后用这个落盘。
+    改了某一章的生成器之后用这个落盘。图块集（tilesets/*.tsj）也一并补写：凡是哪一章的生成器
+    在模块层列了 TILESETS 的，都写一遍（write_tileset 的产出只由名字决定，重写不改内容）。
     """
-    import genmaps_ch07
-    for name in genmaps_ch07.TILESETS:
-        write_tileset(name)
+    import importlib
+    for chapter in range(2, 14):
+        try:
+            module = importlib.import_module("genmaps_ch%02d" % chapter)
+        except ImportError:
+            continue
+        for name in getattr(module, "TILESETS", ()):
+            write_tileset(name)
     for map_id, payload in build_everything().items():
         path = os.path.join(MAPS, map_id + ".tmj")
         text = render_map(payload)
-        if os.path.exists(path) and open(path, "rb").read().decode("utf-8") == text:
-            continue
+        if os.path.exists(path):
+            with open(path, "rb") as f:
+                if f.read().decode("utf-8") == text:
+                    continue
         with open(path, "wb") as f:
             f.write(text.encode("utf-8"))
         print("wrote", map_id)

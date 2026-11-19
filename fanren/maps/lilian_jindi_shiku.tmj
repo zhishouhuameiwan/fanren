@@ -316,11 +316,6 @@
               "name": "look",
               "type": "string",
               "value": "hanbing_chan"
-            },
-            {
-              "name": "chance",
-              "type": "int",
-              "value": 60
             }
           ]
         }

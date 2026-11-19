@@ -10,8 +10,9 @@
 -- 胜：她收了墨蛟的元神，蛟尸归他。
 --
 -- 伙伴改版样板（docs/ch07-companions-design.md 4.1、4.2）：
---   · 4.1 观战压到原来一半长短：沼泽与灵药、金箱、「师祖」的惊疑、阴阳牵引、火环套蛟、紫液化人、她独斗那几句不再演
---     （灵药、金箱在节点 31 那一段里还会见到）。
+--   · 4.1 观战压到原来大半长短：沼泽、金箱、阴阳牵引、火环套蛟、紫液化人不再单演（金箱在节点 31 那一段里还会见到）；
+--     灵药并进藏身那一句（他要的三味就在这里）、「师祖」的惊疑留一句（约束 2：结丹的称呼、炼气顶峰的灵压）、
+--     她转身往地道口去并进封口那一句（内容审查 2026-11-18 第 2 条）。
 --   · 4.2 她在出手这一刻入队：party.add("baiyi_shaonv")，编成里写死的那名友军删掉，改由队伍带入（否则场上两个她）。
 --     这一仗默契是 0，没有追击；打赢了「并肩打赢一仗」+2 由战斗结算记（契约 2.2）。名牌仍是白衣少女（问名在 4.5）。
 
@@ -19,6 +20,7 @@ talk("", "ch07.guanzhan.stairs")
 talk("", "ch07.guanzhan.hide")
 talk("", "ch07.guanzhan.come")
 talk("yanyue_dizi", "ch07.guanzhan.shizu")
+talk("", "ch07.guanzhan.shock")
 talk("baiyi_shaonv", "ch07.guanzhan.order")
 talk("", "ch07.guanzhan.ring")
 talk("baiyi_shaonv", "ch07.guanzhan.mojiao")

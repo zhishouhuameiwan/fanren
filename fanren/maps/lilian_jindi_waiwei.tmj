@@ -10,7 +10,7 @@
   "tileheight": 32,
   "infinite": false,
   "nextlayerid": 7,
-  "nextobjectid": 12,
+  "nextobjectid": 14,
   "tilesets": [
     {
       "firstgid": 1,
@@ -237,6 +237,82 @@
         },
         {
           "id": 5,
+          "name": "trigger_lilian_chen",
+          "type": "trigger",
+          "x": 160,
+          "y": 960,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch07/lilian_chen.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "enter"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch07.lilian_chen"
+            },
+            {
+              "name": "require_party",
+              "type": "string",
+              "value": "chen_qiaoqian"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "name": "trigger_lilian_nangong",
+          "type": "trigger",
+          "x": 160,
+          "y": 928,
+          "width": 32,
+          "height": 32,
+          "rotation": 0,
+          "visible": true,
+          "properties": [
+            {
+              "name": "script",
+              "type": "string",
+              "value": "ch07/lilian_nangong.lua"
+            },
+            {
+              "name": "mode",
+              "type": "string",
+              "value": "enter"
+            },
+            {
+              "name": "once",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "name": "set_flag",
+              "type": "string",
+              "value": "ch07.lilian_nangong"
+            },
+            {
+              "name": "require_party",
+              "type": "string",
+              "value": "nangong_wan"
+            }
+          ]
+        },
+        {
+          "id": 7,
           "name": "gate_huanzhen",
           "type": "gate",
           "x": 1216,
@@ -264,7 +340,7 @@
           ]
         },
         {
-          "id": 6,
+          "id": 8,
           "name": "chest_yaxia",
           "type": "chest",
           "x": 384,
@@ -292,7 +368,7 @@
           ]
         },
         {
-          "id": 7,
+          "id": 9,
           "name": "chest_tanbei",
           "type": "chest",
           "x": 1472,
@@ -320,7 +396,7 @@
           ]
         },
         {
-          "id": 8,
+          "id": 10,
           "name": "gather_hanyan",
           "type": "gather",
           "x": 1152,
@@ -348,7 +424,7 @@
           ]
         },
         {
-          "id": 9,
+          "id": 11,
           "name": "foe_chan",
           "type": "foe",
           "x": 1344,
@@ -386,7 +462,7 @@
           ]
         },
         {
-          "id": 10,
+          "id": 12,
           "name": "foe_she",
           "type": "foe",
           "x": 96,
@@ -424,7 +500,7 @@
           ]
         },
         {
-          "id": 11,
+          "id": 13,
           "name": "foe_shu",
           "type": "foe",
           "x": 960,

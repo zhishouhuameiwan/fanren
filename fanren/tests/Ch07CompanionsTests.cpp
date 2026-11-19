@@ -341,6 +341,47 @@ TEST_F(Ch07CompanionsSlice, No3_TheEliteCrocodileFallsToTheIntentPlayerAndTheFig
     EXPECT_EQ(state().worldObjects.clearedFoes.count("ch07_zhaoze_shenchu.foe_bishui_e"), 1u) << "打赢了记档";
 }
 
+// 样板施工图 4.3 / 4.6：火灵石那一步「查背包、收走、加默契、置旗标」。火灵石也在她合意的赠礼里，玩家可能先送掉了——
+// 身上没有就只说一句、不置旗标、门照样关着；再带一块来踩上去才交（默契 +5 只加这一回）。
+TEST_F(Ch07CompanionsSlice, TheFireStoneStepWithoutAStoneSaysOneLineAndWaitsForTheNextTime) {
+    startFrom("companions/ch07-kundi-first.sav");
+    ASSERT_FALSE(HasFatalFailure());
+    while (state().removeItem("material_huolingshi", 1)) {
+    }
+    const int bond = state().bondOf(kNangong);
+    standAt("ch07_zhaoze_shenchu", Point{39, 22}, 1);
+    ASSERT_FALSE(HasFatalFailure());
+    const auto stepAndPlay = [&](int dx) {
+        spoken_.clear();
+        app_.clearSpokenKeys();
+        EXPECT_TRUE(world()->tryStep(app_, dx, 0));
+        for (int frame = 0; frame < 6000 && (app_.scripts().isRunning() || app_.awaitingCommand()); ++frame) {
+            tick();
+            if (app_.awaitingCommand()) {
+                spoken_.insert(spoken_.end(), app_.spokenKeys().begin(), app_.spokenKeys().end());
+                app_.clearSpokenKeys();
+                fanren::script::CommandResult result;
+                result.ok = true;
+                app_.completeCommand(result);
+                app_.popScene();
+            }
+        }
+        tick();
+    };
+    stepAndPlay(1);   // (40,22)：岩缝里那一格
+    EXPECT_TRUE(said("ch07.huolingshi.none")) << "身上没有火灵石：她只说一句";
+    EXPECT_FALSE(said("ch07.huolingshi.give"));
+    EXPECT_EQ(state().flag("ch07.huolingshi"), 0) << "不置旗标";
+    EXPECT_EQ(state().bondOf(kNangong), bond);
+    stepAndPlay(-1);
+    state().addItem("material_huolingshi", 1, 0);
+    stepAndPlay(1);
+    EXPECT_TRUE(said("ch07.huolingshi.give")) << "带着火灵石再踩上去，这回交了";
+    EXPECT_EQ(state().flag("ch07.huolingshi"), 1);
+    EXPECT_EQ(state().itemCount("material_huolingshi"), 0) << "收走一枚";
+    EXPECT_EQ(state().bondOf(kNangong), bond + 5) << "样板施工图 4.6：火灵石 +5";
+}
+
 // 验收 3（破顶）：不用物品能赢；赢了碎石塌落、退开一步，再往上一迈就是问名。
 TEST_F(Ch07CompanionsSlice, No3_BreakingTheCeilingIsWonWithoutItemsAndLeavesHimOneStepBelowTheHole) {
     startFrom("companions/ch07-kundi-first.sav");
@@ -355,13 +396,17 @@ TEST_F(Ch07CompanionsSlice, No3_BreakingTheCeilingIsWonWithoutItemsAndLeavesHimO
     }();
     fanren::test::HandPolicy noItems = intentPolicy();
     noItems.pills.clear();
+    noItems.poisons.clear();
     const std::vector<Fight> fights = interactAndPlay(noItems);
     ASSERT_EQ(fights.size(), 1u);
     EXPECT_EQ(fights[0].id, "b07_poding");
     EXPECT_EQ(fights[0].phase, BattlePhase::Won) << "样板施工图第 6 节：那只手不许用物品，不用物品赢不了就算设计没达标";
-    for (const char* pill : {"pill_yangjing_dan", "pill_jinchuang_yao", "pill_huiqi_dan"}) {
-        EXPECT_EQ(state().itemCount(pill), bag.count(pill) ? bag.at(pill) : 0) << pill << "：一颗也没吃";
-    }
+    // 背包里除了打穿时耗尽的那块金光砖，一样也没少、一样也没多（这一仗不掉东西）。
+    std::map<std::string, int> after;
+    for (const auto& stack : state().bag) after[stack.itemId] += stack.count;
+    std::map<std::string, int> expected = bag;
+    if (--expected["talisman_jinguangzhuan"] <= 0) expected.erase("talisman_jinguangzhuan");
+    EXPECT_EQ(after, expected) << "破顶不用物品、修为 0、不掉东西：背包只少那块金光砖";
     EXPECT_EQ(state().flag("ch07.poding"), 1);
     EXPECT_EQ(state().position, (Point{21, 4})) << "碎石塌落、退开一步";
     EXPECT_EQ(state().itemCount("talisman_jinguangzhuan"), 0) << "金光砖耗尽成了废纸（约束 7）";
@@ -477,6 +522,9 @@ TEST_F(Ch07CompanionsLilian, No6_ATripThroughTheOldForbiddenGround) {
     ASSERT_TRUE(state().party.empty()) << "先验：问名之后她已离队";
     const int cultivation = state().cultivation;
     const int day = state().day;
+    const auto chestsBefore = state().worldObjects.openedChests;
+    const auto foesBefore = state().worldObjects.clearedFoes;
+    const auto gatheredBefore = state().worldObjects.gatheredDay;
 
     // ---- 第一趟：只带南宫婉 ----
     enterWith({"nangong_wan_ch07"});
@@ -524,34 +572,21 @@ TEST_F(Ch07CompanionsLilian, No6_ATripThroughTheOldForbiddenGround) {
     EXPECT_EQ(app_.worldObjects().openedChests.count("lilian_jindi_shiku.chest_xiaoshi"), 1u);
     // 永久那份一样都没写（契约 3.12）。
     EXPECT_TRUE(state().worldObjects.openedGates.empty());
-    EXPECT_TRUE(state().worldObjects.openedChests.empty() ||
-                state().worldObjects.openedChests.count("lilian_jindi_shiku.chest_xiaoshi") == 0);
+    EXPECT_EQ(state().worldObjects.openedChests, chestsBefore) << "永久的已开宝箱与进去之前一模一样";
+    EXPECT_EQ(state().worldObjects.clearedFoes, foesBefore);
+    EXPECT_EQ(state().worldObjects.gatheredDay, gatheredBefore);
 
     // 打一仗：历练的编成修为奖励为 0（样板施工图第 7 节「修为奖励为 0」）。找这一趟里在场的一只明雷，从侧后上去。
-    bool fought = false;
-    for (const char* mapId : {"lilian_jindi_shiku", "lilian_jindi_shenchu", "lilian_jindi_zhaoze"}) {
-        if (fought) break;
-        ASSERT_TRUE(app_.loadMap(mapId, std::string{}).ok);
-        const std::vector<fanren::core::MapObject> objects = app_.currentMap()->objects;   // 按值：下面 standAt 会重新读图
-        for (const auto& object : objects) {
-            if (object.type != "foe" || !fanren::game::worldobj::present(state(), app_.worldObjects(), object)) continue;
-            if (object.property("elite") == "true") continue;
-            const Point at = object.position;
-            const Point front = fanren::game::worldobj::foeFrontCell(object);
-            const Point back{2 * at.x - front.x, 2 * at.y - front.y};
-            if (!app_.currentMap()->walkable(back)) continue;
-            const int facing = back.x < at.x ? 1 : back.x > at.x ? 3 : back.y < at.y ? kDown : kUp;
-            standAt(mapId, back, facing);
-            const std::vector<Fight> fights = interactAndPlay(intentPolicy());
-            ASSERT_EQ(fights.size(), 1u) << mapId << " / " << object.name;
-            EXPECT_EQ(fights[0].id.rfind(object.property("battle") + "_t", 0), 0u)
-                << "历练里拼了档的后缀：" << fights[0].id << "（foe.battle " << object.property("battle") << "）";
-            EXPECT_EQ(fights[0].phase, BattlePhase::Won) << fights[0].id;
-            fought = true;
-            break;
-        }
+    // 石窟大厅那一只寒冰蟾每趟都在（没写 chance）：在 (24,20) 面朝上，背后是 (24,21)。
+    standAt("lilian_jindi_shiku", Point{24, 21}, kUp);
+    ASSERT_FALSE(HasFatalFailure());
+    {
+        const std::vector<Fight> fights = interactAndPlay(intentPolicy());
+        ASSERT_EQ(fights.size(), 1u) << "从背后摸上去就开打";
+        EXPECT_EQ(fights[0].id, "bl07_hanbing_chan_t1") << "历练里拼了档的后缀（韩立炼气，第 1 档）";
+        EXPECT_TRUE(fights[0].preemptive);
+        EXPECT_EQ(fights[0].phase, BattlePhase::Won) << fights[0].id;
     }
-    ASSERT_TRUE(fought) << "这一趟一只明雷都没抽中（换个日子再跑）";
     ASSERT_TRUE(app_.inLilian()) << "打赢了还在历练里";
     EXPECT_EQ(state().cultivation, cultivation) << "历练打完修为不变";
 
@@ -689,17 +724,21 @@ json payloadOf(const fs::path& path) {
 // 第 1 节：「允许不同的只有：存档 v10 新增的字段；第 9 节列出的新旗标；已知破绽表（条目只许多不许少）；目标进度。
 // 修为、灵石、物品、法术、气血上限必须一样，药品数也必须一样。」游戏时长两项（playSeconds*）不是局面。
 const std::set<std::string> kV10Keys = {"bonds", "openedChests", "gatheredDay", "clearedFoes", "openedGates"};
-const std::set<std::string> kNewFlags = {"ch07.kundi", "ch07.huolingshi", "ch07.poding", "ch07.chahua_jun",
-                                         "ch07.chahua_kumu", "ch07.chahua_shishi", "ch07.chahua_yanbi"};
+const std::set<std::string> kNewFlags = {"ch07.xinglai",    "ch07.kundi",       "ch07.huolingshi",   "ch07.poding",
+                                         "ch07.chahua_jun", "ch07.chahua_kumu", "ch07.chahua_shishi", "ch07.chahua_yanbi",
+                                         "ch07.lilian_chen", "ch07.lilian_nangong"};
 
 }  // namespace
 
 TEST(Ch07CompanionsHandOver, No5_TheMinimalRouteEndingDiffersFromTheOldOneOnlyWhereSectionOneAllows) {
-    for (const char* side : {"first", "second"}) {
+    // 第 8–13 章的交接档是从新的 ch07-end 一章一章重生成的：同一条口径一直锁到第 13 章。
+    for (const std::string chapter : {"07", "08", "09", "10", "11", "12", "13"})
+    for (const std::string side : {"first", "second"}) {
         const fs::path dir = fs::path(assetRoot()) / "tests" / "fixtures";
-        const json now = payloadOf(dir / (std::string("ch07-end-") + side + ".sav"));
-        const json old = payloadOf(dir / (std::string("companions/pre-v10/ch07-end-") + side + ".sav"));
-        ASSERT_TRUE(now.is_object() && old.is_object()) << side << "：两份交接档都要读得出来";
+        const std::string file = "ch" + chapter + "-end-" + side + ".sav";
+        const json now = payloadOf(dir / file);
+        const json old = payloadOf(dir / "companions" / "pre-v10" / file);
+        ASSERT_TRUE(now.is_object() && old.is_object()) << file << "：两份交接档都要读得出来";
         std::set<std::string> keys;
         for (const auto& [key, value] : now.items()) keys.insert(key);
         for (const auto& [key, value] : old.items()) keys.insert(key);
@@ -708,10 +747,10 @@ TEST(Ch07CompanionsHandOver, No5_TheMinimalRouteEndingDiffersFromTheOldOneOnlyWh
             if (kV10Keys.count(key) || key.rfind("playSeconds", 0) == 0) continue;
             if (key == "formerRealm" && !old.contains(key)) {
                 // 存档 v9 的字段（第 9 章才用）：改版前那份是 v8 写的，没有它；新写出的 v10 档带着缺省值 0。
-                EXPECT_EQ(now[key], 0) << side << "：formerRealm 是 v9 的字段，第 7 章终局里该是缺省";
+                EXPECT_EQ(now[key], 0) << file << "：formerRealm 是 v9 的字段，第 7 章终局里该是缺省";
                 continue;
             }
-            ASSERT_TRUE(now.contains(key) && old.contains(key)) << side << "：字段 " << key << " 只在一边有";
+            ASSERT_TRUE(now.contains(key) && old.contains(key)) << file << "：字段 " << key << " 只在一边有";
             ++compared;
             if (key == "bag") {
                 // 物品逐件一样（堆的先后次序不算：火灵石采来又交出去、金光砖挪到破顶才扣，堆的位置会挪）。
@@ -719,34 +758,34 @@ TEST(Ch07CompanionsHandOver, No5_TheMinimalRouteEndingDiffersFromTheOldOneOnlyWh
                 std::multiset<std::string> b;
                 for (const auto& stack : now[key]) a.insert(stack.dump());
                 for (const auto& stack : old[key]) b.insert(stack.dump());
-                EXPECT_EQ(a, b) << side << "：物品（含药品数）必须一样";
+                EXPECT_EQ(a, b) << file << "：物品（含药品数）必须一样";
             } else if (key == "flags") {
                 json trimmed = now[key];
                 for (const std::string& f : kNewFlags) trimmed.erase(f);
-                EXPECT_EQ(trimmed, old[key]) << side << "：旗标只许多出第 9 节的新旗标";
+                EXPECT_EQ(trimmed, old[key]) << file << "：旗标只许多出第 9 节的新旗标";
             } else if (key == "knownWeaknesses") {
                 for (const auto& [oldRole, cats] : old[key].items()) {
                     // 唯一的例外：⑤ 的敌人从蜕皮前的 mo_jiao 换成了蜕皮后的 mo_jiao_tuipi（协调者 2026-11-18 转来的定稿：
                     // 文案写的就是白蛟），揭开的破绽记在新 id 上；mo_jiao 此后不再出场。
                     const std::string role = oldRole == "mo_jiao" ? "mo_jiao_tuipi" : oldRole;
-                    ASSERT_TRUE(now[key].contains(role)) << side << "：破绽表少了 " << role;
+                    ASSERT_TRUE(now[key].contains(role)) << file << "：破绽表少了 " << role;
                     for (const auto& c : cats) {
                         EXPECT_NE(std::find(now[key][role].begin(), now[key][role].end(), c), now[key][role].end())
-                            << side << "：" << role << " 的破绽少了一样";
+                            << file << "：" << role << " 的破绽少了一样";
                     }
                 }
             } else {
-                EXPECT_EQ(now[key], old[key]) << side << "：字段 " << key << " 必须一样（第 1 节）";
+                EXPECT_EQ(now[key], old[key]) << file << "：字段 " << key << " 必须一样（第 1 节）";
             }
         }
         EXPECT_GE(compared, 20) << "先验：真的比了一遍";
         // 新的那份里，默契账恰是最小路线的 37（4.6），世界对象一个也没动（不捡、不打可选战）。
-        EXPECT_EQ(now["bonds"]["nangong_wan"]["value"], 37) << side;
+        EXPECT_EQ(now["bonds"]["nangong_wan"]["value"], 37) << file;
         for (const char* key : {"openedChests", "clearedFoes", "openedGates"}) {
-            EXPECT_TRUE(now[key].empty()) << side << "：最小路线不碰 " << key;
+            EXPECT_TRUE(now[key].empty()) << file << "：最小路线不碰 " << key;
         }
         // 唯一动过的是火灵石矿脉：4.3 必经的那一块（采到、交给她）。
-        ASSERT_EQ(now["gatheredDay"].size(), 1u) << side;
-        EXPECT_TRUE(now["gatheredDay"].contains("ch07_zhaoze_shenchu.gather_huolingshi_bei")) << side;
+        ASSERT_EQ(now["gatheredDay"].size(), 1u) << file;
+        EXPECT_TRUE(now["gatheredDay"].contains("ch07_zhaoze_shenchu.gather_huolingshi_bei")) << file;
     }
 }

@@ -1,5 +1,5 @@
 {
-  "checksum": "0a8544f0f8277cdd",
+  "checksum": "34790085a82d9a9d",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -520,6 +520,7 @@
       "ch07.xiang": 1,
       "ch07.xiashan": 1,
       "ch07.xieshili": 1,
+      "ch07.xinglai": 1,
       "ch07.yeyu": 1,
       "ch07.yinsi": 1,
       "ch07.yixiantian": 1,
@@ -644,7 +645,7 @@
     "openedChests": [],
     "openedGates": [],
     "party": [],
-    "playSecondsGameplay": 36.43333333333255,
+    "playSecondsGameplay": 36.51666666666588,
     "playSecondsSystem": 0.0,
     "position": {
       "x": 24,

@@ -383,7 +383,7 @@ enum class Step {
     FangshiRu, Wanbaolou, Yaotan, FangshiChu, Yeyu, Fanhui, Fudan, Baoming, MaSongyao, Jihe,
     Xiang, Liedui, Pojin, Wulongtan, Liangshi, Yixiantian, RestShulin, Shulin, Tongmen, Yueyang,
     Kuitan, Charen, Youdi, Sichu, RestYujian, YujianA, YujianB, RestXiaoshidian, Xiaoshidian, RestDidao, Qingshidian,
-    Guanzhan, Jiaoshi, Caikuang, Huolingshi, Poding, Wenming,
+    Guanzhan, Jiaoshi, Fengkou, Caikuang, Huolingshi, Poding, Wenming,
     // 伙伴改版样板：全收集路线才走的六步（每张禁地图上把宝箱、采集点、明雷、插话、机关都走一遍）。
     ExploreWaiwei, ExploreZhongxin, ExploreHxs, ExploreZhaoze, ExploreShenchu, ExploreShiku,
     Xiashan, Chukou, Xieshili, Sannian, Chouhan, Shijiu, Liandan, Banian, Zhuji,
@@ -462,7 +462,9 @@ const std::vector<StepInfo>& stepTable() {
         {Step::Qingshidian, "29", "青石殿与地道", "ch07.didao", kMapHxs, "trigger_qingshidian", Kind::Interact, 0},
         {Step::Guanzhan, "30", "观战；墨蛟", "ch07.mojiao", kMapZhaoze, "trigger_guanzhan", Kind::Enter, 0},
         // 伙伴改版样板（docs/ch07-companions-design.md 第 4 节）：原来的节点 31 拆成五拍里的后四拍。
-        {Step::Jiaoshi, "31/4.3", "毒囊；困在地下", "ch07.kundi", kMapZhaoze, "trigger_jiaoshi", Kind::Interact, 0},
+        {Step::Jiaoshi, "31/4.2", "毒囊；金箱与灵药", "ch07.xinglai", kMapZhaoze, "trigger_jiaoshi", Kind::Interact, 0},
+        // 内容审查 2026-11-18 第 5 条：蛟尸那一段演完交还操作，玩家自己走回石阶口看封死的通道。
+        {Step::Fengkou, "31/4.3", "困在地下；评银剑", "ch07.kundi", kMapZhaoze, "trigger_fengkou", Kind::Interact, 0},
         {Step::ExploreZhaoze, "—", "地下沼泽：探索", "", kMapZhaoze, "", Kind::Explore, -1},
         {Step::Caikuang, "4.3", "采一块火灵石", "", kMapShenchu, "gather_huolingshi_bei", Kind::Gather, 0},
         {Step::ExploreShenchu, "—", "沼泽深处：探索", "", kMapShenchu, "", Kind::Explore, -1},
@@ -1530,26 +1532,27 @@ protected:
             for (const MapObject& object : std::vector<MapObject>(map().objects)) {
                 if (object.type == "gate" && wo::present(state(), app().worldObjects(), object) &&
                     !wo::gateOpen(app().worldObjects(), object)) {
-                    pressObject(object);
-                    explorePressed_.push_back(object.name);
+                    if (pressObject(object) && wo::gateOpen(app().worldObjects(), object)) {
+                        explorePressed_.push_back(mapId + "/" + object.name);
+                    }
                 }
                 if ((object.type == "chest" || object.type == "gather") &&
                     wo::present(state(), app().worldObjects(), object) &&
                     !(object.type == "chest" && wo::chestOpened(app().worldObjects(), object)) &&
                     !(object.type == "gather" && wo::gatherDepleted(app().worldObjects(), object, state().day))) {
-                    if (pressObject(object)) explorePressed_.push_back(object.name);
+                    if (pressObject(object)) explorePressed_.push_back(mapId + "/" + object.name);
                 }
                 if (object.type == "trigger" && !object.property("require_party").empty() &&
                     WorldScene::triggerReady(state(), object, companions)) {
                     drainKeys();
-                    if (stepOnto(object)) explorePressed_.push_back(object.name);
+                    if (stepOnto(object)) explorePressed_.push_back(mapId + "/" + object.name);
                 }
             }
         }
         for (const MapObject& object : std::vector<MapObject>(map().objects)) {
             if (object.type != "foe" || !wo::present(state(), app().worldObjects(), object)) continue;
             if (state().hp * 10 < state().maxHp * 7 && hasMeditation()) restToFull(mapId, meditationName());
-            if (ambush(object)) explorePressed_.push_back(object.name);
+            if (ambush(object)) explorePressed_.push_back(mapId + "/" + object.name);
             if (state().mapId != mapId && !travelTo(mapId)) return false;
         }
         // 走之前在本图的打坐点坐满（后面多半就是必打的那一仗）。
@@ -1858,7 +1861,7 @@ protected:
             const Kind kind = infoOf(r.step).kind;
             if (!r.finished || kind == Kind::Farm || kind == Kind::Shop || kind == Kind::Craft || kind == Kind::Rest ||
                 kind == Kind::Explore) {
-                continue;   // 探索那几步拿到什么由 Ch07CompanionsTests 判（宝箱、采集点的清单写在图上）
+                continue;   // 探索那几步拿到什么由 expectTheFullCollection 按图上的 loot / item 与仗里的掉落逐步核
             }
             std::map<std::string, int> got = diffOf(r.bagBefore, r.bagAfter);
             if (!r.phases.empty()) {
@@ -2182,12 +2185,18 @@ protected:
             case Step::Guanzhan:
                 EXPECT_TRUE(s.partyHas("baiyi_shaonv")) << "伙伴改版样板 4.2：墨蛟那一仗她入队";
                 EXPECT_EQ(s.bondOf(kNangong), 2) << "样板施工图 4.6：并肩打赢墨蛟 +2";
-                if (const BattleRecord* b = lastBattle("b07_zhaoze_shouyao")) {
+                {
+                    const BattleRecord* b = lastBattle("b07_zhaoze_shouyao");
+                    ASSERT_NE(b, nullptr) << "先验：⑤ 打过了";
                     EXPECT_EQ(b->chases, 0) << "样板施工图第 6 节⑤ / 验收 3：这时默契是 0，这一仗没有追击";
                 }
                 break;
             case Step::Jiaoshi:
                 EXPECT_EQ(s.mapId, kMapZhaoze) << "伙伴改版样板 4.3：困在地下，不再传送";
+                EXPECT_EQ(s.bondOf(kNangong), 2 + 12) << "样板施工图 4.6：并肩打赢墨蛟 2 ＋ 毒囊之后 12";
+                break;
+            case Step::Fengkou:
+                EXPECT_EQ(s.mapId, kMapZhaoze);
                 // 样板施工图 4.6 / 验收 4：「评银剑演完时已是 22，到二档『相熟』」（2 ＋ 毒囊 12 ＋ 评银剑 8）。
                 EXPECT_EQ(s.bondOf(kNangong), 2 + 12 + 8) << "样板施工图 4.6：评银剑演完是 22";
                 EXPECT_EQ(fanren::rules::bondTier(s.bondOf(kNangong)), 2) << "验收 4：评银剑演完时已到二档";
@@ -2509,14 +2518,63 @@ void Ch07Walkthrough::expectTheFullCollection(const char* label) {
     // 石窟那道残禁：她在队里，开得了；后面那个宝箱拿到了。
     EXPECT_EQ(s.worldObjects.openedGates.count("ch07_dixia_shiku.gate_canjin"), 1u) << label << "：残禁她开得了";
     EXPECT_EQ(s.worldObjects.openedChests.count("ch07_dixia_shiku.chest_xiaoshi"), 1u) << label << "：残禁后面的宝箱";
-    // 禁地六张图上每一个宝箱都开了（宝箱不随机，正史里全都在）。
-    for (const char* mapId : {kMapWaiwei, kMapZhongxin, kMapHxs, kMapZhaoze, kMapShenchu, kMapShiku}) {
+    // 禁地六张图上每一个宝箱都开了、每一处采集点都采过、每一只明雷都清掉了（正史里这些都不随机）；
+    // 探索时按过 / 打过的每一样都记在 explorePressed_ 里，与图上的对象一一对上。
+    std::map<Step, std::map<std::string, int>> designed;   // 探索那一步：图上 loot / item 之和 ＋ 打赢的仗的掉落
+    const std::map<const char*, Step> exploreOf = {{kMapWaiwei, Step::ExploreWaiwei},  {kMapZhongxin, Step::ExploreZhongxin},
+                                                    {kMapHxs, Step::ExploreHxs},        {kMapZhaoze, Step::ExploreZhaoze},
+                                                    {kMapShenchu, Step::ExploreShenchu}, {kMapShiku, Step::ExploreShiku}};
+    int foes = 0;
+    for (const auto& [mapId, step] : exploreOf) {
         auto loaded = fanren::io::loadTileMap((fs::path(assetRoot()) / "maps" / (std::string(mapId) + ".tmj")).string());
         ASSERT_TRUE(loaded.ok) << loaded.error;
         for (const MapObject& object : loaded.value.objects) {
-            if (object.type != "chest") continue;
-            EXPECT_EQ(s.worldObjects.openedChests.count(object.property("id")), 1u)
-                << label << "：" << mapId << " 的 " << object.name << " 没开";
+            const std::string tag = std::string(mapId) + "/" + object.name;
+            const bool pressed = std::find(explorePressed_.begin(), explorePressed_.end(), tag) != explorePressed_.end();
+            if (object.type == "chest") {
+                EXPECT_EQ(s.worldObjects.openedChests.count(object.property("id")), 1u) << label << "：" << tag << " 没开";
+                EXPECT_TRUE(pressed) << label << "：" << tag << " 不是探索时开的";
+            } else if (object.type == "gather") {
+                EXPECT_EQ(s.worldObjects.gatheredDay.count(object.property("id")), 1u) << label << "：" << tag << " 没采";
+                // 火灵石北边那处矿脉是主线那一步（Caikuang）采的，探索时已在冷却里，不算探索按的。
+                if (object.name != "gather_huolingshi_bei") EXPECT_TRUE(pressed) << label << "：" << tag << " 不是探索时采的";
+            } else if (object.type == "foe") {
+                ++foes;
+                EXPECT_EQ(s.worldObjects.clearedFoes.count(object.property("id")), 1u) << label << "：" << tag << " 没打掉";
+                EXPECT_TRUE(pressed) << label << "：" << tag << " 没有从侧后摸上去";
+            }
+            if (!pressed) continue;
+            if (object.type != "chest" && object.type != "gather") continue;
+            bool ok = true;
+            for (const auto& stack : fanren::game::worldobj::parseItemList(
+                     object.property(object.type == "chest" ? "loot" : "item"), ok)) {
+                designed[step][stack.itemId] += stack.count;
+            }
+            EXPECT_TRUE(ok) << tag;
+        }
+    }
+    EXPECT_EQ(foes, 11 + 1) << "先验：施工图第 6 节，11 只明雷 ＋ 1 只精英";
+    for (const BattleRecord& b : battles_) {
+        if (b.phase != BattlePhase::Won) continue;
+        const fanren::core::BattleSetup* setup = app().battleSetup(b.id);
+        if (setup == nullptr) continue;
+        for (const auto& drop : setup->reward.drops) designed[b.step][drop.itemId] += drop.count;
+    }
+    // 探索那几步的背包增量：图上写的 loot / item ＋ 打赢的仗掉的东西。药另算——仗里会吃，只许少不许多。
+    for (const StepRecord& r : steps_) {
+        if (!r.finished || infoOf(r.step).kind != Kind::Explore) continue;
+        const std::map<std::string, int> got = diffOf(r.bagBefore, r.bagAfter);
+        std::set<std::string> ids;
+        for (const auto& [id, n] : got) ids.insert(id);
+        for (const auto& [id, n] : designed[r.step]) ids.insert(id);
+        for (const std::string& id : ids) {
+            const int want = designed[r.step].count(id) ? designed[r.step].at(id) : 0;
+            const int have = got.count(id) ? got.at(id) : 0;
+            if (id.rfind("pill_", 0) == 0) {
+                EXPECT_LE(have, want) << label << " " << infoOf(r.step).name << "：" << id << " 比图上与掉落的还多";
+            } else {
+                EXPECT_EQ(have, want) << label << " " << infoOf(r.step).name << "：" << id << " 与图上的 loot / item、掉落对不上";
+            }
         }
     }
     std::cout << "\n[ch07 " << label << "全收集] 默契 " << s.bondOf(kNangong) << "（并肩 " << battleGain << "、插话 "
@@ -2869,6 +2927,7 @@ const std::vector<KeyOrder>& keyOrders() {
         {"ch07.map.zhaoze_shenchu.", 38},   {"ch07.map.dixia_shiku.", 38},
         {"ch07.block.zhaoze_shenchu", 37},  {"ch07.block.dixia_shiku", 38},
         {"objective.ch07.n37a_", 37},       {"objective.ch07.n37b_", 37},     {"objective.ch07.n37c_", 37},
+        {"objective.ch07.n37d_", 37},
         // 历练「禁地旧境」（样板施工图第 7 节）：出禁地（节点 32b，ch07.chujindi）之后才进得去。
         {"lilian.", 40},
         {"ch07.chukou.", 40},               {"ch07.xieshili.", 41},           {"ch07.sannian.", 42},
@@ -3137,7 +3196,8 @@ TEST_F(Ch07Acceptance, No15_EachOfTheFiveMustFightsIsCalledOnceFromItsHookAndGua
         doneFlags.push_back(o.doneFlag);
         targets.push_back(o.targetObject);
     }
-    ASSERT_EQ(doneFlags.size(), 46u + 3u) << "先验：第 7 章目标链 46 步（施工图 3.4）＋ 伙伴改版样板插的三步（第 9 节）";
+    ASSERT_EQ(doneFlags.size(), 46u + 4u)
+        << "先验：第 7 章目标链 46 步（施工图 3.4）＋ 伙伴改版样板插的三步（第 9 节）＋ 蛟尸那一段拆成两步（内容审查第 5 条）";
     for (const MustFightHook& h : mustFightHooks()) {
         std::vector<std::string> callers;
         const std::string call = std::string("battle(\"") + h.battleId + "\")";

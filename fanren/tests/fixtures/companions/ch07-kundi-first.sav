@@ -1,5 +1,5 @@
 {
-  "checksum": "efa41e3c33ec6ee6",
+  "checksum": "9aff7449b118ab92",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -291,7 +291,7 @@
       "stepsUntilNext": 0,
       "triggeredToday": 0
     },
-    "facing": 1,
+    "facing": 0,
     "fields": [
       {
         "id": "field_baiyaoyuan",
@@ -523,6 +523,7 @@
       "ch07.wulongtan": 1,
       "ch07.wuyou": 1,
       "ch07.xiang": 1,
+      "ch07.xinglai": 1,
       "ch07.yeyu": 1,
       "ch07.yinsi": 1,
       "ch07.yixiantian": 1,
@@ -648,11 +649,11 @@
         "roleId": "baiyi_shaonv"
       }
     ],
-    "playSecondsGameplay": 33.7333333333327,
+    "playSecondsGameplay": 33.799999999999365,
     "playSecondsSystem": 0.0,
     "position": {
-      "x": 8,
-      "y": 15
+      "x": 3,
+      "y": 1
     },
     "realm": 11,
     "realmCap": 11,
