@@ -220,10 +220,13 @@ def _item_list(items):
     return ",".join(item if count == 1 else "%s:%d" % (item, count) for item, count in items)
 
 
-def chest(name, x, y, map_id, key, loot, require_flag=None):
+def chest(name, x, y, map_id, key, loot, require_flag=None, chance=None):
+    # chance：1–99 的整数，只许写在历练图上（契约 3.12、门禁规则 39）；不写 = 每趟都在。
     kw = dict(id=_object_id(map_id, key), loot=_item_list(loot))
     if require_flag:
         kw["require_flag"] = require_flag
+    if chance is not None:
+        kw["chance"] = int(chance)
     return obj(name, "chest", x, y, **kw)
 
 
@@ -235,8 +238,9 @@ def gather(name, x, y, map_id, key, item, respawn_days, require_flag=None):
 
 
 def foe(name, x, y, map_id, key, battle, look, facing, respawn_days=None, elite=False,
-        require_flag=None):
+        require_flag=None, chance=None):
     # 明雷只占一格，面朝 facing：它面前那一格踏进去就开打（契约 3.4）。
+    # chance 同宝箱：只许在历练图上，进去时按「日历日 + 历练地」各抽一次（契约 3.12）。
     kw = dict(id=_object_id(map_id, key), battle=battle, look=look, facing=facing)
     if respawn_days:
         kw["respawn_days"] = int(respawn_days)
@@ -244,6 +248,8 @@ def foe(name, x, y, map_id, key, battle, look, facing, respawn_days=None, elite=
         kw["elite"] = True
     if require_flag:
         kw["require_flag"] = require_flag
+    if chance is not None:
+        kw["chance"] = int(chance)
     return obj(name, "foe", x, y, **kw)
 
 
@@ -965,6 +971,11 @@ def check():
     build.bat 里那一行就不必为每新增一章再加一条 —— 但**新增一章要在这里加一段**，
     否则那一章等于没有第二道闸门。
     """
+    return check_maps(build_everything())
+
+
+def build_everything():
+    """全仓每一张图的生成器产出（含各章之间的修补），check() 与 --sync 共用这一份。"""
     built = build_all()
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
     import genmaps_ch02
@@ -1000,13 +1011,43 @@ def check():
     built.update(genmaps_ch11.build_all())
     built.update(genmaps_ch12.build_all())
     built.update(genmaps_ch13.build_all())
-    return check_maps(built)
+    return built
+
+
+def sync():
+    """只把与生成器不一致的图写盘（产出与 --check 同一份：各章的修补都在里面）。
+
+    单跑某一章的生成器会把后几章补在共用图上的对象抹掉（第 7 章写百药园会丢第 8 章的对象），
+    改了某一章的生成器之后用这个落盘。图块集（tilesets/*.tsj）也一并补写：凡是哪一章的生成器
+    在模块层列了 TILESETS 的，都写一遍（write_tileset 的产出只由名字决定，重写不改内容）。
+    """
+    import importlib
+    for chapter in range(2, 14):
+        try:
+            module = importlib.import_module("genmaps_ch%02d" % chapter)
+        except ImportError:
+            continue
+        for name in getattr(module, "TILESETS", ()):
+            write_tileset(name)
+    for map_id, payload in build_everything().items():
+        path = os.path.join(MAPS, map_id + ".tmj")
+        text = render_map(payload)
+        if os.path.exists(path):
+            with open(path, "rb") as f:
+                if f.read().decode("utf-8") == text:
+                    continue
+        with open(path, "wb") as f:
+            f.write(text.encode("utf-8"))
+        print("wrote", map_id)
+    return 0
 
 
 def main(argv=None):
     argv = list(sys.argv[1:] if argv is None else argv)
     if "--check" in argv:
         return check()
+    if "--sync" in argv:
+        return sync()
 
     for name in ("terrain_caixiashan", "terrain_qingniuzhen",
                  "terrain_liangu_ya", "terrain_shenshougu"):

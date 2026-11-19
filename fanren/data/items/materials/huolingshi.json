@@ -1,0 +1,11 @@
+{
+  "id": "material_huolingshi",
+  "name": "火灵石",
+  "descKey": "item.desc.material_huolingshi",
+  "kind": "material",
+  "grade": 2,
+  "price": 12,
+  "tradeable": true,
+  "origin": "原著",
+  "note": "五行灵石里属火的那一种（ch131）。禁地地下她一手驱使朱雀环、一手握着一枚红色火灵石吸纳灵气回复法力（ch206）。样板施工图 4.3：沼泽深处两处火灵石矿脉（采集点）采得；交给她是剧情一步（huolingshi.lua 收走一枚），矿脉长在地下是改编。引擎不存同伴的法力，这一枚是剧情物、不回气（施工图第 4 节末段）。她喜欢的赠礼。"
+}

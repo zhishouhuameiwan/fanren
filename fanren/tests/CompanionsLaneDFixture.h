@@ -160,6 +160,9 @@ inline std::unique_ptr<TempDir> makeRoot(const char* prefix) {
     for (const char* dir : {"data", "scripts", "maps"}) {
         fs::copy(repoRoot() / dir, root->path() / dir, fs::copy_options::recursive);
     }
+    // 真树里从样板段起有了伙伴数据（nangong_wan、chen_qiaoqian），它们的角色与下面的探针伙伴重叠
+    // （一个角色只能属于一位伙伴，加载器拒收）。这些用例量的是探针伙伴，拷进来之后先把真伙伴拿掉。
+    fs::remove_all(root->path() / "data" / "companions");
     const fs::path companions = root->path() / "data" / "companions";
     writeFile(companions / "probe_a.json",
               companionJson("probe_a", R"([{"role": "zhang_tie", "until_flag": "probe.a.grown"}, {"role": "li_feiyu"}])",

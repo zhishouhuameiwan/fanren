@@ -608,7 +608,9 @@ constexpr ScriptTransfer kScriptTransfers[] = {
     {"ch07.qipai", "scripts/ch07/liedui.lua", "ch07_jindi_wai"},               // 19b 飞到黄土坡（同图）
     {"ch07.pojin", "scripts/ch07/pojin.lua", "ch07_jindi_waiwei"},             // 20 挪移阵送进外围
     {"ch07.didao", "scripts/ch07/qingshidian.lua", "ch07_dixia_zhaoze"},       // 29 钻下地道
-    {"ch07.nangong", "scripts/ch07/jiaoshi.lua", "ch07_huanxingshan"},         // 31 打穿地面回到环形山
+    // 伙伴改版样板（docs/ch07-companions-design.md 4.4、4.5）：打穿地面从节点 31 挪到破顶，问名之后才回环形山。
+    {"ch07.poding", "scripts/ch07/poding.lua", "ch07_dixia_shiku"},            // 4.4 破顶，碎石塌落、退开一步（同图）
+    {"ch07.nangong", "scripts/ch07/wenming.lua", "ch07_huanxingshan"},         // 4.5 / 31 爬出破口、问名，回到环形山
     {"ch07.xiashan", "scripts/ch07/xiashan.lua", "ch07_jindi_wai"},            // 32a 下山赶到出口
     {"ch07.chujindi", "scripts/ch07/chukou.lua", "ch06_baiyaoyuan"},           // 32b 骑蟒数日回谷
     {"ch07.done", "scripts/ch07/zhuji.lua", "ch06_baiyaoyuan"},                // 36 筑基出关，御器飞回药园

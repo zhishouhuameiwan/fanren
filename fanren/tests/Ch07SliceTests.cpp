@@ -273,7 +273,7 @@ TEST_F(Ch07Slice, No7_TheBorrowedPowersAreTakenBackWhereTheyBurnOut) {
     };
     for (const Pair& p : std::vector<Pair>{{"take(\"talisman_jianfu\"", "magic.forget(\"magic_ji_jianfu\")", "ch07/yeyu.lua"},
                                            {"take(\"talisman_jinguangzhuan\"", "magic.forget(\"magic_ji_jinguangzhuan\")",
-                                            "ch07/jiaoshi.lua"}}) {
+                                            "ch07/poding.lua"}}) {   // 伙伴改版样板 4.4：打穿地面挪到破顶
         int takes = 0;
         int forgets = 0;
         std::set<std::string> where;
@@ -310,15 +310,18 @@ TEST_F(Ch07Slice, No7_TheBorrowedPowersAreTakenBackWhereTheyBurnOut) {
     for (const auto& [path, source] : scriptsUnder(root_, "ch05")) chapterFive += countOf(codeOnly(source), "magic.forget(\"magic_ji_jianfu\")");
     EXPECT_EQ(chapterFive, 1) << "扫描器自检：第 5 章那一处 magic.forget 该数得出来";
 
-    // 切片：节点 31 演完，金光砖符宝与祭金光砖都没了（ch209：打穿地面时耗尽）。
+    // 切片：破顶打赢（伙伴改版样板 4.4，原在节点 31），金光砖符宝与祭金光砖都没了（ch209：打穿地面时耗尽）。
     freshEleventh();
     state().setFlag("ch07.mojiao");
+    state().setFlag("ch07.kundi");
+    state().setFlag("ch07.huolingshi");
+    state().partyAdd("baiyi_shaonv");
     state().addItem("talisman_jinguangzhuan", 1, 0);
     state().learnMagic("magic_ji_jinguangzhuan");
-    runScript("ch07/jiaoshi.lua");
+    runScript("ch07/poding.lua");
+    EXPECT_EQ(state().flag("ch07.poding"), 1) << "先验：破顶打赢了（打输了金光砖不该没）";
     EXPECT_EQ(state().itemCount("talisman_jinguangzhuan"), 0) << "验收 7：金光砖耗尽成了废纸";
     EXPECT_FALSE(state().knowsMagic("magic_ji_jinguangzhuan")) << "验收 7：祭金光砖当场 forget";
-    EXPECT_EQ(state().flag("ch07.nangong"), 1);
 }
 
 // ===========================================================================

@@ -36,7 +36,6 @@
   "objective.ch07.n35_xiaoshidian": "往山顶去，最后一处是小石殿",
   "objective.ch07.n36_qingshidian": "去钟吾玉简上标的那座青石殿",
   "objective.ch07.n37_guanzhan": "下了石阶，先找个地方藏好",
-  "objective.ch07.n38_jiaoshi": "去看看那条蛟的尸首",
   "objective.ch07.n39_xiashan": "往山下走，赶在通道关上之前出去",
   "objective.ch07.n40_chukou": "顺着通道走出禁地",
   "objective.ch07.n41_xieshili": "回茅屋去",
@@ -44,5 +43,10 @@
   "objective.ch07.n43_chouhan": "去岳麓殿，找石门边那个汉子借地火",
   "objective.ch07.n44_shijiu": "进十九号地火间",
   "objective.ch07.n45_chengdan": "一炉不成就再开一炉——药粉还多。炼成了，去圆墩旁的石凳上盘点",
-  "objective.ch07.n46_zhuji": "去墙角的蒲团上坐下"
+  "objective.ch07.n46_zhuji": "去墙角的蒲团上坐下",
+  "objective.ch07.n38_wenming": "顶上破开了，从口子里爬出去",
+  "objective.ch07.n37a_jiaoshi": "去看看那条蛟的尸首",
+  "objective.ch07.n37b_fengkou": "回石阶口，看看那道封死的通道",
+  "objective.ch07.n37c_huolingshi": "东边岩缝口地火最近，她要在那里调息——先在沼泽深处找一块火灵石",
+  "objective.ch07.n37d_poding": "在地底石窟里找岩层最薄的地方，往上打"
 }

@@ -1,0 +1,36 @@
+{
+  "id": "bl07_huoyan_shu_t3",
+  "name": "旧境·火焰鼠（第3档）",
+  "chapter": 7,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "scale_by_party": true,
+  "units": [
+    {
+      "role_id": "huoyan_shu_t3",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "huoyan_shu_t3",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "huoyan_shu_t3",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 10,
+    "drops": [
+      {
+        "item_id": "material_yaoshou_cai",
+        "count": 1,
+        "rate": 100
+      }
+    ]
+  },
+  "origin": "改编",
+  "note": "历练「禁地旧境」第 3 档（契约 3.12：foe.battle 写「bl07_huoyan_shu」，引擎按韩立的境界拼 _t1/_t2/_t3）。修为奖励一律为 0（否则是一条刷修为的路）；不致命，打输整趟退出；人数系数开着；奖励是兽材与少量灵石（施工图第 7 节）。"
+}

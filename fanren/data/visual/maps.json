@@ -1216,6 +1216,205 @@
         }
       ]
     },
+    "ch07_zhaoze_shenchu": {
+      "theme": "cave",
+      "time": "indoor",
+      "season": "summer",
+      "why": "伙伴改版样板 5.1：地下沼泽往东、往南两道岩缝通进来的沼泽深处——浅水、枯木、发光的菌，比地下沼泽更暗更潮。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.45
+        },
+        {
+          "kind": "firefly",
+          "rate": 0.15
+        }
+      ],
+      "ambient": [
+        70,
+        92,
+        96
+      ],
+      "backdrop": "cave_tunnel",
+      "dof": 0.45,
+      "dof_why": "地下大洞有纵深，洞里本来也暗"
+    },
+    "ch07_dixia_shiku": {
+      "theme": "cave",
+      "time": "indoor",
+      "season": "summer",
+      "why": "伙伴改版样板 5.1：地底石窟——残破的石室，干燥，没有水；北头岩层最薄处是破顶的地方。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.25
+        }
+      ],
+      "ambient": [
+        70,
+        92,
+        96
+      ],
+      "backdrop": "cave_tunnel",
+      "dof": 0.45,
+      "dof_why": "地下大洞有纵深，洞里本来也暗"
+    },
+    "lilian_jindi_waiwei": {
+      "theme": "wild",
+      "time": "day",
+      "season": "autumn",
+      "why": "历练「禁地旧境」：ch07_jindi_waiwei 的副本，底图相同（样板施工图第 7 节）。禁地外围：灰黑的腐土、东北角结着寒气的乌龙潭、西北一道陡崖、当中峭壁夹出的一线天（施工图第 4 节）。天灰蒙蒙的，光发红。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.35
+        },
+        {
+          "kind": "dust",
+          "rate": 0.15
+        }
+      ],
+      "ambient": [
+        206,
+        176,
+        170
+      ],
+      "backdrop": "mountain_forest_dusk",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感"
+    },
+    "lilian_jindi_zhongxin": {
+      "theme": "valley",
+      "time": "day",
+      "season": "summer",
+      "why": "历练「禁地旧境」：ch07_jindi_zhongxin 的副本，底图相同（样板施工图第 7 节）。中心区外：南半林子、一道石墙与青铜门、北半第一层花园、东北上山小路（施工图第 4 节）。禁地的天始终灰蒙蒙的。",
+      "particles": [
+        {
+          "kind": "petal",
+          "rate": 0.3
+        },
+        {
+          "kind": "mist",
+          "rate": 0.15
+        }
+      ],
+      "ambient": [
+        198,
+        200,
+        196
+      ],
+      "backdrop": "herb_valley",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感"
+    },
+    "lilian_jindi_huanxingshan": {
+      "theme": "mountain_path",
+      "time": "day",
+      "season": "summer",
+      "why": "历练「禁地旧境」：ch07_huanxingshan 的副本，底图相同（样板施工图第 7 节）。环形山：雾散之后的山坡、西边山体里的紫猴花洞、山顶的小石殿与石洞、东南小盆地的青石殿（施工图第 4 节）。雾没散尽。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.4
+        },
+        {
+          "kind": "leaf",
+          "rate": 0.1
+        }
+      ],
+      "backdrop": "mountain_forest",
+      "dof": 0.6,
+      "dof_why": "开阔的室外图，远近两头糊开才有移轴的「桌面模型」感",
+      "props": [
+        {
+          "at": [
+            19,
+            28
+          ],
+          "kind": "rock",
+          "why": "洞外的岔路石（27）"
+        }
+      ]
+    },
+    "lilian_jindi_zhaoze": {
+      "theme": "cave",
+      "time": "indoor",
+      "season": "summer",
+      "why": "历练「禁地旧境」：ch07_dixia_zhaoze 的副本，底图相同（样板施工图第 7 节）。地下百余丈的沼泽：黑泥、热气、当中一座白玉小亭（施工图第 4 节）。暗青，湿热。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.4
+        },
+        {
+          "kind": "ember",
+          "rate": 0.1
+        }
+      ],
+      "ambient": [
+        70,
+        92,
+        96
+      ],
+      "backdrop": "cave_tunnel",
+      "dof": 0.45,
+      "dof_why": "地下大洞有纵深，洞里本来也暗",
+      "props": [
+        {
+          "at": [
+            17,
+            13
+          ],
+          "kind": "pavilion",
+          "why": "沼泽当中的白玉小亭（金箱悬在里头，装饰）"
+        }
+      ]
+    },
+    "lilian_jindi_shenchu": {
+      "theme": "cave",
+      "time": "indoor",
+      "season": "summer",
+      "why": "历练「禁地旧境」：ch07_zhaoze_shenchu 的副本，底图相同（样板施工图第 7 节）。伙伴改版样板 5.1：地下沼泽往东、往南两道岩缝通进来的沼泽深处——浅水、枯木、发光的菌，比地下沼泽更暗更潮。",
+      "particles": [
+        {
+          "kind": "mist",
+          "rate": 0.45
+        },
+        {
+          "kind": "firefly",
+          "rate": 0.15
+        }
+      ],
+      "ambient": [
+        70,
+        92,
+        96
+      ],
+      "backdrop": "cave_tunnel",
+      "dof": 0.45,
+      "dof_why": "地下大洞有纵深，洞里本来也暗"
+    },
+    "lilian_jindi_shiku": {
+      "theme": "cave",
+      "time": "indoor",
+      "season": "summer",
+      "why": "历练「禁地旧境」：ch07_dixia_shiku 的副本，底图相同（样板施工图第 7 节）。伙伴改版样板 5.1：地底石窟——残破的石室，干燥，没有水；北头岩层最薄处是破顶的地方。",
+      "particles": [
+        {
+          "kind": "dust",
+          "rate": 0.25
+        }
+      ],
+      "ambient": [
+        70,
+        92,
+        96
+      ],
+      "backdrop": "cave_tunnel",
+      "dof": 0.45,
+      "dof_why": "地下大洞有纵深，洞里本来也暗"
+    },
     "ch08_dongfu": {
       "theme": "mountain_path",
       "time": "day",

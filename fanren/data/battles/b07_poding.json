@@ -1,0 +1,22 @@
+{
+  "id": "b07_poding",
+  "name": "地底石窟·破顶",
+  "chapter": 7,
+  "terrain": "cave",
+  "can_escape": false,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "jinzhi_yanceng",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "intro_key": "ch07.battle.poding.intro",
+  "origin": "改编",
+  "note": "伙伴改版样板 4.4「破顶」（原著 ch209 一笔回述的改编）：对手是封禁的岩层，破绽火、土，架势很高；隔两回合落一次碎石；killable_by 火：最后要她的朱雀环烧穿，她的法力是这一场之内的倒计时。不会死人（defeat_is_fatal false），败了从石窟的打坐点重来；不能逃。修为奖励 0、不掉东西（施工图第 1 节：不许改写后面的平衡）。量的时候那只手不许用物品（验收 3）。"
+}

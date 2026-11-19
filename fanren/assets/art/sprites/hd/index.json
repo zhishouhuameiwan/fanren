@@ -1,0 +1,487 @@
+{
+  "_doc": "手绘高清表（由 tools/artgen/hd_pack.py 生成，形状见 docs/art-sprites.md 5.2）。file 相对本目录；files 里的 sha256 由门禁规则 40 核。",
+  "enemies": {
+    "bishui_e": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "bishui_e.png",
+      "foot_y": 62,
+      "frame_h": 65,
+      "frame_w": 160,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "碧水鳄",
+      "scale": 1
+    },
+    "bishui_e_t2": {
+      "alias_of": "bishui_e",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "bishui_e.png",
+      "foot_y": 62,
+      "frame_h": 65,
+      "frame_w": 160,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "碧水鳄",
+      "scale": 1
+    },
+    "bishui_e_t3": {
+      "alias_of": "bishui_e",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "bishui_e.png",
+      "foot_y": 62,
+      "frame_h": 65,
+      "frame_w": 160,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "碧水鳄",
+      "scale": 1
+    },
+    "mo_jiao": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "mo_jiao.png",
+      "foot_y": 93,
+      "frame_h": 96,
+      "frame_w": 138,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "墨蛟",
+      "scale": 1
+    },
+    "mo_jiao_tuipi": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "mo_jiao_tuipi.png",
+      "foot_y": 92,
+      "frame_h": 95,
+      "frame_w": 144,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "墨蛟（蜕皮）",
+      "scale": 1
+    }
+  },
+  "files": {
+    "bishui_e.png": "1062cfab7fe8ef96914e456cc1407ef8a716e76592fe39333c77908079e32492",
+    "chen_shimei_battle.png": "74675e3de6efb9a8ce3fd9fac99c47c231eece6f6fa926e19c9a655f2b57dc53",
+    "chen_shimei_walk.png": "af375362400feb80d0c13671c693473435c16857b9e494ea361707198fee38f5",
+    "hanli_battle.png": "04c1f30bfb254285b163c043e0769d01d12a5fe42e7a6576fda10042299328a3",
+    "hanli_walk.png": "61d0cf7c85016ab1e5344d2d9467cd0f4088b92b360ab15005e27faa8f2b5fef",
+    "mo_jiao.png": "ed3bdf5affac8c423c7299845031482b635b94b44a01a2dcda071611d8c79831",
+    "mo_jiao_tuipi.png": "e3d99024636330974c134877c4b2463b25fd17fe6ac15b2da175c83a29da3aac",
+    "nangong_wan_ch07_battle.png": "a9141ab5775a9e201e5f8a5ef1a1dc30479859d1f5df0b036836647b1cebb51b",
+    "nangong_wan_ch07_walk.png": "796ec66dcbbf7a7258d7d66485a8b049eb0c46f528ff2ee5c687b4b8e4146ebc",
+    "nangong_wan_veil_battle.png": "54c882fb062e71731cb08f9b84c8491d5f056265493c677268bd79ffd0e2be80",
+    "nangong_wan_veil_walk.png": "d9bdd676d4a5af2494107c76c68aa22d2d8bf09e0a53c2b7ca7288531ca3be34"
+  },
+  "role_variants": {
+    "hanli": [
+      {
+        "look": "hanli_child",
+        "max_chapter": 2
+      },
+      {
+        "look": "hanli_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ]
+  },
+  "roles": {
+    "baiyi_shaonv": "nangong_wan_veil_hd",
+    "chen_shimei": "chen_shimei_hd",
+    "nangong_wan_ch07": "nangong_wan_ch07_hd"
+  },
+  "sheets": {
+    "chen_shimei_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "chen_shimei_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "chen_shimei_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 10,
+      "name": "陈师妹（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "hanli_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "hanli_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "hanli_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 10,
+      "name": "韩立（手绘，第 7 章）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "nangong_wan_ch07_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "nangong_wan_ch07_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 12
+      },
+      "cols": 4,
+      "file": "nangong_wan_ch07_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 10,
+      "name": "南宫婉·露脸前期（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "nangong_wan_veil_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "nangong_wan_veil_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 13
+      },
+      "cols": 4,
+      "file": "nangong_wan_veil_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 10,
+      "name": "南宫婉·面纱（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    }
+  }
+}

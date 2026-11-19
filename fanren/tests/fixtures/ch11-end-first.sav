@@ -1,5 +1,5 @@
 {
-  "checksum": "0337f69470e6b08c",
+  "checksum": "626553b7db992b2f",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -450,6 +450,14 @@
         "itemId": "story_bai_zhenzhu"
       }
     ],
+    "bonds": {
+      "nangong_wan": {
+        "battleDay": 2415,
+        "battleGained": 4,
+        "giftDay": 0,
+        "value": 37
+      }
+    },
     "bottle": {
       "capacity": 9,
       "drops": 9,
@@ -458,6 +466,7 @@
       "owned": true
     },
     "chapter": 1,
+    "clearedFoes": {},
     "cultivation": 2572,
     "cultivationRemainder": 1350,
     "day": 49378,
@@ -818,9 +827,11 @@
       "ch07.feidan": 1,
       "ch07.fengyue": 1,
       "ch07.fudan_fa": 1,
+      "ch07.huolingshi": 1,
       "ch07.jiaoyao1": 1,
       "ch07.jihe": 1,
       "ch07.kuitan": 1,
+      "ch07.kundi": 1,
       "ch07.lianqi": 1,
       "ch07.likai": 1,
       "ch07.ma_songyao": 1,
@@ -828,6 +839,7 @@
       "ch07.mojiao": 1,
       "ch07.murong": 1,
       "ch07.nangong": 1,
+      "ch07.poding": 1,
       "ch07.pojin": 1,
       "ch07.qiannian": 1,
       "ch07.qipai": 1,
@@ -840,6 +852,7 @@
       "ch07.xiang": 1,
       "ch07.xiashan": 1,
       "ch07.xieshili": 1,
+      "ch07.xinglai": 1,
       "ch07.yeyu": 1,
       "ch07.yinsi": 1,
       "ch07.yixiantian": 1,
@@ -1023,6 +1036,9 @@
     "forgeProficiency": 3,
     "formationProficiency": 0,
     "formerRealm": 22,
+    "gatheredDay": {
+      "ch07_zhaoze_shenchu.gather_huolingshi_bei": 2415
+    },
     "hp": 700,
     "knownWeaknesses": {
       "chuanshan_shou": [
@@ -1062,6 +1078,10 @@
       "jinguang_shangren": [
         "火"
       ],
+      "jinzhi_yanceng": [
+        "火",
+        "土"
+      ],
       "long_zhong_shou": [
         "剑"
       ],
@@ -1075,7 +1095,7 @@
       "matou_dashou": [
         "拳"
       ],
-      "mo_jiao": [
+      "mo_jiao_tuipi": [
         "火",
         "土"
       ],
@@ -1168,6 +1188,8 @@
     "maxHp": 700,
     "maxMp": 470,
     "mp": 470,
+    "openedChests": [],
+    "openedGates": [],
     "party": [
       {
         "active": true,
@@ -1175,7 +1197,7 @@
         "roleId": "qu_hun_shadan"
       }
     ],
-    "playSecondsGameplay": 618.649999999766,
+    "playSecondsGameplay": 619.1166666664323,
     "playSecondsSystem": 0.0,
     "position": {
       "x": 24,
@@ -1185,5 +1207,5 @@
     "realmCap": 31,
     "talismanProficiency": 0
   },
-  "save_version": 9
+  "save_version": 10
 }

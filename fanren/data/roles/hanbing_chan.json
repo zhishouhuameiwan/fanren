@@ -1,0 +1,19 @@
+{
+  "id": "hanbing_chan",
+  "name": "寒冰蟾",
+  "realm": "QiRefining8",
+  "maxHp": 55,
+  "maxMp": 0,
+  "attack": 12,
+  "defence": 8,
+  "speed": 7,
+  "element": 4,
+  "magics": [],
+  "toughness": 2,
+  "weaknesses": [
+    "火",
+    "土"
+  ],
+  "origin": "原著",
+  "note": "禁地外围乌龙潭深处成群潜伏的一级下阶妖兽，性情温顺、不招惹不伤人（ch180）；后被灵兽山二人收进红皮袋（ch181）。伙伴改版样板（docs/ch07-companions-design.md 5.2）：外围、地下沼泽、沼泽深处的明雷，摆在哪是改编。非人形。水；破绽火、土。"
+}

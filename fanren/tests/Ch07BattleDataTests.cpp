@@ -40,6 +40,7 @@
 #include "core/rules/Realm.h"
 #include "game/Application.h"
 #include "game/BattleScene.h"
+#include "io/DataLoader.h"
 #include "io/SaveFile.h"
 
 namespace {
@@ -96,7 +97,9 @@ const std::vector<CompositionSpec>& designSaysSo() {
          "cliff_top"},
         {"③", "b07_fengyue", {}, {"feng_yue"}, false, true, "mountain_forest"},
         {"④", "b07_zhongxinqu_duoyao", {}, {"yan_wuchi"}, false, true, "mountain_forest"},
-        {"⑤", "b07_zhaoze_shouyao", {"baiyi_shaonv"}, {"mo_jiao"}, false, true, "cave_tunnel"},
+        // 伙伴改版样板（docs/ch07-companions-design.md 4.2、第 6 节⑤）：白衣少女从编成里的友军改成由队伍带入，
+        // 编成里不再写死她（否则场上两个她）。玩家操控两个人这一点不变——见 Ch07IntentHand 那几条的起点。
+        {"⑤", "b07_zhaoze_shouyao", {}, {"mo_jiao_tuipi"}, false, true, "cave_tunnel"},   // 蜕皮之后那一条（样板段起）
         // 可选：环形山遭遇（可逃、不致命），be07_tiebi_yuan 兼作 Z2 东坡那一场。
         {"可选·推山兽", "be07_tuishan_shou", {}, {"tuishan_shou"}, true, false, "mountain_forest"},
         {"可选·铁臂猿", "be07_tiebi_yuan", {}, {"tiebi_yuan", "tiebi_yuan"}, true, false, "mountain_forest"},
@@ -140,7 +143,7 @@ const std::vector<RoleSpec>& rolesSaySo() {
          "③ 封岳（十三层顶峰，土；架势 6；破绽火、木；行动 2；蓄势「小刀符宝」每 2 回合 ×1.8 单体）"},
         {"yan_wuchi", Realm::QiRefining13, kElementMetal, 5, cats({"暗器", "火"}), 0, 3, 2.0, false,
          "④ 赤脚大汉（十三层，金；架势 5；破绽暗器、火；蓄势「银盘」每 3 回合 ×2.0 单体）"},
-        {"mo_jiao", Realm::QiRefining13, kElementWater, 6, cats({"土", "火"}), 2, 3, 1.8, true,
+        {"mo_jiao_tuipi", Realm::QiRefining13, kElementWater, 6, cats({"土", "火"}), 2, 3, 1.8, true,
          "⑤ 墨蛟（数据写炼气十三层，水；架势 6；破绽土、火；行动 2；蓄势「紫液」每 3 回合 ×1.8 全体）"},
         {"tuishan_shou", Realm::Mortal, kElementEarth, -1, cats({"木", "暗器"}), 0, 0, 0, false, "可选 推山兽（土；破绽木、暗器）"},
         {"tiebi_yuan", Realm::Mortal, -1, -1, cats({"火", "剑"}), 0, 0, 0, false, "可选 铁臂猿（破绽火、剑）"},
@@ -183,13 +186,13 @@ TEST_F(Ch07BattleData, TheCompositionsAreTheOnesTableEightTwoDraws) {
         EXPECT_EQ(app_.battleBackdrop(spec.id), spec.backdrop) << spec.mark << "：8.2 表下的战斗背景（走 Application 的真实入口）";
     }
     // 验收 4 原文单点：⑤ killable_by == ["土"]、友军恰一人；五张 can_escape false、defeat_is_fatal true。
-    const RoleTemplate* mojiao = app_.data().findRole("mo_jiao");
+    const RoleTemplate* mojiao = app_.data().findRole("mo_jiao_tuipi");   // ⑤ 打的是蜕皮之后那一条
     ASSERT_NE(mojiao, nullptr);
     EXPECT_EQ(mojiao->killableBy, cats({"土"})) << "验收 4：⑤ killable_by == [\"土\"]";
     const BattleSetup* zhaoze = app_.battleSetup("b07_zhaoze_shouyao");
     ASSERT_NE(zhaoze, nullptr);
     const auto allies = std::count_if(zhaoze->units.begin(), zhaoze->units.end(), [](const BattleUnitSpec& u) { return u.ally; });
-    EXPECT_EQ(allies, 1) << "验收 4：⑤ 友军恰一人（白衣少女，编成只有一张）";
+    EXPECT_EQ(allies, 0) << "伙伴改版样板 4.2：⑤ 编成里不再写死友军，她由队伍带入（契约 3.1：只有队伍带进来的人算伙伴）";
     // 另外四个 ⑤ 以外的必打敌人都不设 killable_by（8.2 ③：「不用 killable_by」）。
     for (const char* id : {"lu_shixiong", "luosai_huzi", "yan_xiongdi", "zichi_bishe", "chuanshan_shou", "feng_yue", "yan_wuchi"}) {
         const RoleTemplate* role = app_.data().findRole(id);
@@ -346,19 +349,31 @@ TEST_F(Ch07BattleData, RuleTwentyFiveKnowsTheMeansOfChapterSeven) {
     EXPECT_EQ(table.find("\"b07_lu_shixiong\""), std::string::npos) << "8.2 表下：① 不加（那时两样都还没有）";
 }
 
-// 8.4：环形山遭遇表（dailyCap 2、三张编成），读 Application 真读进来的那一份。
+// 8.4：环形山遭遇表（dailyCap 2、三张编成）——伙伴改版样板 5.2 把它换成了明雷：「环形山那块暗雷遭遇区撤掉，
+// 换成明雷，遭遇表的编成沿用」。施工图验收第 9 条点名要随之改写这一条（不是顺手改绿）：从前它读那张表，
+// 现在表撤了（一张没人读的表比没有表更糟，handoff 教训 5），判的是同一件事的新落点——
+//   · Application 真读进来的遭遇表里没有 encounter_ch07_huanxingshan 了，本章没有任何一张遭遇表；
+//   · 原表的三份编成都还在，各由环形山上一只明雷开打（foe.battle），可逃、不致命（契约 3.4）；
+//   · 原表「十一层的意图玩家遇得上」那一条落在明雷上就是：明雷没有境界门槛，谁走过去都打得上。
 TEST_F(Ch07BattleData, TheRingMountainEncounterTableIsSectionEightFour) {
     const auto& tables = app_.encounterTables();
-    const auto it = tables.find("encounter_ch07_huanxingshan");
-    ASSERT_NE(it, tables.end()) << "8.4：data/encounters/ch07_huanxingshan.json";
-    EXPECT_EQ(it->second.dailyCap, 2) << "8.4：dailyCap 2";
+    EXPECT_EQ(tables.count("encounter_ch07_huanxingshan"), 0u) << "伙伴改版样板 5.2：环形山的遭遇表撤掉";
+    const auto map = fanren::io::loadTileMap((fs::path(assetRoot()) / "maps" / "ch07_huanxingshan.tmj").string());
+    ASSERT_TRUE(map.ok) << map.error;
     std::set<std::string> ids;
-    for (const auto& entry : it->second.entries) ids.insert(entry.battleId);
-    EXPECT_EQ(ids, (std::set<std::string>{"be07_tuishan_shou", "be07_tiebi_yuan", "be07_huoyan_shu"})) << "8.4 的三条";
-    for (const auto& entry : it->second.entries) {
-        EXPECT_LE(fanren::rules::toValue(entry.minRealm), fanren::rules::toValue(Realm::QiRefining11))
-            << entry.battleId << "：十一层的意图玩家遇得上";
-        EXPECT_GE(fanren::rules::toValue(entry.maxRealm), fanren::rules::toValue(Realm::QiRefining11)) << entry.battleId;
+    for (const auto& object : map.value.objects) {
+        EXPECT_NE(object.type, "encounter") << object.name << "：遭遇区撤掉了";
+        if (object.type != "foe") continue;
+        ids.insert(object.property("battle"));
+        EXPECT_TRUE(object.property("require_flag").empty()) << object.name << "：明雷没有门槛";
+    }
+    EXPECT_EQ(ids, (std::set<std::string>{"be07_tuishan_shou", "be07_tiebi_yuan", "be07_huoyan_shu"}))
+        << "8.4 的三份编成，由三只明雷沿用";
+    for (const std::string& id : ids) {
+        const BattleSetup* setup = app_.battleSetup(id);
+        ASSERT_NE(setup, nullptr) << id;
+        EXPECT_TRUE(setup->canEscape) << id << "：明雷能逃（不是精英）";
+        EXPECT_FALSE(setup->defeatIsFatal) << id << "：明雷的编成一律不致命（契约 3.4）";
     }
 }
 
@@ -422,6 +437,8 @@ protected:
             s.addItem("weapon_wuming_sixian", 1, 0);
         }
         if (fight >= 3) s.learnMagic("magic_ji_qingning");
+        // 伙伴改版样板 4.2：⑤ 开打之前她入队（guanzhan.lua 的 party.add），由队伍带进这一仗。
+        if (fight >= 4) s.partyAdd("baiyi_shaonv");
         return s;
     }
 

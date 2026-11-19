@@ -263,11 +263,39 @@
       "target_object": "trigger_guanzhan"
     },
     {
-      "id": "n38_jiaoshi",
-      "text_key": "objective.ch07.n38_jiaoshi",
-      "done_flag": "ch07.nangong",
+      "id": "n37a_jiaoshi",
+      "text_key": "objective.ch07.n37a_jiaoshi",
+      "done_flag": "ch07.xinglai",
       "target_map": "ch07_dixia_zhaoze",
       "target_object": "trigger_jiaoshi"
+    },
+    {
+      "id": "n37b_fengkou",
+      "text_key": "objective.ch07.n37b_fengkou",
+      "done_flag": "ch07.kundi",
+      "target_map": "ch07_dixia_zhaoze",
+      "target_object": "trigger_fengkou"
+    },
+    {
+      "id": "n37c_huolingshi",
+      "text_key": "objective.ch07.n37c_huolingshi",
+      "done_flag": "ch07.huolingshi",
+      "target_map": "ch07_zhaoze_shenchu",
+      "target_object": "trigger_huolingshi"
+    },
+    {
+      "id": "n37d_poding",
+      "text_key": "objective.ch07.n37d_poding",
+      "done_flag": "ch07.poding",
+      "target_map": "ch07_dixia_shiku",
+      "target_object": "trigger_poding"
+    },
+    {
+      "id": "n38_wenming",
+      "text_key": "objective.ch07.n38_wenming",
+      "done_flag": "ch07.nangong",
+      "target_map": "ch07_dixia_shiku",
+      "target_object": "trigger_wenming"
     },
     {
       "id": "n39_xiashan",

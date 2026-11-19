@@ -303,7 +303,10 @@ void DialogueScene::render(Application& app) {
     // 否则最后一行会提前占位、看起来像文字在跳。
     engine::Rect textArea{content.x, content.y, content.w, std::max(0, content.h - optionHeight)};
     // 说话人在头像表里有头像就画在正文左侧、正文让开（伙伴改版 3.9）；没登记的角色与旁白一笔不多画。
-    if (const std::optional<PortraitFrame> portrait = app.portraits().frameFor(eng, app.headless(), speakerRole_, face_)) {
+    // 头像按章生效（韩立的青年头像只在第 7 章）：「演完没有」与取外观同一个判据，问章节表的 done_flag。
+    const ChapterDone chapterDone = [&app](int n) { return app.chapterTable().chapterDone(app.state(), n); };
+    if (const std::optional<PortraitFrame> portrait =
+            app.portraits().frameFor(eng, app.headless(), speakerRole_, face_, chapterDone)) {
         const PortraitLayout layout = portraitLayout(textArea, theme.padding, static_cast<int>(portrait->src.w),
                                                      static_cast<int>(portrait->src.h));
         renderPortrait(app, *portrait, layout.portrait);

@@ -1,0 +1,24 @@
+{
+  "id": "bishui_e_t3",
+  "name": "碧水鳄",
+  "realm": "FoundationMid",
+  "maxHp": 1560,
+  "maxMp": 0,
+  "attack": 52,
+  "defence": 47,
+  "speed": 12,
+  "element": 4,
+  "magics": [],
+  "toughness": 4,
+  "weaknesses": [
+    "火"
+  ],
+  "charge": {
+    "every": 3,
+    "mult": 1.6,
+    "all": false,
+    "text_key": "ch07.battle.bishui_e.charge"
+  },
+  "origin": "改编",
+  "note": "历练「禁地旧境」第 3 档（FoundationMid）里的碧水鳄：同一种妖兽，按韩立的境界换一档数值（样板施工图第 7 节「三档：炼气、筑基初、筑基中」；契约 3.12）。原种见 data/roles/bishui_e.json。数值是初值。"
+}

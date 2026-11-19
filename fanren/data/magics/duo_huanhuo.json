@@ -1,0 +1,11 @@
+{
+  "id": "magic_duo_huanhuo",
+  "name": "环火合击",
+  "descKey": "magic.desc.magic_duo_huanhuo",
+  "element": 8,
+  "needMp": 0,
+  "power": 32,
+  "needRealm": "QiRefining1",
+  "origin": "本作自拟（伙伴改版样板施工图第 7 节）",
+  "note": "韩立与南宫婉的合招（契约 2.1 duo、3.3）：她的朱雀环套住、他借火势补上一击。威力在合招里另乘 1.6（契约 3.3），代价只有两人各 2 点劲。火。原著没有这一招，本作自拟（样板施工图第 7 节「四档以上留给历练」）。数值是初值，归平衡路量。"
+}

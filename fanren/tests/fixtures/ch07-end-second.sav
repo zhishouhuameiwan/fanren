@@ -1,5 +1,5 @@
 {
-  "checksum": "437e7b3c3207e471",
+  "checksum": "0bbba4ae6875a458",
   "payload": {
     "alchemyProficiency": 100,
     "aptitude": 50,
@@ -217,17 +217,17 @@
       {
         "count": 1,
         "herbAge": 0,
-        "itemId": "material_mojiao_cailiao"
-      },
-      {
-        "count": 1,
-        "herbAge": 0,
         "itemId": "story_qingning_jing"
       },
       {
         "count": 1,
         "herbAge": 0,
         "itemId": "story_yinhui_jian"
+      },
+      {
+        "count": 1,
+        "herbAge": 0,
+        "itemId": "material_mojiao_cailiao"
       },
       {
         "count": 1,
@@ -260,6 +260,14 @@
         "itemId": "story_feidan_yuhe"
       }
     ],
+    "bonds": {
+      "nangong_wan": {
+        "battleDay": 2390,
+        "battleGained": 4,
+        "giftDay": 0,
+        "value": 37
+      }
+    },
     "bottle": {
       "capacity": 6,
       "drops": 6,
@@ -268,6 +276,7 @@
       "owned": true
     },
     "chapter": 1,
+    "clearedFoes": {},
     "cultivation": 2500,
     "cultivationRemainder": 600,
     "day": 3809,
@@ -493,9 +502,11 @@
       "ch07.feidan": 1,
       "ch07.fengyue": 2,
       "ch07.fudan_fa": 1,
+      "ch07.huolingshi": 1,
       "ch07.jiaoyao1": 1,
       "ch07.jihe": 1,
       "ch07.kuitan": 1,
+      "ch07.kundi": 1,
       "ch07.lianqi": 1,
       "ch07.likai": 1,
       "ch07.ma_songyao": 1,
@@ -503,6 +514,7 @@
       "ch07.mojiao": 2,
       "ch07.murong": 1,
       "ch07.nangong": 1,
+      "ch07.poding": 1,
       "ch07.pojin": 1,
       "ch07.qiannian": 1,
       "ch07.qipai": 1,
@@ -515,6 +527,7 @@
       "ch07.xiang": 2,
       "ch07.xiashan": 1,
       "ch07.xieshili": 1,
+      "ch07.xinglai": 1,
       "ch07.yeyu": 2,
       "ch07.yinsi": 1,
       "ch07.yixiantian": 1,
@@ -527,6 +540,10 @@
     },
     "forgeProficiency": 0,
     "formationProficiency": 0,
+    "formerRealm": 0,
+    "gatheredDay": {
+      "ch07_zhaoze_shenchu.gather_huolingshi_bei": 2390
+    },
     "hp": 260,
     "knownWeaknesses": {
       "chuanshan_shou": [
@@ -553,6 +570,10 @@
       "jinguang_shangren": [
         "火"
       ],
+      "jinzhi_yanceng": [
+        "火",
+        "土"
+      ],
       "long_zhong_shou": [
         "剑"
       ],
@@ -566,7 +587,7 @@
       "matou_dashou": [
         "拳"
       ],
-      "mo_jiao": [
+      "mo_jiao_tuipi": [
         "火",
         "土"
       ],
@@ -623,8 +644,10 @@
     "maxHp": 260,
     "maxMp": 180,
     "mp": 180,
+    "openedChests": [],
+    "openedGates": [],
     "party": [],
-    "playSecondsGameplay": 34.583333333332654,
+    "playSecondsGameplay": 34.98333333333263,
     "playSecondsSystem": 0.0,
     "position": {
       "x": 24,
@@ -634,5 +657,5 @@
     "realmCap": 21,
     "talismanProficiency": 0
   },
-  "save_version": 8
+  "save_version": 10
 }

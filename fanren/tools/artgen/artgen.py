@@ -35,6 +35,9 @@ from PIL import Image  # noqa: E402
 
 ROOT = _HERE.parents[1]
 ART = ROOT / "assets" / "art"
+# 不归这些生成器的目录：sprites/hd/ 是手绘高清表，由 tools/artgen/hd_pack.py 打包、门禁规则 40 核 sha256
+# （docs/art-sprites.md 5.2）。--check 扫「生成器已不产出的多余文件」时跳过它，否则每张手绘图都算「多」。
+HAND_PACKED = ("sprites/hd/",)
 
 # 名字 → (模块, 它负责的 assets/art 下的目录, 是本路自己的（带 fast/only 参数）)
 BUILDERS = {
@@ -107,7 +110,10 @@ def check(names: list[str], only_map: str | None) -> int:
             if not base.exists():
                 continue
             for f in sorted(base.rglob("*")):
-                if f.is_file() and f.relative_to(ART).as_posix() not in rels:
+                rel = f.relative_to(ART).as_posix()
+                if rel.startswith(HAND_PACKED):
+                    continue
+                if f.is_file() and rel not in rels:
                     diffs.append("多  %s（生成器已不产出它）" % f.relative_to(ART).as_posix())
     finally:
         shutil.rmtree(tmp, ignore_errors=True)

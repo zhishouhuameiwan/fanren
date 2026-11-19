@@ -56,6 +56,11 @@ constexpr const char* kZhaoze = "ch07_dixia_zhaoze";
 
 // 施工图第 4 节：新建的九张图。
 constexpr const char* kNewMaps[] = {kYuelu, kDihuo, kFangshi, kShandong, kWai, kWaiwei, kZhongxin, kHxs, kZhaoze};
+// 伙伴改版样板（docs/ch07-companions-design.md 5.1）：地下那一段新加的两张图。尺寸、预设由 Ch07CompanionsTests 判；
+// 挂点、一格一对象、闸门这几条照样在这里一起数。
+constexpr const char* kShenchu = "ch07_zhaoze_shenchu";
+constexpr const char* kShiku = "ch07_dixia_shiku";
+constexpr const char* kSampleMaps[] = {kShenchu, kShiku};
 
 // ---------------------------------------------------------------------------
 // 判据。逐行抄自 docs/ch07-design.md 3.1 那张表（"" 表示那一格是「—」）
@@ -118,7 +123,20 @@ const std::vector<HookSpec>& designSaysSo() {
         {"29", "trigger_qingshidian", kHxs, "interact", true, "ch07.wuyou", "ch07.didao", "", "拿金刃试殿门是他"},
         {"30", "trigger_guanzhan", kZhaoze, "enter", true, "ch07.didao", "ch07.mojiao", "b07_zhaoze_shouyao",
          "伏在黑土堆后，外面的事发生在他眼前"},
-        {"31", "trigger_jiaoshi", kZhaoze, "interact", true, "ch07.mojiao", "ch07.nangong", "", "拿银剑剖蛟尸是他"},
+        // 伙伴改版样板（docs/ch07-companions-design.md 第 4 节、5.1）：节点 31 拆成「困在地下 → 火灵石 → 破顶 → 问名」，
+        // ch07.nangong 的意思不变（问出她的名字），由 wenming.lua 置；蛟尸那一格改置 ch07.kundi。
+        {"31/4.2", "trigger_jiaoshi", kZhaoze, "interact", true, "ch07.mojiao", "ch07.xinglai", "", "拿银剑剖蛟尸是他"},
+        // 内容审查 2026-11-18 第 5 条：困在地下那一段拆出来，玩家自己走回石阶口去看封死的通道。
+        {"4.3", "trigger_fengkou", kZhaoze, "interact", true, "ch07.xinglai", "ch07.kundi", "", "回石阶口看封死的通道是他"},
+        {"4.3", "trigger_huolingshi", kShenchu, "enter", true, "ch07.kundi", "ch07.huolingshi", "",
+         "走进东口岩缝，把火灵石交给她"},
+        {"4.4", "trigger_poding", kShiku, "interact", true, "ch07.huolingshi", "ch07.poding", "b07_poding",
+         "站在岩层最薄处下面往上打是他"},
+        {"4.5/31", "trigger_wenming", kShiku, "enter", true, "ch07.poding", "ch07.nangong", "", "从破口爬出去、问她的名字"},
+        {"4.6", "trigger_chahua_jun", kShenchu, "enter", true, "", "ch07.chahua_jun", "", "插话：岔道里的发光菌"},
+        {"4.6", "trigger_chahua_kumu", kShenchu, "enter", true, "", "ch07.chahua_kumu", "", "插话：岔道里的枯木"},
+        {"4.6", "trigger_chahua_shishi", kShiku, "enter", true, "", "ch07.chahua_shishi", "", "插话：残破的石室"},
+        {"4.6", "trigger_chahua_yanbi", kShiku, "enter", true, "", "ch07.chahua_yanbi", "", "插话：岩壁上的旧痕"},
         {"32a", "trigger_xiashan", kHxs, "enter", true, "ch07.nangong", "ch07.xiashan", "", "往山下奔"},
         {"32b", "trigger_chukou", kWai, "enter", true, "ch07.xiashan", "ch07.chujindi", "", "出了通道，一派一派的人站着"},
         {"33", "trigger_xieshili", kByy, "enter", true, "ch07.chujindi", "ch07.xieshili", "", "马师伯在屋里等他"},
@@ -210,7 +228,8 @@ protected:
 // 先验：表里每一处挂点确实在图上，是 trigger，而且 mode / once / script 真的写了
 // ---------------------------------------------------------------------------
 TEST_F(Ch07TriggerMode, EveryHookTheDesignTableNamesIsReallyOnItsMap) {
-    ASSERT_EQ(designSaysSo().size(), 46u) << "判据表的行数变了。改它之前先改 docs/ch07-design.md 3.1——那张表是上游";
+    ASSERT_EQ(designSaysSo().size(), 46u + 4u + 4u)
+        << "判据表的行数变了。改它之前先改 docs/ch07-design.md 3.1 与伙伴改版样板第 4 节——那两张表是上游";
     for (const HookSpec& spec : designSaysSo()) {
         const MapObject object = objectOn(spec.mapId, spec.object);
         ASSERT_FALSE(object.name.empty()) << spec.row << "：" << spec.mapId << " 上没有 " << spec.object;
@@ -290,6 +309,7 @@ TEST_F(Ch07TriggerMode, NoAutoOneObjectPerCellAndNothingOutsideTheTable) {
     for (const HookSpec& spec : designSaysSo()) listed.insert(std::string(spec.mapId) + "/" + spec.object);
     int triggersSeen = 0;
     std::vector<std::string> maps(std::begin(kNewMaps), std::end(kNewMaps));
+    maps.insert(maps.end(), std::begin(kSampleMaps), std::end(kSampleMaps));
     maps.push_back(kByy);
     maps.push_back(kHfg);
     for (const std::string& mapId : maps) {
@@ -313,7 +333,8 @@ TEST_F(Ch07TriggerMode, NoAutoOneObjectPerCellAndNothingOutsideTheTable) {
             }
         }
     }
-    EXPECT_EQ(triggersSeen, 46) << "先验：十一张图上一共 46 处本章的 trigger（3.1 表 46 行）";
+    EXPECT_EQ(triggersSeen, 46 + 4 + 4)
+        << "先验：十三张图上一共 54 处本章的 trigger（3.1 表 46 行 ＋ 样板 4 处挂点、4 处插话）";
 }
 
 // 3.1 表末几行：园角两畦灵田、北街收药摊、十九号地火、禁地三处打坐点、九张新图各有存档点。
@@ -360,18 +381,21 @@ TEST_F(Ch07TriggerMode, TheFacilitiesOfTableThreeOneAndSectionFourAreOnTheirMaps
         EXPECT_GE(saves, 1) << mapId << "：第 4 节写了存档点";
         if (std::string(mapId) == kHxs) EXPECT_EQ(saves, 2) << "第 4 节：环形山存档点两处（上山路口、小石殿前）";
     }
-    // 遭遇区（8.4）：只在环形山一块，require_flag=ch07.yueyang；外围、中心区外不放，别的新图也不放。
+    // 遭遇区（8.4）：原来只在环形山一块。伙伴改版样板 5.2「环形山那块暗雷遭遇区撤掉，换成明雷，遭遇表的编成沿用」：
+    // 本章的图上一块遭遇区也不剩；环形山上三只明雷，打的正是那张表的三份编成（推山兽、铁臂猿、火焰鼠）。
     int zones = 0;
     for (const char* mapId : kNewMaps) {
         for (const MapObject& object : objectsOn(mapId)) {
-            if (object.type != "encounter") continue;
-            ++zones;
-            EXPECT_EQ(std::string(mapId), kHxs) << mapId << "：施工图 8.4「外围、中心区外不放」";
-            EXPECT_EQ(object.property("require_flag"), "ch07.yueyang") << "8.4：区 require_flag=ch07.yueyang";
-            EXPECT_EQ(object.property("table_id"), "encounter_ch07_huanxingshan") << "8.4：表 ch07_huanxingshan";
+            if (object.type == "encounter") ++zones;
         }
     }
-    EXPECT_EQ(zones, 1) << "施工图 8.4：环形山一块区";
+    EXPECT_EQ(zones, 0) << "伙伴改版样板 5.2：环形山那块遭遇区撤掉";
+    std::multiset<std::string> foeBattles;
+    for (const MapObject& object : objectsOn(kHxs)) {
+        if (object.type == "foe") foeBattles.insert(object.property("battle"));
+    }
+    EXPECT_EQ(foeBattles, (std::multiset<std::string>{"be07_tuishan_shou", "be07_tiebi_yuan", "be07_huoyan_shu"}))
+        << "伙伴改版样板 5.2：环形山三只明雷，编成沿用旧遭遇表的三份";
 }
 
 // ---------------------------------------------------------------------------
@@ -478,10 +502,25 @@ TEST_F(Ch07TriggerMode, TheFiveGatesAreTheOnesSectionFourDrawsAndTheForbiddenGro
         targets.insert(gate.target);
     }
     EXPECT_EQ(targets.size(), 5u) << "第 4 节：五道闸门各指一张不同的图（规则 20）";
+    // 伙伴改版样板 5.1：地下沼泽通沼泽深处的两道（ch07.kundi）、沼泽深处通地底石窟的一道（ch07.huolingshi）。
+    const std::vector<Gate> kSampleGates = {
+        {kZhaoze, "portal_to_shenchu_dong", kShenchu, "ch07.kundi", "ch07.block.zhaoze_shenchu"},
+        {kZhaoze, "portal_to_shenchu_nan", kShenchu, "ch07.kundi", "ch07.block.zhaoze_shenchu"},
+        {kShenchu, "portal_to_shiku", kShiku, "ch07.huolingshi", "ch07.block.dixia_shiku"},
+    };
+    for (const Gate& gate : kSampleGates) {
+        const MapObject portal = objectOn(gate.mapId, gate.portal);
+        ASSERT_FALSE(portal.name.empty()) << gate.mapId << " 上没有 " << gate.portal;
+        EXPECT_EQ(portal.property("target_map"), gate.target) << gate.portal;
+        EXPECT_EQ(portal.property("require_flag"), gate.requireFlag) << gate.portal;
+        EXPECT_EQ(portal.property("deny_text_key"), gate.denyKey) << gate.portal << "（规则 20：按目标图命名）";
+        EXPECT_NE(app_.data().lookupText(gate.denyKey), gate.denyKey) << gate.denyKey << " 查不到";
+    }
     // 连通图：九张新图上的门，与两张修补图上本章加的门，只有这几道（第 4 节「连通」那张图）。
     std::multiset<std::pair<std::string, std::string>> links;
     int gated = 0;
     std::vector<std::string> maps(std::begin(kNewMaps), std::end(kNewMaps));
+    maps.insert(maps.end(), std::begin(kSampleMaps), std::end(kSampleMaps));
     maps.push_back(kByy);
     maps.push_back(kHfg);
     for (const std::string& mapId : maps) {
@@ -492,10 +531,14 @@ TEST_F(Ch07TriggerMode, TheFiveGatesAreTheOnesSectionFourDrawsAndTheForbiddenGro
             if (!object.property("require_flag").empty()) ++gated;
         }
     }
-    EXPECT_EQ(gated, 5) << "第 4 节：本章的闸门只有五道";
+    EXPECT_EQ(gated, 5 + 3) << "第 4 节：本章的闸门五道；伙伴改版样板 5.1 再加地下三道";
     const std::multiset<std::pair<std::string, std::string>> design = {
         {kHfg, kFangshi},       {kFangshi, kHfg},        {kHfg, kYuelu},  {kYuelu, kHfg},
-        {kYuelu, kDihuo},       {kDihuo, kYuelu},        {kWaiwei, kZhongxin}, {kZhongxin, kHxs}};
+        {kYuelu, kDihuo},       {kDihuo, kYuelu},        {kWaiwei, kZhongxin}, {kZhongxin, kHxs},
+        // 伙伴改版样板 5.1：地下沼泽 ⇄ 沼泽深处（两道）、沼泽深处 ⇄ 地底石窟。地下三张图之间来去自由，
+        // 整段仍是只进不出：回环形山只有问名之后那一次 teleport。
+        {kZhaoze, kShenchu},    {kZhaoze, kShenchu},     {kShenchu, kZhaoze}, {kShenchu, kZhaoze},
+        {kShenchu, kShiku},     {kShiku, kShenchu}};
     EXPECT_EQ(links, design) << "施工图第 4 节：坊市、岳麓殿、地火屋各有回程的门；禁地四张图只进不出、山洞与禁地外只靠 teleport";
 }
 
@@ -562,7 +605,7 @@ TEST_F(Ch07TriggerMode, ThePeopleComeAndGoOnTheFlagsSectionFiveNames) {
     }
     EXPECT_EQ(she, 0) << "施工偏差 18.4 / 第 4 节末段：南宫婉、白衣少女都不摆 NPC";
     // 禁地四张图上不摆 NPC（第 4 节末段：「禁地里没有能『走过去聊聊』的人」）。
-    for (const char* mapId : {kWaiwei, kZhongxin, kHxs, kZhaoze}) {
+    for (const char* mapId : {kWaiwei, kZhongxin, kHxs, kZhaoze, kShenchu, kShiku}) {
         for (const MapObject& object : objectsOn(mapId)) {
             EXPECT_NE(object.type, "npc") << mapId << " / " << object.name << "：禁地里不摆 NPC";
         }

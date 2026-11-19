@@ -1,0 +1,36 @@
+{
+  "id": "be07_cai_e",
+  "name": "禁地·彩蛾",
+  "chapter": 7,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "scale_by_party": true,
+  "units": [
+    {
+      "role_id": "cai_e",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "cai_e",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "cai_e",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 4,
+    "spirit_stones": 0,
+    "drops": [
+      {
+        "item_id": "material_yaoshou_cai",
+        "count": 1,
+        "rate": 100
+      }
+    ]
+  },
+  "origin": "改编",
+  "note": "禁地外围的彩蛾（ch181）。伙伴改版样板（docs/ch07-companions-design.md 第 6 节「明雷」）：站在图上的明雷，可绕可打；从侧后上去占先手（契约 3.4）。能逃、败了不致命（回本图缺省出生点）；人数系数开着（契约 3.10）。掉兽材。修为奖励与第 7 章旧遭遇同一档（4–5），主线交接档走的是不打可选战的最小路线，不受影响（施工图第 1 节）。"
+}

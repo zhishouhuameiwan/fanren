@@ -1,0 +1,11 @@
+{
+  "id": "material_yaoshou_cai",
+  "name": "兽材",
+  "descKey": "item.desc.material_yaoshou_cai",
+  "kind": "material",
+  "grade": 1,
+  "price": 3,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "禁地里明雷妖兽身上剥下的皮甲、牙爪之类（样板施工图第 6 节「掉妖兽材料」）。原著禁地里各派都收妖兽材料，本作只做成一样通用的材料，能卖几块灵石。"
+}

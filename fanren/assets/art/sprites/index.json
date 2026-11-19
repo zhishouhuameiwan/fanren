@@ -10,6 +10,33 @@
   }
  },
  "enemies": {
+  "cai_e": {
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/cai_e.png",
+   "foot_y": 23,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 1,
+   "kind": "beast",
+   "name": "彩蛾",
+   "note": "灵兽山二人放出的彩蛾（ch181）：翅上紫粉、金边、一对玉色眼斑，悬在半空；出招扑翅撒一片鳞粉；倒下翅膀摊在地上。"
+  },
   "chuanshan_shou": {
    "battle": {
     "attack": [
@@ -37,6 +64,89 @@
    "name": "穿山甲兽",
    "note": "络腮胡子的另一头灵兽：拱背、一身交叠的土黄鳞甲、尖长的嘴、粗尾拖地、短腿大爪；出招是人立起来抡爪；倒下时缩成一团。"
   },
+  "fei_she": {
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/fei_she.png",
+   "foot_y": 19,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 7,
+   "kind": "beast",
+   "name": "飞蛇",
+   "note": "「绷直了身子像个死物，一扇翅就飞起来」（ch192）：土褐的蛇身直挺挺横着、背上一对收着的膜翅；出招张翅昂首扑咬；倒下软成一摊。"
+  },
+  "fei_she_t2": {
+   "alias_of": "fei_she",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/fei_she.png",
+   "foot_y": 19,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 7,
+   "kind": "beast",
+   "name": "飞蛇",
+   "note": "「绷直了身子像个死物，一扇翅就飞起来」（ch192）：土褐的蛇身直挺挺横着、背上一对收着的膜翅；出招张翅昂首扑咬；倒下软成一摊。"
+  },
+  "fei_she_t3": {
+   "alias_of": "fei_she",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/fei_she.png",
+   "foot_y": 19,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 7,
+   "kind": "beast",
+   "name": "飞蛇",
+   "note": "「绷直了身子像个死物，一扇翅就飞起来」（ch192）：土褐的蛇身直挺挺横着、背上一对收着的膜翅；出招张翅昂首扑咬；倒下软成一摊。"
+  },
   "gui_yecha": {
    "battle": {
     "attack": [
@@ -63,6 +173,89 @@
    "kind": "beast",
    "name": "鬼夜叉",
    "note": "第 12 章战斗①第 0 波：头生两角的鬼物，紫黑皮色、红眼，双手一柄骨叉（role note「手持骨叉」）。"
+  },
+  "hanbing_chan": {
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/hanbing_chan.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 9,
+   "kind": "beast",
+   "name": "寒冰蟾",
+   "note": "禁地外围乌龙潭成群潜伏的一级下阶妖兽（ch180）：蹲伏的冰蓝大蟾、背上霜白的疣、金眼；出招张口喷一串冰碴；倒下翻了肚皮。"
+  },
+  "hanbing_chan_t2": {
+   "alias_of": "hanbing_chan",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/hanbing_chan.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 9,
+   "kind": "beast",
+   "name": "寒冰蟾",
+   "note": "禁地外围乌龙潭成群潜伏的一级下阶妖兽（ch180）：蹲伏的冰蓝大蟾、背上霜白的疣、金眼；出招张口喷一串冰碴；倒下翻了肚皮。"
+  },
+  "hanbing_chan_t3": {
+   "alias_of": "hanbing_chan",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/hanbing_chan.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 9,
+   "kind": "beast",
+   "name": "寒冰蟾",
+   "note": "禁地外围乌龙潭成群潜伏的一级下阶妖兽（ch180）：蹲伏的冰蓝大蟾、背上霜白的疣、金眼；出招张口喷一串冰碴；倒下翻了肚皮。"
   },
   "hanli_yuanshen": {
    "battle": {
@@ -200,6 +393,62 @@
    "name": "火焰鼠",
    "note": "环形山里一级下阶的小兽，成群出没：个头小，赤红的毛，背上一溜火苗、尾尖一点火星；出招是冲着人喷一口火星；倒下时火灭成灰。"
   },
+  "huoyan_shu_t2": {
+   "alias_of": "huoyan_shu",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/huoyan_shu.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 11,
+   "kind": "beast",
+   "name": "火焰鼠",
+   "note": "环形山里一级下阶的小兽，成群出没：个头小，赤红的毛，背上一溜火苗、尾尖一点火星；出招是冲着人喷一口火星；倒下时火灭成灰。"
+  },
+  "huoyan_shu_t3": {
+   "alias_of": "huoyan_shu",
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/huoyan_shu.png",
+   "foot_y": 22,
+   "frame_h": 24,
+   "frame_w": 32,
+   "head_y": 11,
+   "kind": "beast",
+   "name": "火焰鼠",
+   "note": "环形山里一级下阶的小兽，成群出没：个头小，赤红的毛，背上一溜火苗、尾尖一点火星；出招是冲着人喷一口火星；倒下时火灭成灰。"
+  },
   "jiang_shou": {
    "battle": {
     "attack": [
@@ -253,6 +502,33 @@
    "kind": "beast",
    "name": "鸡冠蛟",
    "note": "第 11 章六级妖兽：长身青鳞、头顶红冠、背鳍一排；出招是张口前探。"
+  },
+  "jinzhi_yanceng": {
+   "battle": {
+    "attack": [
+     2
+    ],
+    "down": [
+     4
+    ],
+    "hurt": [
+     3
+    ],
+    "idle": [
+     0,
+     1
+    ]
+   },
+   "battle_facing": "right",
+   "cols": 5,
+   "file": "enemies/jinzhi_yanceng.png",
+   "foot_y": 29,
+   "frame_h": 32,
+   "frame_w": 40,
+   "head_y": 4,
+   "kind": "beast",
+   "name": "封禁岩层",
+   "note": "地底石窟岩层最薄的那一处、压着禁地的禁制（施工图 4.4「破顶」）：一面岩壁、正中一圈金色禁制符纹；待机符纹一明一暗；出招顶上落碎石；受击裂纹加深；倒下崩成一堆碎岩。不是活物。"
   },
   "kuilei_shou": {
    "battle": {
@@ -1017,6 +1293,7 @@
   "field": "facility.field",
   "forge": "facility.forge",
   "formation": "facility.formation",
+  "lilian": "facility.lilian",
   "meditate": "facility.meditate",
   "save": "facility.save",
   "shop": "facility.shop",
@@ -1136,6 +1413,42 @@
     ],
     "name": "打探气泡",
     "note": "路径行动·打探（问号）。"
+   },
+   "chest_closed": {
+    "anchor": [
+     8,
+     14
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      0,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "宝箱（关）",
+    "note": "朱漆木箱，一道金箍、金锁扣。与人物一起按脚底排序。"
+   },
+   "chest_open": {
+    "anchor": [
+     8,
+     14
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      16,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "宝箱（开）",
+    "note": "箱盖掀起立在后面，箱里空着。箱身与关着时同一块，锚点不变。"
    },
    "facility.alchemy": {
     "anchor": [
@@ -1263,6 +1576,24 @@
     "name": "阵盘",
     "note": "平放在地上的石阵盘：刻着八个方位的纹路，纹路里的青光三帧流转。"
    },
+   "facility.lilian": {
+    "anchor": [
+     8,
+     31
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      128,
+      128,
+      16,
+      32
+     ]
+    ],
+    "name": "历练入口",
+    "note": "路口一块石碑，朱笔刻着字，碑脚两丛草。历练地的入口与出口（设施 kind = lilian）。"
+   },
    "facility.meditate": {
     "anchor": [
      8,
@@ -1346,6 +1677,114 @@
     ],
     "name": "符案",
     "note": "矮脚长案：一叠黄符（上有朱砂）、笔架、镇纸。"
+   },
+   "foe_mark": {
+    "anchor": [
+     7,
+     15
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      96,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "明雷标记",
+    "note": "朱红菱形里一只竖瞳：这只会追人。画在界面层、明雷头顶，上下漂一个美术像素。"
+   },
+   "foe_mark_elite": {
+    "anchor": [
+     7,
+     15
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      112,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "明雷标记（精英）",
+    "note": "同一只朱红竖瞳，两侧多一对金角：精英，打不过别碰。"
+   },
+   "gate_closed": {
+    "anchor": [
+     8,
+     31
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      64,
+      128,
+      16,
+      32
+     ]
+    ],
+    "name": "机关（关）",
+    "note": "一块立着的石门，正中一道玉色禁制符纹（发光层）。挡在路上，与人物一起按脚底排序。"
+   },
+   "gate_open": {
+    "anchor": [
+     8,
+     14
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      80,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "机关（开）",
+    "note": "石门沉进地里，地上只剩一道与地面齐平的石缝。画在地面一层，不参与排序、不挡路——画小是有意的：开了的机关在那一格里占的面积不到关着时的四分之一（tests/WorldViewCompanionsTests.cpp）。"
+   },
+   "gather_ready": {
+    "anchor": [
+     8,
+     16
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      32,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "采集点（可采）",
+    "note": "一丛灵草，草尖挂着几粒发光的玉色灵实（发光层）。"
+   },
+   "gather_spent": {
+    "anchor": [
+     8,
+     16
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      48,
+      128,
+      16,
+      16
+     ]
+    ],
+    "name": "采集点（采过）",
+    "note": "采过之后只剩几截枯茬。土堆与可采时同一块，锚点不变。"
    },
    "mark.sparkle": {
     "anchor": [

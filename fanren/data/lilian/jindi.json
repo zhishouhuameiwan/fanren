@@ -1,0 +1,29 @@
+{
+  "id": "jindi",
+  "name_key": "lilian.jindi.name",
+  "unlock_flag": "ch07.chujindi",
+  "entry": {
+    "map": "lilian_jindi_waiwei",
+    "spawn": "spawn_rukou"
+  },
+  "maps": [
+    "lilian_jindi_waiwei",
+    "lilian_jindi_zhongxin",
+    "lilian_jindi_huanxingshan",
+    "lilian_jindi_zhaoze",
+    "lilian_jindi_shenchu",
+    "lilian_jindi_shiku"
+  ],
+  "tiers": [
+    {
+      "max_realm": "QiRefining13"
+    },
+    {
+      "max_realm": "FoundationEarly"
+    },
+    {
+      "max_realm": "FoundationMid"
+    }
+  ],
+  "note": "历练「禁地旧境」（伙伴改版样板施工图 docs/ch07-companions-design.md 第 7 节；契约 3.12）。入口在百药园茅屋里那处设施（facility_lilian，require_flag ch07.chujindi），说法是打坐时以神识重走旧地：去得了已经封闭的禁地，也带得了不在身边的人。六张图是禁地四张原图与地下两张新图的副本，底图相同、对象另是一套；三档：炼气、筑基初、筑基中。修为奖励为 0。"
+}

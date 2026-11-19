@@ -1,0 +1,31 @@
+{
+ "map": "lilian_jindi_zhongxin",
+ "tile": 16,
+ "width": 48,
+ "height": 36,
+ "theme": "valley",
+ "time": "day",
+ "season": "summer",
+ "ambient": [
+  198,
+  200,
+  196
+ ],
+ "dof": 0.6,
+ "bloom": 0.2,
+ "vignette": 0.25,
+ "particles": [
+  {
+   "kind": "petal",
+   "rate": 0.3
+  },
+  {
+   "kind": "mist",
+   "rate": 0.15
+  }
+ ],
+ "lights": [],
+ "water": [],
+ "emitters": [],
+ "backdrop": "herb_valley"
+}

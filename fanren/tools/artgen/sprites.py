@@ -28,6 +28,7 @@ from PIL import Image  # noqa: E402
 
 from sprites_core import save_png, write_json  # noqa: E402
 from sprites_enemies import BEASTS, ORBS, render_beast, render_orb, render_world_mouse  # noqa: E402
+from sprites_ch07_beasts import CH07_COMPANION_BEASTS  # noqa: E402
 from sprites_looks import Look, load_table  # noqa: E402
 from sprites_objects import CELL, pack_objects  # noqa: E402
 from sprites_render import SHEET_COLS, render_sheet, sheet_layout  # noqa: E402
@@ -46,6 +47,7 @@ FACILITY_OBJECTS = {
     "shop": "facility.shop",
     "board": "facility.board",
     "save": "facility.save",
+    "lilian": "facility.lilian",   # 历练入口与出口（伙伴改版，docs/art-sprites.md 5.4）
 }
 
 # 识海之战里韩立不是人形，是光球（b03_shihai_duoshe）
@@ -54,7 +56,12 @@ BATTLE_OVERRIDES = {"b03_shihai_duoshe": {"hanli": "hanli_yuanshen"},
                     "b11_yinsha_shayao": {"yinsha_shayao": "yinsha_shayao_bianshen"}}
 
 # 第 6 章以后与既有敌人同类的兽/傀，借用现成的图（没有的就不列，运行时退回旧画法）
-ENEMY_ALIASES = {"heishajiao_shigui": "mofu_shigui"}
+ENEMY_ALIASES = {"heishajiao_shigui": "mofu_shigui",
+                 # 伙伴改版样板段的历练按境界分档：第 2、3 档是同一只妖兽换一档数值、另起一个角色 id（data/roles/*_t2/_t3），
+                 # 长相不变，借本体的图。手绘的碧水鳄分档在 hd/index.json 里另借（tools/artgen/hd_pack.py）。
+                 "hanbing_chan_t2": "hanbing_chan", "hanbing_chan_t3": "hanbing_chan",
+                 "fei_she_t2": "fei_she", "fei_she_t3": "fei_she",
+                 "huoyan_shu_t2": "huoyan_shu", "huoyan_shu_t3": "huoyan_shu"}
 
 
 def _opaque_rows(img: Image.Image) -> tuple[int, int]:
@@ -110,7 +117,7 @@ def build(out_root: Path) -> list[Path]:
     }
 
     enemies: dict[str, dict] = {}
-    for beast in BEASTS:
+    for beast in BEASTS + CH07_COMPANION_BEASTS:
         img, lay = render_beast(beast)
         written.append(save_png(img, sp / "enemies" / f"{beast.id}.png"))
         first = img.crop((0, 0, beast.w, beast.h))
@@ -118,8 +125,8 @@ def build(out_root: Path) -> list[Path]:
         enemies[beast.id] = {
             "file": f"enemies/{beast.id}.png", "name": beast.name, "kind": "beast",
             "frame_w": beast.w, "frame_h": beast.h, "cols": img.width // beast.w,
-            "battle": lay, "battle_facing": "right", "foot_y": bottom, "head_y": top,
-            "note": beast.note,
+            "battle": lay, "battle_facing": "right", "foot_y": bottom if beast.foot_y is None else beast.foot_y,
+            "head_y": top, "note": beast.note,
         }
     for orb in ORBS:
         img, lay = render_orb(orb)

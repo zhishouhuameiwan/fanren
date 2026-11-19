@@ -1,0 +1,18 @@
+{
+  "id": "huoyan_shu_t3",
+  "name": "火焰鼠",
+  "realm": "FoundationMid",
+  "maxHp": 117,
+  "maxMp": 0,
+  "attack": 31,
+  "defence": 16,
+  "speed": 15,
+  "element": 8,
+  "magics": [],
+  "toughness": 3,
+  "weaknesses": [
+    "水"
+  ],
+  "origin": "改编",
+  "note": "历练「禁地旧境」第 3 档（FoundationMid）里的火焰鼠：同一种妖兽，按韩立的境界换一档数值（样板施工图第 7 节「三档：炼气、筑基初、筑基中」；契约 3.12）。原种见 data/roles/huoyan_shu.json。数值是初值。"
+}
