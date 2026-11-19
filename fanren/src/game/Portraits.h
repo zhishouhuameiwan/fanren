@@ -9,14 +9,25 @@
 #include <optional>
 #include <set>
 #include <string>
+#include <vector>
 
 #include "core/model/Portraits.h"
 #include "engine/Engine.h"
+#include "game/SpriteAtlas.h"   // ChapterDone：「第 n 章演完了没有」，世界画面、主菜单、战斗取外观用的同一个判据
 
 namespace fanren::game {
 
 // 表情名 → kPortraitFaces 里的下标；认不出返回 -1。
 [[nodiscard]] int portraitFaceSlot(const std::string& face);
+
+// 这一条头像在这一章生效没有：maxChapter 那一章还没演完、且 minChapter 的前一章已经演完（0 = 这一端不限）。
+// 与 lookForRole 挑 role_variants 同一种判法（game/SpriteAtlas.cpp），chapterDone 由调用方按章节表的 done_flag 给；
+// chapterDone 是空的当作哪一章都没演完。
+[[nodiscard]] bool portraitInEffect(const core::PortraitSheet& sheet, const ChapterDone& chapterDone);
+
+// 一个角色的头像列表里，这一章生效的第一条；都不生效返回 nullptr（这一章说话不带头像）。
+[[nodiscard]] const core::PortraitSheet* portraitForChapter(const std::vector<core::PortraitSheet>& sheets,
+                                                            const ChapterDone& chapterDone);
 
 // 一格头像在图集里的像素矩形。face 认不出时取 normal（调用方负责警告）。
 [[nodiscard]] engine::RectF portraitFrameRect(const core::PortraitSheet& sheet, int faceSlot);
@@ -40,11 +51,13 @@ public:
     [[nodiscard]] std::string tablePath() const;   // <游戏根>/data/visual/portraits.json（不管在不在）
     [[nodiscard]] std::string imageDir() const;    // <游戏根>/assets/art/portraits
 
-    // 这一句要画的那一格：纹理、源矩形。说话人没登记、旁白（roleId 空）、图载不进来、格子越出了图 → nullopt。
+    // 这一句要画的那一格：纹理、源矩形。说话人没登记、这一章没有生效的那一条（portraitForChapter）、
+    // 旁白（roleId 空）、图载不进来、格子越出了图 → nullopt。chapterDone 同 portraitForChapter。
     // 表情认不出时退回 normal 并警告一次。headless（没有渲染器）时一律静默返回 nullopt、不读表也不警告：
     // 那时图本来就载不进来，不是图坏了。
     [[nodiscard]] std::optional<PortraitFrame> frameFor(engine::Engine& engine, bool headless,
-                                                        const std::string& roleId, const std::string& face);
+                                                        const std::string& roleId, const std::string& face,
+                                                        const ChapterDone& chapterDone);
 
     // 当前的表（第一次调时读盘）。给测试与诊断用。
     [[nodiscard]] const core::PortraitTable& table();
@@ -60,7 +73,7 @@ private:
 
 // ---- 摆位（纯函数，不开窗口可测）----
 // 头像放在对白框正文区的左侧，按「放得进 kPortraitSlotW × kPortraitSlotH 的最大整数倍」放大
-// （定稿头像原生约 56×64，取 ×2 = 112×128），像素美术不按小数倍缩放。正文往右让开头像宽 + kPortraitGap。
+// （定稿头像打包成 128×136 的格子，取 ×1），像素美术不按小数倍缩放。正文往右让开头像宽 + kPortraitGap。
 inline constexpr int kPortraitSlotW = 128;
 inline constexpr int kPortraitSlotH = 144;
 inline constexpr int kPortraitGap = 20;

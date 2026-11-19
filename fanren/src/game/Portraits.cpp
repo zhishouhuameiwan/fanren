@@ -56,6 +56,21 @@ int portraitFaceSlot(const std::string& face) {
     return -1;
 }
 
+bool portraitInEffect(const core::PortraitSheet& sheet, const ChapterDone& chapterDone) {
+    const auto done = [&chapterDone](int n) { return chapterDone && chapterDone(n); };
+    const bool beforeEnd = sheet.maxChapter <= 0 || !done(sheet.maxChapter);
+    const bool afterStart = sheet.minChapter <= 1 || done(sheet.minChapter - 1);
+    return beforeEnd && afterStart;
+}
+
+const core::PortraitSheet* portraitForChapter(const std::vector<core::PortraitSheet>& sheets,
+                                              const ChapterDone& chapterDone) {
+    for (const core::PortraitSheet& sheet : sheets) {
+        if (portraitInEffect(sheet, chapterDone)) return &sheet;
+    }
+    return nullptr;
+}
+
 engine::RectF portraitFrameRect(const core::PortraitSheet& sheet, int faceSlot) {
     const std::size_t slot = faceSlot >= 0 && static_cast<std::size_t>(faceSlot) < sheet.faces.size()
                                  ? static_cast<std::size_t>(faceSlot)
@@ -68,13 +83,15 @@ engine::RectF portraitFrameRect(const core::PortraitSheet& sheet, int faceSlot) 
 }
 
 std::optional<PortraitFrame> PortraitBook::frameFor(engine::Engine& engine, bool headless, const std::string& roleId,
-                                                    const std::string& face) {
+                                                    const std::string& face, const ChapterDone& chapterDone) {
     if (headless) return std::nullopt;         // 没有渲染器：图本来就载不进来，不当毛病报
     if (roleId.empty()) return std::nullopt;   // 旁白
     const core::PortraitTable& table = this->table();
     const auto it = table.find(roleId);
     if (it == table.end()) return std::nullopt;   // 没登记：照旧不带头像，不算毛病
-    const core::PortraitSheet& sheet = it->second;
+    const core::PortraitSheet* inEffect = portraitForChapter(it->second, chapterDone);
+    if (inEffect == nullptr) return std::nullopt;   // 登记了、但这一章不生效（韩立第 1–2 章）：同样不算毛病
+    const core::PortraitSheet& sheet = *inEffect;
 
     int slot = portraitFaceSlot(face);
     if (slot < 0) {

@@ -42,8 +42,9 @@ constexpr const char* kGoodEntry =
     R"({"file": "a.png", "frame_w": 56, "frame_h": 64, "cols": 4,
         "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}})";
 
+// 头像表里一个角色挂的是按章生效的列表（E 路改的形状，docs/art-sprites.md 5.3）：这里包成只有一条的列表。
 std::string tableWith(const std::string& entry) {
-    return std::string(R"({"_doc": "x", "portraits": {"nangong_wan": )") + entry + "}}";
+    return std::string(R"({"_doc": "x", "portraits": {"nangong_wan": [)") + entry + "]}}";
 }
 
 // ---------------------------------------------------------------------------
@@ -54,7 +55,8 @@ TEST(PortraitLoader, ReadsAnEntryWithItsFourFaces) {
     const auto table = fanren::io::parsePortraits(tableWith(kGoodEntry));
     ASSERT_TRUE(table.ok) << table.error;
     ASSERT_EQ(table.value.size(), 1u);
-    const auto& sheet = table.value.at("nangong_wan");
+    ASSERT_EQ(table.value.at("nangong_wan").size(), 1u);
+    const auto& sheet = table.value.at("nangong_wan").front();
     EXPECT_EQ(sheet.file, "a.png");
     EXPECT_EQ(sheet.frameW, 56);
     EXPECT_EQ(sheet.frameH, 64);
@@ -75,7 +77,7 @@ TEST(PortraitLoader, AMissingFaceRejectsTheWholeFile) {
     const auto table = fanren::io::parsePortraits(tableWith(
         R"({"file": "a.png", "frame_w": 56, "frame_h": 64, "cols": 4, "faces": {"normal": 0, "smile": 1, "angry": 2}})"));
     ASSERT_FALSE(table.ok);
-    EXPECT_NE(table.error.find("portraits.nangong_wan.faces"), std::string::npos) << table.error;
+    EXPECT_NE(table.error.find("portraits.nangong_wan[0].faces"), std::string::npos) << table.error;
     EXPECT_NE(table.error.find("hurt"), std::string::npos) << table.error;
 }
 
@@ -234,10 +236,10 @@ protected:
     // zhang_tie 的 normal 指第 9 格：4 列 1 行的图集只有 0–3 格，第 9 格在第 3 行，越出了图。
     static void useFixtureTable() {
         writeText(root_->path() / "data" / "visual" / "portraits.json",
-                  R"({"portraits": {"hanli": {"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
-                      "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}},
-                      "zhang_tie": {"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
-                      "faces": {"normal": 9, "smile": 1, "angry": 2, "hurt": 3}}}})");
+                  R"({"portraits": {"hanli": [{"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
+                      "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}}],
+                      "zhang_tie": [{"file": "fixture.png", "frame_w": 56, "frame_h": 64, "cols": 4,
+                      "faces": {"normal": 9, "smile": 1, "angry": 2, "hurt": 3}}]}})");
     }
     static void useEmptyTable() { writeText(root_->path() / "data" / "visual" / "portraits.json", R"({"portraits": {}})"); }
 
@@ -437,7 +439,9 @@ TEST_F(PortraitShot, TheTableAndTheImagesComeFromTheGameRootGivenToInit) {
     fanren::game::Application shipped;
     ASSERT_TRUE(shipped.init(repoRoot(), /*headless=*/false).ok);
     EXPECT_TRUE(fs::equivalent(shipped.portraits().tablePath(), fs::path(repoRoot()) / "data" / "visual" / "portraits.json"));
-    EXPECT_EQ(shipped.portraits().table().count("hanli"), 0u) << "仓库里那份现在是空表";
+    // 仓库里那份由 tools/artgen/hd_pack.py 打包（E 路）：韩立登记了（只在第 7 章生效），夹具里的张铁没有。
+    EXPECT_EQ(shipped.portraits().table().count("hanli"), 1u);
+    EXPECT_EQ(shipped.portraits().table().count("zhang_tie"), 0u);
     shipped.shutdown();
 }
 
