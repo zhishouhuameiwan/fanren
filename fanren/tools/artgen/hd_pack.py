@@ -118,6 +118,8 @@ ENEMIES = (
     Enemy("mo_jiao_tuipi", "boss_mojiao_white", "墨蛟（蜕皮）", "beast", match_size_of="boss_mojiao"),
     Enemy("bishui_e", "boss_bishuie", "碧水鳄", "beast"),
 )
+# 历练按境界分档：第 2、3 档是同一只妖兽换一档数值、另起一个角色 id，长相不变，借本体的图（与生成索引的 alias_of 同一个写法）。
+HD_ENEMY_ALIASES = {"bishui_e_t2": "bishui_e", "bishui_e_t3": "bishui_e"}
 ENEMY_ACTIONS = ("idle", "attack", "hurt", "down")
 # 世界层（明雷）×1、战斗层 ×2：战斗里人高约 64×2 = 128 像素，墨蛟待机约 92×2 = 184，明显比人大，又不顶出画面。
 # 世界层人是 ×2；这几张原生就有人的一倍多大，×1 已经占两三格。量的过程写在 docs/art-sprites.md 5.2。
@@ -346,6 +348,8 @@ def build(src: Path) -> tuple[dict[Path, bytes], list[str]]:
     hd_files: dict[str, bytes] = {}
     sheets = {p.sheet_id: person_sheet(src, p, hd_files) for p in PEOPLE}
     enemies = {e.enemy_id: build_enemy(src, e, hd_files) for e in ENEMIES}
+    for alias, target in sorted(HD_ENEMY_ALIASES.items()):
+        enemies[alias] = {**enemies[target], "alias_of": target}
     index = {
         "_doc": "手绘高清表（由 tools/artgen/hd_pack.py 生成，形状见 docs/art-sprites.md 5.2）。"
                 "file 相对本目录；files 里的 sha256 由门禁规则 40 核。",
