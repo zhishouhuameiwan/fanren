@@ -2068,7 +2068,7 @@ TEST_F(Ch06Acceptance, No6_TheLexiconTableCarriesTheTenWordsOfSectionTwelveOne) 
     ASSERT_GT(lexicon.size(), 1000u) << "先验：读得到 tests/LexiconTests.cpp";
     const std::vector<std::pair<const char*, int>> kWords = {
         {"岳麓殿", 153}, {"地火屋", 215}, {"血色试炼", 161}, {"血禁", 160}, {"南宫婉", 209},
-        {"李化元", 212}, {"青元剑诀", 213}, {"陈巧倩", 273}, {"大衍诀", 230}, {"妖丹", 344}};
+        {"李化元", 212}, {"青元剑诀", 213}, /* 陈巧倩 2026-11-19 撤出表一（第 7 章起用原名） */ {"大衍诀", 230}, {"妖丹", 344}};
     for (const auto& [word, chapter] : kWords) {
         const std::string row = std::string("{\"") + word + "\", " + std::to_string(chapter) + ",";
         EXPECT_NE(lexicon.find(row), std::string::npos)

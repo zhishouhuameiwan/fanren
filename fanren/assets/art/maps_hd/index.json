@@ -1,0 +1,136 @@
+{
+ "_doc": "手绘高清地图（tools/artgen/hd_maps.py 写出，勿手改）。cell：一格几像素；maps：每张图的源名与色数；aliases：历练图共用哪张主线图的底图；files：相对本目录的文件与 sha256。",
+ "aliases": {
+  "lilian_jindi_huanxingshan": "ch07_huanxingshan",
+  "lilian_jindi_shenchu": "ch07_zhaoze_shenchu",
+  "lilian_jindi_shiku": "ch07_dixia_shiku",
+  "lilian_jindi_waiwei": "ch07_jindi_waiwei",
+  "lilian_jindi_zhaoze": "ch07_dixia_zhaoze",
+  "lilian_jindi_zhongxin": "ch07_jindi_zhongxin"
+ },
+ "cell": 24,
+ "files": {
+  "ch06_baiyaoyuan/above.png": "8e80d0580cdb1d18026392eaa7b9f4deacfa043567b9ea311330d7d79770196c",
+  "ch06_baiyaoyuan/below.png": "afc2b82a2d43a7cec7710fd1fb736f8e3f6a25301daa78a39d9b9b526a54098e",
+  "ch07_dihuo/above.png": "175c8ca54b9eaa32eba0b168682a7142a07e0439749bd71ab5600d2f66003c46",
+  "ch07_dihuo/below.png": "da90814abe68d31ddceb2503ce10e71fb1a516f91114aacfda6278f6f459acfb",
+  "ch07_dixia_shiku/above.png": "2edbcb998deba82c1f4edb70ae88a3d29749fe19bbd3ea4185297b7e875ac780",
+  "ch07_dixia_shiku/below.png": "c7d19bc388113a88d7ff1cbaa47d3f28dc1fdaef6b48382c3105c8a0dbae3bbb",
+  "ch07_dixia_zhaoze/above.png": "2edbcb998deba82c1f4edb70ae88a3d29749fe19bbd3ea4185297b7e875ac780",
+  "ch07_dixia_zhaoze/below.png": "7c8c262f718ae6e33589c32c42c6bfd28b5f89aa253d4a283cf0526bdd857a91",
+  "ch07_fangshi/above.png": "b374498034b3032e27923d32fdc1d33f0a7fe92c886fbab477f7bcf36f90019e",
+  "ch07_fangshi/below.png": "93b4db33c7d20342619ef0ebfcd0ae821f4d36e36fe2604d2dfa4bcac5d1d521",
+  "ch07_huanxingshan/above.png": "c70a342176ccf906433c6bfbecbee7e511644185384b02ccc17cac42392ca068",
+  "ch07_huanxingshan/below.png": "4924ee91cb804454986b13694b3e8b9ef477f4fe8c40e7253f2672a241650bcc",
+  "ch07_jindi_wai/above.png": "a0aa5fd1fedb870d330ebed608f39834fdf3f6568c71ca02ae5a9327cd24f531",
+  "ch07_jindi_wai/below.png": "11a447adae4a6e84c9f09611aa8ee7589e693341260f2052cea61bbbfbaf1869",
+  "ch07_jindi_waiwei/above.png": "9338de9ae447ac31f79bee4ffbd13a23353c41de08897f6289020e854ba393a4",
+  "ch07_jindi_waiwei/below.png": "7f83b1f137cd0c6f90d91e3dde4c976f4f34ba24e169e627487913e370cc93ba",
+  "ch07_jindi_zhongxin/above.png": "e807bad5a17b08474007d7c9dedf9a323ecd8c30b446af982dd64fb36e9e8912",
+  "ch07_jindi_zhongxin/below.png": "a6ca8ab12fa5aac7b0432d6513131d6629c90f77d82e9c829c475fbd97de7be8",
+  "ch07_shandong/above.png": "2db71e73906a3ee579408796e7f69158c41716257fd0642d4109f25ef5488544",
+  "ch07_shandong/below.png": "c551097c3b38b2769f388ef469827a593c96d47d08a105de5033f5aed24fa478",
+  "ch07_yuelu_dian/above.png": "a0aa5fd1fedb870d330ebed608f39834fdf3f6568c71ca02ae5a9327cd24f531",
+  "ch07_yuelu_dian/below.png": "e4928016576e65206e18907112a697577b01369c39e630c024b90816c1d6b1a1",
+  "ch07_zhaoze_shenchu/above.png": "2e2eb59ee45443d36a6b872eea511f4107c0153a65917872a67d5e2a8ca4aa7b",
+  "ch07_zhaoze_shenchu/below.png": "fe8411d7538ec155e6f8a8c482456d0e3cd670261d6ad399c247d748a8310aaa",
+  "lilian_jindi_huanxingshan/above.png": "c70a342176ccf906433c6bfbecbee7e511644185384b02ccc17cac42392ca068",
+  "lilian_jindi_huanxingshan/below.png": "4924ee91cb804454986b13694b3e8b9ef477f4fe8c40e7253f2672a241650bcc",
+  "lilian_jindi_shenchu/above.png": "2e2eb59ee45443d36a6b872eea511f4107c0153a65917872a67d5e2a8ca4aa7b",
+  "lilian_jindi_shenchu/below.png": "fe8411d7538ec155e6f8a8c482456d0e3cd670261d6ad399c247d748a8310aaa",
+  "lilian_jindi_shiku/above.png": "2edbcb998deba82c1f4edb70ae88a3d29749fe19bbd3ea4185297b7e875ac780",
+  "lilian_jindi_shiku/below.png": "c7d19bc388113a88d7ff1cbaa47d3f28dc1fdaef6b48382c3105c8a0dbae3bbb",
+  "lilian_jindi_waiwei/above.png": "9338de9ae447ac31f79bee4ffbd13a23353c41de08897f6289020e854ba393a4",
+  "lilian_jindi_waiwei/below.png": "7f83b1f137cd0c6f90d91e3dde4c976f4f34ba24e169e627487913e370cc93ba",
+  "lilian_jindi_zhaoze/above.png": "2edbcb998deba82c1f4edb70ae88a3d29749fe19bbd3ea4185297b7e875ac780",
+  "lilian_jindi_zhaoze/below.png": "7c8c262f718ae6e33589c32c42c6bfd28b5f89aa253d4a283cf0526bdd857a91",
+  "lilian_jindi_zhongxin/above.png": "e807bad5a17b08474007d7c9dedf9a323ecd8c30b446af982dd64fb36e9e8912",
+  "lilian_jindi_zhongxin/below.png": "a6ca8ab12fa5aac7b0432d6513131d6629c90f77d82e9c829c475fbd97de7be8"
+ },
+ "maps": {
+  "ch06_baiyaoyuan": {
+   "above_from_bake": true,
+   "colors": 96,
+   "gain": 0.8,
+   "note": "百药园（第 6 章的图，第 6 章起就是新画面，用户 2026-11-19 定一起重做）。出图 1 次、改 1 次",
+   "src": "ch06_baiyaoyuan"
+  },
+  "ch07_dihuo": {
+   "above_from_bake": false,
+   "colors": 96,
+   "gain": 1.6,
+   "note": "地火屋。出图 4 次、改 1 次（补左上壁灯）",
+   "src": "ch07_dihuo"
+  },
+  "ch07_dixia_shiku": {
+   "above_from_bake": false,
+   "colors": 96,
+   "gain": 0.85,
+   "note": "地底石窟。出图 1 次、改 2 次；六支火把手工挪到 meta.json 的光源处",
+   "src": "ch07_dixia_shiku"
+  },
+  "ch07_dixia_zhaoze": {
+   "above_from_bake": false,
+   "colors": 96,
+   "gain": 1.42,
+   "note": "地下沼泽。Seedream 以烘焙图为底稿重画；改第二遍删掉可走地面上多出的石柱与灰斑；改第三遍照 meta.json 的六盏 torch 在岩壁、岩柱上画火把（灯光是 artgen 按旧图摆的，图上得有光源）。可走格平均亮度 40.8 → 旧图 58.2，gain 1.42（2026-11-19 样张）",
+   "src": "ch07_dixia_zhaoze"
+  },
+  "ch07_fangshi": {
+   "above_from_bake": true,
+   "colors": 96,
+   "gain": 0.86,
+   "note": "坊市。出图 1 次、改 1 次（删存档圆盘、小货摊、小牌子）；南门两侧挡路石墩没画出来",
+   "src": "ch07_fangshi"
+  },
+  "ch07_huanxingshan": {
+   "above_from_bake": true,
+   "colors": 96,
+   "gain": 1.04,
+   "note": "环形山。出图 1 次、改 4 次；小石殿手工上移 64 像素、上缘岩石退回第 0 行、右缘崖壁外移一列，接缝处做过模糊",
+   "src": "ch07_huanxingshan"
+  },
+  "ch07_jindi_wai": {
+   "above_from_bake": false,
+   "colors": 96,
+   "gain": 0.94,
+   "note": "禁地之外。出图 1 次；存档格小标记手工盖掉",
+   "src": "ch07_jindi_wai"
+  },
+  "ch07_jindi_waiwei": {
+   "above_from_bake": true,
+   "colors": 96,
+   "gain": 0.9,
+   "note": "禁地外围。出图 1 次、改 3 次（改白天、删灯笼、把压进第 1 行的崖面退回去）",
+   "src": "ch07_jindi_waiwei"
+  },
+  "ch07_jindi_zhongxin": {
+   "above_from_bake": true,
+   "colors": 96,
+   "gain": 0.82,
+   "note": "禁地中心区外。出图 1 次、改 1 次（删灯笼、神龛、灰石）",
+   "src": "ch07_jindi_zhongxin"
+  },
+  "ch07_shandong": {
+   "above_from_bake": true,
+   "colors": 96,
+   "gain": 1.6,
+   "note": "山洞（夜）。出图 1 次；存档格圆盘手工盖掉",
+   "src": "ch07_shandong"
+  },
+  "ch07_yuelu_dian": {
+   "above_from_bake": false,
+   "colors": 96,
+   "gain": 1.36,
+   "note": "岳麓殿。出图 1 次、改 1 次；右上偏室北墙手工上移 48 像素、补一块重复地砖，北墙仍压住第 1 行几格可走格",
+   "src": "ch07_yuelu_dian"
+  },
+  "ch07_zhaoze_shenchu": {
+   "above_from_bake": false,
+   "colors": 96,
+   "gain": 1.35,
+   "note": "沼泽深处（以地下沼泽为第三张参考图）。出图 1 次、改 2 次；三支火把手工补、一支挪位",
+   "src": "ch07_zhaoze_shenchu"
+  }
+ }
+}

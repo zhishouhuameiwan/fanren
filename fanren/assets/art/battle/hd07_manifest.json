@@ -1,0 +1,21 @@
+{
+ "_说明": "第 7 章手绘战斗背景（tools/artgen/hd_backdrops.py 写出，勿手改）：文件与 sha256。",
+ "files": {
+  "hd07_cave_tunnel/far.png": "14cb0e922e810dcd89450ec32c8d7fa68c63194f3e89a7d1ad85f369fe23b4dc",
+  "hd07_cave_tunnel/ground.png": "8608ac38bbe25d1a6d3bb17ae5ffda389517e5846db7051765f331c2b3925b73",
+  "hd07_cave_tunnel/mid.png": "14cb0e922e810dcd89450ec32c8d7fa68c63194f3e89a7d1ad85f369fe23b4dc",
+  "hd07_cave_tunnel/sky.png": "0ec3c69c3d763547d3a83a17141a7e851a17343c76e55e7d7848137fb6ce946a",
+  "hd07_cliff_top/far.png": "14cb0e922e810dcd89450ec32c8d7fa68c63194f3e89a7d1ad85f369fe23b4dc",
+  "hd07_cliff_top/ground.png": "daf3eeefe77fd6fbde61e09bf1a5bc94308b2391cb25507b57f9923c867bb808",
+  "hd07_cliff_top/mid.png": "14cb0e922e810dcd89450ec32c8d7fa68c63194f3e89a7d1ad85f369fe23b4dc",
+  "hd07_cliff_top/sky.png": "a566330d763429689dab8b58ca52e69027b7606d8680eabd7d250c976442eca1",
+  "hd07_mountain_forest/far.png": "14cb0e922e810dcd89450ec32c8d7fa68c63194f3e89a7d1ad85f369fe23b4dc",
+  "hd07_mountain_forest/ground.png": "df21e47841e462a81099e4c9428d7759d9bfde7742ec9f39aeb1f82da7b62b00",
+  "hd07_mountain_forest/mid.png": "14cb0e922e810dcd89450ec32c8d7fa68c63194f3e89a7d1ad85f369fe23b4dc",
+  "hd07_mountain_forest/sky.png": "86a3e8adfa4280ae07962b185d95ec59280aba620b1a7f25463be643702ab7c4",
+  "hd07_mountain_forest_dusk/far.png": "14cb0e922e810dcd89450ec32c8d7fa68c63194f3e89a7d1ad85f369fe23b4dc",
+  "hd07_mountain_forest_dusk/ground.png": "5f98e06825c43f7953527a1cf4c17ee36662c9a96f70521d8764d1dc658036c5",
+  "hd07_mountain_forest_dusk/mid.png": "14cb0e922e810dcd89450ec32c8d7fa68c63194f3e89a7d1ad85f369fe23b4dc",
+  "hd07_mountain_forest_dusk/sky.png": "bbef3e2d9925070b6c58a001d3015569b317b0ebdff5f4b939079dcce9a28d6a"
+ }
+}

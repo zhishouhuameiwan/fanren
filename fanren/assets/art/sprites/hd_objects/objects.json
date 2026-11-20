@@ -1,0 +1,242 @@
+{
+ "_说明": "手绘地图物件（tools/artgen/hd_objects.py 写出，勿手改）。只在高清地图上用、×2 画；写法同 sprites/index.json 的 objects / facilities，sheets 为空。files：文件与 sha256。",
+ "facilities": {
+  "alchemy": "facility.alchemy",
+  "board": "facility.board",
+  "field": "facility.field",
+  "lilian": "facility.lilian",
+  "meditate": "facility.meditate",
+  "save": "facility.save",
+  "shop": "facility.shop"
+ },
+ "files": {
+  "objects.png": "b25e24d1ac74b3611e3d87337d18d779e8a446817faec45bffd64dd66f1a1ae2"
+ },
+ "objects": {
+  "file": "objects.png",
+  "items": {
+   "chest_closed": {
+    "anchor": [
+     12,
+     19
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      2,
+      22,
+      24,
+      20
+     ]
+    ],
+    "name": "宝箱（关）"
+   },
+   "chest_open": {
+    "anchor": [
+     12,
+     21
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      28,
+      20,
+      24,
+      22
+     ]
+    ],
+    "name": "宝箱（开）"
+   },
+   "facility.alchemy": {
+    "anchor": [
+     16,
+     38
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      54,
+      3,
+      32,
+      39
+     ]
+    ],
+    "name": "丹炉"
+   },
+   "facility.board": {
+    "anchor": [
+     15,
+     35
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      246,
+      6,
+      30,
+      36
+     ]
+    ],
+    "name": "告示板"
+   },
+   "facility.field": {
+    "anchor": [
+     9,
+     27
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      88,
+      14,
+      19,
+      28
+     ]
+    ],
+    "name": "灵田木牌"
+   },
+   "facility.lilian": {
+    "anchor": [
+     20,
+     39
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      109,
+      2,
+      40,
+      40
+     ]
+    ],
+    "name": "历练入口"
+   },
+   "facility.meditate": {
+    "anchor": [
+     13,
+     14
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      151,
+      27,
+      26,
+      15
+     ]
+    ],
+    "name": "蒲团"
+   },
+   "facility.save": {
+    "anchor": [
+     12,
+     32
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      179,
+      9,
+      25,
+      33
+     ]
+    ],
+    "name": "香炉（存档）"
+   },
+   "facility.shop": {
+    "anchor": [
+     19,
+     39
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      206,
+      2,
+      38,
+      40
+     ]
+    ],
+    "name": "货摊"
+   },
+   "gate_closed": {
+    "anchor": [
+     17,
+     39
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      278,
+      2,
+      35,
+      40
+     ]
+    ],
+    "name": "机关（关）"
+   },
+   "gate_open": {
+    "anchor": [
+     20,
+     37
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      315,
+      4,
+      40,
+      38
+     ]
+    ],
+    "name": "机关（开）"
+   },
+   "gather_ready": {
+    "anchor": [
+     10,
+     19
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      357,
+      22,
+      21,
+      20
+     ]
+    ],
+    "name": "采集点（可采）"
+   },
+   "gather_spent": {
+    "anchor": [
+     11,
+     17
+    ],
+    "blend": "alpha",
+    "fps": 0.0,
+    "frames": [
+     [
+      380,
+      24,
+      22,
+      18
+     ]
+    ],
+    "name": "采集点（采过）"
+   }
+  }
+ },
+ "sheets": {}
+}

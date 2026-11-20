@@ -131,9 +131,12 @@ CarriedLight carriedLightFor(TimeOfDay time) {
 }
 
 bool bakedLayerUsable(engine::Point textureSize, int mapWidthCells, int mapHeightCells) {
-    constexpr int kArtCell = 16;   // 烘焙图一格 16 像素（施工图 1.1）
-    return textureSize.x > 0 && textureSize.y > 0 && textureSize.x == mapWidthCells * kArtCell &&
-           textureSize.y == mapHeightCells * kArtCell;
+    return bakedLayerUsable(textureSize, mapWidthCells, mapHeightCells, 16);   // 烘焙图一格 16 像素（施工图 1.1）
+}
+
+bool bakedLayerUsable(engine::Point textureSize, int mapWidthCells, int mapHeightCells, int artCell) {
+    return artCell > 0 && textureSize.x > 0 && textureSize.y > 0 && textureSize.x == mapWidthCells * artCell &&
+           textureSize.y == mapHeightCells * artCell;
 }
 
 float particleRate(engine::ParticleKind kind, float density, float areaScreens) {

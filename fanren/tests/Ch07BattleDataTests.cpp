@@ -183,7 +183,10 @@ TEST_F(Ch07BattleData, TheCompositionsAreTheOnesTableEightTwoDraws) {
         EXPECT_FALSE(setup->heroAbsent) << spec.mark << "：韩立在场";
         EXPECT_EQ(setup->reward.spiritStones, 0) << spec.mark << "：8.2 表下「结算卡」/ 第 9 节第 3 条，编成不掉灵石";
         EXPECT_TRUE(setup->reward.drops.empty()) << spec.mark << "：drops 空（东西全由脚本搜身给）";
-        EXPECT_EQ(app_.battleBackdrop(spec.id), spec.backdrop) << spec.mark << "：8.2 表下的战斗背景（走 Application 的真实入口）";
+        // 第 7 章美术重构（用户 2026-11-19 定战斗背景也用 Seedream 重做）：第 7 章的战斗改指手绘的 hd07_<原 id>，
+        // 场景种类仍照 8.2 表（tools/artgen/hd_backdrops.py；时辰、粒子照原 id）。
+        EXPECT_EQ(app_.battleBackdrop(spec.id), std::string("hd07_") + spec.backdrop)
+            << spec.mark << "：8.2 表下的战斗背景（走 Application 的真实入口）";
     }
     // 验收 4 原文单点：⑤ killable_by == ["土"]、友军恰一人；五张 can_escape false、defeat_is_fatal true。
     const RoleTemplate* mojiao = app_.data().findRole("mo_jiao_tuipi");   // ⑤ 打的是蜕皮之后那一条

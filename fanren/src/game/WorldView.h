@@ -49,6 +49,13 @@ class Application;
 inline constexpr int kArtTilePx = 16;
 inline constexpr int kArtScale = 3;
 inline constexpr int kWorldTilePx = kArtTilePx * kArtScale;
+// 手绘高清地图（第 7 章美术重构，2026-11-19）：Seedream 整张重画、24 像素一格、×2 画——屏幕上一格仍是 48，
+// 与手绘人物（×2）同一种像素颗粒。图在 art/maps_hd/<图 id>/，有就优先用，没有照旧用 16 像素的烘焙图。
+inline constexpr int kHdArtTilePx = 24;
+static_assert(kHdArtTilePx * 2 == kWorldTilePx, "高清地图 ×2 后一格要与旧图同大");
+// 手绘物件（宝箱、采集点、机关、设施，tools/artgen/hd_objects.py）：只在高清地图上用，×2 画，与地图同一种颗粒。
+// 表在 art/sprites/hd_objects/objects.json（与 index.json 的 objects / facilities 同一个写法），没登记的物件照旧用 ×3 的生成图。
+inline constexpr int kHdObjectScale = 2;
 
 // 两格之间滑一步的时长。与 WorldScene 的单步冷却（0.12 秒）同一个数：按住方向键时
 // 上一步刚滑到、下一步正好起步，走起来是连着的。
@@ -313,6 +320,8 @@ private:
         engine::TextureId below = engine::kInvalidTexture;
         engine::TextureId above = engine::kInvalidTexture;
         engine::Point aboveSize{};
+        int artCell = kArtTilePx;   // 这张图的烘焙图一格几像素：16（程序烘焙）或 kHdArtTilePx（手绘高清）
+        bool hd = false;            // 用的是 art/maps_hd/ 的手绘图（设施不再有烘进图里的，一律运行时画）
         MapVisual visual;
         std::vector<std::uint8_t> water;   // width × height，1 = 水面格
         std::vector<ParticleSlot> particles;
@@ -337,7 +346,9 @@ private:
     void ensureAtlas(Application& app);
     void ensureMap(Application& app, const core::TileMap& map);
     void releaseMap(engine::Engine& engine);
-    engine::TextureId loadBaked(engine::Engine& engine, const core::TileMap& map, const char* file);
+    // dir 下的 file：尺寸要恰好是「格数 × artCell」。quietIfMissing：找不到不提示（手绘图是可选的）。
+    engine::TextureId loadBaked(engine::Engine& engine, const core::TileMap& map, const std::string& dir,
+                                const char* file, int artCell, bool quietIfMissing);
     void setupParticles(const core::TileMap& map);
     // 人物表与敌人表的图（file 相对 art/sprites/），按文件缓存；载不进来警告一次、返回无效句柄。
     engine::TextureId sheetTexture(engine::Engine& engine, const std::string& file);
@@ -356,7 +367,9 @@ private:
     void drawWaterGlints(engine::Engine& engine, const core::TileMap& map, const Viewport& vp);
     void drawObjectSprite(engine::Engine& engine, engine::TextureId texture, const ObjectSprite& sprite,
                           float footX, float footY, float seconds, const engine::Color& tint,
-                          engine::BlendMode blend);
+                          engine::BlendMode blend, float scale = static_cast<float>(kArtScale));
+    // 高清地图上这个物件的手绘版（没有、或不在高清地图上返回 nullptr）。
+    [[nodiscard]] const ObjectSprite* hdObjectSprite(const std::string& id) const;
     void drawPortals(engine::Engine& engine, const core::TileMap& map, const WorldFrame& frame,
                      const Viewport& vp, bool emissivePass);
     void drawHotspots(engine::Engine& engine, const WorldFrame& frame, const Viewport& vp,
@@ -411,6 +424,8 @@ private:
     std::map<std::string, engine::TextureId> sheetTextures_;
     engine::TextureId objectsTexture_ = engine::kInvalidTexture;
     engine::TextureId emissiveTexture_ = engine::kInvalidTexture;
+    SpriteIndex hdObjects_;   // 手绘物件表（只用 objects / facilities 两样）
+    engine::TextureId hdObjectsTexture_ = engine::kInvalidTexture;
     engine::TextureId shadowTexture_ = engine::kInvalidTexture;
     engine::TextureId glowTexture_ = engine::kInvalidTexture;
     MapAssets assets_;

@@ -15,6 +15,22 @@
         "frame_w": 128
       }
     ],
+    "chen_dage": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "chen_dage.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
     "chen_shimei": [
       {
         "cols": 4,
@@ -27,6 +43,70 @@
         "file": "chen_shimei.png",
         "frame_h": 136,
         "frame_w": 128
+      }
+    ],
+    "chou_han": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "chou_han.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "feng_yue": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "feng_yue.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "fuyunzi": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "fuyunzi.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "han_yunzhi": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "han_yunzhi.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
       }
     ],
     "hanli": [
@@ -45,6 +125,102 @@
         "min_chapter": 7
       }
     ],
+    "huangshan_shijie": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "huangshan_shijie.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "jujianmen_gaoren": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "jujianmen_gaoren.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "li_huayuan": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "li_huayuan.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "lu_shixiong": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "lu_shixiong.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "luosai_huzi": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "luosai_huzi.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "ma_shibo": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "ma_shibo.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
     "nangong_wan_ch07": [
       {
         "cols": 4,
@@ -57,6 +233,134 @@
         "file": "nangong_wan_ch07.png",
         "frame_h": 136,
         "frame_w": 128
+      }
+    ],
+    "nichang_xianzi": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "nichang_xianzi.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "qiong_qianbei": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "qiong_qianbei.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "xiang_shaonian": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "xiang_shaonian.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "xiang_zhili": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "xiang_zhili.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "xu_lao": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "xu_lao.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "yan_wuchi": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "yan_wuchi.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "yan_xiongdi": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "yan_xiongdi.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "zhong_wu": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "zhong_wu.png",
+        "frame_h": 136,
+        "frame_w": 128,
+        "max_chapter": 7,
+        "min_chapter": 7
       }
     ]
   }

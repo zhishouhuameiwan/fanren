@@ -37,7 +37,9 @@ ROOT = _HERE.parents[1]
 ART = ROOT / "assets" / "art"
 # 不归这些生成器的目录：sprites/hd/ 是手绘高清表，由 tools/artgen/hd_pack.py 打包、门禁规则 40 核 sha256
 # （docs/art-sprites.md 5.2）。--check 扫「生成器已不产出的多余文件」时跳过它，否则每张手绘图都算「多」。
-HAND_PACKED = ("sprites/hd/",)
+# 第 7 章美术重构（2026-11-19）又加三处：sprites/hd_objects/（hd_objects.py）、battle/hd07_*（hd_backdrops.py），
+# 各自的 --check 核 sha256；art/maps_hd/ 不在任何生成器的目录里，本来就扫不到。
+HAND_PACKED = ("sprites/hd/", "sprites/hd_objects/", "battle/hd07_")
 
 # 名字 → (模块, 它负责的 assets/art 下的目录, 是本路自己的（带 fast/only 参数）)
 BUILDERS = {

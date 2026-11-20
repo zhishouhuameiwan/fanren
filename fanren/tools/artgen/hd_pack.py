@@ -69,7 +69,7 @@ class Person:
     src_dir: str           # 定稿目录下的子目录
     prefix: str            # 源图文件名前缀
     name: str
-    busts: tuple[int, ...]  # 用到的头像源图编号（<prefix>_bust_<n>.png），次序即头像表里的格子
+    busts: tuple[int, ...]  # 用到的头像源图编号（<prefix>_bust_<n>.png），次序即头像表里的格子；路人为空（不出头像）
     faces: tuple[int, int, int, int]   # normal / smile / angry / hurt 各指第几格
 
 
@@ -81,19 +81,57 @@ PEOPLE = (
     # 露脸前期：bust_0..3 是前期的四个表情（后面 4..8 是面纱与后期，这次不用）
     Person("nangong_wan_ch07_hd", "nangong_wan_ch07", "nangong-final", "nangong",
            "南宫婉·露脸前期（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
-    Person("chen_shimei_hd", "chen_shimei", "chen-final", "chen", "陈师妹（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("chen_shimei_hd", "chen_shimei", "chen-final", "chen", "陈巧倩（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    # 第 7 章美术重构（2026-11-19）：路人与门派弟子只出走路表和战斗表，不出头像。原稿由 hd_frames.py 还原成真像素。
+    Person("lingshoushan_dizi_hd", "lingshoushan_dizi", "passers-final", "lingshoushan_dizi", "灵兽山弟子（手绘）",
+           (), (0, 0, 0, 0)),
+    # 第 7 章美术重构批量（2026-11-19/20）：具名角色带四张头像，路人与门派弟子不带。原稿由 hd_frames.py 还原。
+    Person("li_huayuan_hd", "li_huayuan", "named-final", "li_huayuan", "李师祖（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("ma_shibo_hd", "ma_shibo", "named-final", "ma_shibo", "马师伯（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("xiang_zhili_hd", "xiang_zhili", "named-final", "xiang_zhili", "向之礼（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("xu_lao_hd", "xu_lao", "named-final", "xu_lao", "许老（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("chou_han_hd", "chou_han", "named-final", "chou_han", "丑汉（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("han_yunzhi_hd", "han_yunzhi", "named-final", "han_yunzhi", "菡云芝（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("zhong_wu_hd", "zhong_wu", "named-final", "zhong_wu", "钟吾（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("fuyunzi_hd", "fuyunzi", "named-final", "fuyunzi", "浮云子（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("nichang_xianzi_hd", "nichang_xianzi", "named-final", "nichang_xianzi", "霓裳仙子（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("qiong_qianbei_hd", "qiong_qianbei", "named-final", "qiong_qianbei", "穹前辈（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("feng_yue_hd", "feng_yue", "named-final", "feng_yue", "封岳（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("lu_shixiong_hd", "lu_shixiong", "named-final", "lu_shixiong", "陆师兄（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("luosai_huzi_hd", "luosai_huzi", "named-final", "luosai_huzi", "络腮胡子（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("yan_wuchi_hd", "yan_wuchi", "named-final", "yan_wuchi", "赤脚大汉（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("yan_xiongdi_hd", "yan_xiongdi", "named-final", "yan_xiongdi", "严姓修士（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("chen_dage_hd", "chen_dage", "named-final", "chen_dage", "陈师兄（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("huangshan_shijie_hd", "huangshan_shijie", "named-final", "huangshan_shijie", "黄衫师姐（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("xiang_shaonian_hd", "xiang_shaonian", "named-final", "xiang_shaonian", "黄毛少年（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("jujianmen_gaoren_hd", "jujianmen_gaoren", "named-final", "jujianmen_gaoren", "巨剑门高人（手绘）", (0, 1, 2, 3), (0, 1, 2, 3)),
+    Person("fangshi_tanzhu_hd", "fangshi_tanzhu", "passers-final", "fangshi_tanzhu", "收药摊主（手绘）", (), (0, 0, 0, 0)),
+    Person("fangshi_zhishi_hd", "fangshi_zhishi", "passers-final", "fangshi_zhishi", "执事弟子（手绘）", (), (0, 0, 0, 0)),
+    Person("huadaowu_dizi_hd", "huadaowu_dizi", "passers-final", "huadaowu_dizi", "化刀坞弟子（手绘）", (), (0, 0, 0, 0)),
+    Person("huangfeng_shilian_hd", "huangfeng_shilian", "passers-final", "huangfeng_shilian", "黄衫弟子（手绘）", (), (0, 0, 0, 0)),
+    Person("jujianmen_dizi_hd", "jujianmen_dizi", "passers-final", "jujianmen_dizi", "巨剑门弟子（手绘）", (), (0, 0, 0, 0)),
+    Person("qingxumen_daoshi_hd", "qingxumen_daoshi", "passers-final", "qingxumen_daoshi", "清虚门道士（手绘）", (), (0, 0, 0, 0)),
+    Person("tianquebao_dizi_hd", "tianquebao_dizi", "passers-final", "tianquebao_dizi", "天阙堡弟子（手绘）", (), (0, 0, 0, 0)),
+    Person("wanbaolou_shicong_hd", "wanbaolou_shicong", "passers-final", "wanbaolou_shicong", "万宝楼伙计（手绘）", (), (0, 0, 0, 0)),
+    Person("yanyue_dizi_hd", "yanyue_dizi", "passers-final", "yanyue_dizi", "掩月宗弟子（手绘）", (), (0, 0, 0, 0)),
+    Person("yuanwu_xiushi_hd", "yuanwu_xiushi", "passers-final", "yuanwu_xiushi", "元武国修士（手绘）", (), (0, 0, 0, 0)),
 )
+# 批量这一批都只在第 7 章生效（李师祖、马师伯、陆师兄第 6 章也在，钟吾第 8 章也在）：挂 role_variants，别的章节落回生成的表。
+CH07_ONLY = tuple(p.stem for p in PEOPLE if p.src_dir in ("named-final",) or
+                  (p.src_dir == "passers-final" and p.stem != "lingshoushan_dizi"))
 
 # 角色 → 手绘表。这三个角色只在第 7 章出场，直接接管。
 ROLES = {
     "baiyi_shaonv": "nangong_wan_veil_hd",
     "nangong_wan_ch07": "nangong_wan_ch07_hd",
     "chen_shimei": "chen_shimei_hd",
+    "lingshoushan_dizi": "lingshoushan_dizi_hd",   # 只在第 7 章禁地外出场
 }
 # 韩立每一章都在，只在第 7 章换手绘：第 1–2 章仍是生成的少年相，其余章节落回生成索引的 roles（hanli）。
 ROLE_VARIANTS = {
     "hanli": [{"look": "hanli_child", "max_chapter": 2},
               {"look": "hanli_hd", "min_chapter": 7, "max_chapter": 7}],
+    **{stem: [{"look": f"{stem}_hd", "min_chapter": 7, "max_chapter": 7}] for stem in CH07_ONLY},
 }
 # 头像：角色 id → (头像图的 stem, min_chapter, max_chapter)，0 = 这一端不限。
 PORTRAITS = {
@@ -101,6 +139,26 @@ PORTRAITS = {
     "baiyi_shaonv": ("nangong_wan_veil", 0, 0),
     "nangong_wan_ch07": ("nangong_wan_ch07", 0, 0),
     "chen_shimei": ("chen_shimei", 0, 0),
+    # 批量的具名角色：头像同样只在第 7 章
+    "li_huayuan": ("li_huayuan", 7, 7),
+    "ma_shibo": ("ma_shibo", 7, 7),
+    "xiang_zhili": ("xiang_zhili", 7, 7),
+    "xu_lao": ("xu_lao", 7, 7),
+    "chou_han": ("chou_han", 7, 7),
+    "han_yunzhi": ("han_yunzhi", 7, 7),
+    "zhong_wu": ("zhong_wu", 7, 7),
+    "fuyunzi": ("fuyunzi", 7, 7),
+    "nichang_xianzi": ("nichang_xianzi", 7, 7),
+    "qiong_qianbei": ("qiong_qianbei", 7, 7),
+    "feng_yue": ("feng_yue", 7, 7),
+    "lu_shixiong": ("lu_shixiong", 7, 7),
+    "luosai_huzi": ("luosai_huzi", 7, 7),
+    "yan_wuchi": ("yan_wuchi", 7, 7),
+    "yan_xiongdi": ("yan_xiongdi", 7, 7),
+    "chen_dage": ("chen_dage", 7, 7),
+    "huangshan_shijie": ("huangshan_shijie", 7, 7),
+    "xiang_shaonian": ("xiang_shaonian", 7, 7),
+    "jujianmen_gaoren": ("jujianmen_gaoren", 7, 7),
 }
 
 
@@ -111,15 +169,31 @@ class Enemy:
     name: str
     kind: str
     match_size_of: str = ""   # 非空：整体缩到与这一只的待机帧一样大（同一条蛟，白的那套像素网格测得不同）
+    scale: int = 1            # 世界层倍数（缺省 ENEMY_SCALE）
+    battle_scale: int = 2     # 战斗层倍数（缺省 ENEMY_BATTLE_SCALE）
 
 
 ENEMIES = (
     Enemy("mo_jiao", "boss_mojiao", "墨蛟", "beast"),
     Enemy("mo_jiao_tuipi", "boss_mojiao_white", "墨蛟（蜕皮）", "beast", match_size_of="boss_mojiao"),
     Enemy("bishui_e", "boss_bishuie", "碧水鳄", "beast"),
+    # 第 7 章美术重构（2026-11-19）：普通妖兽与人同一种像素颗粒——世界层、战斗层都 ×2，原生约 48 宽（hd_frames.py 定）。
+    Enemy("hanbing_chan", "beast_hanbing_chan", "寒冰蟾", "beast", scale=2, battle_scale=2),
+    # 其余八种（都只在第 7 章出场；2026-11-20）
+    Enemy("cai_e", "beast_cai_e", "彩蛾", "beast", scale=2, battle_scale=2),
+    Enemy("chuanshan_shou", "beast_chuanshan_shou", "穿山甲兽", "beast", scale=2, battle_scale=2),
+    Enemy("fei_she", "beast_fei_she", "飞蛇", "beast", scale=2, battle_scale=2),
+    Enemy("huoyan_shu", "beast_huoyan_shu", "火焰鼠", "beast", scale=2, battle_scale=2),
+    Enemy("tiebi_yuan", "beast_tiebi_yuan", "铁臂猿", "beast", scale=2, battle_scale=2),
+    Enemy("tuishan_shou", "beast_tuishan_shou", "推山兽", "beast", scale=2, battle_scale=2),
+    Enemy("zichi_bishe", "beast_zichi_bishe", "紫翅碧蛇", "beast", scale=2, battle_scale=2),
+    Enemy("jinzhi_yanceng", "beast_jinzhi_yanceng", "封禁岩层", "beast", scale=2, battle_scale=2),
 )
 # 历练按境界分档：第 2、3 档是同一只妖兽换一档数值、另起一个角色 id，长相不变，借本体的图（与生成索引的 alias_of 同一个写法）。
-HD_ENEMY_ALIASES = {"bishui_e_t2": "bishui_e", "bishui_e_t3": "bishui_e"}
+HD_ENEMY_ALIASES = {"bishui_e_t2": "bishui_e", "bishui_e_t3": "bishui_e",
+                    "hanbing_chan_t2": "hanbing_chan", "hanbing_chan_t3": "hanbing_chan",
+                    "fei_she_t2": "fei_she", "fei_she_t3": "fei_she",
+                    "huoyan_shu_t2": "huoyan_shu", "huoyan_shu_t3": "huoyan_shu"}
 ENEMY_ACTIONS = ("idle", "attack", "hurt", "down")
 # 世界层（明雷）×1、战斗层 ×2：战斗里人高约 64×2 = 128 像素，墨蛟待机约 92×2 = 184，明显比人大，又不顶出画面。
 # 世界层人是 ×2；这几张原生就有人的一倍多大，×1 已经占两三格。量的过程写在 docs/art-sprites.md 5.2。
@@ -222,10 +296,11 @@ def place_bust(bust: Image.Image, cell: tuple[int, int]) -> tuple[Image.Image, i
 
 def build_portraits(src: Path, out_files: dict[str, bytes], notes: list[str]) -> dict:
     busts: dict[str, list[Image.Image]] = {}
-    for person in PEOPLE:
+    with_busts = [person for person in PEOPLE if person.busts]
+    for person in with_busts:
         busts[person.stem] = [load_rgba(src / person.src_dir / f"{person.prefix}_bust_{n}.png") for n in person.busts]
     cell = portrait_cell_size([b for group in busts.values() for b in group])
-    for person in PEOPLE:
+    for person in with_busts:
         group = busts[person.stem]
         sheet = Image.new("RGBA", (cell[0] * len(group), cell[1]), (0, 0, 0, 0))
         for i, bust in enumerate(group):
@@ -334,7 +409,7 @@ def build_enemy(src: Path, enemy: Enemy, out: dict[str, bytes]) -> dict:
         "frame_w": fw, "frame_h": fh, "cols": len(acts),
         "battle": {a: [i] for i, a in enumerate(ENEMY_ACTIONS)}, "battle_facing": "right",
         "foot_y": fh - ENEMY_MARGIN - 1, "head_y": ENEMY_MARGIN + min(tall - a.height for a in acts),
-        "scale": ENEMY_SCALE, "battle_scale": ENEMY_BATTLE_SCALE,
+        "scale": enemy.scale, "battle_scale": enemy.battle_scale,
     }
 
 

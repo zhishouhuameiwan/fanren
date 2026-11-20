@@ -304,6 +304,8 @@ BackdropLook backdropLook(const std::string& backdrop) {
         const std::string s(suffix);
         return backdrop.size() >= s.size() && backdrop.compare(backdrop.size() - s.size(), s.size(), s) == 0;
     };
+    // 第 7 章的手绘背景（tools/artgen/hd_backdrops.py）：hd07_<原 id>，时辰、粒子、雾照原 id。
+    if (backdrop.rfind("hd07_", 0) == 0) return backdropLook(backdrop.substr(5));
     if (backdrop == "soulsea") return {TimeOfDay::Night, true, ParticleKind::Dust, 26.f, true};
     if (backdrop == "cave_tunnel") return {TimeOfDay::Indoor, false, ParticleKind::Ember, 5.f, true};
     if (backdrop == "inn_hall" || backdrop == "secret_room") {

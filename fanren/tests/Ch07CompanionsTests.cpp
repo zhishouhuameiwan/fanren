@@ -559,9 +559,9 @@ TEST_F(Ch07CompanionsLilian, No6_ATripThroughTheOldForbiddenGround) {
 
     // 带南宫婉：开得了残禁、开不了幻阵（样板施工图第 7 节「带对的人才开得了」）。
     EXPECT_FALSE(tryGate("lilian_jindi_waiwei", Point{38, 13}, kUp, "lilian_jindi_waiwei.gate_huanzhen"))
-        << "幻阵要陈师妹";
+        << "幻阵要陈巧倩";
     std::string need = app_.data().lookupText("ui.world.gate.need");
-    need.replace(need.find("{name}"), 6, "陈师妹");
+    need.replace(need.find("{name}"), 6, "陈巧倩");
     EXPECT_EQ(lastLine(), need) << "名册里已有会这手的人：提示「这里要某某来」（契约 3.6）";
     EXPECT_TRUE(tryGate("lilian_jindi_shiku", Point{27, 21}, 1, "lilian_jindi_shiku.gate_canjin")) << "残禁她开得了";
     // 残禁后面那个宝箱：开了（这一趟的账）。

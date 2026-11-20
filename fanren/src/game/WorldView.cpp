@@ -20,7 +20,6 @@ using engine::RectF;
 using engine::Vertex;
 
 constexpr float kCell = static_cast<float>(kWorldTilePx);
-constexpr float kArtCell = static_cast<float>(kArtTilePx);
 constexpr float kPixel = static_cast<float>(kArtScale);
 constexpr float kViewW = static_cast<float>(engine::kLogicalWidth);
 constexpr float kViewH = static_cast<float>(engine::kLogicalHeight);
@@ -597,6 +596,20 @@ void WorldView::ensureAtlas(Application& app) {
                 engine.loadTexture("art/sprites/" + atlas_.emissiveFile, engine::ScaleMode::Pixel);
         }
     }
+    // 手绘物件表（可选）：缺了就是没有，不提示；有却读不了要提示。
+    if (const std::vector<std::string> hd = engine.findAssets("art/sprites/hd_objects", "objects.json"); !hd.empty()) {
+        if (auto loaded = io::loadSpriteIndex(hd.front()); loaded && !loaded.value.objectsFile.empty()) {
+            hdObjects_ = std::move(loaded.value);
+            hdObjectsTexture_ =
+                engine.loadTexture("art/sprites/hd_objects/" + hdObjects_.objectsFile, engine::ScaleMode::Pixel);
+            if (hdObjectsTexture_ == engine::kInvalidTexture) {
+                warnOnce("hd_objects", "手绘物件图集载不进来：高清地图上的物件退回生成的图");
+            }
+        } else {
+            warnOnce("hd_objects", (loaded ? std::string("手绘物件表没有 objects.file") : loaded.error) +
+                                       "：高清地图上的物件退回生成的图");
+        }
+    }
     // 柔影与光晕是柔图，按线性取样放大；缺了各有退路（几何椭圆 / 不画光晕）。
     shadowTexture_ = engine.loadTexture("art/fx/shadow.png", engine::ScaleMode::Linear);
     glowTexture_ = engine.loadTexture("art/fx/glow.png", engine::ScaleMode::Linear);
@@ -612,30 +625,37 @@ engine::TextureId WorldView::sheetTexture(engine::Engine& engine, const std::str
     return id;
 }
 
+const ObjectSprite* WorldView::hdObjectSprite(const std::string& id) const {
+    if (!assets_.hd || hdObjectsTexture_ == engine::kInvalidTexture) return nullptr;
+    const auto it = hdObjects_.objects.find(id);
+    return it == hdObjects_.objects.end() ? nullptr : &it->second;
+}
+
 const ObjectSprite* WorldView::objectSprite(const std::string& id) const {
     if (objectsTexture_ == engine::kInvalidTexture) return nullptr;
     const auto it = atlas_.objects.find(id);
     return it == atlas_.objects.end() ? nullptr : &it->second;
 }
 
-engine::TextureId WorldView::loadBaked(engine::Engine& engine, const core::TileMap& map,
-                                       const char* file) {
-    const std::string dir = "art/maps/" + map.id;
+engine::TextureId WorldView::loadBaked(engine::Engine& engine, const core::TileMap& map, const std::string& dir,
+                                       const char* file, int artCell, bool quietIfMissing) {
     const std::vector<std::string> found = engine.findAssets(dir, file);
     if (found.empty()) {
-        warnOnce(dir + "/" + file, map.id + " 没有烘焙图 " + dir + "/" + file + "：这一层退回旧图元画法");
+        if (!quietIfMissing) {
+            warnOnce(dir + "/" + file, map.id + " 没有烘焙图 " + dir + "/" + file + "：这一层退回旧图元画法");
+        }
         return engine::kInvalidTexture;
     }
     const engine::TextureId id = engine.loadTexture(found.front(), engine::ScaleMode::Pixel);
     const engine::Point size = engine.textureSize(id);
-    if (bakedLayerUsable(size, map.width, map.height)) return id;
+    if (bakedLayerUsable(size, map.width, map.height, artCell)) return id;
     if (id == engine::kInvalidTexture) {
         warnOnce(dir + "/" + file, found.front() + " 载不进来：这一层退回旧图元画法");
     } else {
         warnOnce(dir + "/" + file,
                  found.front() + " 的尺寸 " + std::to_string(size.x) + "×" + std::to_string(size.y) +
                      " 与地图 " + std::to_string(map.width) + "×" + std::to_string(map.height) +
-                     " 格（应为 ×16 像素）对不上，烘焙与地图脱节了：这一层退回旧图元画法");
+                     " 格（应为 ×" + std::to_string(artCell) + " 像素）对不上，烘焙与地图脱节了：这一层退回旧图元画法");
         engine.destroyTexture(id);
     }
     return engine::kInvalidTexture;
@@ -656,8 +676,18 @@ void WorldView::ensureMap(Application& app, const core::TileMap& map) {
     assets_ = MapAssets{};
     assets_.mapId = map.id;
     assets_.loaded = true;
-    assets_.below = loadBaked(engine, map, "below.png");
-    assets_.above = loadBaked(engine, map, "above.png");
+    // 手绘高清地图优先（tools/artgen/hd_maps.py）：下层在就用这一套，上层照样从同一目录取。
+    const std::string hdDir = "art/maps_hd/" + map.id;
+    assets_.below = loadBaked(engine, map, hdDir, "below.png", kHdArtTilePx, true);
+    if (assets_.below != engine::kInvalidTexture) {
+        assets_.hd = true;
+        assets_.artCell = kHdArtTilePx;
+        assets_.above = loadBaked(engine, map, hdDir, "above.png", kHdArtTilePx, false);
+    } else {
+        const std::string bakedDir = "art/maps/" + map.id;
+        assets_.below = loadBaked(engine, map, bakedDir, "below.png", kArtTilePx, false);
+        assets_.above = loadBaked(engine, map, bakedDir, "above.png", kArtTilePx, false);
+    }
     assets_.aboveSize = engine.textureSize(assets_.above);
 
     const std::string dir = "art/maps/" + map.id;
@@ -830,8 +860,8 @@ void WorldView::drawBaked(engine::Engine& engine, engine::TextureId texture, con
                           int cy0, int cx1, int cy1) {
     if (cx1 <= cx0 || cy1 <= cy0) return;
     // 按整格取源矩形：源坐标永远落在美术像素的整数上，镜头的零头全在目标矩形那一边。
-    const RectF src{fl(cx0) * kArtCell, fl(cy0) * kArtCell, fl(cx1 - cx0) * kArtCell,
-                    fl(cy1 - cy0) * kArtCell};
+    const float artCell = fl(assets_.artCell);
+    const RectF src{fl(cx0) * artCell, fl(cy0) * artCell, fl(cx1 - cx0) * artCell, fl(cy1 - cy0) * artCell};
     const RectF dst{fl(cx0) * kCell - vp.camX, fl(cy0) * kCell - vp.camY, fl(cx1 - cx0) * kCell,
                     fl(cy1 - cy0) * kCell};
     engine.drawTexture(texture, src, dst, engine::DrawOptions{});
@@ -909,8 +939,8 @@ void WorldView::drawAbove(engine::Engine& engine, const core::TileMap& map, cons
             const float dy = fl(j) - c.y;
             const float alpha = canopyAlpha(std::sqrt(dx * dx + dy * dy));
             geometry_.vertex(Vertex{fl(i) * kCell - vp.camX, fl(j) * kCell - vp.camY,
-                                    withAlpha(kWhite, alpha), fl(i) * kArtCell * invW,
-                                    fl(j) * kArtCell * invH});
+                                    withAlpha(kWhite, alpha), fl(i) * fl(assets_.artCell) * invW,
+                                    fl(j) * fl(assets_.artCell) * invH});
         }
     }
     for (int j = 0; j < wy1 - wy0; ++j) {
@@ -955,10 +985,10 @@ void WorldView::drawWaterGlints(engine::Engine& engine, const core::TileMap& map
 
 void WorldView::drawObjectSprite(engine::Engine& engine, engine::TextureId texture,
                                  const ObjectSprite& sprite, float footX, float footY, float seconds,
-                                 const Color& tint, BlendMode blend) {
+                                 const Color& tint, BlendMode blend, float scale) {
     const RectF src = objectFrameRect(sprite, objectFrame(sprite, seconds));
-    const RectF dst{snap(footX - sprite.anchorX * kPixel), snap(footY - sprite.anchorY * kPixel),
-                    src.w * kPixel, src.h * kPixel};
+    const RectF dst{snap(footX - sprite.anchorX * scale), snap(footY - sprite.anchorY * scale), src.w * scale,
+                    src.h * scale};
     engine::DrawOptions options;
     options.tint = tint;
     options.blend = blend;
@@ -1111,7 +1141,8 @@ void WorldView::drawCharacter(engine::Engine& engine, const std::string& roleId,
 
 void WorldView::drawFacility(engine::Engine& engine, const WorldFrame::Facility& facility,
                              const Viewport& vp, bool emissivePass) {
-    if (!facilitySpriteAtRuntime(facility.kind, assets_.below != engine::kInvalidTexture)) return;
+    // 手绘高清地图里没有烘进去的设施（告示牌、打坐蒲团都没画），一律运行时画。
+    if (!facilitySpriteAtRuntime(facility.kind, assets_.below != engine::kInvalidTexture && !assets_.hd)) return;
     const core::MapObject& object = *facility.object;
     const int w = std::max(1, object.width);
     const int h = std::max(1, object.height);
@@ -1120,6 +1151,16 @@ void WorldView::drawFacility(engine::Engine& engine, const WorldFrame::Facility&
     // 精灵可能比对象矩形高出一两格（丹炉、告示板），裁剪留足余量。
     if (footX < -kCell * 2.f || footX > kViewW + kCell * 2.f || footY < -kCell || footY > kViewH + kCell * 3.f) return;
 
+    // 高清地图：有手绘版就用手绘版（没有发光图，辉光通道跳过）。
+    if (const auto it = hdObjects_.facilities.find(facility.kind); it != hdObjects_.facilities.end()) {
+        if (const ObjectSprite* hd = hdObjectSprite(it->second)) {
+            if (!emissivePass) {
+                drawObjectSprite(engine, hdObjectsTexture_, *hd, footX, footY, clock_, kWhite,
+                                 hd->additive ? BlendMode::Add : BlendMode::Alpha, static_cast<float>(kHdObjectScale));
+            }
+            return;
+        }
+    }
     const ObjectSprite* sprite = nullptr;
     if (const auto it = atlas_.facilities.find(facility.kind); it != atlas_.facilities.end()) {
         sprite = objectSprite(it->second);
@@ -1222,6 +1263,11 @@ void WorldView::drawProp(engine::Engine& engine, const core::MapObject& object, 
     const float footX = (fl(object.position.x) + fl(w) / 2.f) * kCell - vp.camX;
     const float footY = fl(object.position.y + h) * kCell - vp.camY;
     if (footX < -kCell * 2.f || footX > kViewW + kCell * 2.f || footY < -kCell || footY > kViewH + kCell * 3.f) return;
+    if (const ObjectSprite* hd = hdObjectSprite(spriteId)) {
+        drawObjectSprite(engine, hdObjectsTexture_, *hd, footX, footY, clock_, kWhite,
+                         hd->additive ? BlendMode::Add : BlendMode::Alpha, static_cast<float>(kHdObjectScale));
+        return;
+    }
     if (const ObjectSprite* sprite = objectSprite(spriteId)) {
         drawObjectSprite(engine, objectsTexture_, *sprite, footX, footY, clock_, kWhite,
                          sprite->additive ? BlendMode::Add : BlendMode::Alpha);

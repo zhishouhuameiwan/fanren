@@ -84,6 +84,336 @@
       "name": "碧水鳄",
       "scale": 1
     },
+    "cai_e": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "cai_e.png",
+      "foot_y": 34,
+      "frame_h": 37,
+      "frame_w": 54,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "彩蛾",
+      "scale": 2
+    },
+    "chuanshan_shou": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "chuanshan_shou.png",
+      "foot_y": 32,
+      "frame_h": 35,
+      "frame_w": 57,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "穿山甲兽",
+      "scale": 2
+    },
+    "fei_she": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "fei_she.png",
+      "foot_y": 35,
+      "frame_h": 38,
+      "frame_w": 68,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "飞蛇",
+      "scale": 2
+    },
+    "fei_she_t2": {
+      "alias_of": "fei_she",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "fei_she.png",
+      "foot_y": 35,
+      "frame_h": 38,
+      "frame_w": 68,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "飞蛇",
+      "scale": 2
+    },
+    "fei_she_t3": {
+      "alias_of": "fei_she",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "fei_she.png",
+      "foot_y": 35,
+      "frame_h": 38,
+      "frame_w": 68,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "飞蛇",
+      "scale": 2
+    },
+    "hanbing_chan": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "hanbing_chan.png",
+      "foot_y": 31,
+      "frame_h": 34,
+      "frame_w": 59,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "寒冰蟾",
+      "scale": 2
+    },
+    "hanbing_chan_t2": {
+      "alias_of": "hanbing_chan",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "hanbing_chan.png",
+      "foot_y": 31,
+      "frame_h": 34,
+      "frame_w": 59,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "寒冰蟾",
+      "scale": 2
+    },
+    "hanbing_chan_t3": {
+      "alias_of": "hanbing_chan",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "hanbing_chan.png",
+      "foot_y": 31,
+      "frame_h": 34,
+      "frame_w": 59,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "寒冰蟾",
+      "scale": 2
+    },
+    "huoyan_shu": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "huoyan_shu.png",
+      "foot_y": 21,
+      "frame_h": 24,
+      "frame_w": 48,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "火焰鼠",
+      "scale": 2
+    },
+    "huoyan_shu_t2": {
+      "alias_of": "huoyan_shu",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "huoyan_shu.png",
+      "foot_y": 21,
+      "frame_h": 24,
+      "frame_w": 48,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "火焰鼠",
+      "scale": 2
+    },
+    "huoyan_shu_t3": {
+      "alias_of": "huoyan_shu",
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "huoyan_shu.png",
+      "foot_y": 21,
+      "frame_h": 24,
+      "frame_w": 48,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "火焰鼠",
+      "scale": 2
+    },
+    "jinzhi_yanceng": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "jinzhi_yanceng.png",
+      "foot_y": 73,
+      "frame_h": 76,
+      "frame_w": 98,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "封禁岩层",
+      "scale": 2
+    },
     "mo_jiao": {
       "battle": {
         "attack": [
@@ -137,22 +467,221 @@
       "kind": "beast",
       "name": "墨蛟（蜕皮）",
       "scale": 1
+    },
+    "tiebi_yuan": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "tiebi_yuan.png",
+      "foot_y": 56,
+      "frame_h": 59,
+      "frame_w": 77,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "铁臂猿",
+      "scale": 2
+    },
+    "tuishan_shou": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "tuishan_shou.png",
+      "foot_y": 56,
+      "frame_h": 59,
+      "frame_w": 94,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "推山兽",
+      "scale": 2
+    },
+    "zichi_bishe": {
+      "battle": {
+        "attack": [
+          1
+        ],
+        "down": [
+          3
+        ],
+        "hurt": [
+          2
+        ],
+        "idle": [
+          0
+        ]
+      },
+      "battle_facing": "right",
+      "battle_scale": 2,
+      "cols": 4,
+      "file": "zichi_bishe.png",
+      "foot_y": 48,
+      "frame_h": 51,
+      "frame_w": 73,
+      "head_y": 2,
+      "kind": "beast",
+      "name": "紫翅碧蛇",
+      "scale": 2
     }
   },
   "files": {
     "bishui_e.png": "1062cfab7fe8ef96914e456cc1407ef8a716e76592fe39333c77908079e32492",
+    "cai_e.png": "021bb7418a24afaf384bb3bbc6649355b206d8db9eca943754997ede177fee0a",
+    "chen_dage_battle.png": "48ed13908f25452b568543847ff045fb33071cae194ec2199647ac05806975bb",
+    "chen_dage_walk.png": "58692d8cba419b7178b01649e2bdb2ac56a42f0e704319639b5aca8f8c6dd146",
     "chen_shimei_battle.png": "74675e3de6efb9a8ce3fd9fac99c47c231eece6f6fa926e19c9a655f2b57dc53",
     "chen_shimei_walk.png": "af375362400feb80d0c13671c693473435c16857b9e494ea361707198fee38f5",
+    "chou_han_battle.png": "c2bc87c4c559a3e82cd91176ef81d55b30467589bb662a79c2542ea9758b02b9",
+    "chou_han_walk.png": "2cb895b094f5a3bc223a0191a22f0dc719b195f589f9e7644ec28076975cc0a4",
+    "chuanshan_shou.png": "0d975fb9f3cd05d17f7204d79308552da0bd7f72ec9bfe8c7a888d095b929e06",
+    "fangshi_tanzhu_battle.png": "2d1e3dfb9c550cd77767697465f30702088a340aa26dc909ba713634decb52b8",
+    "fangshi_tanzhu_walk.png": "185f0cc8002f9d21be4c6914162fa6b678a031fc29acc80f4e0eef03b680d38a",
+    "fangshi_zhishi_battle.png": "0bf4ed351c7990d038f0d0c336ae1c5d84095d998949c3e66580b02fd380775f",
+    "fangshi_zhishi_walk.png": "2a515c8fe2298f8f4b40356a74a375f9d83fd89a178f99c2f083d8059ae7a65a",
+    "fei_she.png": "0ed2906f368cec8df3c439af9e3f495c3ece33799f0dcb164ca2abfee3f4af99",
+    "feng_yue_battle.png": "7d4efb489abfc5c40b1b0022c215f05f5bccab638a7f9e6a0913bc1d19d9863c",
+    "feng_yue_walk.png": "43958c6d4776b1a3a8758cb10d91fbc3fc58d7e40654430e99bfd4dfc907a8ff",
+    "fuyunzi_battle.png": "dce9b3438b7188b9b9e102b7dd6a332e1329adb4a77b80baad4e93658b0e0cfe",
+    "fuyunzi_walk.png": "ef2a6e3a5fc796b24afb7685153c388f024d7f58c6788ffa0a0a3ce33bef17cb",
+    "han_yunzhi_battle.png": "ef3ed6f07877a747567bdf390afbeafd70a58e08421739c4ee2b92724c41900f",
+    "han_yunzhi_walk.png": "c37114e50cbc1fabc071f2b8aa654d4ac3406f23393adbeeb9613a4d6bbb0dd9",
+    "hanbing_chan.png": "eada8a6ea7c66ed67b782924d47c8942444826ad307095a9da6138575965ac26",
     "hanli_battle.png": "04c1f30bfb254285b163c043e0769d01d12a5fe42e7a6576fda10042299328a3",
     "hanli_walk.png": "61d0cf7c85016ab1e5344d2d9467cd0f4088b92b360ab15005e27faa8f2b5fef",
+    "huadaowu_dizi_battle.png": "95cdf9e30297fb0a9076462b24710d802e26201458367ddabc3983adb23a19df",
+    "huadaowu_dizi_walk.png": "ef9ecab643c6364dbce6c51d87de6444e274e65b232443add03eb6d5614083d2",
+    "huangfeng_shilian_battle.png": "ecc1d2718c9c19756e2826105c1c52940f6f4048a8c05d93b7d94170e5892968",
+    "huangfeng_shilian_walk.png": "7e91175ea7694b9b64cb43765291deb79928201b3d0da05861a5cf2c126fa8e1",
+    "huangshan_shijie_battle.png": "fb85c001ab4e92958cb56bc0907825fabe4b3823dbc992d619d99bfad8af40d7",
+    "huangshan_shijie_walk.png": "b67cac2460d13ce47d214cd27fd0ac3693368c33e8809b159192293ef263ddc0",
+    "huoyan_shu.png": "1a7b03a72e0cac7efc07d1262402d3019b410d98e7e0caf9e50c3b66b21e4cff",
+    "jinzhi_yanceng.png": "fb6e5b41ba5c130f6267c1cf8af684fd125af6cd66d0308acd7c5ac5fa3bb3ad",
+    "jujianmen_dizi_battle.png": "4a58f8e645115695a9578e3a1ea67f51b86f9c65e2528d4adc8c553f210be575",
+    "jujianmen_dizi_walk.png": "2521a277e8023c062981c95b48b6d1d7ede9cb1b5caca42f1afabc5f0740ede7",
+    "jujianmen_gaoren_battle.png": "d3c665f9bf22bd672e5f20cd08348dea498fd0e78e2be1bba758c5ca8fab61a1",
+    "jujianmen_gaoren_walk.png": "0cd2d6735cf6c3e0708d7ade6382b9cd0286f0d2a29eb03ed4be12c885057755",
+    "li_huayuan_battle.png": "b89dd145ec9c6fa27444fe1bc31da69f00ed244b445c0fd5ad127d41027fc161",
+    "li_huayuan_walk.png": "25599e6ab84a80679340c69b518078464b349db825507d2fea39e90bc5147e15",
+    "lingshoushan_dizi_battle.png": "697028df2de1511ed54c1b97e4b66006dbe4691825e93e901ca75cb2cc96ad61",
+    "lingshoushan_dizi_walk.png": "6f7ef702011701392bf2bab0b43e77b1551d5c1fd35e7f48a222412913a2e197",
+    "lu_shixiong_battle.png": "1491ba83c87f72c42ce4bd5a79902339d7eeeb60b20b3e58e7e1f512a538bd39",
+    "lu_shixiong_walk.png": "d31dc9563b99ee59e31e16d49e468e0d218a42c46b30b5fcf7248fa00431fed8",
+    "luosai_huzi_battle.png": "204469494b7e7e85c42d012651f382068b044aa11567a47119e3d024d8feea68",
+    "luosai_huzi_walk.png": "697e3cae95e7a8e71415eca9530495bfb57c82bd5e90c1f8576ae042ad0d2090",
+    "ma_shibo_battle.png": "2e7248a993b5b056911ee5f685dd63412a8c4bad888a7aadd8fc0aae16533ab0",
+    "ma_shibo_walk.png": "cc206d2f7af7d2d3ed699ee0e0115c9cd16eb66cb7f85d91204bf3ff3f2601d3",
     "mo_jiao.png": "ed3bdf5affac8c423c7299845031482b635b94b44a01a2dcda071611d8c79831",
     "mo_jiao_tuipi.png": "e3d99024636330974c134877c4b2463b25fd17fe6ac15b2da175c83a29da3aac",
     "nangong_wan_ch07_battle.png": "a9141ab5775a9e201e5f8a5ef1a1dc30479859d1f5df0b036836647b1cebb51b",
     "nangong_wan_ch07_walk.png": "796ec66dcbbf7a7258d7d66485a8b049eb0c46f528ff2ee5c687b4b8e4146ebc",
     "nangong_wan_veil_battle.png": "54c882fb062e71731cb08f9b84c8491d5f056265493c677268bd79ffd0e2be80",
-    "nangong_wan_veil_walk.png": "d9bdd676d4a5af2494107c76c68aa22d2d8bf09e0a53c2b7ca7288531ca3be34"
+    "nangong_wan_veil_walk.png": "d9bdd676d4a5af2494107c76c68aa22d2d8bf09e0a53c2b7ca7288531ca3be34",
+    "nichang_xianzi_battle.png": "74bbb6e95ca4b3f2dddf68c89e4c2b71b1a4ec05545345969d32e795143bda06",
+    "nichang_xianzi_walk.png": "67fd788ac034707c9a540bc67475a3ec12f357cd5483a7e351df93e4e64eca09",
+    "qingxumen_daoshi_battle.png": "148183f6edb6aa4f12c75b99d9c81a79aa7b7e9c30b49af5b69eaa6f92799390",
+    "qingxumen_daoshi_walk.png": "5c3a77d09e2d01646b44f981cfd14fb15023c9084ad3e6041a9869b21c53665a",
+    "qiong_qianbei_battle.png": "124db70070807c52251d0f7a59656583350e6f226fddc38915a7a93fe63f0e9d",
+    "qiong_qianbei_walk.png": "8cd66df0bdf6cf7d20a76ef172a192606f4f8f333107913fe3c99370e4eed2a1",
+    "tianquebao_dizi_battle.png": "a421902d4d63f0ba5457852c7b08d2cf299e552b4a11ff84ff57e1a208c9606a",
+    "tianquebao_dizi_walk.png": "4e2ad21814043ef1445362a4a70304eec40ece9ea2b22276f1448d324fb7a083",
+    "tiebi_yuan.png": "9f8e420a62e00d68c34e5ee57a6122535afbb1b853deb465ca10f3040b36dcc2",
+    "tuishan_shou.png": "4679091c13db2b7e926e8b5f76b09e2e55de77abbe6e881fe0b7861eb0c52e0a",
+    "wanbaolou_shicong_battle.png": "38ae249dfe88c42b9d9d620d679affb880ed807bc2a349bd5e855b42ac501701",
+    "wanbaolou_shicong_walk.png": "0a00091f72b7b308c6aaf862affe9eee5ee82a5ecbf6978901a95d48b5e23115",
+    "xiang_shaonian_battle.png": "121a70f892a777cc53fcd62a000b7b3037f5472b5aa688cc0ae011bbcf7e72a9",
+    "xiang_shaonian_walk.png": "524a9ce2d14b4550b61a8bb63d0fcd351e7e60ae07b43a7222d7d93f1de75821",
+    "xiang_zhili_battle.png": "c07620b2ce591b293f5a040f71076af579af1baeae19e352f08c96fb23bf321d",
+    "xiang_zhili_walk.png": "6d8964f4291def18ac78f2a93002b401e2c83b18c065e2b8a89816a782226187",
+    "xu_lao_battle.png": "cccc8dd0bd390151ca4e14ef15c6278502a51a6ed4fb4d69e7fb094b5affd2b5",
+    "xu_lao_walk.png": "04650153f9e02bc3c8b615a2ae869d9615541705389298f6e358dddb14a150d6",
+    "yan_wuchi_battle.png": "3ad1445947d8a352c7c202838961bc207cc692e97c607a10c135cd2bd122c608",
+    "yan_wuchi_walk.png": "bb139785b0c3b83195268890f6ee507ccdecf5bf76a9f44cf8e8c6da7a1c450b",
+    "yan_xiongdi_battle.png": "c5afbfd47dad22d0afd398f11b91c9a71be83db02db8685bd01e81b6fecff007",
+    "yan_xiongdi_walk.png": "a8e11d588e1c1cfe28bf1166b46a7a690f06726cc2b542c33a67518f3188ce1f",
+    "yanyue_dizi_battle.png": "6a74b5fc3fbc5e12ebbc37887b3cc8131a0e34f6a3f33997d87c77ec7c5ea3fa",
+    "yanyue_dizi_walk.png": "74d67f7b3252d6374a5976c0edd8b6082b1d165b0591db90e44bf9fcf8672d10",
+    "yuanwu_xiushi_battle.png": "2af5139b6dd232574500e2199763053c586194813adc320971de4999404a2ab7",
+    "yuanwu_xiushi_walk.png": "a6d27c09aefec72eb53cc41646b7f7553c0074f8c45da9a4926eb301e7ddb70f",
+    "zhong_wu_battle.png": "b07762eba60fc5e39a09c33f3b14bb36ee307cb02458713245d7cc630fa98952",
+    "zhong_wu_walk.png": "06836620afc6c8fad15691fb2c21b8f9c3c55d8833f28c42450cabdfbef9520a",
+    "zichi_bishe.png": "6a7340a016b3b55e36e68279431159633d2bea17ae6d3d3f9b0739ff4b1acfef"
   },
   "role_variants": {
+    "chen_dage": [
+      {
+        "look": "chen_dage_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "chou_han": [
+      {
+        "look": "chou_han_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "fangshi_tanzhu": [
+      {
+        "look": "fangshi_tanzhu_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "fangshi_zhishi": [
+      {
+        "look": "fangshi_zhishi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "feng_yue": [
+      {
+        "look": "feng_yue_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "fuyunzi": [
+      {
+        "look": "fuyunzi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "han_yunzhi": [
+      {
+        "look": "han_yunzhi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
     "hanli": [
       {
         "look": "hanli_child",
@@ -163,14 +692,247 @@
         "max_chapter": 7,
         "min_chapter": 7
       }
+    ],
+    "huadaowu_dizi": [
+      {
+        "look": "huadaowu_dizi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "huangfeng_shilian": [
+      {
+        "look": "huangfeng_shilian_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "huangshan_shijie": [
+      {
+        "look": "huangshan_shijie_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "jujianmen_dizi": [
+      {
+        "look": "jujianmen_dizi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "jujianmen_gaoren": [
+      {
+        "look": "jujianmen_gaoren_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "li_huayuan": [
+      {
+        "look": "li_huayuan_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "lu_shixiong": [
+      {
+        "look": "lu_shixiong_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "luosai_huzi": [
+      {
+        "look": "luosai_huzi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "ma_shibo": [
+      {
+        "look": "ma_shibo_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "nichang_xianzi": [
+      {
+        "look": "nichang_xianzi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "qingxumen_daoshi": [
+      {
+        "look": "qingxumen_daoshi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "qiong_qianbei": [
+      {
+        "look": "qiong_qianbei_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "tianquebao_dizi": [
+      {
+        "look": "tianquebao_dizi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "wanbaolou_shicong": [
+      {
+        "look": "wanbaolou_shicong_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "xiang_shaonian": [
+      {
+        "look": "xiang_shaonian_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "xiang_zhili": [
+      {
+        "look": "xiang_zhili_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "xu_lao": [
+      {
+        "look": "xu_lao_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "yan_wuchi": [
+      {
+        "look": "yan_wuchi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "yan_xiongdi": [
+      {
+        "look": "yan_xiongdi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "yanyue_dizi": [
+      {
+        "look": "yanyue_dizi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "yuanwu_xiushi": [
+      {
+        "look": "yuanwu_xiushi_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
+    ],
+    "zhong_wu": [
+      {
+        "look": "zhong_wu_hd",
+        "max_chapter": 7,
+        "min_chapter": 7
+      }
     ]
   },
   "roles": {
     "baiyi_shaonv": "nangong_wan_veil_hd",
     "chen_shimei": "chen_shimei_hd",
+    "lingshoushan_dizi": "lingshoushan_dizi_hd",
     "nangong_wan_ch07": "nangong_wan_ch07_hd"
   },
   "sheets": {
+    "chen_dage_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "chen_dage_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "chen_dage_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "陈师兄（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
     "chen_shimei_hd": {
       "battle": {
         "attack": [
@@ -214,7 +976,475 @@
       "frame_h": 60,
       "frame_w": 64,
       "head_y": 10,
-      "name": "陈师妹（手绘）",
+      "name": "陈巧倩（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "chou_han_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "chou_han_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "chou_han_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "丑汉（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "fangshi_tanzhu_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "fangshi_tanzhu_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "fangshi_tanzhu_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "收药摊主（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "fangshi_zhishi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "fangshi_zhishi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "fangshi_zhishi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "执事弟子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "feng_yue_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "feng_yue_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 14
+      },
+      "cols": 4,
+      "file": "feng_yue_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 8,
+      "name": "封岳（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "fuyunzi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "fuyunzi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "fuyunzi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 10,
+      "name": "浮云子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "han_yunzhi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "han_yunzhi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 20
+      },
+      "cols": 4,
+      "file": "han_yunzhi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 12,
+      "name": "菡云芝（手绘）",
       "scale": 2,
       "walk": {
         "down": [
@@ -293,6 +1523,786 @@
       "frame_w": 64,
       "head_y": 10,
       "name": "韩立（手绘，第 7 章）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "huadaowu_dizi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "huadaowu_dizi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "huadaowu_dizi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "化刀坞弟子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "huangfeng_shilian_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "huangfeng_shilian_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 17
+      },
+      "cols": 4,
+      "file": "huangfeng_shilian_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "黄衫弟子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "huangshan_shijie_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "huangshan_shijie_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 20
+      },
+      "cols": 4,
+      "file": "huangshan_shijie_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "黄衫师姐（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "jujianmen_dizi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "jujianmen_dizi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "jujianmen_dizi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 10,
+      "name": "巨剑门弟子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "jujianmen_gaoren_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "jujianmen_gaoren_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 17
+      },
+      "cols": 4,
+      "file": "jujianmen_gaoren_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "巨剑门高人（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "li_huayuan_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "li_huayuan_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 14
+      },
+      "cols": 4,
+      "file": "li_huayuan_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "李师祖（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "lingshoushan_dizi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "lingshoushan_dizi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "lingshoushan_dizi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "灵兽山弟子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "lu_shixiong_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "lu_shixiong_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "lu_shixiong_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "陆师兄（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "luosai_huzi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "luosai_huzi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 17
+      },
+      "cols": 4,
+      "file": "luosai_huzi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "络腮胡子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "ma_shibo_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "ma_shibo_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 24
+      },
+      "cols": 4,
+      "file": "ma_shibo_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 16,
+      "name": "马师伯（手绘）",
       "scale": 2,
       "walk": {
         "down": [
@@ -449,6 +2459,1020 @@
       "frame_w": 64,
       "head_y": 10,
       "name": "南宫婉·面纱（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "nichang_xianzi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "nichang_xianzi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 20
+      },
+      "cols": 4,
+      "file": "nichang_xianzi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "霓裳仙子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "qingxumen_daoshi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "qingxumen_daoshi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "qingxumen_daoshi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "清虚门道士（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "qiong_qianbei_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "qiong_qianbei_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "qiong_qianbei_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 10,
+      "name": "穹前辈（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "tianquebao_dizi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "tianquebao_dizi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "tianquebao_dizi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "天阙堡弟子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "wanbaolou_shicong_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "wanbaolou_shicong_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "wanbaolou_shicong_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "万宝楼伙计（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "xiang_shaonian_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "xiang_shaonian_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 22
+      },
+      "cols": 4,
+      "file": "xiang_shaonian_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 14,
+      "name": "黄毛少年（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "xiang_zhili_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "xiang_zhili_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 17
+      },
+      "cols": 4,
+      "file": "xiang_zhili_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "向之礼（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "xu_lao_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "xu_lao_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "xu_lao_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "许老（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "yan_wuchi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "yan_wuchi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 16
+      },
+      "cols": 4,
+      "file": "yan_wuchi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 10,
+      "name": "赤脚大汉（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "yan_xiongdi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "yan_xiongdi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "yan_xiongdi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "严姓修士（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "yanyue_dizi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "yanyue_dizi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "yanyue_dizi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 12,
+      "name": "掩月宗弟子（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "yuanwu_xiushi_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "yuanwu_xiushi_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 18
+      },
+      "cols": 4,
+      "file": "yuanwu_xiushi_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 11,
+      "name": "元武国修士（手绘）",
+      "scale": 2,
+      "walk": {
+        "down": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "left": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "right": [
+          8,
+          9,
+          10,
+          11
+        ],
+        "up": [
+          12,
+          13,
+          14,
+          15
+        ]
+      },
+      "walk_cycle": [
+        0,
+        1,
+        2,
+        3
+      ]
+    },
+    "zhong_wu_hd": {
+      "battle": {
+        "attack": [
+          2
+        ],
+        "cast": [
+          3
+        ],
+        "down": [
+          5
+        ],
+        "guard": [
+          7
+        ],
+        "hurt": [
+          4
+        ],
+        "idle": [
+          0
+        ],
+        "ready": [
+          1
+        ],
+        "victory": [
+          6
+        ]
+      },
+      "battle_facing": "left",
+      "battle_scale": 2,
+      "battle_sheet": {
+        "cols": 4,
+        "file": "zhong_wu_battle.png",
+        "foot_y": 81,
+        "frame_h": 84,
+        "frame_w": 132,
+        "head_y": 22
+      },
+      "cols": 4,
+      "file": "zhong_wu_walk.png",
+      "foot_y": 57,
+      "frame_h": 60,
+      "frame_w": 64,
+      "head_y": 14,
+      "name": "钟吾（手绘）",
       "scale": 2,
       "walk": {
         "down": [

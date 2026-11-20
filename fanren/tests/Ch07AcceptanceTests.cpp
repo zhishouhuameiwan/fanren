@@ -1996,7 +1996,7 @@ protected:
         EXPECT_EQ(first["中阶灵石"], "1") << "施工图 12.2：中阶灵石本章起说（节点 1 起）";
         for (const auto& [step, key] : chapterLog_) {
             const std::string text = app().data().lookupText(key);
-            for (const char* word : {"血禁", "陈巧倩", "淫囊", "合欢", "董家", "红拂", "马云龙", "寒天涯", "萧二",
+            for (const char* word : {"血禁", "淫囊", "合欢", "董家", "红拂", "马云龙", "寒天涯", "萧二",
                                      "封闭前最后一次"}) {
                 EXPECT_EQ(text.find(word), std::string::npos)
                     << key << "（节点 " << infoOf(step).node << "）说了「" << word << "」（施工图 12.2 / 验收 17：本章 0 处）";
@@ -3047,7 +3047,7 @@ TEST_F(Ch07Acceptance, No6_EachGatedWordStaysOutOfTheKeysBeforeItsNode) {
                 << key << "（步序 " << order << "）说了「" << gate.word << "」——施工图 " << gate.why << "：" << value;
         }
         // 12.2 / 验收 17：全章 0 处的几样。
-        for (const char* word : {"血禁", "陈巧倩", "淫囊", "合欢", "董家", "红拂", "马云龙", "寒天涯", "萧二",
+        for (const char* word : {"血禁", "淫囊", "合欢", "董家", "红拂", "马云龙", "寒天涯", "萧二",
                                  "封闭前最后一次"}) {
             EXPECT_EQ(value.find(word), std::string::npos) << key << " 里有「" << word << "」（施工图 12.2 / 验收 17：0 处）";
         }
@@ -3113,13 +3113,12 @@ TEST_F(Ch07Acceptance, No6_TheRolesCarryTheNamesSectionsFiveAndTwelveTwoGive) {
         return r == nullptr ? std::string{} : r->name;
     };
     EXPECT_EQ(nameOf("li_huayuan"), "李师祖") << "12.2：role li_huayuan 的 name 是「李师祖」";
-    EXPECT_EQ(nameOf("chen_shimei").find("巧倩"), std::string::npos) << "12.2：陈师妹的 name 不含「巧倩」";
     EXPECT_EQ(nameOf("baiyi_shaonv").find("南宫"), std::string::npos) << "12.2：白衣少女的 name 不含「南宫」";
     EXPECT_EQ(nameOf("baiyi_shaonv"), "白衣少女") << "第 5 节：名牌「白衣少女」";
     EXPECT_EQ(nameOf("maifu_shaonv"), "卖符少女") << "12.2：maifu_shaonv 的 name 不变";
     EXPECT_EQ(nameOf("han_yunzhi"), "菡云芝") << "第 5 节";
     EXPECT_EQ(nameOf("nangong_wan"), "南宫婉") << "第 5 节：名牌南宫婉";
-    EXPECT_EQ(nameOf("chen_shimei"), "陈师妹") << "第 5 节：本章只称陈师妹";
+    EXPECT_EQ(nameOf("chen_shimei"), "陈巧倩") << "用户 2026-11-19 定：第 7 章起名签用原名（原施工图 12.2「只称陈师妹」作废）";
 }
 
 // 章节卡在第 6 章一收尾就上屏，通坊市、岳麓殿的两道门第 6 章里就在（施工偏差 18.1：「两句都写成不靠第 7 章剧情

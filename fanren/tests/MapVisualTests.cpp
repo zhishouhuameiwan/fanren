@@ -228,6 +228,11 @@ TEST(MapVisual, BakedLayerIsUsableOnlyWhenItLoadedAndMatchesTheMap) {
     EXPECT_FALSE(bakedLayerUsable({640, 464}, 40, 30)) << "高少一格";
     EXPECT_FALSE(bakedLayerUsable({480, 640}, 40, 30)) << "宽高对调";
     EXPECT_FALSE(bakedLayerUsable({1280, 960}, 40, 30)) << "按 32px 一格出的图不是 16px 美术";
+    // 手绘高清地图一格 24 像素（tools/artgen/hd_maps.py）：按 24 判才对得上，按 16 判就是脱节。
+    EXPECT_TRUE(bakedLayerUsable({960, 720}, 40, 30, 24));
+    EXPECT_FALSE(bakedLayerUsable({960, 720}, 40, 30)) << "24 像素一格的图不能当 16 像素的烘焙图用";
+    EXPECT_FALSE(bakedLayerUsable({640, 480}, 40, 30, 24)) << "16 像素的烘焙图不能当高清图用";
+    EXPECT_FALSE(bakedLayerUsable({960, 720}, 40, 30, 0)) << "一格 0 像素不算数";
 }
 
 TEST(MapVisual, PostFxFocusesTheTiltShiftOnTheHero) {

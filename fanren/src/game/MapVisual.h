@@ -95,6 +95,8 @@ struct CarriedLight {
 // 尺寸对不上说明烘焙与地图脱了节（地图生成器改了图、烘焙没跟上）：贴上去就是整张图错位，
 // 人站在屋顶上、墙画在路中间——那比退回旧画法难看得多，也难查得多。所以这一条也算「不能用」。
 [[nodiscard]] bool bakedLayerUsable(engine::Point textureSize, int mapWidthCells, int mapHeightCells);
+// 同上，一格 artCell 像素：程序烘焙图是 16，手绘高清地图（art/maps_hd/，tools/artgen/hd_maps.py）是 24。
+[[nodiscard]] bool bakedLayerUsable(engine::Point textureSize, int mapWidthCells, int mapHeightCells, int artCell);
 
 // 粒子浓淡 → 每秒生成数。areaScreens 是发射区的面积相当于几块屏幕（1280×720）：
 // 同样的浓淡，铺满整张大图的尘埃要按面积多生，屏幕上看起来才一样密。
