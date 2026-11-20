@@ -64,19 +64,39 @@ void giveItems(core::GameState& state, const core::GameData& data, const std::ve
 [[nodiscard]] bool blocks(const core::GameState& state, const core::WorldObjectState& objects,
                           const core::MapObject& object);
 
-// 这一格上第一个**在场**的那一类新对象（矩形命中，与 TileMap::objectAt 同一形状）；没有则 nullptr。
-// 机关只认关着的（开了的机关按了不响）。
-[[nodiscard]] const core::MapObject* presentAt(const core::GameState& state, const core::WorldObjectState& objects,
-                                               const core::TileMap& map, core::Point cell, const std::string& type);
-// 这一格被哪个新对象挡着；不挡为 nullptr。
-[[nodiscard]] const core::MapObject* blockerAt(const core::GameState& state, const core::WorldObjectState& objects,
-                                               const core::TileMap& map, core::Point cell);
+// ---- 明雷的运行时站位（巡逻与追击，docs/ch07-playtest-foes.md）----
+//
+// 写了 patrol 的明雷会离开图上那一格。它此刻站在哪、面朝哪边是**运行时**的事，不进存档：读档、换图都回原位
+// （状态在 WorldScene 的 FoePatrol 里，game/FoePatrol.h）。下面凡是问「明雷在哪一格、面前是哪一格」的判定都收
+// 一张站位表：明雷 id → 此刻的格与朝向。表里没有的明雷（不巡逻的、或者没传表 = nullptr）站在图上那一格、
+// 面朝 facing 属性——这就是改版前「站着不动」的口径，旧的调用方不传表，答案与从前逐字相同。
+struct FoePose {
+    core::Point cell;
+    int facing = 2;   // 同 GameState::facing
+};
+using FoePoses = std::map<std::string, FoePose>;
+// 这只明雷此刻的站位：poses 里有它（按 id）就用表里的，否则是图上那一格、facing 属性。
+[[nodiscard]] FoePose foePose(const core::MapObject& foe, const FoePoses* poses = nullptr);
 
-// 明雷面前那一格（它的格 + facing 那一向；facing 写错按朝下，与 NPC 同一口径）。
-[[nodiscard]] core::Point foeFrontCell(const core::MapObject& foe);
+// 这一格上第一个**在场**的那一类新对象（矩形命中，与 TileMap::objectAt 同一形状；明雷按它此刻那一格）；
+// 没有则 nullptr。机关只认关着的（开了的机关按了不响）。
+[[nodiscard]] const core::MapObject* presentAt(const core::GameState& state, const core::WorldObjectState& objects,
+                                               const core::TileMap& map, core::Point cell, const std::string& type,
+                                               const FoePoses* poses = nullptr);
+// 这一格被哪个新对象挡着；不挡为 nullptr。明雷按它此刻那一格。
+[[nodiscard]] const core::MapObject* blockerAt(const core::GameState& state, const core::WorldObjectState& objects,
+                                               const core::TileMap& map, core::Point cell,
+                                               const FoePoses* poses = nullptr);
+
+// 明雷面前那一格（它此刻的格 + 此刻的朝向；facing 写错按朝下，与 NPC 同一口径）。
+[[nodiscard]] core::Point foeFrontCell(const core::MapObject& foe, const FoePoses* poses = nullptr);
 // 站在 cell 上会被谁看见：在场、面前那一格正是 cell 的第一个明雷；没有则 nullptr。
 [[nodiscard]] const core::MapObject* foeWatching(const core::GameState& state, const core::WorldObjectState& objects,
-                                                 const core::TileMap& map, core::Point cell);
+                                                 const core::TileMap& map, core::Point cell,
+                                                 const FoePoses* poses = nullptr);
+// facing 属性的名字换成数字朝向（up 0 / right 1 / down 2 / left 3，写错按朝下）。与 WorldScene::facingFromName
+// 同一张表；这里另写一份，是因为本文件不认识 WorldScene。
+[[nodiscard]] int facingOfName(const std::string& name);
 
 // ---- 伙伴 ----
 

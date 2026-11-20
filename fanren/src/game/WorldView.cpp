@@ -250,11 +250,11 @@ void StepSlide::snap(Vec2f cell) {
     duration_ = 0.f;
 }
 
-void StepSlide::moveTo(Vec2f cell) {
+void StepSlide::moveTo(Vec2f cell, float seconds) {
     from_ = position();
     to_ = cell;
     elapsed_ = 0.f;
-    duration_ = kStepSlideSeconds;
+    duration_ = seconds > 0.f ? seconds : kStepSlideSeconds;
 }
 
 void StepSlide::advance(float dt) {
@@ -353,8 +353,78 @@ void FollowerTrack::clear() {
     epoch_ = 0;
 }
 
+core::Point foeCellOf(const WorldFrame::Foe& foe) {
+    if (foe.cell.x >= 0 && foe.cell.y >= 0) return foe.cell;
+    return foe.object != nullptr ? foe.object->position : core::Point{};
+}
+
+namespace {
+
+[[nodiscard]] std::string foeKey(const WorldFrame::Foe& foe) {
+    if (foe.object == nullptr) return {};
+    const std::string id = foe.object->property("id");
+    return id.empty() ? foe.object->name : id;
+}
+
+}  // namespace
+
+void FoeTrack::sync(const std::vector<WorldFrame::Foe>& foes, const std::string& mapId) {
+    if (mapId != mapId_) {
+        slots_.clear();
+        mapId_ = mapId;
+    }
+    std::vector<Slot> next;
+    next.reserve(foes.size());
+    for (const WorldFrame::Foe& foe : foes) {
+        const std::string id = foeKey(foe);
+        const core::Point cell = foeCellOf(foe);
+        const Vec2f at{fl(cell.x), fl(cell.y)};
+        const auto it = std::find_if(slots_.begin(), slots_.end(), [&id](const Slot& s) { return s.id == id; });
+        if (it == slots_.end()) {
+            Slot slot;
+            slot.id = id;
+            slot.cell = cell;
+            slot.slide.snap(at);
+            next.push_back(std::move(slot));
+            continue;
+        }
+        Slot slot = std::move(*it);
+        if (!(slot.cell == cell)) {
+            const int steps = std::abs(cell.x - slot.cell.x) + std::abs(cell.y - slot.cell.y);
+            slot.cell = cell;
+            if (steps == 1) {
+                slot.slide.moveTo(at, foe.stepSeconds);
+            } else {
+                slot.slide.snap(at);
+                slot.walkClock = 0.f;
+            }
+        }
+        next.push_back(std::move(slot));
+    }
+    slots_ = std::move(next);   // 帧里没有了的（打赢了、旗标撤了）就此拿掉
+}
+
+void FoeTrack::advance(float dt) {
+    for (Slot& slot : slots_) {
+        slot.slide.advance(dt);
+        slot.walkClock = slot.slide.moving() ? slot.walkClock + std::max(0.f, dt) : 0.f;
+    }
+}
+
+void FoeTrack::clear() {
+    slots_.clear();
+    mapId_.clear();
+}
+
+const FoeTrack::Slot* FoeTrack::find(const WorldFrame::Foe& foe) const {
+    const std::string id = foeKey(foe);
+    const auto it = std::find_if(slots_.begin(), slots_.end(), [&id](const Slot& s) { return s.id == id; });
+    return it == slots_.end() ? nullptr : &*it;
+}
+
 std::vector<WorldDrawItem> depthOrder(const WorldFrame& frame, Vec2f playerCell,
-                                      const std::vector<Vec2f>& followerCells, const RectF& view) {
+                                      const std::vector<Vec2f>& followerCells, const RectF& view,
+                                      const std::vector<Vec2f>* foeCells) {
     using Kind = WorldDrawItem::Kind;
     std::vector<WorldDrawItem> items;
     int order = 0;
@@ -387,8 +457,12 @@ std::vector<WorldDrawItem> depthOrder(const WorldFrame& frame, Vec2f playerCell,
     for (std::size_t i = 0; i < frame.chests.size(); ++i) addRect(*frame.chests[i].object, Kind::Chest, i, true);
     for (std::size_t i = 0; i < frame.gathers.size(); ++i) addRect(*frame.gathers[i].object, Kind::Gather, i, true);
     for (std::size_t i = 0; i < frame.foes.size(); ++i) {
-        const core::MapObject& object = *frame.foes[i].object;
-        addCell(Vec2f{fl(object.position.x), fl(object.position.y)}, Kind::Foe, i);
+        if (foeCells != nullptr && i < foeCells->size()) {
+            addCell((*foeCells)[i], Kind::Foe, i);
+            continue;
+        }
+        const core::Point cell = foeCellOf(frame.foes[i]);
+        addCell(Vec2f{fl(cell.x), fl(cell.y)}, Kind::Foe, i);
     }
     for (std::size_t i = 0; i < followerCells.size(); ++i) addCell(followerCells[i], Kind::Follower, i);
     items.push_back(WorldDrawItem{DepthKey{(playerCell.y + 1.f) * kCell, (playerCell.x + 0.5f) * kCell, order++},
@@ -494,6 +568,7 @@ void WorldView::reset() {
     seenMap_.clear();
     advanced_ = false;
     followers_.clear();
+    foes_.clear();
 }
 
 Vec2f WorldView::focusCell() const {
@@ -548,6 +623,11 @@ void WorldView::trackFollowers(Application& app, const WorldFrame& frame) {
     followers_.sync(frame.followers, snapEpoch_, player_, pose_);
 }
 
+void WorldView::trackFoes(Application& app, const WorldFrame& frame) {
+    const core::TileMap* map = app.currentMap();
+    foes_.sync(frame.foes, map != nullptr ? map->id : std::string{});
+}
+
 void WorldView::advance(Application& app, double deltaSeconds) {
     const float dt = static_cast<float>(std::max(0.0, deltaSeconds));
     sync(app);
@@ -555,6 +635,7 @@ void WorldView::advance(Application& app, double deltaSeconds) {
     player_.advance(dt);
     pose_.update(player_.moving(), dt, walkStartClock());
     followers_.advance(dt, walkStartClock());
+    foes_.advance(dt);
     fadeClock_ += dt;
     bannerClock_ += dt;
     if (const core::TileMap* map = app.currentMap()) {
@@ -809,6 +890,7 @@ void WorldView::render(Application& app, const WorldFrame& frame) {
     sync(app);
     ensureAtlas(app);
     trackFollowers(app, frame);
+    trackFoes(app, frame);
     ensureMap(app, *map);
     if (!fx_) fx_ = std::make_unique<engine::PostFx>(engine);
 
@@ -1112,8 +1194,8 @@ void WorldView::drawShadows(engine::Engine& engine, const WorldFrame& frame, con
                  fl(npc.object->position.y + 1) * kCell - vp.camY);
     }
     for (const WorldFrame::Foe& foe : frame.foes) {
-        shadowAt((fl(foe.object->position.x) + 0.5f) * kCell - vp.camX,
-                 fl(foe.object->position.y + 1) * kCell - vp.camY);
+        const Vec2f at = foeDrawCell(foe);
+        shadowAt((at.x + 0.5f) * kCell - vp.camX, (at.y + 1.f) * kCell - vp.camY);
     }
     for (const FollowerTrack::Slot& follower : followers_.slots()) {
         const Vec2f at = follower.slide.position();
@@ -1201,7 +1283,10 @@ void WorldView::drawSorted(engine::Engine& engine, Application& app, const World
     std::vector<Vec2f> followerCells;
     followerCells.reserve(followers_.slots().size());
     for (const FollowerTrack::Slot& follower : followers_.slots()) followerCells.push_back(follower.slide.position());
-    drawables_ = depthOrder(frame, vp.player, followerCells, RectF{vp.camX, vp.camY, kViewW, kViewH});
+    std::vector<Vec2f> foeCells;
+    foeCells.reserve(frame.foes.size());
+    for (const WorldFrame::Foe& foe : frame.foes) foeCells.push_back(foeDrawCell(foe));
+    drawables_ = depthOrder(frame, vp.player, followerCells, RectF{vp.camX, vp.camY, kViewW, kViewH}, &foeCells);
 
     using Kind = WorldDrawItem::Kind;
     for (const WorldDrawItem& item : drawables_) {
@@ -1297,16 +1382,27 @@ void WorldView::drawOpenGates(engine::Engine& engine, const WorldFrame& frame, c
     }
 }
 
+Vec2f WorldView::foeDrawCell(const WorldFrame::Foe& foe) const {
+    if (const FoeTrack::Slot* slot = foes_.find(foe)) return slot->slide.position();
+    const core::Point cell = foeCellOf(foe);
+    return Vec2f{fl(cell.x), fl(cell.y)};
+}
+
 void WorldView::drawFoe(engine::Engine& engine, const WorldFrame::Foe& foe, const Viewport& vp) {
-    const core::MapObject& object = *foe.object;
-    const float footX = (fl(object.position.x) + 0.5f) * kCell - vp.camX;
-    const float footY = fl(object.position.y + 1) * kCell - vp.camY;
+    const Vec2f at = foeDrawCell(foe);
+    const float footX = (at.x + 0.5f) * kCell - vp.camX;
+    const float footY = (at.y + 1.f) * kCell - vp.camY;
+    // 走着没有（巡逻、追击的滑步）：人形表播走路帧；妖兽表没有走路帧，站立帧一颠一颠地挪（一个美术像素）。
+    const FoeTrack::Slot* slot = foes_.find(foe);
+    const bool moving = slot != nullptr && slot->slide.moving();
+    const float walkClock = slot != nullptr ? slot->walkClock : 0.f;
     const FoeBody body = atlasOk_ ? foeBodyFor(atlas_, foe.look, chapterDoneOf(vp)) : FoeBody{};
     if (body.sheet != nullptr) {
         const engine::TextureId texture = sheetTexture(engine, body.sheet->file);
         if (texture != engine::kInvalidTexture) {
-            // 明雷站着不动：那一向的站立帧。
-            const int frame = walkFrame(atlas_, *body.sheet, foe.facing, false, 0.f);
+            // 站着：那一向的站立帧；走着：那一向的走路帧（从「迈甲」那一帧起播，同主角）。
+            const int frame =
+                walkFrame(atlas_, *body.sheet, foe.facing, moving, moving ? walkStartClock() + walkClock : 0.f);
             engine.drawTexture(texture, sheetFrameRect(*body.sheet, frame), characterDest(*body.sheet, footX, footY),
                                engine::DrawOptions{});
             return;
@@ -1316,8 +1412,10 @@ void WorldView::drawFoe(engine::Engine& engine, const WorldFrame::Foe& foe, cons
         if (texture != engine::kInvalidTexture) {
             engine::DrawOptions options;
             options.flipX = enemyFlipped(*body.enemy, foe.facing);
+            // 一步颠两下：|sin| 过半就抬起一个美术像素。
+            const float hop = moving ? std::round(std::fabs(std::sin(walkClock * kTwoPi * 2.f))) * kPixel : 0.f;
             engine.drawTexture(texture, enemyFrameRect(*body.enemy, enemyStandFrame(*body.enemy)),
-                               enemyDest(*body.enemy, footX, footY), options);
+                               enemyDest(*body.enemy, footX, footY - hop), options);
             return;
         }
     } else if (atlasOk_) {
@@ -1349,21 +1447,23 @@ void WorldView::drawFoeMarks(engine::Engine& engine, const WorldFrame& frame, co
     // 头顶的标记与名牌同在界面层：树冠能盖住人，不能盖住「这是个敌人」。
     for (const WorldFrame::Foe& foe : frame.foes) {
         const core::MapObject& object = *foe.object;
-        const float footX = (fl(object.position.x) + 0.5f) * kCell - vp.camX;
-        const float footY = fl(object.position.y + 1) * kCell - vp.camY;
+        const Vec2f at = foeDrawCell(foe);
+        const float footX = (at.x + 0.5f) * kCell - vp.camX;
+        const float footY = (at.y + 1.f) * kCell - vp.camY;
         if (footX < -kCell * 2.f || footX > kViewW + kCell * 2.f || footY < -kCell || footY > kViewH + kCell * 3.f) {
             continue;
         }
         const float bob = std::round(std::sin(clock_ * 2.4f + fl(object.position.x))) * kPixel;
         const float bottom = foeHeadTop(foe, footY, vp) - 4.f + bob;
-        const char* id = foeMarkSprite(foe.elite);
+        // 在追：「!」代替明雷标记（巡逻与追击）。
+        const char* id = foe.alert ? kFoeAlertSprite : foeMarkSprite(foe.elite);
         if (const ObjectSprite* mark = objectSprite(id)) {
             drawObjectSprite(engine, objectsTexture_, *mark, footX, bottom, clock_, kWhite,
                              mark->additive ? BlendMode::Add : BlendMode::Alpha);
             continue;
         }
         warnMissingProp(id);
-        const PropPlaceholder placeholder = foeMarkPlaceholder(foe.elite);
+        const PropPlaceholder placeholder = foe.alert ? foeAlertPlaceholder() : foeMarkPlaceholder(foe.elite);
         constexpr int kMarkSize = 24;
         constexpr int kMarkFontSize = 16;
         const engine::Rect plate{static_cast<int>(snap(footX)) - kMarkSize / 2,

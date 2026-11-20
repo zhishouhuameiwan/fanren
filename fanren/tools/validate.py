@@ -594,9 +594,58 @@ def world_object_always_present(record: dict) -> bool:
 
 
 def foe_front_cell(record: dict) -> tuple[int, int]:
-    """明雷面前那一格（WorldObjects::foeFrontCell）：它的格 + facing 那一向，写错按朝下。"""
+    """明雷面前那一格（WorldObjects::foeFrontCell）：它的格 + facing 那一向，写错按朝下。
+
+    会走的明雷（写了 patrol）此刻的格与朝向是运行时的事；这里算的是它站在图上那一格、面朝 facing 的样子，
+    也就是进图时的样子。它走开之后能站到哪、面前能是哪，由 patrol_route 与规则 32、36 另管。
+    """
     dx, dy = STEP_DIRECTIONS.get(record["props"].get("facing", ""), (0, 1))
     return (record["x"] + dx, record["y"] + dy)
+
+
+# 一条巡逻路线至多几格（docs/ch07-playtest-foes.md：「在一小段路上来回走」）。
+PATROL_MAX_CELLS = 12
+
+
+def patrol_route(record: dict) -> list[tuple[int, int]] | None:
+    """foe 的 patrol（game/FoePatrol.h 的 patrolRoute，逐字同一个读法）：整条路的每一格，第 0 格是它所在那一格。
+
+    写成 `x,y;x,y`：从它那一格起依次走到最后一格、再原路走回来；每一段横平竖直，中间的格子补上；
+    只写自己那一格是原地张望。没写返回 None；写坏了（读不出数、斜着走、空段）返回空列表——引擎当没写，
+    它就站着不动，所以门禁要拦（规则 32）。
+    """
+    text = record["props"].get("patrol")
+    if text is None or str(text).strip() == "":
+        return None
+    at = (record["x"], record["y"])
+    route = [at]
+    for piece in str(text).split(";"):
+        parts = piece.split(",")
+        if len(parts) != 2 or not all(re.fullmatch(r"[0-9]{1,6}", p.strip()) for p in parts):
+            return []
+        to = (int(parts[0]), int(parts[1]))
+        if to[0] != at[0] and to[1] != at[1]:
+            return []
+        while at != to:
+            at = (at[0] + (to[0] > at[0]) - (to[0] < at[0]), at[1] + (to[1] > at[1]) - (to[1] < at[1]))
+            route.append(at)
+    return route
+
+
+def step_activated_halo(parsed: ParsedMap) -> dict[tuple[int, int], str]:
+    """传送点、踏入式触发器占的格连同上下左右一格 → 那个对象的名字。
+
+    会走的明雷不站上去（FoePatrol 的 keepOff_）：它面前那一格一旦压着传送点或踏入触发器，主角迈进去就被这一仗
+    吞掉那一步（规则 32 对不走的明雷查面前格，同一个道理）；它也就不会把主角逼进剧情。
+    """
+    halo: dict[tuple[int, int], str] = {}
+    for record in parsed.objects:
+        if not is_step_activated(record):
+            continue
+        for x, y in object_cells(record):
+            for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
+                halo.setdefault((x + dx, y + dy), record["name"])
+    return halo
 
 
 def is_step_activated(record: dict) -> bool:
@@ -640,7 +689,9 @@ def occupied_cells(parsed: ParsedMap, gates_open: bool = True,
     带 require_flag 的不算（不一定在场）；机关关着时占格、开了不占——
     ``gates_open`` 选按哪一种算：缺省按「开着」，可达性一类的检查问的是「带对了人走不走得到」，
     「机关不卡主线」（规则 34）另按「关着」算。``foe_sight`` 为真时，在场明雷面前那一格也当墙：
-    「明雷不堵路」（规则 36）问的是不踏进任何一格面前格还走不走得通。
+    「明雷不堵路」（规则 36）问的是不踏进任何一格面前格还走不走得通。会走的明雷（写了 patrol）走到哪一格、
+    面朝哪边都有可能，于是整条巡逻路线连同上下左右一格都当墙——路线不许横在主线必经的窄口上。
+    （不带 foe_sight 的可达性一类检查仍只占它图上那一格：它走开了，那一格就空出来。）
     """
     occupied: dict[tuple[int, int], str] = {}
     for record in parsed.objects:
@@ -654,7 +705,13 @@ def occupied_cells(parsed: ParsedMap, gates_open: bool = True,
             for cell in object_cells(record):
                 occupied.setdefault(cell, record["name"])
             if kind == "foe" and foe_sight:
-                occupied.setdefault(foe_front_cell(record), record["name"] + " 的面前")
+                route = patrol_route(record)
+                if route:
+                    for x, y in route:
+                        for dx, dy in ((0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)):
+                            occupied.setdefault((x + dx, y + dy), record["name"] + " 的巡逻路线")
+                else:
+                    occupied.setdefault(foe_front_cell(record), record["name"] + " 的面前")
             continue
         if kind not in ("npc", "facility"):
             continue
@@ -3637,6 +3694,46 @@ def check_foe_fronts(parsed: ParsedMap, report: Report) -> None:
             report.error(where, f"面前那一格 {front} 走不上去（{what}）：它永远看不见人")
 
 
+def check_foe_patrols(parsed: ParsedMap, report: Report) -> None:
+    """规则 32（明雷的巡逻路线，docs/ch07-playtest-foes.md）：patrol 写得对、走得通、不挨剧情。
+
+    · 写法：`x,y;x,y`，每一段横平竖直（写坏了引擎当没写，它就站着不动）；至多 PATROL_MAX_CELLS 格；不走回头路。
+    · 途经的每一格可走：不是墙、设施、一定在场的 npc、别的新对象（它走过去会被挡在半路，等到天荒地老）。
+    · 整条路连同上下左右一格不挨传送点、踏入式触发器：引擎不让它站上去（FoePatrol 的 keepOff_），挨着了它就
+      走不完这条路；而它面前那一格压着它们，主角迈进去那一步就被这一仗吞掉。
+    · 两只明雷的路线（不走的就是它那一格）不重叠：两只在一条窄路上迎面走，会互相等着谁也过不去。
+    """
+    foes = [r for r in parsed.objects if r["type"] == "foe"]
+    if not any(patrol_route(r) for r in foes):
+        return
+    collision = collision_layer(parsed, report)
+    if collision is None:
+        return
+    rel = str(parsed.path.relative_to(ROOT))
+    occupied = occupied_cells(parsed, gates_open=False)
+    keep_off = step_activated_halo(parsed)
+    claimed: dict[tuple[int, int], str] = {}
+    for record in foes:
+        route = patrol_route(record) or [(record["x"], record["y"])]
+        for cell in route:
+            if cell in claimed and claimed[cell] != record["name"]:
+                report.error(f"{rel} 对象 {record['name']}",
+                             f"巡逻路线经过 {cell}，与 {claimed[cell]} 的重叠：两只会在这里互相挡着")
+            claimed.setdefault(cell, record["name"])
+    for record in foes:
+        route = patrol_route(record)
+        if not route:
+            continue
+        where = f"{rel} 对象 {record['name']}"
+        for cell in route:
+            if cell != route[0] and cell_blocked(parsed, collision, occupied, cell):
+                what = occupied.get(cell) or "墙或图外"
+                report.error(where, f"patrol 途经格 {cell} 走不上去（{what}）：它会被挡在半路")
+            if cell in keep_off:
+                report.error(where, f"patrol 途经格 {cell} 挨着 {keep_off[cell]}（传送点或踏入式触发器）："
+                                    "明雷不站在它们旁边，这条路走不完")
+
+
 def check_world_objects(maps: list[ParsedMap], report: Report) -> None:
     """规则 32：四种新对象的 id 全局唯一、带图名前缀；各自的属性写得对。只看 tmj。
 
@@ -3646,6 +3743,7 @@ def check_world_objects(maps: list[ParsedMap], report: Report) -> None:
     seen_ids: dict[str, str] = {}
     for parsed in maps:
         check_foe_fronts(parsed, report)
+        check_foe_patrols(parsed, report)
         rel = str(parsed.path.relative_to(ROOT))
         lilian_map = parsed.map_id.startswith(LILIAN_MAP_PREFIX)
         for record in parsed.objects:
@@ -3662,6 +3760,8 @@ def check_world_objects(maps: list[ParsedMap], report: Report) -> None:
 
             if props.get("require_party") and kind != "trigger":
                 report.error(where, f"require_party 只许写在 trigger 上（这里是 {kind}）：引擎只在触发器上读它")
+            if "patrol" in props and kind != "foe":
+                report.error(where, f"patrol 只许写在 foe 上（这里是 {kind}）：引擎只让明雷巡逻")
 
             # 规则 39 只看 tmj 的那一半：历练图上没有存档点、打坐点（打坐会加修为、推日历）。
             if lilian_map and kind == "facility" and props.get("kind") in LILIAN_FORBIDDEN_FACILITIES:
@@ -3701,6 +3801,17 @@ def check_world_objects(maps: list[ParsedMap], report: Report) -> None:
                     report.error(where, f"respawn_days={props['respawn_days']!r} 要是正整数；不重生就别写")
                 if "elite" in props and str(props["elite"]).lower() not in ("true", "false"):
                     report.error(where, f"elite={props['elite']!r} 要是 bool")
+                # 巡逻路线的写法（走不走得通在 check_foe_patrols）。
+                route = patrol_route(record)
+                if route is not None:
+                    if not route:
+                        report.error(where, f"patrol={props['patrol']!r} 写坏了：要写成「x,y;x,y」、每一段横平竖直"
+                                            "（引擎当没写，它就站着不动）")
+                    elif len(route) > PATROL_MAX_CELLS:
+                        report.error(where, f"patrol 一共 {len(route)} 格，超过 {PATROL_MAX_CELLS} 格："
+                                            "巡逻是在一小段路上来回走")
+                    elif len(set(route)) != len(route):
+                        report.error(where, "patrol 走了回头路（同一格经过两回）：来回往复由引擎管，路线只写去程")
             # chance（契约 3.12，D 路进历练时按它抽谁出现）：只有历练图上的 foe、chest 有意义，1–99 的整数。
             # 写在别处引擎不判——规范里写着、引擎不判的字段最危险（交接文档教训 14）。
             if "chance" in props:

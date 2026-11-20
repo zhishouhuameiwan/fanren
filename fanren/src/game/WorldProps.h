@@ -22,6 +22,8 @@ inline constexpr const char* kGateClosedSprite = "gate_closed";
 inline constexpr const char* kGateOpenSprite = "gate_open";
 inline constexpr const char* kFoeMarkSprite = "foe_mark";
 inline constexpr const char* kFoeMarkEliteSprite = "foe_mark_elite";
+// 明雷看见了人、正在追（巡逻与追击，docs/ch07-playtest-foes.md）：头顶冒「!」，用现成的感叹气泡。
+inline constexpr const char* kFoeAlertSprite = "bubble.exclaim";
 
 [[nodiscard]] const char* chestSprite(bool opened);
 [[nodiscard]] const char* gatherSprite(bool depleted);
@@ -44,6 +46,8 @@ struct PropPlaceholder {
 [[nodiscard]] PropPlaceholder gatePlaceholder(bool open);
 // 明雷头顶标记取不到图时：一块小牌一个字（精英换一种颜色、换一个字）。
 [[nodiscard]] PropPlaceholder foeMarkPlaceholder(bool elite);
+// 「!」取不到图时：一块亮黄的小牌写一个「！」。
+[[nodiscard]] PropPlaceholder foeAlertPlaceholder();
 
 // ---- 新对象缺图的警告 ----
 // 进程级去重：同一个 key（每种缺的物件 id、每个取不到的明雷 look）整个进程只打一行。世界层每进一次栈是一台新的

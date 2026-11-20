@@ -132,6 +132,23 @@ SHIKU_DAZUO_PANG = (24, 15)
 NANGONG = "nangong_wan"
 CHEN = "chen_qiaoqian"
 
+# 明雷的巡逻路线（2026-11-20 用户试玩：「敌人不动的确很呆」；docs/ch07-playtest-foes.md 第 4 节逐只说明）。
+# 从明雷所在那一格走到这里列的格、再原路走回去；只列自己那一格是原地张望。历练副本与原图同一只、同一条路。
+# 选路的规矩：只走可走格，横平竖直、四五格长；不横在主线必经的窄口与出入口上（门禁规则 36 按「整条路连同
+# 上下左右一格都当墙」量过目标链）；整条路连同旁边一格都不挨传送点、踏入触发区（规则 32，引擎也不让它站上去）。
+PATROL_ZHAOZE_CHAN = [(31, 20)]          # 地下沼泽东岸那一溜：(31,17)↕(31,20)，北边窄口与南边石阶都不碰
+PATROL_WAIWEI_CHAN = [(45, 10)]          # 禁地外围乌龙潭北岸：(42,10)↔(45,10)，潭边缺口 (38,12) 在它西边四格外
+PATROL_WAIWEI_XI = [(3, 22)]             # 外围西边那一大片的西缘：(3,18)↕(3,22)，主路走中间与东边
+PATROL_ZHONGXIN_LIN = [(8, 30)]          # 中心区外树林西南角：(8,26)↕(8,30)，主路在东边的落点与铜门之间
+PATROL_ZHONGXIN_YUAN = [(34, 4)]         # 铜门北边那一大片的北缘：(30,4)↔(34,4)，主路贴着第 8–13 行去上山小路
+PATROL_HXS_ZHONG = [(20, 17)]            # 环形山中央盆地西侧：(20,20)↕(20,17)，盆地十几格宽，主路从东边过
+PATROL_HXS_DONG = [(44, 29)]             # 东坡石屋南边那一溜：(44,24)↕(44,29)，青石殿与破洞都从南边那片空地去
+PATROL_HXS_NAN = [(32, 33)]              # 山脚空地：(28,33)↔(32,33)，落点 (24,38) 往北那条路在它西边
+PATROL_SHENCHU_CHAN = [(16, 21)]         # 沼泽深处西南：(12,21)↔(16,21)，往东口的路还能从第 15–20 行东边绕
+PATROL_SHENCHU_SHU = [(29, 4)]           # 北边矿脉东侧：(25,4)↔(29,4)，背对矿脉走开时就是去采的时候
+PATROL_SHENCHU_SHE = [(36, 17)]          # 东边那一溜：(36,14)↕(36,17)，不挨岔道口的插话（35,9）
+PATROL_SHENCHU_E = [(33, 26)]            # 精英碧水鳄守着水湾里的宝箱与矿脉：原地转身张望
+
 
 def map_props(map_id, bgm, outdoor=True):
     return [
@@ -764,7 +781,7 @@ def make_dixia_zhaoze():
     ] + zhaoze_links("ch07_zhaoze_shenchu", "ch07.kundi", "ch07.block.zhaoze_shenchu") + [
         # ---- 样板 5.2 探索层：东岸一个宝箱、一只明雷（寒冰蟾，地下是改编）----
         chest("chest_dongan", 32, 4, mid, "chest_dongan", [("pill_huiqi_dan", 1), ("material_hanyan_cao", 1)]),
-        foe("foe_chan", 31, 17, mid, "foe_chan", "be07_zhaoze_chan", "hanbing_chan", "left"),
+        foe("foe_chan", 31, 17, mid, "foe_chan", "be07_zhaoze_chan", "hanbing_chan", "left", patrol=PATROL_ZHAOZE_CHAN),
     ]
     return build_map(mid, W, H, "terrain_dixia_zhaoze",
                      map_props(mid, "bgm_cave", outdoor=False), g, objects)
@@ -778,8 +795,8 @@ def explore_waiwei(mid):
         chest("chest_yaxia", 12, 6, mid, "chest_yaxia", [("pill_jinchuang_yao", 2)]),      # 崖下遗落的储物袋
         chest("chest_tanbei", 46, 1, mid, "chest_tanbei", [("pill_huiqi_dan", 1)]),
         gather("gather_hanyan", 36, 6, mid, "gather_hanyan", "material_hanyan_cao", 30),    # 寒烟草，乌龙潭边（ch180）
-        foe("foe_chan", 42, 10, mid, "foe_chan", "be07_hanbing_chan", "hanbing_chan", "down"),
-        foe("foe_e", 3, 18, mid, "foe_e", "be07_cai_e", "cai_e", "right"),
+        foe("foe_chan", 42, 10, mid, "foe_chan", "be07_hanbing_chan", "hanbing_chan", "down", patrol=PATROL_WAIWEI_CHAN),
+        foe("foe_e", 3, 18, mid, "foe_e", "be07_cai_e", "cai_e", "right", patrol=PATROL_WAIWEI_XI),
     ]
 
 
@@ -788,8 +805,8 @@ def explore_zhongxin(mid):
         chest("chest_linbian", 1, 33, mid, "chest_linbian", [("pill_jinchuang_yao", 2)]),
         chest("chest_huayuan", 2, 1, mid, "chest_huayuan", [("material_huolong_cao", 1), ("pill_huiqi_dan", 1)]),
         gather("gather_huolong", 45, 24, mid, "gather_huolong", "material_huolong_cao", 30),   # 火龙草（ch191）
-        foe("foe_she_lin", 8, 26, mid, "foe_she_lin", "be07_fei_she", "fei_she", "right"),
-        foe("foe_she_yuan", 30, 4, mid, "foe_she_yuan", "be07_fei_she", "fei_she", "down"),
+        foe("foe_she_lin", 8, 26, mid, "foe_she_lin", "be07_fei_she", "fei_she", "right", patrol=PATROL_ZHONGXIN_LIN),
+        foe("foe_she_yuan", 30, 4, mid, "foe_she_yuan", "be07_fei_she", "fei_she", "down", patrol=PATROL_ZHONGXIN_YUAN),
     ]
 
 
@@ -799,9 +816,10 @@ def explore_huanxingshan(mid):
         chest("chest_beipo", 46, 1, mid, "chest_beipo", [("material_huolong_cao", 1), ("pill_jinchuang_yao", 1)]),
         chest("chest_dongpo", 46, 17, mid, "chest_dongpo", [("pill_huiqi_dan", 1)]),
         gather("gather_huolong", 3, 12, mid, "gather_huolong", "material_huolong_cao", 30),
-        foe("foe_tuishan", 20, 20, mid, "foe_tuishan", "be07_tuishan_shou", "tuishan_shou", "down"),
-        foe("foe_tiebi", 44, 24, mid, "foe_tiebi", "be07_tiebi_yuan", "tiebi_yuan", "left"),
-        foe("foe_huoyan", 28, 33, mid, "foe_huoyan", "be07_huoyan_shu", "huoyan_shu", "left"),
+        foe("foe_tuishan", 20, 20, mid, "foe_tuishan", "be07_tuishan_shou", "tuishan_shou", "down",
+            patrol=PATROL_HXS_ZHONG),
+        foe("foe_tiebi", 44, 24, mid, "foe_tiebi", "be07_tiebi_yuan", "tiebi_yuan", "left", patrol=PATROL_HXS_DONG),
+        foe("foe_huoyan", 28, 33, mid, "foe_huoyan", "be07_huoyan_shu", "huoyan_shu", "left", patrol=PATROL_HXS_NAN),
     ]
 
 
@@ -880,10 +898,11 @@ def make_zhaoze_shenchu():
         gather("gather_huolingshi_bei", 22, 3, mid, "gather_huolingshi_bei", "material_huolingshi", 30),
         gather("gather_huolingshi_wan", 39, 24, mid, "gather_huolingshi_wan", "material_huolingshi", 30),
         chest("chest_ewan", 38, 27, mid, "chest_ewan", [("pill_yangjing_dan", 1), ("material_huolingshi", 1)]),
-        foe("foe_chan", 12, 21, mid, "foe_chan", "be07_zhaoze_chan", "hanbing_chan", "up"),
-        foe("foe_shu", 25, 4, mid, "foe_shu", "be07_shenchu_shu", "huoyan_shu", "left"),
-        foe("foe_she", 36, 14, mid, "foe_she", "be07_shenchu_she", "fei_she", "left"),
-        foe("foe_bishui_e", 33, 26, mid, "foe_bishui_e", "be07_bishui_e", "bishui_e", "left", elite=True),
+        foe("foe_chan", 12, 21, mid, "foe_chan", "be07_zhaoze_chan", "hanbing_chan", "up", patrol=PATROL_SHENCHU_CHAN),
+        foe("foe_shu", 25, 4, mid, "foe_shu", "be07_shenchu_shu", "huoyan_shu", "left", patrol=PATROL_SHENCHU_SHU),
+        foe("foe_she", 36, 14, mid, "foe_she", "be07_shenchu_she", "fei_she", "left", patrol=PATROL_SHENCHU_SHE),
+        foe("foe_bishui_e", 33, 26, mid, "foe_bishui_e", "be07_bishui_e", "bishui_e", "left", elite=True,
+            patrol=PATROL_SHENCHU_E),
 
         facility("facility_dazuo", 20, 26, "meditate"),
     ]
@@ -1019,9 +1038,11 @@ def make_lilian_waiwei():
               chance=60),
         chest("chest_tanbei", 46, 1, mid, "chest_tanbei", [("pill_huiqi_dan", 1)], chance=50),
         gather("gather_hanyan", 36, 6, mid, "gather_hanyan", "material_hanyan_cao", 1),
-        foe("foe_chan", 42, 10, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "down", chance=70),
-        foe("foe_she", 3, 18, mid, "foe_she", "bl07_fei_she", "fei_she", "right", chance=70),
-        foe("foe_shu", 30, 30, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "left", chance=50),
+        foe("foe_chan", 42, 10, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "down", chance=70,
+            patrol=PATROL_WAIWEI_CHAN),
+        foe("foe_she", 3, 18, mid, "foe_she", "bl07_fei_she", "fei_she", "right", chance=70, patrol=PATROL_WAIWEI_XI),
+        foe("foe_shu", 30, 30, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "left", chance=50,
+            patrol=[(34, 30)]),
     ]
     return lilian_copy(make_jindi_waiwei(), mid, "bgm_wild", True, objects)
 
@@ -1037,8 +1058,10 @@ def make_lilian_zhongxin():
         chest("chest_linbian", 1, 33, mid, "chest_linbian", [("pill_jinchuang_yao", 2)], chance=60),
         chest("chest_huayuan", 2, 1, mid, "chest_huayuan", [("material_lingshi", 8), ("material_huolong_cao", 1)]),
         gather("gather_huolong", 45, 24, mid, "gather_huolong", "material_huolong_cao", 1),
-        foe("foe_she_lin", 8, 26, mid, "foe_she_lin", "bl07_fei_she", "fei_she", "right", chance=70),
-        foe("foe_she_yuan", 30, 4, mid, "foe_she_yuan", "bl07_fei_she", "fei_she", "down", chance=70),
+        foe("foe_she_lin", 8, 26, mid, "foe_she_lin", "bl07_fei_she", "fei_she", "right", chance=70,
+            patrol=PATROL_ZHONGXIN_LIN),
+        foe("foe_she_yuan", 30, 4, mid, "foe_she_yuan", "bl07_fei_she", "fei_she", "down", chance=70,
+            patrol=PATROL_ZHONGXIN_YUAN),
     ]
     return lilian_copy(make_jindi_zhongxin(), mid, "bgm_wild", True, objects, openings=((22, 35), (23, 35)))
 
@@ -1055,9 +1078,11 @@ def make_lilian_huanxingshan():
         chest("chest_beipo", 46, 1, mid, "chest_beipo", [("material_lingshi", 6), ("material_huolong_cao", 1)],
               chance=60),
         gather("gather_huolong", 3, 12, mid, "gather_huolong", "material_huolong_cao", 1),
-        foe("foe_shu", 20, 20, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "down", chance=70),
-        foe("foe_chan", 44, 24, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "left", chance=70),
-        foe("foe_she", 28, 33, mid, "foe_she", "bl07_fei_she", "fei_she", "left", chance=60),
+        foe("foe_shu", 20, 20, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "down", chance=70,
+            patrol=PATROL_HXS_ZHONG),
+        foe("foe_chan", 44, 24, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "left", chance=70,
+            patrol=PATROL_HXS_DONG),
+        foe("foe_she", 28, 33, mid, "foe_she", "bl07_fei_she", "fei_she", "left", chance=60, patrol=PATROL_HXS_NAN),
     ]
     return lilian_copy(make_huanxingshan(), mid, "bgm_mountain_path", True, objects, openings=((24, 39),))
 
@@ -1073,7 +1098,8 @@ def make_lilian_zhaoze():
     ] + zhaoze_links("lilian_jindi_shenchu") + [
         chest("chest_dongan", 32, 4, mid, "chest_dongan", [("material_lingshi", 6), ("pill_huiqi_dan", 1)],
               chance=60),
-        foe("foe_chan", 31, 17, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "left", chance=70),
+        foe("foe_chan", 31, 17, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "left", chance=70,
+            patrol=PATROL_ZHAOZE_CHAN),
     ]
     return lilian_copy(base, mid, "bgm_cave", False, objects)
 
@@ -1089,10 +1115,11 @@ def make_lilian_shenchu():
         exit_facility(20, 26),
         gather("gather_huolingshi_bei", 22, 3, mid, "gather_huolingshi_bei", "material_huolingshi", 1),
         chest("chest_ewan", 38, 27, mid, "chest_ewan", [("material_lingshi", 12), ("material_huolingshi", 1)]),
-        foe("foe_shu", 25, 4, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "left", chance=70),
-        foe("foe_she", 36, 14, mid, "foe_she", "bl07_fei_she", "fei_she", "left", chance=70),
+        foe("foe_shu", 25, 4, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "left", chance=70,
+            patrol=PATROL_SHENCHU_SHU),
+        foe("foe_she", 36, 14, mid, "foe_she", "bl07_fei_she", "fei_she", "left", chance=70, patrol=PATROL_SHENCHU_SHE),
         foe("foe_bishui_e", 33, 26, mid, "foe_bishui_e", "bl07_bishui_e", "bishui_e", "left", elite=True,
-            chance=60),
+            chance=60, patrol=PATROL_SHENCHU_E),
     ]
     return lilian_copy(base, mid, "bgm_cave", False, objects)
 
@@ -1110,7 +1137,7 @@ def make_lilian_shiku():
         chest("chest_xiaoshi", 33, 20, mid, "chest_xiaoshi", [("material_lingshi", 15), ("pill_yangjing_dan", 1)]),
         chest("chest_shishi", 2, 4, mid, "chest_shishi", [("pill_jinchuang_yao", 2)], chance=60),
         # 石窟大厅这一只每趟都在（不写 chance）：历练至少有一仗是定了的，用例也不靠抽签。
-        foe("foe_chan", 24, 20, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "up"),
+        foe("foe_chan", 24, 20, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "up", patrol=[(20, 20)]),
     ]
     return lilian_copy(base, mid, "bgm_cave", False, objects)
 

@@ -23,6 +23,7 @@ constexpr engine::Color kGatePlate{92, 112, 136, 255};
 constexpr engine::Color kGateOpenEdge{150, 170, 190, 90};
 constexpr engine::Color kFoeMarkPlate{196, 48, 40, 255};
 constexpr engine::Color kFoeMarkElitePlate{214, 160, 40, 255};
+constexpr engine::Color kFoeAlertPlate{236, 200, 64, 255};
 
 std::set<std::string>& worldWarnings() {
     static std::set<std::string> warned;
@@ -61,6 +62,8 @@ PropPlaceholder gatePlaceholder(bool open) {
 PropPlaceholder foeMarkPlaceholder(bool elite) {
     return elite ? PropPlaceholder{kFoeMarkElitePlate, "凶", true} : PropPlaceholder{kFoeMarkPlate, "敌", true};
 }
+
+PropPlaceholder foeAlertPlaceholder() { return PropPlaceholder{kFoeAlertPlate, "！", true}; }
 
 engine::RectF characterDest(const CharacterSheet& sheet, float footX, float footY) {
     const float scale = fl(sheet.scale);

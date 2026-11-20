@@ -89,8 +89,9 @@ class StepSlide {
 public:
     // 瞬移：换图、脚本挪人、开场。
     void snap(Vec2f cell);
-    // 从画面上当前的位置（不一定是上一格，可能还在滑）滑向新的一格。
-    void moveTo(Vec2f cell);
+    // 从画面上当前的位置（不一定是上一格，可能还在滑）滑向新的一格，滑 seconds 秒（缺省与主角一步同长；
+    // 明雷比主角走得慢，一步滑多久由它自己的步长定）。
+    void moveTo(Vec2f cell, float seconds = kStepSlideSeconds);
     void advance(float dt);
     [[nodiscard]] Vec2f position() const;
     [[nodiscard]] bool moving() const { return elapsed_ < duration_; }
@@ -197,8 +198,13 @@ struct WorldFrame {
     struct Foe {
         const core::MapObject* object = nullptr;
         std::string look;          // foe 的 look 属性：画哪个角色 / 敌人
-        int facing = 2;            // foe 的 facing 属性，同 GameState::facing
+        int facing = 2;            // 此刻的朝向（会走的明雷按它的站位，不走的是 facing 属性），同 GameState::facing
         bool elite = false;
+        // ---- 巡逻与追击（docs/ch07-playtest-foes.md）----
+        // 此刻站在哪一格（逻辑格；滑步插值归画面）。(-1,-1) = 图上那一格：手搭的帧、改版前的样子不必填它。
+        core::Point cell{-1, -1};
+        bool alert = false;        // 在追：头顶冒「!」（代替明雷标记）
+        float stepSeconds = 0.f;   // 走一格多久：画面上滑一步就滑这么久（0 = 与主角一步同长）
     };
     struct Gate {
         const core::MapObject* object = nullptr;
@@ -261,6 +267,35 @@ private:
     bool seen_ = false;
 };
 
+// 这只明雷此刻的逻辑格：帧里填了 cell 就是它，没填（-1,-1）是图上那一格。
+[[nodiscard]] core::Point foeCellOf(const WorldFrame::Foe& foe);
+
+// ---------------------------------------------------------------------------
+// 明雷的滑步（巡逻与追击，docs/ch07-playtest-foes.md）：帧里只给格，滑不滑由画面自己判——与跟随者同一个做法
+// ---------------------------------------------------------------------------
+// 按明雷 id 认人。格变了一格就照帧里的 stepSeconds 滑过去；变了不止一格（回原位、读档）就瞬移；
+// 换了图（mapId 不同）整张表清掉重来。帧里没有了的（打赢了、旗标撤了）从表里拿掉。
+// 妖兽表没有走路帧：走着的时候画面上颠一颠（walkClock 是颠动的相位），人形表照常播走路帧。
+class FoeTrack {
+public:
+    struct Slot {
+        std::string id;
+        core::Point cell{};
+        StepSlide slide;
+        float walkClock = 0.f;     // 这一段连着走了多久；停下归零
+    };
+
+    void sync(const std::vector<WorldFrame::Foe>& foes, const std::string& mapId);
+    void advance(float dt);
+    void clear();
+    [[nodiscard]] const Slot* find(const WorldFrame::Foe& foe) const;
+    [[nodiscard]] const std::vector<Slot>& slots() const { return slots_; }
+
+private:
+    std::vector<Slot> slots_;
+    std::string mapId_;
+};
+
 // ---------------------------------------------------------------------------
 // 立着的东西按什么次序画（纯函数，不开窗口可测）
 // ---------------------------------------------------------------------------
@@ -269,6 +304,7 @@ private:
 // 开着的机关不在这里：它画在地面一层（WorldProps.h 的 gateStands）。
 // view 是镜头看得见的那块（世界像素）：NPC、新对象、跟随者出了它左右两格、上一格、下两格就不排（设施照旧全排，
 // 由 drawFacility 自己裁）。
+// foeCells 是明雷画面上的格（滑步中带小数），与 frame.foes 一一对应；不给（nullptr）就按 foeCellOf 的逻辑格。
 struct WorldDrawItem {
     enum class Kind { Facility, Npc, Player, Follower, Chest, Gather, Gate, Foe };
     DepthKey key;
@@ -277,7 +313,8 @@ struct WorldDrawItem {
 };
 [[nodiscard]] std::vector<WorldDrawItem> depthOrder(const WorldFrame& frame, Vec2f playerCell,
                                                     const std::vector<Vec2f>& followerCells,
-                                                    const engine::RectF& view);
+                                                    const engine::RectF& view,
+                                                    const std::vector<Vec2f>* foeCells = nullptr);
 
 // ---------------------------------------------------------------------------
 // 渲染器本体
@@ -301,12 +338,15 @@ public:
     // 跟着帧里的跟随者名单与格走一步（伙伴改版 3.7）：render 每帧开头自己调；无头下没有 render，
     // 测试直接调它，与 render 走的是同一条。
     void trackFollowers(Application& app, const WorldFrame& frame);
+    // 明雷同理（巡逻与追击）：render 每帧开头调；测试直接调。
+    void trackFoes(Application& app, const WorldFrame& frame);
 
     // ---- 给测试与调试看的状态 ----
     [[nodiscard]] Vec2f playerCell() const { return player_.position(); }
     [[nodiscard]] bool playerMoving() const { return player_.moving(); }
     [[nodiscard]] bool walking() const { return pose_.walking; }
     [[nodiscard]] const std::vector<FollowerTrack::Slot>& followers() const { return followers_.slots(); }
+    [[nodiscard]] const std::vector<FoeTrack::Slot>& foes() const { return foes_.slots(); }
     [[nodiscard]] Vec2f camera() const { return camera_; }
     [[nodiscard]] float fadeAlpha() const { return mapFadeAlpha(fadeClock_); }
     [[nodiscard]] float bannerOpacity() const { return bannerAlpha(bannerClock_, bannerAfterFade_); }
@@ -389,6 +429,8 @@ private:
                   const PropPlaceholder& placeholder, const Viewport& vp);
     void drawOpenGates(engine::Engine& engine, const WorldFrame& frame, const Viewport& vp);
     void drawFoe(engine::Engine& engine, const WorldFrame::Foe& foe, const Viewport& vp);
+    // 明雷画面上的格（滑步中带小数）：表里有它就是滑到的那一点，没有就是逻辑格。
+    [[nodiscard]] Vec2f foeDrawCell(const WorldFrame::Foe& foe) const;
     [[nodiscard]] float foeHeadTop(const WorldFrame::Foe& foe, float footY, const Viewport& vp) const;
     void drawFoeMarks(engine::Engine& engine, const WorldFrame& frame, const Viewport& vp);
     void warnMissingProp(const char* spriteId);
@@ -415,6 +457,7 @@ private:
     WalkPose pose_;                 // 主角的走路帧
     unsigned snapEpoch_ = 0;        // 主角每瞬移一次加一：跟随者据此整列瞬移
     FollowerTrack followers_;
+    FoeTrack foes_;                 // 会走的明雷的滑步
     Vec2f camera_{};
     float clock_ = 0.f;             // 视觉时钟：闪烁、帧动画、波光的相位
     float fadeClock_ = kMapFadeSeconds;

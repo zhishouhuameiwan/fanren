@@ -473,6 +473,11 @@
               "name": "look",
               "type": "string",
               "value": "hanbing_chan"
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "31,20"
             }
           ]
         }

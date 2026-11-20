@@ -35,6 +35,12 @@ bool covers(const core::MapObject& object, core::Point cell) {
            cell.y >= object.position.y && cell.y < object.position.y + object.height;
 }
 
+// 新对象占的格：明雷按它此刻那一格（只占一格，门禁规则 32 钉着），别的照矩形。
+bool coversNow(const core::MapObject& object, core::Point cell, const FoePoses* poses) {
+    if (object.type == kFoe && poses != nullptr) return foePose(object, poses).cell == cell;
+    return covers(object, cell);
+}
+
 std::string trim(const std::string& text) {
     std::size_t begin = 0;
     std::size_t end = text.size();
@@ -140,10 +146,25 @@ bool blocks(const core::GameState& state, const core::WorldObjectState& objects,
     return object.type != kGate || !gateOpen(objects, object);
 }
 
+int facingOfName(const std::string& name) {
+    if (name == "up") return 0;
+    if (name == "right") return 1;
+    if (name == "left") return 3;
+    return 2;   // down 与写错的值：朝下（WorldScene::facingFromName 同一口径）
+}
+
+FoePose foePose(const core::MapObject& foe, const FoePoses* poses) {
+    if (poses != nullptr) {
+        if (const auto it = poses->find(foe.property("id")); it != poses->end()) return it->second;
+    }
+    return FoePose{foe.position, facingOfName(foe.property("facing"))};
+}
+
 const core::MapObject* presentAt(const core::GameState& state, const core::WorldObjectState& objects,
-                                 const core::TileMap& map, core::Point cell, const std::string& type) {
+                                 const core::TileMap& map, core::Point cell, const std::string& type,
+                                 const FoePoses* poses) {
     for (const core::MapObject& object : map.objects) {
-        if (object.type != type || !covers(object, cell)) continue;
+        if (object.type != type || !coversNow(object, cell, poses)) continue;
         if (!present(state, objects, object)) continue;
         if (object.type == kGate && gateOpen(objects, object)) continue;
         return &object;
@@ -152,29 +173,31 @@ const core::MapObject* presentAt(const core::GameState& state, const core::World
 }
 
 const core::MapObject* blockerAt(const core::GameState& state, const core::WorldObjectState& objects,
-                                 const core::TileMap& map, core::Point cell) {
+                                 const core::TileMap& map, core::Point cell, const FoePoses* poses) {
     for (const core::MapObject& object : map.objects) {
-        if (!isWorldObjectType(object.type) || !covers(object, cell)) continue;
+        if (!isWorldObjectType(object.type) || !coversNow(object, cell, poses)) continue;
         if (blocks(state, objects, object)) return &object;
     }
     return nullptr;
 }
 
-core::Point foeFrontCell(const core::MapObject& foe) {
-    core::Point cell = foe.position;
-    const std::string facing = foe.property("facing");
-    if (facing == "up") cell.y -= 1;
-    else if (facing == "right") cell.x += 1;
-    else if (facing == "left") cell.x -= 1;
-    else cell.y += 1;
+core::Point foeFrontCell(const core::MapObject& foe, const FoePoses* poses) {
+    const FoePose pose = foePose(foe, poses);
+    core::Point cell = pose.cell;
+    switch (pose.facing) {
+        case 0: cell.y -= 1; break;
+        case 1: cell.x += 1; break;
+        case 3: cell.x -= 1; break;
+        default: cell.y += 1; break;
+    }
     return cell;
 }
 
 const core::MapObject* foeWatching(const core::GameState& state, const core::WorldObjectState& objects,
-                                   const core::TileMap& map, core::Point cell) {
+                                   const core::TileMap& map, core::Point cell, const FoePoses* poses) {
     for (const core::MapObject& object : map.objects) {
         if (object.type != kFoe || !foePresent(state, objects, object)) continue;
-        if (foeFrontCell(object) == cell) return &object;
+        if (foeFrontCell(object, poses) == cell) return &object;
     }
     return nullptr;
 }

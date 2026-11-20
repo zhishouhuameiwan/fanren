@@ -382,6 +382,11 @@
               "name": "chance",
               "type": "int",
               "value": 70
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "20,17"
             }
           ]
         },
@@ -420,6 +425,11 @@
               "name": "chance",
               "type": "int",
               "value": 70
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "44,29"
             }
           ]
         },
@@ -458,6 +468,11 @@
               "name": "chance",
               "type": "int",
               "value": 60
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "32,33"
             }
           ]
         }

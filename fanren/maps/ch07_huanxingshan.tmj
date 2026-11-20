@@ -679,6 +679,11 @@
               "name": "look",
               "type": "string",
               "value": "tuishan_shou"
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "20,17"
             }
           ]
         },
@@ -712,6 +717,11 @@
               "name": "look",
               "type": "string",
               "value": "tiebi_yuan"
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "44,29"
             }
           ]
         },
@@ -745,6 +755,11 @@
               "name": "look",
               "type": "string",
               "value": "huoyan_shu"
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "32,33"
             }
           ]
         }
