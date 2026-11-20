@@ -9,6 +9,7 @@
 
 #include "game/Application.h"
 #include "game/MapArt.h"
+#include "game/Minimap.h"
 #include "io/VisualLoader.h"
 
 namespace fanren::game {
@@ -560,6 +561,10 @@ void WorldFrame::clear() {
     gathers.clear();
     foes.clear();
     gates.clear();
+    minimap = false;
+    objects = nullptr;
+    heroFacing = 2;
+    minimapKey.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -899,6 +904,7 @@ void WorldView::render(Application& app, const WorldFrame& frame) {
     trackFollowers(app, frame);
     trackFoes(app, frame);
     ensureMap(app, *map);
+    minimapMap_ = map;
     if (!fx_) fx_ = std::make_unique<engine::PostFx>(engine);
 
     const Viewport vp = viewport(app, *map);
@@ -1641,6 +1647,21 @@ void WorldView::drawObjectiveMarker(engine::Engine& engine, const ui::Theme& the
     if (dy < 0.f) t = std::min(t, (kMargin - sy) / dy);
     if (t >= 1e9f) return;
     t = std::max(t, 0.f);
+    // 小地图开着时，右上角那一块（连同左边写「N 格」的余地）不许箭头钻进去：射线在进那一块之前停下
+    //（docs/ch07-foundation.md 3.1：小地图与别的界面不重叠）。
+    if (frame.minimap) {
+        const RectF panel = minimap::panelRect();
+        const float keepLeft = panel.x - 70.f;
+        const float keepBottom = panel.y + panel.h + 30.f;
+        const float tipX = sx + dx * t;
+        const float tipY = sy + dy * t;
+        if (tipX >= keepLeft && tipY <= keepBottom) {
+            float entry = 0.f;
+            if (sx < keepLeft && dx > 0.f) entry = std::max(entry, (keepLeft - sx) / dx);
+            if (sy > keepBottom && dy < 0.f) entry = std::max(entry, (keepBottom - sy) / dy);
+            if (entry > 0.f && entry < t) t = entry;
+        }
+    }
     const float targetX = fl(target->position.x) + fl(std::max(1, target->width)) / 2.f;
     const float targetY = fl(target->position.y) + fl(std::max(1, target->height)) / 2.f;
     const int cells = static_cast<int>(std::abs(targetX - (fl(lastCell_.x) + 0.5f)) +
@@ -1690,7 +1711,8 @@ void WorldView::drawHud(engine::Engine& engine, const ui::Theme& theme, const Wo
     const RectF tag = hud::exploreTagRect(engine, boxX, tagY, frame.exploreLine);
     hud::drawExploreTag(engine, theme, geometry_, boxX, tagY, frame.exploreLine, frame.exploreComplete,
                         covers(tag) ? kCoveringAlpha : 1.f);
-    hud::drawSaveNotice(engine, theme, geometry_, frame.saveNotice);
+    if (frame.minimap) drawMinimap(engine, theme, frame, vp, covers(minimap::panelRect()));
+    hud::drawSaveNotice(engine, theme, geometry_, frame.saveNotice, frame.minimap ? minimap::kSaveNoticeTop : 16.f);
     hud::drawPathActionHint(engine, theme, geometry_, frame.pathActionHint);
 
     // 「[Z] 打开」浮在那一格头顶：人的话在名牌上方，脚下那个调查点的话在主角头顶。
@@ -1704,6 +1726,37 @@ void WorldView::drawHud(engine::Engine& engine, const ui::Theme& theme, const Wo
             bottom = footY - kCell * 1.5f - 6.f;
         }
         hud::drawInteractPrompt(engine, theme, geometry_, frame.interactHint, cx, bottom);
+    }
+}
+
+void WorldView::drawMinimap(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame,
+                            const Viewport& vp, bool covering) {
+    // 底图要地图本身（通行格、尺寸）：render 顶上记的那一份。
+    const core::TileMap* map = minimapMap_;
+    if (map == nullptr || frame.objects == nullptr) return;
+    if (!minimap_) minimap_ = std::make_unique<minimap::MapThumbnail>();
+    minimap_->ensure(engine, *map);
+    const float alpha = covering ? minimap::kCoveringAlpha : 1.f;
+    const RectF panel = minimap::panelRect();
+    hud::drawPanel(engine, theme, geometry_, panel, alpha);
+    const minimap::Layout layout = minimap::fit(minimap::mapArea(panel), map->width, map->height,
+                                                Vec2f{vp.player.x + 0.5f, vp.player.y + 0.5f});
+    minimap_->draw(engine, layout, alpha);
+    const auto marks = minimap::collectMarks(frame, *frame.objects, vp.player, frame.heroFacing);
+    minimap::drawMarks(engine, theme, geometry_, layout, marks, 3.2f, alpha);
+    // 右下角一小行「M 地图」：告诉玩家整张图怎么看。
+    if (!frame.minimapKey.empty()) {
+        constexpr int kKeyFont = 13;
+        const engine::Point size = engine.measureText(frame.minimapKey, kKeyFont);
+        if (size.x > 0) {
+            const float w = static_cast<float>(size.x) + 10.f;
+            const float h = static_cast<float>(size.y) + 4.f;
+            const RectF tag{panel.x + panel.w - w - 3.f, panel.y + panel.h - h - 3.f, w, h};
+            engine.fillRect(tag, hud::faded(theme.inkDeep, 0.75f * alpha), engine::BlendMode::Alpha);
+            engine::TextStyle style = theme.bodyStyle;
+            engine.drawText(frame.minimapKey, static_cast<int>(tag.x + 5.f), static_cast<int>(tag.y + 2.f), kKeyFont,
+                            hud::faded(theme.paper, alpha), style);
+        }
     }
 }
 

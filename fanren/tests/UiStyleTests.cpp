@@ -17,6 +17,7 @@
 #include "core/model/Types.h"
 #include "engine/Engine.h"
 #include "game/Application.h"
+#include "game/AreaMapScene.h"
 #include "game/BoardScene.h"
 #include "game/ChapterCardScene.h"
 #include "game/DialogueScene.h"
@@ -501,6 +502,29 @@ TEST(MenuWording, TheMortalMenuSaysNothingAnElevenYearOldCouldNotSay) {
     EXPECT_EQ(MenuScene::pageLabel(data, PanelStage::Immortal, MenuScene::Page::Magic), "法术");
 }
 
+// 第 7 章改版·路 M（docs/ch07-foundation.md 3.2、3.3）：区域地图与说明四行式是通用界面，第 1 章的玩家就看得见。
+// 区域地图的固有字、说明四行式的全部字样（ui.iteminfo.*，随阶段换的「法力」「灵石」走占位不在里面）过同一张禁词表。
+TEST(MenuLexicon, TheAreaMapAndTheItemInfoWordsAreSafeForMortalChapters) {
+    const fanren::core::GameData data = shippedData();
+    std::vector<std::string> all = fanren::game::AreaMapScene::areaMapStrings(data);
+    ASSERT_GE(all.size(), 20u);
+    int iteminfo = 0;
+    for (const auto& [key, text] : data.text) {
+        if (key.rfind("ui.iteminfo.", 0) != 0) continue;
+        ++iteminfo;
+        all.push_back(text);
+    }
+    EXPECT_GE(iteminfo, 40);
+    all.push_back(data.lookupText("ui.menu.map"));
+    all.push_back(data.lookupText("ui.settings.minimap"));
+    all.push_back(data.lookupText("ui.settings.desc.minimap"));
+    for (const std::string& text : all) {
+        EXPECT_FALSE(text.empty());
+        EXPECT_TRUE(firstForbidden(text).empty()) << "出现了「" << firstForbidden(text) << "」：" << text;
+        EXPECT_EQ(text.rfind("ui.", 0), std::string::npos) << "文案 key 没查到正文：" << text;
+    }
+}
+
 // 系统设置（docs/settings.md 5.4、第 7 节第 6 条）：设置面板与两处入口（标题画面、主菜单）的字过同一张禁词表。
 // 设置是给这台机器调的，第 1 章的玩家就会打开它——面板上一个修仙词都不许有。
 TEST(SettingsWording, ThePanelAndBothEntrancesPassTheForbiddenWordScan) {
@@ -539,8 +563,9 @@ TEST(SettingsWording, ThePanelAndBothEntrancesPassTheForbiddenWordScan) {
     // 「手柄震动」（新真值：11 行，行号照那一节写死的次序）；第一期地基包（docs/ch07-foundation.md 2.3）又在它之后
     // 插了「教学提示」（12 行）。
     const std::vector<std::string> kRowNames{"音乐音量", "音效音量", "显示模式", "画面缩放", "垂直同步", "画面特效",
-                                             "战斗震屏", "文字速度", "手柄震动", "自动播放", "教学提示", "按键设置", "恢复默认"};
-    // 地基包路 D 在「手柄震动」之后插了「自动播放」，路 G 再插「教学提示」（新真值：13 行）。
+                                             "战斗震屏", "文字速度", "手柄震动", "自动播放", "教学提示", "小地图",
+                                             "按键设置", "恢复默认"};
+    // 地基包三路在「手柄震动」之后各插一行：自动播放（路 D）、教学提示（路 G）、小地图（路 M）（新真值：14 行）。
     ASSERT_EQ(kRowNames.size(), static_cast<std::size_t>(SettingsScene::kRowCount));
     for (int row = 0; row < SettingsScene::kRowCount; ++row) {
         EXPECT_EQ(SettingsScene::rowLabel(data, row), kRowNames[static_cast<std::size_t>(row)]) << "第 " << row << " 行";

@@ -235,7 +235,8 @@ public:
     // Action 是八方旅人式的「路径行动」键（E / Q，施工图 1.5 节）。
     // Alt+Enter（主键盘与小键盘的 Enter）是切全屏，整个吞掉：不算 Confirm，按住也不自动重复出 Confirm。
     // 键盘与手柄（docs/gamepad.md）换算成同一套逻辑键：按住 = 键盘按住或任一手柄上它的任一手柄键按住。
-    enum class Key { Up, Down, Left, Right, Confirm, Cancel, Menu, Skip, Save, Action, Count };
+    // Map（区域地图，M / 手柄 LB）是第 7 章改版·路 M 追加在末尾的（docs/ch07-foundation.md 3.2）。
+    enum class Key { Up, Down, Left, Right, Confirm, Cancel, Menu, Skip, Save, Action, Map, Count };
     bool keyDown(Key key) const;      // 当前是否按住
     // 本帧是否刚按下。只有上下左右连发：按住 250ms 后每 60ms 再出一次（翻长列表、调数值）；
     // 确认、取消、菜单、快进、存盘、路径行动一次物理按下只出一次，按住不连发（docs/gamepad.md 第 5 节：
@@ -315,7 +316,7 @@ public:
 
     // ---- 手柄（docs/gamepad.md）----
     // 按位置命名（Xbox 的叫法）：A 下、B 右、X 左、Y 上。Stick* 是左摇杆数字化后的四向，LT / RT 是扳机数字化后的按下。
-    // 手柄键位固定、不可改（第 2 节）；LB、LT 不配任何动作。非无头时 init 打开手柄子系统（起不来只打一行警告、照样启动），
+    // 手柄键位固定、不可改（第 2 节）；LT 不配任何动作（LB 自第 7 章改版起配给区域地图）。非无头时 init 打开手柄子系统（起不来只打一行警告、照样启动），
     // 热插拔跟着 SDL 的 ADDED / REMOVED 走；pollEvents 处理手柄事件不看是谁开的子系统（测试自己开、或用 SDL_PushEvent 塞）。
     enum class PadButton {
         A, B, X, Y, Back, Start, LB, RB, LT, RT,

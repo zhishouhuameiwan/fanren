@@ -18,6 +18,7 @@
 #include "core/rules/Crafting.h"
 #include "core/rules/Economy.h"
 #include "core/rules/Encounter.h"
+#include "core/rules/ItemInfo.h"
 #include "core/rules/Objectives.h"
 #include "core/rules/PathActions.h"
 #include "core/rules/Tutorials.h"
@@ -115,6 +116,8 @@ struct LilianEntry {
     std::string spawn;                 // 入口图上的出生点；空 = 缺省出生点
     std::vector<std::string> party;    // 这一趟的队员：currentRole 给的角色 id，至多 3 位
 };
+
+class WorldScene;   // 路 M：worldScene() 的返回类型
 
 class Application {
 public:
@@ -525,6 +528,20 @@ public:
     [[nodiscard]] std::optional<Vec2f> bubbleCell(const std::string& roleId);
     // 一格在屏幕上的位置（逻辑像素，格的左上角）；没有世界层时返回空。
     [[nodiscard]] std::optional<engine::Point> cellToScreen(Vec2f cell) const;
+    // ---- 地图与说明（第 7 章可玩性改版·第一期，路 M，docs/ch07-foundation.md 第 3 节）----
+    //
+    // 物品说明「来源」一行要知道哪张图的宝箱、采集点里有它（rules::ItemSpots）。那要把 maps/ 全扫一遍，
+    // 所以头一次要用时才建（game/ItemInfoIndex.h），建好留着；换章、读档都不用重建（地图是只读的静态数据）。
+    [[nodiscard]] const rules::ItemSpots& itemSpots();
+    // 栈里最上面那一层世界画面（区域地图要它此刻的那一帧）；没有为 nullptr。
+    [[nodiscard]] WorldScene* worldScene();
+    // 全部集齐奖励（物品说明的来源用；单查一张图走 explorationReward）。
+    [[nodiscard]] const std::map<std::string, core::ExplorationReward>& explorationRewards() const {
+        return explorationRewards_;
+    }
+    [[nodiscard]] const std::string& assetRoot() const { return assetRoot_; }
+    // 全部商店（只读；物品说明的来源用）。改库存走 shop(id)。全部编成 battles() 在上面教学卡与见闻那一段（路 G 已加，集成时去重）。
+    [[nodiscard]] const std::map<std::string, rules::Shop>& shops() const { return shops_; }
 
 private:
     // 取出脚本命令并派发。能就地完成的（给物品、置旗标）直接执行并 resume；
@@ -651,6 +668,9 @@ private:
     // 「已落盘」的那一份：enable 时读进来生效的、之后每次写盘成功写下的。shutdown 时与 settings_ 不同就补写。
     io::Settings savedSettings_;
     std::string settingsPath_;   // enableSettingsFile 记下的路径；空 = 不碰文件
+
+    // 路 M：物品来源的地图索引（itemSpots）。头一次要用时建。
+    std::optional<rules::ItemSpots> itemSpots_;
 };
 
 }  // namespace fanren::game

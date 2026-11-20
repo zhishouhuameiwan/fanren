@@ -31,6 +31,7 @@
 
 #include "core/model/Types.h"
 #include "engine/PostFx.h"
+#include "game/ItemInfoView.h"
 #include "game/Scene.h"
 #include "game/Wording.h"
 #include "ui/Widgets.h"
@@ -42,7 +43,8 @@ public:
     // 前八项的次序即画面上的次序；返回首页需要确认，「返回」只关闭菜单。
     // Party（队伍）、Roster（名册）追加在末尾是为了不挪动前八项的值（截图口按名字取它们）；
     // 画面上它俩排在「状态」后面，且只在名册上有人时出现（见文件头）。
-    enum class Page { Status, Items, Magic, Journal, Save, Settings, Home, Back, Party, Roster };
+    // Map（地图）是第 7 章改版·路 M 追加的（docs/ch07-foundation.md 3.2）：画面上排在「记事」后面，确认打开区域地图。
+    enum class Page { Status, Items, Magic, Journal, Save, Settings, Home, Back, Party, Roster, Map };
 
     // 小像按几倍画：人物表的世界层倍数的三分之四，取整（旧表 3 → 4，高清表 2 → 2），至少 1。
     // 菜单的小像一向比走在地图上的大三分之一（16×24 的旧表：地图 ×3、菜单 ×4）。
@@ -65,7 +67,8 @@ public:
 
     // initial：打开时光标停在哪一项；focusList：物品 / 法术页直接把光标放进右栏的列表，
     // 记事页直接翻开告示板，首页页直接进入确认（截图口用；游戏里按 Tab 打开时停在「状态」）。
-    explicit MenuScene(Page initial = Page::Status, bool focusList = false);
+    // listRow：物品 / 法术页聚焦后光标再往下挪几行（截图口 menu:items:<n> 用，看某一样的四行式说明）。
+    explicit MenuScene(Page initial = Page::Status, bool focusList = false, int listRow = 0);
     ~MenuScene() override;
 
     // 这一阶段菜单上可能出现的全部固有字（左栏、页眉、空表提示、状态页的标签、
@@ -151,14 +154,19 @@ private:
     void drawPortrait(Application& app, const Member& member, const engine::Rect& box) const;
     void drawListPage(Application& app, const engine::Rect& area, const ui::ListView& list,
                       bool focused, const std::string& description) const;
+    // 物品页、法术页：左边列表、右边说明块（block 为 nullptr 时写一句「选中一样……」）。
+    void drawSplitPage(Application& app, const engine::Rect& area, const ui::ListView& list, bool focused,
+                       const DetailBlock* block) const;
     void drawJournal(Application& app, const engine::Rect& area) const;
     void drawSave(Application& app, const engine::Rect& area) const;
     void drawSettings(Application& app, const engine::Rect& area) const;
     void drawHome(Application& app, const engine::Rect& area) const;
+    void drawMapPage(Application& app, const engine::Rect& area) const;
     void drawParty(Application& app, const engine::Rect& area) const;
 
     Page initial_;
     bool focusList_;
+    int listRow_ = 0;
     Focus focus_ = Focus::Commands;
     ui::ListView commands_;
     ui::ListView items_;
@@ -187,6 +195,8 @@ private:
     bool journalOpen_ = false;
     // 系统设置面板正压在菜单上面：同上（docs/settings.md 5.1）。
     bool settingsOpen_ = false;
+    // 物品页、法术页右边那块说明（docs/ch07-foundation.md 3.3）：选中的那一样不变就不重算。
+    mutable DetailCache detail_;
 };
 
 }  // namespace fanren::game

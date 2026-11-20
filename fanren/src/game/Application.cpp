@@ -47,6 +47,7 @@
 #include "io/SaveFile.h"
 #include "io/ShopLoader.h"
 #include "io/VisualLoader.h"
+#include "game/ItemInfoView.h"
 
 namespace fanren::game {
 
@@ -2132,4 +2133,21 @@ void Application::drawSpeechBubbles() {
         drawSpeechBubble(*engine_, theme_, bubble.text, anchor, SpeechBubbles::opacity(bubble));
     }
 }
+
+// ---------------------------------------------------------------------------
+// 路 M：地图与说明（docs/ch07-foundation.md 第 3 节）
+// ---------------------------------------------------------------------------
+
+const rules::ItemSpots& Application::itemSpots() {
+    if (!itemSpots_) itemSpots_ = buildItemSpots(assetRoot_, data_, explorationRewards_);
+    return *itemSpots_;
+}
+
+WorldScene* Application::worldScene() {
+    for (auto it = scenes_.rbegin(); it != scenes_.rend(); ++it) {
+        if (auto* world = dynamic_cast<WorldScene*>(it->get())) return world;
+    }
+    return nullptr;
+}
+
 }  // namespace fanren::game

@@ -12,6 +12,7 @@
 #include "core/rules/Objectives.h"
 #include "core/rules/Quests.h"
 #include "game/Application.h"
+#include "game/AreaMapScene.h"
 #include "game/DialogueScene.h"
 #include "game/Exploration.h"
 #include "game/Guide.h"
@@ -617,6 +618,12 @@ bool WorldScene::update(Application& app, double deltaSeconds) {
         return true;
     }
 
+    // 区域地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.2）：M / 手柄 LB。与主菜单同一个口径：只在世界层受理。
+    if (eng.keyPressed(engine::Engine::Key::Map)) {
+        app.pushScene(std::make_unique<AreaMapScene>());
+        return true;
+    }
+
     if (eng.keyPressed(engine::Engine::Key::Confirm)) {
         // 得物卡片还亮着、面前又没有别的能按的东西（多半正对着刚开空的箱子）：这一下是「收起卡片」，
         // 不再弹一句「箱子是空的」。面前有能按的（另一个箱子、一个人），照常交互，卡片自己淡出。
@@ -779,6 +786,14 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     if (saveNoticeSeconds_ > 0.0) frame_.saveNotice = saveNotice_;
     frame_.pathActionHint = pathActionHint(app);
     frame_.interactHint = interactHint(app, frame_.interactCell, frame_.interactNpc);
+
+    // 小地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.1）：设置开着、世界层在最上面（对白、面板、菜单压着时不画）、
+    // 脚本没在跑（过场里不画）。
+    frame_.objects = &app.worldObjects();
+    frame_.heroFacing = state.facing;
+    frame_.minimapKey = app.text("ui.map.minimap.key");
+    frame_.minimap = app.settings().minimap && app.topScene() == this && !app.awaitingCommand() &&
+                     !app.scripts().isRunning();
     markHeads(app, *map);
     noteGuideEvents(app, frame_);
 }

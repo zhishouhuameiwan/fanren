@@ -19,6 +19,7 @@
 | 6 | 战斗震屏 | `screen_shake` | 开 / 关 | 开 | BattleView 触发震屏的那一处 |
 | 7 | 文字速度 | `text_speed` | 慢 `slow` 30 / 标准 `normal` 60 / 快 `fast` 120 / 瞬显 `instant`（字/秒） | 标准 | DialogueScene 的逐字速度 |
 | 8 | 手柄震动 | `pad_rumble` | 开 / 关 | 开（有意的例外，见下） | `Engine::rumble` 那一道闸（`docs/gamepad.md` 第 8 节） |
+| 8½ | 小地图 | `minimap` | 开 / 关 | 开（第 7 章改版新加的界面，没有「以前」可对） | 右上角小地图画不画（`docs/ch07-foundation.md` 3.1；面板上是第 9 行，见 5.2） |
 | 9 | 按键设置 | `keys` | 见第 6 节 | 见第 6 节 | 二期 |
 | 10 | 恢复默认 | — | — | — | 全部（含键位、手柄震动）回到默认 |
 
@@ -181,7 +182,11 @@ core::Result<bool> saveSettings();
 | `skip` | Skip | 快进 | — | Ctrl（左）/ — |
 | `save` | Save | 存盘 | — | F5 / — |
 | `action` | Action | 路径行动 | — | E / Q |
+| `map` | Map | 地图 | — | M / — |
 
+- `map`（区域地图）是 2026-11-20 第 7 章改版·路 M 追加的第 11 个动作（`docs/ch07-foundation.md` 3.2）：默认 M，手柄 LB；
+  改键面板随之多一行（面板高 580 → 610），设置面板在「手柄震动」之后插了「小地图」一行（`kMinimap = 9`，「按键设置」「恢复默认」
+  各往后挪一行，面板高 622 → 652）。
 - 默认表与改造前的 `kBindings` 一一对应（19 条），`EngineTests.MapsScancodesToLogicalKeys` 不改一个字照样绿。
 - **固定键**保证玩家永远不会把自己锁在菜单外：方向键、Enter、Esc 始终可用。
 - **保留键**（不许绑）：左右 Alt（Alt+Enter）、左右 Win、Application 菜单键、Backspace 与 Delete（抓键时的「清空」）。
@@ -199,6 +204,10 @@ core::Result<bool> saveSettings();
   若新的默认键撞上某位玩家已存的自定义键**（例如把「快进」的默认从左 Ctrl 改成 J，而这位玩家已把 J 配给了「菜单」），
   叠出来的整表就有重复，读盘时整表校验不过 → **这位玩家的键位整张回默认**（打一行警告，设置文件不被覆盖，
   直到他在面板里改了什么）。改默认键位的那一次要在交付说明里点出这一条；要避免，就得换成「存全表」并带版本迁移，眼下不值当。
+  **新加的动作不走这一条**（2026-11-20 第 7 章改版·路 M）：契约之后新加的动作列在 `game::kYieldingActions`（眼下只有 `map`）。
+  玩家没改过它、它的默认键却撞上玩家已存的键（例如旧设置里早把 M 配给了「菜单」）时，**玩家的键位优先**：新动作让出那个键，
+  一个键都不剩就补 A–Z 里第一个谁都没用的字母（默认表下是 B），整张表照样过校验、不回默认（`game::keyTableOf`，
+  `MapWiring.APlayerWhoAlreadyBoundMKeepsItAndTheMapKeyMovesToAFreeLetter`）。玩家自己给新动作配过键的，照存的来。
 - **提示文案跟着键位走**：含可改键名的提示改成占位符 `{key.<id>}`，展开成那个动作当前第一个自定义键（没有自定义键就取第一个固定键）的显示名。展开的单点是 `Application::text()`。**并非全部文案都经它**：告示板（`BoardScene`）、路径行动面板（`PathActionScene`）、章节卡（`ChapterCardScene`）、设置面板与改键面板的固有字表直接调 `GameData::lookupText`，占位在那里不会展开——所以占位**只许出现在经 `text()` 显示的下面四条上**，`KeyPrompts.PlaceholdersOnlyLiveInTheFourPromptsThatGoThroughText` 扫 `data/text/**` 钉着白名单（id 认得、括号闭合）。默认键位下展开结果与改造前的字面**逐字节相同**（测试钉）。要改的四处：
   - `ui.menu.keys`：`{key.menu} 关闭　Esc 返回`
   - `ui.battle.hint.menu`：`↑↓ 选择 · ←→ 蓄劲 · 回车 确定 · Esc / {key.menu} 返回 · 按住 {key.skip} 加速`

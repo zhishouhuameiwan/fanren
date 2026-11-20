@@ -11,9 +11,11 @@
 
 #include "core/rules/Companions.h"
 #include "core/rules/Realm.h"
+#include "engine/TextLayout.h"
 #include "game/Application.h"
 #include "game/BattleHud.h"
 #include "game/BattleView.h"
+#include "game/ItemInfoView.h"
 #include "game/ShopScene.h"
 #include "io/VisualLoader.h"
 
@@ -1534,6 +1536,8 @@ bool parseBattleShot(const std::string& spec, std::string& battleId, BattleShot&
     else if (moment == "charge") shot = BattleShot::Charge;
     else if (moment == "victory") shot = BattleShot::Victory;
     else if (moment == "target") shot = BattleShot::Target;
+    else if (moment == "items") shot = BattleShot::Items;
+    else if (moment == "magic") shot = BattleShot::Magic;
     else return false;
     return true;
 }
@@ -1583,6 +1587,8 @@ bool BattleScene::shotReached() const {
             return false;
         case BattleShot::Opening:
         case BattleShot::Target:
+        case BattleShot::Items:
+        case BattleShot::Magic:
             return menu_ != BattleMenuMode::Closed;
         case BattleShot::Mid:
             return lastPlayed_ == BattleEventKind::Break || (shotFallback_ && lastPlayed_ == BattleEventKind::Hit);
@@ -1610,6 +1616,9 @@ void BattleScene::prepareShot(Application& app) {
         case BattleShot::Target:
             hold = 0.3;   // 让气焰与指针走起来
             break;
+        case BattleShot::Items:
+        case BattleShot::Magic:
+            break;
         case BattleShot::Mid:
             shotFallback_ = !rewindToAction(BattleEventKind::Break, BattleEventKind::Hit);
             hold = kShotSettle;
@@ -1636,6 +1645,8 @@ void BattleScene::prepareShot(Application& app) {
                 static_cast<void>(menuChoose(app, kBattleMenuAttack));
                 if (menu_ == BattleMenuMode::Weapon) static_cast<void>(menuChoose(app, 0));
             }
+            if (shot_ == BattleShot::Items) enterItem(app);
+            if (shot_ == BattleShot::Magic) enterMagic(app);
             if (card_) hold = static_cast<double>(resultCardSettleTime(*card_)) + 0.3;
             shotHold_ = hold;
             if (hold <= 0.0) frozen_ = true;
@@ -1675,6 +1686,36 @@ void BattleScene::renderMenu(Application& app) const {
                                                 static_cast<std::size_t>(pick) < menuTargets_.size()) {
         const Unit& target = battle_.units()[static_cast<std::size_t>(menuTargets_[static_cast<std::size_t>(pick)])];
         if (!target.ally) note = foeStatusText(target);
+    }
+    // 法术、物品选单：说明区写光标那一门 / 那一件的效果行（docs/ch07-foundation.md 3.3）。说明区只有 72 高，
+    // 按通用的文字块（内边距 24）只排得下一行：这里自己排，15 号字、内边距收窄，至多三行——上一句反馈在前，效果在后。
+    if (const int pick = menuList_.selection(); (menu_ == BattleMenuMode::Magic || menu_ == BattleMenuMode::Item) &&
+                                                pick >= 0 && static_cast<std::size_t>(pick) < menuIds_.size()) {
+        const std::string& id = menuIds_[static_cast<std::size_t>(pick)];
+        std::string effect;
+        if (menu_ == BattleMenuMode::Item) {
+            effect = itemEffectSummary(app, id);
+        } else if (const core::Magic* magic = app.data().findMagic(id)) {
+            effect = magicEffectSummary(app, *magic);
+        }
+        effect = stageWords(wordingStage(app.state()), effect);
+        constexpr int kNoteFont = 15;
+        constexpr int kNoteLine = 20;
+        constexpr int kNoteInset = 12;
+        const int width = content.w - kNoteInset * 2;
+        const auto measure = [&eng](const std::string& sample) { return eng.measureText(sample, kNoteFont).x; };
+        int y = content.y + listH + 6;
+        const int bottom = content.y + listH + kMenuFeedbackH;
+        const auto put = [&](const std::string& text, const engine::Color& color) {
+            for (const engine::LayoutLine& line : engine::layoutText(text, width, measure)) {
+                if (y + kNoteFont > bottom) return;
+                if (!line.text.empty()) eng.drawText(line.text, content.x + kNoteInset, y, kNoteFont, color, theme.bodyStyle);
+                y += kNoteLine;
+            }
+        };
+        put(note, theme.paper);
+        put(effect, theme.goldBright);
+        return;
     }
     if (!note.empty()) {
         ui::drawTextBlock(eng, note, engine::Rect{content.x, content.y + listH, content.w, kMenuFeedbackH}, 16, theme);

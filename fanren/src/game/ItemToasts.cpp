@@ -5,7 +5,9 @@
 #include <utility>
 #include <vector>
 
+#include "core/rules/ItemInfo.h"
 #include "game/BattleHud.h"
+#include "game/ItemInfoView.h"
 #include "game/ShopScene.h"
 #include "game/Wording.h"
 #include "game/WorldHud.h"
@@ -29,8 +31,8 @@ std::size_t glyphBytes(unsigned char lead) {
 // 卡片的版式（逻辑像素，1280×720）。
 constexpr float kCardW = 380.f;
 constexpr float kCardH = 60.f;
-constexpr float kCardGap = 8.f;
-constexpr float kCardTop = 132.f;     // 右上角的存盘提示之下
+constexpr float kCardGap = 6.f;     // 六张从 172 排下来也压不到对话框（小地图占了右上角，原来 132 起、间隔 8）
+constexpr float kCardTop = 172.f;     // 右上角的小地图之下（docs/ch07-foundation.md 3.1：小地图 12–162）
 constexpr float kCardRight = 20.f;
 constexpr float kSlide = 24.f;        // 淡入时从右边滑进来这么远
 constexpr float kIconBox = 36.f;
@@ -124,6 +126,16 @@ ItemToast makeItemToast(const core::GameData& data, const core::GameState& state
     }
     card.name = item != nullptr && !item->name.empty() ? item->name : itemId;
     card.tier = item != nullptr ? gradeTier(item->grade) : 0;
+    // 副行（docs/ch07-foundation.md 3.3）：有效果行就用效果行的第一条（「回复气血 30」「施展「火弹术」· 火 · 威力 12」），
+    // 没有效果的东西（材料、剧情物件）照旧是说明的第一句。
+    if (item != nullptr) {
+        const rules::ItemInfo info =
+            rules::describeItem(data, rules::ItemInfoSources{}, nullptr, infoWords(state), itemId, 0);
+        if (!info.effects.empty()) {
+            card.note = firstSentence(info.effects.front(), kNoteGlyphs);
+            return card;
+        }
+    }
     if (item != nullptr && !item->descKey.empty()) {
         const auto it = data.text.find(item->descKey);
         if (it != data.text.end()) card.note = firstSentence(it->second, kNoteGlyphs);

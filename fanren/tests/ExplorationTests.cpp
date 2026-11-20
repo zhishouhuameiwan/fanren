@@ -510,7 +510,9 @@ TEST_F(ExplorationWorld, GatheringPopsACardToo) {
     EXPECT_EQ(lastLine(), "采得黄精。");
     ASSERT_EQ(cardIds(), (std::vector<std::string>{"herb_huangjing_cao"}));
     EXPECT_EQ(cardOf("herb_huangjing_cao")->icon, BattleIcon::Wood);
-    EXPECT_EQ(cardOf("herb_huangjing_cao")->note, "叶背泛黄的常见灵草，谷中阴湿处成片地长");
+    // 副行：有效果行就用效果行的第一条（第 7 章改版·路 M，docs/ch07-foundation.md 3.3）。黄精能当场嚼，回 6 点气血；
+    // 从前这里是说明的第一句「叶背泛黄的常见灵草……」，没有效果的东西照旧是那一句（见上面筑基丹那一条）。
+    EXPECT_EQ(cardOf("herb_huangjing_cao")->note, "回复气血 6");
     // 采过的那一处再按：照旧说一句（那一句仍是对话框——只有得物改成了卡片）。
     tick(300);
     ASSERT_TRUE(open({4, 3}, 2));

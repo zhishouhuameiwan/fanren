@@ -102,8 +102,8 @@ TEST_F(MenuFlow, HomeIsReachableFromTheWorldMenuAndDefaultsToCancel) {
     EXPECT_EQ(MenuScene::pageLabel(app_.data(), app_.state(), MenuScene::Page::Home), "返回首页");
     press(SDL_SCANCODE_TAB);
     ASSERT_EQ(top(), "Menu");
-    // 状态、物品、法门、记事、存盘、设置、返回首页、返回。
-    for (int i = 0; i < 6; ++i) press(SDL_SCANCODE_DOWN);
+    // 状态、物品、法门、记事、地图、存盘、设置、返回首页、返回（「地图」是第 7 章改版·路 M 加的，docs/ch07-foundation.md 3.2）。
+    for (int i = 0; i < 7; ++i) press(SDL_SCANCODE_DOWN);
     press(SDL_SCANCODE_RETURN);
     press(SDL_SCANCODE_RETURN);
     EXPECT_EQ(top(), "Menu") << "确认界面默认取消，连按确认不能放弃进度";

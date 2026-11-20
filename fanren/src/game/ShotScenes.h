@@ -11,6 +11,10 @@
 //                             另认 Z（面朝前方按确认：开箱、采集）与 .（空转 0.25 秒，等得物卡片淡入）
 //   dlg:auto|skipask|skipped|bubble:…  地基包路 D 的对白减负四张图（自动小标、跳过确认框、跳过提示、插话气泡），
 //                             参数见 ShotScenes.cpp 的 pushDialogueShot
+//   areamap                   区域地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.2），压在当前世界层上
+//   toast:<物品 id>,<物品 id>  推几张得物卡片、空转到都出场（看副行的效果行，3.3）
+//   shopbuy:<店 id>           商店直接停在买货页（看左栏的四行式说明，3.3）
+//   （战斗选单的说明栏：battle:<编成 id>:items / :magic，见 BattleScene.h 的 BattleShot）
 //
 // 带伙伴的世界层、四人战斗面板不另开入口：存档里有伙伴（--load）、编成照旧（battle:<编成 id>）就拍得到。
 #include <string>

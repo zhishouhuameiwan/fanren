@@ -16,7 +16,8 @@ using KeyChange = engine::Engine::KeyChange;
 
 // 摆位。面板居中；一行 = 列表行高（字号 + 行距，与各面板同一个数）。
 // 最右加了一列只读的「手柄」（docs/gamepad.md 第 7 节）：面板从 840 宽加到 980、仍居中，原有各列离面板左边的距离不变。
-constexpr engine::Rect kPanel{150, 70, 980, 580};
+// 「地图」一行加进来时（docs/ch07-foundation.md 3.2）高 580 → 610、仍上下居中，各行与说明区的间距不变。
+constexpr engine::Rect kPanel{150, 55, 980, 610};
 constexpr int kTopGap = 6;
 constexpr int kIndent = 20;          // 动作名比面板内边距再缩进这么多（与设置面板的行名同一处起笔）
 constexpr int kFixedX = 190;         // 「固定」那一栏从面板左边起多远
@@ -81,6 +82,34 @@ engine::Engine::KeyTable keyTableOf(const io::Settings& settings) {
     for (const auto& [id, slots] : settings.keys) {
         if (const std::optional<Key> key = engine::Engine::keyFromId(id)) {
             table[static_cast<std::size_t>(*key)] = slots;
+        }
+    }
+    // 设置契约之后新加的动作（kYieldingActions）让位于玩家已存的键位（第 7 章改版·路 M 返修第 4 条）：
+    // 玩家的旧设置里早把 M 配给了别的动作时，「地图」的默认键 M 撞上它，整张表校验不过就会整张回默认——
+    // 玩家一个字没改却丢了全部自定义键位。所以：玩家没改过这个新动作时，它的默认键碰上玩家已配的键就让出来；
+    // 让完一个键都不剩，就补 A–Z 里第一个谁都没用、不是固定键也不是保留键的字母。玩家改过的动作一律照存的来。
+    for (const Key yielding : kYieldingActions) {
+        if (settings.keys.count(engine::Engine::keyId(yielding)) != 0) continue;
+        auto& slots = table[static_cast<std::size_t>(yielding)];
+        const auto usedElsewhere = [&table, yielding](engine::ScanCode code) {
+            for (std::size_t k = 0; k < table.size(); ++k) {
+                if (static_cast<Key>(k) == yielding) continue;
+                if (table[k][0] == code || table[k][1] == code) return true;
+            }
+            return false;
+        };
+        for (engine::ScanCode& code : slots) {
+            if (code != 0 && usedElsewhere(code)) code = 0;
+        }
+        if (slots[0] == 0 && slots[1] != 0) std::swap(slots[0], slots[1]);
+        if (slots[0] == 0 && engine::Engine::fixedKeys(yielding).empty()) {
+            constexpr engine::ScanCode kLetterA = 4;    // SDL_SCANCODE_A
+            constexpr engine::ScanCode kLetterZ = 29;   // SDL_SCANCODE_Z
+            for (engine::ScanCode code = kLetterA; code <= kLetterZ; ++code) {
+                if (usedElsewhere(code) || engine::Engine::fixedKeyOwner(code) || engine::Engine::reservedKey(code)) continue;
+                slots[0] = code;
+                break;
+            }
         }
     }
     return table;
