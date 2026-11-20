@@ -7,9 +7,7 @@
 -- 讥他的那句话本作自己写（原著那一句不用）。置 ch07.chouhan：黄枫谷东口那一群人从这时起站在坡上（节点 6）。
 
 talk("", "ch07.shimen.gate")
-talk("", "ch07.shimen.hut")
 talk("chou_han", "ch07.shimen.rule")
-talk("", "ch07.shimen.board")
 talk("", "ch07.shimen.back")
 talk("chou_han", "ch07.shimen.sneer")
 talk("", "ch07.shimen.walk")

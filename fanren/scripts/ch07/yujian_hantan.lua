@@ -4,8 +4,6 @@
 -- 给成熟的天灵果 2（300 年）。过期：ch07.didao。
 
 talk("", "ch07.yujian_hantan.pond")
-talk("", "ch07.yujian_hantan.find")
 give("herb_tianling_guo", 2, 300)
-talk("", "ch07.yujian_hantan.cold")
 
 flag.set("ch07.yujian_b")

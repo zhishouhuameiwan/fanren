@@ -17,6 +17,5 @@ take("material_huolingshi", 1)
 talk("baiyi_shaonv", "ch07.huolingshi.thanks")
 talk("", "ch07.huolingshi.breath")
 bond.add("nangong_wan", 5)
-talk("", "ch07.huolingshi.hint")
 
 flag.set("ch07.huolingshi")

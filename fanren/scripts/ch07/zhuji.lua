@@ -22,34 +22,24 @@ else
     talk("", "ch07.zhuji.here")
 end
 
-talk("", "ch07.zhuji.first")
 local ok = realm.advance(12)
 if ok then
     talk("", "ch07.zhuji.twelve")
 end
-talk("", "ch07.zhuji.second")
 ok = realm.advance(13)
 if ok then
     talk("", "ch07.zhuji.thirteen")
 end
-talk("", "ch07.zhuji.more")
-talk("", "ch07.zhuji.liquid")
 talk("", "ch07.zhuji.eighth")
 ok = realm.advance(21)
 if ok then
     talk("", "ch07.zhuji.foundation")
 end
 take("pill_zhuji_dan", 8)
-talk("", "ch07.zhuji.eight")
-talk("", "ch07.zhuji.rest")
-talk("", "ch07.zhuji.jianjue")
-talk("", "ch07.zhuji.jianjue2")
 
 advance_days(150)
 
-talk("", "ch07.zhuji.out")
 talk("chou_han", "ch07.zhuji.shishu")
-talk("", "ch07.zhuji.leave")
 
 flag.set("ch07.done")
 teleport("ch06_baiyaoyuan", 24, 10)

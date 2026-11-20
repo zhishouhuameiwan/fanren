@@ -10,7 +10,6 @@
 
 talk("", "ch07.baoming.desk")
 talk("wang_shishu", "ch07.baoming.wang_new")
-talk("wang_shishu", "ch07.baoming.wang_fast")
 talk("", "ch07.baoming.test")
 talk("wang_shishu", "ch07.baoming.wang_ask")
 

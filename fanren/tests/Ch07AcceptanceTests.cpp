@@ -3000,6 +3000,15 @@ const std::vector<KeyOrder>& keyOrders() {
         {"ch07.chukou.", 40},               {"ch07.xieshili.", 41},           {"ch07.sannian.", 42},
         {"ch07.chouhan.", 43},              {"ch07.shijiu.", 44},             {"ch07.banian.", 45},
         {"ch07.zhuji.", 46},
+        // 见闻（地基包路 D，data/lore/ch07.json）：按解锁那一场的步序登记——见闻页上读到它不早于那一场。
+        {"lore.ch07.yuelu_ru_menjin.", 4},  {"lore.ch07.cangshi_xulao.", 5},  {"lore.ch07.dihuo_wen_dihuo.", 6},
+        {"lore.ch07.dufang_zhuyao.", 9},  {"lore.ch07.chuangong_jindi.", 10},  {"lore.ch07.chuangong_lianqishu.", 10},
+        {"lore.ch07.fangshi_guiju.", 13},  {"lore.ch07.wanbaolou_fubao.", 14},  {"lore.ch07.chuangong_fengjin.", 18},
+        {"lore.ch07.liedui_qipai.", 23},  {"lore.ch07.liedui_duyue.", 23},  {"lore.ch07.yixiantian_guiju.", 27},
+        {"lore.ch07.shulin_qianyin.", 28},  {"lore.ch07.tongmen_sanceng.", 29},  {"lore.ch07.yueyang_baozhu.", 30},
+        {"lore.ch07.xiaoshidian_wangchen.", 35},  {"lore.ch07.fengkou_sunv.", 38},  {"lore.ch07.chukou_guiju.", 40},
+        {"lore.ch07.chukou_duyue.", 40},  {"lore.ch07.xieshili_xieshili.", 41},  {"lore.ch07.chouhan_lingshi.", 43},
+        {"lore.ch07.shijiu_dihuojian.", 44},  {"lore.ch07.zhuji_qingyuan.", 46},
         // 支线（第 6 节：Z1 在节点 3 接、Z2 在节点 24 接；Z2 的两处要进了环形山才走得到）
         {"ch07.quest.baigong.", 3},         {"ch07.quest.yujian.", 29},
         {"ch07.yujian_dongpo.", 31},        {"ch07.yujian_hantan.", 31},
@@ -3178,7 +3187,9 @@ TEST_F(Ch07Acceptance, No6_TheNamePlatesFollowTheSameOrder) {
                 << key << "（步序 " << order << "）的名牌「" << r->name << "」含「" << gate.word << "」——施工图 " << gate.why;
         }
     }
-    EXPECT_GT(checked, 100);
+    // 先验：真的核到了一批带名牌的句子。地基包路 D 把对白砍到约一半（docs/ch07-foundation.md 4.1），
+    // 带名牌的句子从一百多句降到九十句上下（新真值）。
+    EXPECT_GT(checked, 60);
 }
 
 // 12.2 与第 5 节写死的名牌。
@@ -3443,8 +3454,11 @@ TEST_F(Ch07Acceptance, No22_BranchesMapsNodesAndWordsAreWhereSectionFifteenPutsT
             }
         }
     }
-    std::cout << "[ch07 字数] 三份主线文案汉字 " << chars << "（施工图第 3 节约 17300）" << std::endl;
-    EXPECT_GE(chars, 17300 * 8 / 10) << "主线对白比施工图的「约 17300 字」少了两成以上";
+    std::cout << "[ch07 字数] 三份主线文案汉字 " << chars << "（地基包路 D：9,000–10,000）" << std::endl;
+    // 地基包路 D（docs/ch07-foundation.md 4.1）把主线对白从约 17,500 字砍到 9,000–10,000（新真值，口径与精确上下限
+    // 见 tests/DialogueBudgetTests.cpp）。这里仍只防塌：三份文案（不含伙伴那一份）少于 9,000 的八成就判红；也不许回涨过上限。
+    EXPECT_GE(chars, 9000 * 8 / 10) << "主线对白比地基包的「9,000–10,000 字」少了两成以上";
+    EXPECT_LE(chars, 10000) << "主线对白回涨过了地基包的上限 10,000 字";
 }
 
 // ---------------------------------------------------------------------------

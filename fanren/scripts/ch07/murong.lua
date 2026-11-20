@@ -9,21 +9,12 @@
 -- 另一少年躲到粗矮青年身后，土墙挨了一刀；蓝衣女子以火焰鸟收场，罚了兄弟、谢了粗矮青年，临走传音说他
 -- 只顾自己——他不以为然；陆师兄看清了他的脸（节点 13 的由头）。蓝衣女子不点名（聂盈 ch708，施工图 12.1）。
 
-talk("", "ch07.murong.crowd")
 talk("", "ch07.murong.twins")
-talk("huangfeng_weiguan", "ch07.murong.whisper")
-talk("", "ch07.murong.lu")
 talk("lu_shixiong", "ch07.murong.lu_boast")
-talk("", "ch07.murong.who")
 talk("", "ch07.murong.clash")
-talk("", "ch07.murong.back")
 talk("", "ch07.murong.boy1")
-talk("", "ch07.murong.boy2")
 talk("", "ch07.murong.bird")
-talk("lanyi_nvzi", "ch07.murong.stop")
-talk("", "ch07.murong.thank")
 talk("lanyi_nvzi", "ch07.murong.voice")
 talk("", "ch07.murong.shrug")
-talk("", "ch07.murong.lu_eye")
 
 flag.set("ch07.murong")

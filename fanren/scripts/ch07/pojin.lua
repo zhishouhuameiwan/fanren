@@ -8,14 +8,9 @@
 -- 末尾 teleport ch07_jindi_waiwei 落点 (5,31)（genmaps_ch07.py 的 WAIWEI_LUODIAN）；登 kScriptTransfers。
 
 talk("", "ch07.pojin.test")
-talk("", "ch07.pojin.wall")
 talk("", "ch07.pojin.wait")
-talk("", "ch07.pojin.fourth")
 talk("", "ch07.pojin.seven")
-talk("", "ch07.pojin.hole")
-talk("", "ch07.pojin.go")
 talk("", "ch07.pojin.enter")
-talk("", "ch07.pojin.trust")
 talk("", "ch07.pojin.spin")
 
 flag.set("ch07.pojin")

@@ -8,11 +8,8 @@
 
 talk("", "ch07.yuelu.stone")
 talk("", "ch07.yuelu.guards")
-talk("", "ch07.yuelu.check")
 talk("", "ch07.yuelu.shixiong")
 talk("", "ch07.yuelu.fee")
-talk("", "ch07.yuelu.jump")
-talk("", "ch07.yuelu.hall")
 talk("", "ch07.yuelu.ways")
 
 flag.set("ch07.yuelu")

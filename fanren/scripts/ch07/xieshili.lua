@@ -9,14 +9,9 @@
 
 talk("", "ch07.xieshili.inside")
 talk("ma_shibo", "ch07.xieshili.ma_alive")
-talk("ma_shibo", "ch07.xieshili.ma_brother")
 talk("", "ch07.xieshili.no")
-talk("ma_shibo", "ch07.xieshili.ma_ok")
 talk("ma_shibo", "ch07.xieshili.ma_li")
 talk("ma_shibo", "ch07.xieshili.ma_rule")
-talk("ma_shibo", "ch07.xieshili.ma_math")
-talk("ma_shibo", "ch07.xieshili.ma_worth")
 talk("", "ch07.xieshili.relief")
-talk("", "ch07.xieshili.garden")
 
 flag.set("ch07.xieshili")

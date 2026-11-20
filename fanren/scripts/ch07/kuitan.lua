@@ -8,10 +8,8 @@
 
 talk("", "ch07.kuitan.plan1")
 talk("", "ch07.kuitan.plan2")
-talk("", "ch07.kuitan.plan3")
 talk("", "ch07.kuitan.cave")
 talk("", "ch07.kuitan.peek")
-talk("", "ch07.kuitan.bug")
 talk("", "ch07.kuitan.cost")
 
 flag.set("ch07.kuitan")

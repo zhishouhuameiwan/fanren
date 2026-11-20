@@ -15,14 +15,9 @@ else
     talk("", "ch07.chouhan.nofee")
 end
 talk("", "ch07.chouhan.snore")
-talk("", "ch07.chouhan.wake")
-talk("chou_han", "ch07.chouhan.grumble")
-talk("", "ch07.chouhan.who")
 talk("chou_han", "ch07.chouhan.doubt")
 talk("", "ch07.chouhan.book")
-talk("", "ch07.chouhan.change")
 talk("chou_han", "ch07.chouhan.change_say")
-talk("", "ch07.chouhan.room")
 if take("material_lingshi_zhong", 1) then
     talk("", "ch07.chouhan.deposit")
 elseif take("material_lingshi", 100) then
@@ -30,7 +25,6 @@ elseif take("material_lingshi", 100) then
 else
     talk("chou_han", "ch07.chouhan.deposit_owe")
 end
-talk("", "ch07.chouhan.rate")
 talk("", "ch07.chouhan.gate")
 
 flag.set("ch07.dihuo")

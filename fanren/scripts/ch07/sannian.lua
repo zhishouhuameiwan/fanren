@@ -11,10 +11,8 @@
 
 advance_days(4)
 
-talk("", "ch07.sannian.wang")
 talk("wang_shishu", "ch07.sannian.wang_say")
 give("pill_zhuji_dan", 1)
-talk("", "ch07.sannian.fine")
 talk("", "ch07.sannian.count")
 give("material_lingshi_zhong", 10)
 give("material_lingshi", 300)
@@ -22,10 +20,8 @@ talk("", "ch07.sannian.kuilei")
 if take("story_bubao_faqi", 1) then
     give("story_kuilei_gongshou")
 end
-talk("", "ch07.sannian.shuye")
 give("story_yinse_shuye")
 
-talk("", "ch07.sannian.plan")
 local c = item.count("herb_yusui_zhi")
 if c > 0 then
     take("herb_yusui_zhi", c)
@@ -40,11 +36,8 @@ if c > 0 then
 end
 advance_days(1080)
 talk("", "ch07.sannian.main")
-talk("", "ch07.sannian.aux")
 give("material_zhuji_yaofen", 40)
 talk("", "ch07.sannian.chen")
-talk("", "ch07.sannian.dage")
-talk("", "ch07.sannian.name")
 if flag.get("ch06.huinuo") == 2 or flag.get("ch06.rangdan") == 2 then
     talk("", "ch07.sannian.ye_cold")
 else
@@ -54,6 +47,5 @@ give("material_lingshi_zhong", 5)
 give("pill_huiqi_dan", 2)
 talk("", "ch07.sannian.book")
 give("story_qingyuan_jianjue")
-talk("", "ch07.sannian.ready")
 
 flag.set("ch07.sannian")
