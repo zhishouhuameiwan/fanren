@@ -59,6 +59,9 @@ struct Settings {
     bool screenShake = true;
     TextSpeed textSpeed = TextSpeed::Normal;
     bool padRumble = true;   // 文件里的键 pad_rumble
+    // 教学提示（第一期地基包，docs/ch07-foundation.md 2.3）：文件里的键 tutorial_cards，缺省开。
+    // 关了不弹教学卡，但照样记作看过，记事「指南」页里照样翻得到。
+    bool tutorialCards = true;
     // 动作 id → 两格键位。没列出的动作用默认键位；空表 = 全部默认。一期只存、只往返，不推给引擎。
     std::map<std::string, KeySlots> keys;
 

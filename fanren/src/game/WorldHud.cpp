@@ -154,6 +154,30 @@ std::vector<engine::LayoutLine> objectiveLines(engine::Engine& engine, const std
 
 RectF objectiveBoxRect(engine::Engine& engine, float x, float y, const std::string& text,
                        const std::string& where) {
+    return objectiveBoxRect(engine, x, y, text, std::string{}, where);
+}
+
+void drawObjectiveBox(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry, float x, float y,
+                      const std::string& text, const std::string& where, float alpha) {
+    drawObjectiveBox(engine, theme, geometry, x, y, text, std::string{}, where, alpha, 0.f);
+}
+
+namespace {
+
+// 要点那一行：比行动句小一号（第一期地基包 2.1），也按同一个宽度折行。
+constexpr int kHintFont = 15;
+constexpr int kHintGap = 3;
+
+std::vector<engine::LayoutLine> hintLines(engine::Engine& engine, const std::string& hint) {
+    if (hint.empty()) return {};
+    return engine::layoutText(hint, kObjectiveWrapPx,
+                              [&engine](const std::string& sample) { return engine.measureText(sample, kHintFont).x; });
+}
+
+}  // namespace
+
+RectF objectiveBoxRect(engine::Engine& engine, float x, float y, const std::string& text, const std::string& hint,
+                       const std::string& where) {
     if (text.empty()) return RectF{};
     const engine::Point body = engine.measureText(text, kObjectiveFont);
     if (body.x <= 0) return RectF{};
@@ -161,7 +185,13 @@ RectF objectiveBoxRect(engine::Engine& engine, float x, float y, const std::stri
     int bodyW = 0;
     for (const engine::LayoutLine& line : lines) bodyW = std::max(bodyW, line.width);
     const int rows = std::max<int>(1, static_cast<int>(lines.size()));
-    const int bodyH = body.y * rows + kObjectiveLineGap * (rows - 1);
+    int bodyH = body.y * rows + kObjectiveLineGap * (rows - 1);
+    const std::vector<engine::LayoutLine> hints = hintLines(engine, hint);
+    if (!hints.empty()) {
+        const int hintH = engine.measureText(hint, kHintFont).y;
+        for (const engine::LayoutLine& line : hints) bodyW = std::max(bodyW, line.width);
+        bodyH += static_cast<int>(hints.size()) * (hintH + kHintGap);
+    }
     const engine::Point place = where.empty() ? engine::Point{} : engine.measureText(where, kWhereFont);
     const float width = static_cast<float>(std::max(bodyW, place.x)) + kBoxPadX * 2.f + kBoxBullet;
     const float height = static_cast<float>(bodyH) +
@@ -170,11 +200,17 @@ RectF objectiveBoxRect(engine::Engine& engine, float x, float y, const std::stri
 }
 
 void drawObjectiveBox(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry, float x, float y,
-                      const std::string& text, const std::string& where, float alpha) {
-    const RectF box = objectiveBoxRect(engine, x, y, text, where);
+                      const std::string& text, const std::string& hint, const std::string& where, float alpha,
+                      float flash) {
+    const RectF box = objectiveBoxRect(engine, x, y, text, hint, where);
     if (box.w <= 0.f) return;
     const engine::Point body = engine.measureText(text, kObjectiveFont);
     drawPanel(engine, theme, geometry, box, alpha);
+    // 换了目标那一闪：整块框亮一下再退回去，比一枚会动的小图标更难错过。
+    if (flash > 0.f) {
+        engine.fillRect(box, faded(theme.goldBright, alpha * 0.35f * std::min(flash, 1.f)), BlendMode::Add);
+        frameRect(engine, box, faded(theme.goldBright, alpha * std::min(flash, 1.f)));
+    }
 
     geometry.diamond(x + kBoxPadX + 5.f, y + kBoxPadY + static_cast<float>(body.y) / 2.f, 4.f, 5.f,
                      faded(theme.goldBright, alpha));
@@ -188,9 +224,18 @@ void drawObjectiveBox(engine::Engine& engine, const ui::Theme& theme, Geometry& 
         if (i > 0) lineY += body.y + kObjectiveLineGap;
         engine.drawText(lines[i].text, textX, lineY, kObjectiveFont, faded(theme.paper, alpha), theme.bodyStyle);
     }
+    int nextY = lineY + body.y;
+    const std::vector<engine::LayoutLine> hints = hintLines(engine, hint);
+    if (!hints.empty()) {
+        const int hintH = engine.measureText(hint, kHintFont).y;
+        for (const engine::LayoutLine& line : hints) {
+            nextY += kHintGap;
+            engine.drawText(line.text, textX, nextY, kHintFont, faded(theme.gold, alpha), theme.bodyStyle);
+            nextY += hintH;
+        }
+    }
     if (!where.empty()) {
-        engine.drawText(where, textX, lineY + body.y + 4, kWhereFont, faded(theme.goldBright, alpha),
-                        theme.bodyStyle);
+        engine.drawText(where, textX, nextY + 4, kWhereFont, faded(theme.goldBright, alpha), theme.bodyStyle);
     }
 }
 
@@ -274,6 +319,23 @@ void drawPathActionHint(engine::Engine& engine, const ui::Theme& theme, Geometry
 // ---------------------------------------------------------------------------
 // 目标标记
 // ---------------------------------------------------------------------------
+
+void drawHeadMark(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry, float cx, float cy,
+                  const std::string& glyph, bool quest) {
+    if (glyph.empty()) return;
+    constexpr int kFont = 13;
+    constexpr float kRadius = 10.f;
+    const Color rim = quest ? theme.jade : theme.gold;
+    geometry.fan(cx, cy, kRadius + 1.5f, kRadius + 1.5f, theme.inkDeep, theme.inkDeep, 20);
+    geometry.fan(cx, cy, kRadius, kRadius, faded(rim, 0.95f), faded(rim, 0.75f), 20);
+    geometry.fan(cx, cy, kRadius - 2.f, kRadius - 2.f, theme.ink, theme.inkLow, 20);
+    geometry.draw(engine, BlendMode::Alpha);
+    const engine::Point size = engine.measureText(glyph, kFont);
+    if (size.x <= 0) return;
+    engine.drawText(glyph, static_cast<int>(std::lround(cx - static_cast<float>(size.x) / 2.f)),
+                    static_cast<int>(std::lround(cy - static_cast<float>(size.y) / 2.f)), kFont,
+                    quest ? theme.paper : theme.goldBright, theme.bodyStyle);
+}
 
 void drawObjectiveDiamond(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
                           engine::TextureId glow, float cx, float cy) {

@@ -24,6 +24,14 @@ class Application;
 // warmup 是截图前空转的帧数，只在需要更多时调大（现在这几个入口都不用）。
 bool pushCompanionShot(Application& app, const std::string& kind, const std::string& arg, int& warmup);
 
+// 第一期地基包·路 G 的截图口（pushCompanionShot 认 kind == "guide" 时转到这里）：
+//   guide:world[@记号…]            世界层本身（目标框两行式、「前往」整条路、头顶标记）
+//   guide:main|side|guide|lore[@…]  记事的那一页
+//   guide:tutorial=<卡 id>          一张教学卡
+//   guide:lorenote=<见闻 id>        「见闻：XXX」提示
+// 记号见 ShotScenes.cpp：旗标名、weak.<角色 id>。演示用：截图口不存盘。
+bool pushGuideShot(Application& app, const std::string& spec, int& warmup);
+
 // 截图模式下世界层的时钟步长（秒）。世界层被对白、菜单压着时不走自己的 update，画的时候按「这一帧过了多久」
 // 补一步；截图时那就是从引擎开机到拍照的真实时长，灯的明灭随它变——同一个程序拍几次，对白类截图差出几百到
 // 几千像素。截图时改用这个定数。

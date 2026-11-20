@@ -2125,12 +2125,18 @@ protected:
     }
 
     // 目标行此刻是这一步、而且说的就是 3.4 那一格 R-3 提示的原文（验收 17 在第 6 章的口径）。
+    // 第一期地基包（docs/ch07-foundation.md 2.1）把目标行拆成行动句 + 要点 + 详情：原来的长句一字不改挂在详情里
+    //（记事主线页「眼下」写全文），所以提示原文在三者之一里找。
     void expectHint(const std::string& stepId, const std::string& phrase) {
         const auto* obj = fanren::rules::currentObjective(app().data().objectives, state());
         ASSERT_NE(obj, nullptr) << "目标行空了，该是 " << stepId;
         EXPECT_EQ(obj->id, stepId);
-        EXPECT_NE(app().data().lookupText(obj->textKey).find(phrase), std::string::npos)
-            << obj->id << " 的目标行该含 3.4 的 R-3 提示「" << phrase << "」：" << app().data().lookupText(obj->textKey);
+        const fanren::core::GameData& data = app().data();
+        std::string said = data.lookupText(obj->textKey);
+        if (!obj->hintKey.empty()) said += " / " + data.lookupText(obj->hintKey);
+        if (!obj->detailKey.empty()) said += " / " + data.lookupText(obj->detailKey);
+        EXPECT_NE(said.find(phrase), std::string::npos)
+            << obj->id << " 的目标行（行动句、要点、详情）该含 3.4 的 R-3 提示「" << phrase << "」：" << said;
         hints_.push_back(obj->id);
     }
 
@@ -2968,6 +2974,10 @@ const std::vector<KeyOrder>& keyOrders() {
         {"ch07.block.jindi_zhongxin", 24},  {"ch07.block.huanxingshan", 28},
         // 坊市收药摊的店名
         {"ch07.shop.", 13},
+        // 第一期地基包·路 G（docs/ch07-foundation-g.md）：教学卡第 1 步起就可能弹；妖兽见闻按解锁那一步的图
+        {"tutorial.", 0},
+        {"lore.ch07.hanbing_chan.", 24},    {"lore.ch07.cai_e.", 24},         {"lore.ch07.fei_she.", 28},
+        {"lore.ch07.huoyan_shu.", 31},      {"lore.ch07.bishui_e.", 36},
         // 主线挂点（3.1 表，按 3.4 目标链的步序）
         {"ch07.chaibao.", 1},
         {"ch07.yaolou.hj_less", 2},         {"ch07.yaolou.y1_", 2},           {"ch07.yaolou.zs_less", 3},

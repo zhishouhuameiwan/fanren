@@ -732,7 +732,12 @@ R-3（一炉不炼、攻防战必败、全章没有提示）已修：目标链�
 (b) 第二侧不再清药（走「手上有药」那一条台词），「翻遍箱底也没有」那一条另立一条不导出交接存档的用例去走，
     再用 `FANREN_WRITE_CH04_FIXTURES=1` 重生成第二侧（`tests/ChapterFixture.h` 文件头有命令）。
 
-### G-25：告示板不显示支线的奖励（契约 1.2「rewards 本轮不上屏」）
+### ~~G-25：告示板不显示支线的奖励（契约 1.2「rewards 本轮不上屏」）~~
+
+已修（不再是债，2026-11-20 第一期地基包·路 G，`docs/ch07-foundation-g.md` 第 4 节）：记事分四页，支线页选中一条在右栏写「奖励」——
+读 `Quest::rewards`（物品名 × 数量，钱经 `Wording::currencyName`，第 1–5 章叫碎银，`BoardPages.TheSidePageWritesTheRewardsAndCallsMoneyByTheRightName`
+钉着「不出现灵石」）；回报由脚本按情形发、不进 `rewards` 的支线（第 7 章两条）写可选字段 `reward_key` 那一句。
+剧透的顾虑按施工图定：进行中也写。下面是当初的记录。
 
 **是什么。** 设计 10.4 Q1 写的是 `rewards`「只给面板看、给测试对账」。本批只做了后一半：
 `Quest::rewards` 由加载器读进来、门禁查物品存在，但告示板上一个字也不说。

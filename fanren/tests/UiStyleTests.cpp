@@ -536,9 +536,10 @@ TEST(SettingsWording, ThePanelAndBothEntrancesPassTheForbiddenWordScan) {
     EXPECT_EQ(data.lookupText("ui.title.settings"), "设置");
     EXPECT_EQ(MenuScene::pageLabel(data, PanelStage::Mortal, MenuScene::Page::Settings), "设置");
     // 契约第 1 节的行名，逐字抄（面板的行序即这张表的 # 次序）。docs/gamepad.md 第 8 节在「文字速度」之后插了
-    // 「手柄震动」（新真值：11 行，行号照那一节写死的次序）。
+    // 「手柄震动」（新真值：11 行，行号照那一节写死的次序）；第一期地基包（docs/ch07-foundation.md 2.3）又在它之后
+    // 插了「教学提示」（12 行）。
     const std::vector<std::string> kRowNames{"音乐音量", "音效音量", "显示模式", "画面缩放", "垂直同步", "画面特效",
-                                             "战斗震屏", "文字速度", "手柄震动", "按键设置", "恢复默认"};
+                                             "战斗震屏", "文字速度", "手柄震动", "教学提示", "按键设置", "恢复默认"};
     ASSERT_EQ(kRowNames.size(), static_cast<std::size_t>(SettingsScene::kRowCount));
     for (int row = 0; row < SettingsScene::kRowCount; ++row) {
         EXPECT_EQ(SettingsScene::rowLabel(data, row), kRowNames[static_cast<std::size_t>(row)]) << "第 " << row << " 行";

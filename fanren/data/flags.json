@@ -624,5 +624,21 @@
   "ch13.path.paimaishi_shouluan_dating": "只由路径行动置；第13章打探：paimaishi_shouluan_dating",
   "ch13.path.guyu_shanggu_dating": "只由路径行动置；第13章打探：guyu_shanggu_dating",
   "ch13.path.sunshishu_shouchao_dating": "只由路径行动置；第13章打探：sunshishu_shouchao_dating",
-  "ch13.path.huangmingli_mishi_dating": "只由路径行动置；第13章打探：huangmingli_mishi_dating"
+  "ch13.path.huangmingli_mishi_dating": "只由路径行动置；第13章打探：huangmingli_mishi_dating",
+  "tutorial.seen.keys": "教学卡「记事与地图」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.herb_age": "教学卡「交药看年份」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.bottle": "教学卡「小瓶绿液」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.meditate": "教学卡「打坐回气」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.weakness": "教学卡「破绽与架势」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.boost": "教学卡「蓄劲」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.defend": "教学卡「防御换先手」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.item_cast": "教学卡「道具施法」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.ambush": "教学卡「偷袭明雷」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.chase": "教学卡「明雷追击与绕行」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.loot": "教学卡「宝箱与采集」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.gate": "教学卡「机关与场地技」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.alchemy": "教学卡「炼丹成功率」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.companion": "教学卡「伙伴上场与默契」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.gift": "教学卡「赠礼」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tutorial.seen.field_item": "教学卡「战斗外用药」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）"
 }

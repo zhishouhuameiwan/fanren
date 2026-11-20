@@ -2,15 +2,19 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
 #include "core/rules/Companions.h"
 #include "core/rules/Objectives.h"
+#include "core/rules/Quests.h"
 #include "game/Application.h"
 #include "game/DialogueScene.h"
 #include "game/Exploration.h"
+#include "game/Guide.h"
 #include "game/PathActionScene.h"
 #include "game/WorldObjects.h"
 
@@ -747,8 +751,11 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     }
 
     if (const core::Objective* step = objectiveOf(app)) {
-        frame_.objectiveText = app.text(step->textKey);
+        // 行动句接进度「1/3」，下面一行要点（第一期地基包 2.1，game/Guide.h）。没写这两样的步骤与从前相同。
+        frame_.objectiveText = guide::objectiveActionLine(app.data(), state, *step);
+        frame_.objectiveHint = step->hintKey.empty() ? std::string{} : app.text(step->hintKey);
         frame_.objectiveWhere = objectiveWhereText(app, hop);
+        frame_.objectiveId = step->id;
         if (step->targetMap == map->id) {
             // 目标对象不在这张图上（数据写错，或这一步指的是别处）时**什么都不标**，
             // 不要退回去在屏幕中央画个箭头——一个指着不存在的东西的箭头，比没有箭头
@@ -772,6 +779,71 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     if (saveNoticeSeconds_ > 0.0) frame_.saveNotice = saveNotice_;
     frame_.pathActionHint = pathActionHint(app);
     frame_.interactHint = interactHint(app, frame_.interactCell, frame_.interactNpc);
+    markHeads(app, *map);
+    noteGuideEvents(app, frame_);
+}
+
+void WorldScene::markHeads(Application& app, const core::TileMap& map) {
+    // 头顶标记（第一期地基包 2.6）：支线眼下要去找的人 / 触发区浮「支」，开铺子的人浮「商」。
+    // 支线：进行中、这一步的目标就在这张图上（rules::sideQuestJournal 的当前步骤）。
+    std::set<std::string> questObjects;
+    for (const rules::QuestEntry& entry : rules::sideQuestJournal(app.data().quests, app.state())) {
+        if (entry.status != rules::QuestStatus::Active || entry.step == nullptr) continue;
+        if (entry.step->targetMap == map.id && !entry.step->targetObject.empty()) {
+            questObjects.insert(entry.step->targetObject);
+        }
+    }
+    // 商店：站在 kind=shop 的设施旁边（两格以内）的人就是掌柜。
+    std::vector<core::Point> shops;
+    for (const core::MapObject& object : map.objects) {
+        if (object.type == "facility" && object.property("kind") == "shop") shops.push_back(object.position);
+    }
+    const std::string questMark = app.data().lookupText("ui.guide.mark.quest");
+    const std::string shopMark = app.data().lookupText("ui.guide.mark.shop");
+    frame_.questMark = questMark;
+    for (WorldFrame::Npc& npc : frame_.npcs) {
+        if (questObjects.count(npc.object->name) != 0) {
+            npc.mark = questMark;
+            npc.markQuest = true;
+            questObjects.erase(npc.object->name);
+            continue;
+        }
+        const core::Point at = npc.object->position;
+        const bool keeper = std::any_of(shops.begin(), shops.end(), [&at](const core::Point& shop) {
+            return std::max(std::abs(shop.x - at.x), std::abs(shop.y - at.y)) <= 2;
+        });
+        if (keeper) npc.mark = shopMark;
+    }
+    // 剩下的支线目标是触发区：在场（triggerReady 与世界层标「按键才响」同一个判据，踩入型也照样标——它是支线自己的目标）。
+    for (const core::MapObject& object : map.objects) {
+        if (object.type == "trigger" && questObjects.count(object.name) != 0) frame_.questTargets.push_back(&object);
+    }
+}
+
+void WorldScene::noteGuideEvents(Application& app, const WorldFrame& frame) {
+    // 教学卡（第一期地基包 2.3）的走图事件：明雷进了眼前、追上来了；靠近没开的宝箱、采集点、关着的机关。
+    // 只发事件，弹不弹、弹哪张由 Application 与 data/tutorials 定。
+    if (!app.tutorialsEnabled()) return;
+    const core::Point hero = app.state().position;
+    const auto near = [&hero](core::Point cell, int reach) {
+        return std::abs(cell.x - hero.x) + std::abs(cell.y - hero.y) <= reach;
+    };
+    constexpr int kFoeReach = 6;
+    constexpr int kObjectReach = 2;
+    for (const WorldFrame::Foe& foe : frame.foes) {
+        const core::Point at = foe.cell.x >= 0 ? foe.cell : foe.object->position;
+        if (foe.alert) app.tutorialEvent("foe.alert");
+        else if (near(at, kFoeReach)) app.tutorialEvent("foe.near");
+    }
+    for (const WorldFrame::Chest& chest : frame.chests) {
+        if (!chest.opened && near(chest.object->position, kObjectReach)) app.tutorialEvent("loot.near");
+    }
+    for (const WorldFrame::Gather& gather : frame.gathers) {
+        if (!gather.depleted && near(gather.object->position, kObjectReach)) app.tutorialEvent("loot.near");
+    }
+    for (const WorldFrame::Gate& gate : frame.gates) {
+        if (!gate.open && near(gate.object->position, kObjectReach)) app.tutorialEvent("gate.near");
+    }
 }
 
 const core::Objective* WorldScene::objectiveOf(Application& app) {
@@ -817,6 +889,15 @@ std::string WorldScene::objectiveWhereText(Application& app, const rules::Portal
     // 目标就在这张图上时不报地名：那时地名是废话，头上那个标记才是答案。
     if (step == nullptr || map == nullptr || step->targetMap == map->id) return {};
     std::string where = "前往　" + mapName(app, step->targetMap);
+    // 第一期地基包（docs/ch07-foundation.md 2.2）：照新版式写过的步骤（有详情长句的那些，第 7 章起）
+    // 写整条路——「前往　巫钧山（经黄枫谷）」。别的章照旧只报下一站，目标框与从前逐字相同（判据 5）。
+    if (guide::upgradedObjective(*step)) {
+        const std::vector<std::string> via = rules::routeWaypoints(
+            rules::routeToward(app.portalLinks(), map->id, step->targetMap, app.state()));
+        std::vector<std::string> names;
+        for (const std::string& id : via) names.push_back(mapName(app, id));
+        return where + guide::viaClause(names);
+    }
     // 下一道门不直接通到目标图时，再说一句先去哪。只报下一站，不报整条路：
     // 整条路是一串七个地名，玩家读不完，读完了也记不住；下一站配上那道亮着的门就够了。
     if (hop != nullptr && hop->targetMap != step->targetMap) {

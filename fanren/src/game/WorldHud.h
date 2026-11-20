@@ -60,6 +60,14 @@ void drawNamePlate(engine::Engine& engine, const ui::Theme& theme, const std::st
 void drawObjectiveBox(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry, float x, float y,
                       const std::string& text, const std::string& where, float alpha);
 
+// 两行式（第一期地基包，docs/ch07-foundation.md 2.1）：行动句、要点（小一号、暗金）、「前往」。
+// hint 为空时与上面那两个逐像素相同（第 7 章以外各章，判据 5）。flash 是换目标时那一闪的余量（0–1，0 = 不闪）。
+[[nodiscard]] engine::RectF objectiveBoxRect(engine::Engine& engine, float x, float y, const std::string& text,
+                                             const std::string& hint, const std::string& where);
+void drawObjectiveBox(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry, float x, float y,
+                      const std::string& text, const std::string& hint, const std::string& where, float alpha,
+                      float flash);
+
 // 目标框底下那一小条收集进度「宝箱 2/3 · 采集 1/2」（docs/ch07-playtest-ui.md 第 3 节）。complete 为真（找齐了）
 // 换成金字。exploreTagRect 是它会占的矩形（空串、无头量不出字时宽高为 0）；alpha 整体淡（盖住主角时）。
 [[nodiscard]] engine::RectF exploreTagRect(engine::Engine& engine, float x, float y, const std::string& text);
@@ -78,6 +86,11 @@ void drawInteractPrompt(engine::Engine& engine, const ui::Theme& theme, Geometry
 
 void drawPathActionHint(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
                         const std::string& text);
+
+// 头顶标记（第一期地基包 2.6）：一枚小圆章，中间一个字（「支」「商」）。(cx, cy) 是圆心；
+// quest 为真用翠色（支线），否则金色（商店）。
+void drawHeadMark(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry, float cx, float cy,
+                  const std::string& glyph, bool quest);
 
 // 目标菱形：悬在目标头顶。glow 是柔光贴图（可为无效句柄，只是少一圈光）。
 void drawObjectiveDiamond(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,

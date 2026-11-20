@@ -8,6 +8,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -19,9 +20,11 @@
 #include "core/rules/Encounter.h"
 #include "core/rules/Objectives.h"
 #include "core/rules/PathActions.h"
+#include "core/rules/Tutorials.h"
 #include "engine/Engine.h"
 #include "game/ChapterCardScene.h"
 #include "game/ItemToasts.h"
+#include "game/LoreNotices.h"
 #include "game/Portraits.h"
 #include "game/WorldHud.h"
 #include "game/Scene.h"
@@ -398,6 +401,33 @@ public:
         return encounterTables_;
     }
 
+    // ---- 教学卡与见闻提示（第一期地基包，docs/ch07-foundation.md 2.3、2.5）----
+    //
+    // 教学卡与野外遭遇同一个套路：**缺省关闭**。几百条无头测试与通关验收不该冷不丁被一张卡拦住、
+    // 也不该多出 tutorial.seen.* 旗标；启动器（main.cpp）打开它，教学卡自己的测试打开它（判据：给测试一个关掉它的办法）。
+    // 关着时 tutorialEvent / requestTutorial 什么也不做。
+    void setTutorialsEnabled(bool enabled) { tutorialsEnabled_ = enabled; }
+    [[nodiscard]] bool tutorialsEnabled() const { return tutorialsEnabled_; }
+    // 引擎事件（data/tutorials 的 trigger）：此刻有一张能弹的卡就排进队里。事件名的清单见 docs/ch07-foundation-g.md。
+    void tutorialEvent(const std::string& event);
+    // 脚本 tutorial("id")：按 id 排一张。卡不存在返回 "no_card"，看过了或不在这一章返回 "skipped"，排上了返回空串。
+    [[nodiscard]] std::string requestTutorial(const std::string& cardId);
+    // 排着、还没弹的卡。弹的时机（flushTutorials）：战斗里轮到我方时；不在战斗里时脚本演完、顶上是走图或设施面板。
+    // 对白进行中不弹。
+    [[nodiscard]] const std::vector<std::string>& pendingTutorials() const { return pendingTutorials_; }
+    // 至今弹过（或设置里关了、只记了看过）的卡，按次序。测试用它断言「弹了哪几张」。
+    [[nodiscard]] const std::vector<std::string>& tutorialLog() const { return tutorialLog_; }
+    // 开战时记一笔「这一场之前看过哪几张卡」：BattleScene::onEnter 调。轮到我方时对其中每一张发「battle.after.<id>」，
+    // 于是「防御换先手」挂 battle.after.boost，就落在蓄劲讲过之后的**下一场**仗第 1 回合，不与蓄劲挤在同一场。
+    void noteBattleStart();
+    [[nodiscard]] const std::vector<std::string>& tutorialsSeenAtBattleStart() const { return battleStartSeen_; }
+    // 记事「指南」页重看一张：直接压卡片，不看开关、不改旗标。
+    void replayTutorial(const std::string& cardId);
+    // 全部战斗编成（见闻页的「掉落」从这里查）。
+    [[nodiscard]] const std::map<std::string, core::BattleSetup>& battles() const { return battles_; }
+    // 「见闻：XXX」提示：不进场景栈，画在世界层之上（与得物卡片同一个做法）。
+    [[nodiscard]] LoreNotices& loreNotices() { return loreNotices_; }
+
     // ---- BGM ----
     // 此刻世界层该放的曲子：脚本 bgm("id") 点播的那一首，没点播就是地图属性上的。
     // 战斗打完回到世界层时该续哪一首，问它（BattleScene 自己换战斗曲，收场后由画面路接回来）。
@@ -562,6 +592,24 @@ private:
     hud::Geometry toastGeometry_;
     // 从栈顶往下第一层不透明的是不是世界层（玩家此刻眼里的底图是不是地图）。卡片只在这时走时钟。
     [[nodiscard]] bool worldShown() const;
+    // ---- 教学卡与见闻提示（第一期地基包）----
+    // 等着弹的卡：战斗里轮到我方、或脚本演完回到走图 / 设施面板时，一帧弹一张（tick 末尾）。
+    void flushTutorials();
+    // 教学卡判「在不在这一章」用的：章节表的 done_flag（与对白头像同一个判据）。
+    [[nodiscard]] rules::ChapterDoneFn chapterDoneFn() const;
+    // 每帧看一眼：见闻有没有新解锁（有就推一条提示）、主线目标换没换、名册与默契、气血——后几样折成教学卡的引擎事件。
+    void watchGuide();
+    // 新开局、读档、返回首页：重记一遍「已经知道的」，读进来的档不该把早就解锁的见闻当成新的再报一遍。
+    void resetGuideWatch();
+    bool tutorialsEnabled_ = false;
+    std::vector<std::string> pendingTutorials_;
+    std::vector<std::string> tutorialLog_;
+    std::vector<std::string> battleStartSeen_;   // noteBattleStart
+    bool guideBaselined_ = false;
+    std::set<std::string> loreKnown_;
+    std::string guideObjective_;
+    LoreNotices loreNotices_;
+    hud::Geometry loreGeometry_;
     io::Settings settings_;
     // 「已落盘」的那一份：enable 时读进来生效的、之后每次写盘成功写下的。shutdown 时与 settings_ 不同就补写。
     io::Settings savedSettings_;

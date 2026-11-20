@@ -36,9 +36,10 @@ public:
     static constexpr int kScreenShake = 6;
     static constexpr int kTextSpeed = 7;
     static constexpr int kPadRumble = 8;
-    static constexpr int kKeys = 9;
-    static constexpr int kRestore = 10;
-    static constexpr int kRowCount = 11;
+    static constexpr int kTutorialCards = 9;   // 教学提示（第一期地基包，docs/ch07-foundation.md 2.3）
+    static constexpr int kKeys = 10;
+    static constexpr int kRestore = 11;
+    static constexpr int kRowCount = 12;
 
     // 面板上可能出现的全部固有字：标题、分组、行名、各档的叫法、说明、提示、成败的话。
     // 与 render 取的是同一批 key，tests/UiStyleTests.cpp 拿禁词表扫它。

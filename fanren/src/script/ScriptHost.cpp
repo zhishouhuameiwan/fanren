@@ -54,6 +54,7 @@ const std::unordered_map<std::string, CommandKind>& kindTable() {
         {"take_item_aged", CommandKind::TakeItemAged},
         {"realm_demote", CommandKind::RealmDemote},
         {"bond_add", CommandKind::BondAdd},
+        {"tutorial", CommandKind::Tutorial},
     };
     return table;
 }
