@@ -48,6 +48,14 @@ inline constexpr engine::Color kFloatJade{140, 232, 172, 255};      // 飘字：
 inline constexpr engine::Color kFloatGuard{150, 200, 250, 255};     // 飘字：守势
 inline constexpr engine::Color kChargeBandTop{52, 12, 10, 230};     // 首领蓄势横幅的底（上端）
 inline constexpr engine::Color kChargeBandBottom{24, 6, 6, 230};    // 同上（下端）
+
+// 物品品阶的五档色（得物卡片的物品名，docs/ch07-playtest-ui.md 第 2 节）。压在墨色面板上的字，
+// 与上面那组飘字同一个亮度档：凡品是正文色，往上依次青、蓝、紫、橙金。
+inline constexpr engine::Color kGradeCommon{241, 234, 216, 255};    // 0–1 阶：凡品（同 kPaper）
+inline constexpr engine::Color kGradeFine{140, 232, 172, 255};      // 2–3 阶
+inline constexpr engine::Color kGradeRare{130, 186, 255, 255};      // 4–5 阶
+inline constexpr engine::Color kGradeEpic{204, 150, 255, 255};      // 6–7 阶
+inline constexpr engine::Color kGradeLegend{255, 186, 92, 255};     // 8 阶以上
 }  // namespace palette
 
 // 配色与间距集中在这里：将来换皮、做高对比度模式只改一处。
@@ -99,6 +107,10 @@ struct Theme {
     engine::Color floatGuard = palette::kFloatGuard;
     engine::Color chargeBandTop = palette::kChargeBandTop;
     engine::Color chargeBandBottom = palette::kChargeBandBottom;
+
+    // ---- 物品品阶的五档色（得物卡片），2026-11-20 追加在末尾；下标是档（game/ItemToasts.h 的 gradeTier）----
+    engine::Color gradeColors[5] = {palette::kGradeCommon, palette::kGradeFine, palette::kGradeRare,
+                                    palette::kGradeEpic, palette::kGradeLegend};
 };
 
 // 列表控件。菜单、背包、商店、图鉴都用它，不要各写一份。

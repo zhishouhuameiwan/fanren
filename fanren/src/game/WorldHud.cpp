@@ -173,6 +173,38 @@ void drawObjectiveBox(engine::Engine& engine, const ui::Theme& theme, Geometry& 
     }
 }
 
+namespace {
+
+constexpr int kExploreFont = 15;
+constexpr float kExplorePadX = 10.f;
+constexpr float kExplorePadY = 5.f;
+constexpr float kExploreBullet = 14.f;   // 行首那枚小菱形占的宽
+
+}  // namespace
+
+RectF exploreTagRect(engine::Engine& engine, float x, float y, const std::string& text) {
+    if (text.empty()) return RectF{};
+    const engine::Point size = engine.measureText(text, kExploreFont);
+    if (size.x <= 0) return RectF{};
+    return RectF{x, y, static_cast<float>(size.x) + kExplorePadX * 2.f + kExploreBullet,
+                 static_cast<float>(size.y) + kExplorePadY * 2.f};
+}
+
+void drawExploreTag(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry, float x, float y,
+                    const std::string& text, bool complete, float alpha) {
+    const RectF tag = exploreTagRect(engine, x, y, text);
+    if (tag.w <= 0.f) return;
+    // 比目标框轻一档：一条墨底、一道细框，不要角花——它是目标框的脚注，不是第二个目标框。
+    engine.drawGradientH(tag, faded(theme.ink, alpha), faded(theme.inkLow, alpha * 0.6f), BlendMode::Alpha);
+    frameRect(engine, tag, faded(complete ? theme.gold : theme.goldDim, alpha));
+    geometry.diamond(x + kExplorePadX + 3.f, y + tag.h / 2.f, 3.f, 4.f,
+                     faded(complete ? theme.goldBright : theme.gold, alpha));
+    geometry.draw(engine, BlendMode::Alpha);
+    // 淡的时候字色也跟着淡：只有「盖住主角」与「没盖住」两档（与目标框同一个做法）。
+    engine.drawText(text, static_cast<int>(x + kExplorePadX + kExploreBullet), static_cast<int>(y + kExplorePadY),
+                    kExploreFont, faded(complete ? theme.goldBright : theme.paper, alpha), theme.bodyStyle);
+}
+
 void drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
                     const std::string& text) {
     if (text.empty()) return;

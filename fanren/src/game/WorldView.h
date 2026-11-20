@@ -221,6 +221,10 @@ struct WorldFrame {
     std::string interactHint;
     core::Point interactCell{-1, -1};
     const core::MapObject* interactNpc = nullptr;
+    // 这张图的收集进度（2026-11-20 用户试玩：「找东西没啥回报感」，docs/ch07-playtest-ui.md 第 3 节）：
+    // 「宝箱 2/3 · 采集 1/2」，画在目标框底下。空串 = 不显示（历练里、图上没有宝箱采集点）。
+    std::string exploreLine;
+    bool exploreComplete = false;                   // 找齐了：那一行换成金字
     std::vector<Follower> followers;                // 空 = 没人跟（改版前的样子）
     std::vector<Chest> chests;
     std::vector<Gather> gathers;

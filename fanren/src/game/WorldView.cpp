@@ -475,6 +475,8 @@ void WorldFrame::clear() {
     interactHint.clear();
     interactCell = core::Point{-1, -1};
     interactNpc = nullptr;
+    exploreLine.clear();
+    exploreComplete = false;
     followers.clear();
     chests.clear();
     gathers.clear();
@@ -1547,6 +1549,11 @@ void WorldView::drawHud(engine::Engine& engine, const ui::Theme& theme, const Wo
     const RectF box = hud::objectiveBoxRect(engine, boxX, boxY, frame.objectiveText, frame.objectiveWhere);
     hud::drawObjectiveBox(engine, theme, geometry_, boxX, boxY, frame.objectiveText, frame.objectiveWhere,
                           covers(box) ? kCoveringAlpha : 1.f);
+    // 收集进度紧贴在目标框底下（没有目标时顶到目标框的位置），一直在：横幅几秒就淡了，进度要随时看得到。
+    const float tagY = box.h > 0.f ? box.y + box.h + 6.f : boxY;
+    const RectF tag = hud::exploreTagRect(engine, boxX, tagY, frame.exploreLine);
+    hud::drawExploreTag(engine, theme, geometry_, boxX, tagY, frame.exploreLine, frame.exploreComplete,
+                        covers(tag) ? kCoveringAlpha : 1.f);
     hud::drawSaveNotice(engine, theme, geometry_, frame.saveNotice);
     hud::drawPathActionHint(engine, theme, geometry_, frame.pathActionHint);
 

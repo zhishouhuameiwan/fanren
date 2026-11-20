@@ -172,7 +172,9 @@ def collect_data(report: Report) -> tuple[dict[str, Path], dict[str, str]]:
             continue
         # 伙伴与历练地（伙伴改版）不进全局 id 表：伙伴 id 与她后期的角色 id 本来就同名
         # （nangong_wan，契约 2.4），历练地的名字也不叫 name。两类各由自己的规则查（31、39）。
-        if path.relative_to(data_dir).parts[0] in ("companions", "lilian"):
+        # 集齐奖励表（docs/ch07-playtest-ui.md 第 4 节）一章一份、一份里几张图，也不是 one-file-per-entry；
+        # 它的 done_flag、itemId 照常由 check_data_references 查（字段名就是照那张表起的），形状归 io/ExplorationLoader。
+        if path.relative_to(data_dir).parts[0] in ("companions", "lilian", "exploration"):
             continue
 
         # data/text/*.json 是 key → 文案的大对象，其余是 one-file-per-entry。

@@ -60,6 +60,12 @@ void drawNamePlate(engine::Engine& engine, const ui::Theme& theme, const std::st
 void drawObjectiveBox(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry, float x, float y,
                       const std::string& text, const std::string& where, float alpha);
 
+// 目标框底下那一小条收集进度「宝箱 2/3 · 采集 1/2」（docs/ch07-playtest-ui.md 第 3 节）。complete 为真（找齐了）
+// 换成金字。exploreTagRect 是它会占的矩形（空串、无头量不出字时宽高为 0）；alpha 整体淡（盖住主角时）。
+[[nodiscard]] engine::RectF exploreTagRect(engine::Engine& engine, float x, float y, const std::string& text);
+void drawExploreTag(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry, float x, float y,
+                    const std::string& text, bool complete, float alpha);
+
 // 右上角的存盘提示。
 void drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
                     const std::string& text);

@@ -1,0 +1,17 @@
+{
+  "note": "第 7 章禁地六张图的集齐奖励（docs/ch07-playtest-ui.md 第 4 节）：这张图上在场的宝箱全开、采集点都采过，就发这一份，每张图一次。量按 docs/ch07-balance.md 压着：章末灵石约 450，六张图全找齐合计 67 块、六样禁地里本就采得到的材料；默契只给此刻上场的伙伴各 +1（她只在后三张图上跟着，全收集路线因此多 3）。药一颗不给：② ③ 要吃药是平衡路钉的，全收集路线不能因此变松。",
+  "maps": [
+    {"map": "ch07_jindi_waiwei", "done_flag": "ch07.xunbian_waiwei", "spirit_stones": 10,
+     "items": [{"itemId": "material_hanyan_cao", "count": 1}], "bond": 1},
+    {"map": "ch07_jindi_zhongxin", "done_flag": "ch07.xunbian_zhongxin", "spirit_stones": 10,
+     "items": [{"itemId": "material_huolong_cao", "count": 1}], "bond": 1},
+    {"map": "ch07_huanxingshan", "done_flag": "ch07.xunbian_huanxingshan", "spirit_stones": 15,
+     "items": [{"itemId": "material_huolong_cao", "count": 1}], "bond": 1},
+    {"map": "ch07_dixia_zhaoze", "done_flag": "ch07.xunbian_zhaoze", "spirit_stones": 8,
+     "items": [{"itemId": "material_hanyan_cao", "count": 1}], "bond": 1},
+    {"map": "ch07_zhaoze_shenchu", "done_flag": "ch07.xunbian_shenchu", "spirit_stones": 12,
+     "items": [{"itemId": "material_huolingshi", "count": 1}], "bond": 1},
+    {"map": "ch07_dixia_shiku", "done_flag": "ch07.xunbian_shiku", "spirit_stones": 12,
+     "items": [{"itemId": "material_huolingshi", "count": 1}], "bond": 1}
+  ]
+}
