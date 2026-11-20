@@ -14,6 +14,7 @@
 #include "game/Application.h"
 #include "game/BattleHud.h"
 #include "game/BattleView.h"
+#include "game/ItemInfoView.h"
 #include "game/ShopScene.h"
 #include "io/VisualLoader.h"
 
@@ -1660,6 +1661,19 @@ void BattleScene::renderMenu(Application& app) const {
                                                 static_cast<std::size_t>(pick) < menuTargets_.size()) {
         const Unit& target = battle_.units()[static_cast<std::size_t>(menuTargets_[static_cast<std::size_t>(pick)])];
         if (!target.ally) note = foeStatusText(target);
+    }
+    // 法术、物品选单：说明区写光标那一门 / 那一件的效果行（docs/ch07-foundation.md 3.3）。上一句反馈照旧在前。
+    if (const int pick = menuList_.selection(); (menu_ == BattleMenuMode::Magic || menu_ == BattleMenuMode::Item) &&
+                                                pick >= 0 && static_cast<std::size_t>(pick) < menuIds_.size()) {
+        const std::string& id = menuIds_[static_cast<std::size_t>(pick)];
+        std::string effect;
+        if (menu_ == BattleMenuMode::Item) {
+            effect = itemEffectSummary(app, id);
+        } else if (const core::Magic* magic = app.data().findMagic(id)) {
+            effect = magicEffectSummary(app, *magic);
+        }
+        effect = stageWords(wordingStage(app.state()), effect);
+        if (!effect.empty()) note = note.empty() ? effect : note + "\n" + effect;
     }
     if (!note.empty()) {
         ui::drawTextBlock(eng, note, engine::Rect{content.x, content.y + listH, content.w, kMenuFeedbackH}, 16, theme);

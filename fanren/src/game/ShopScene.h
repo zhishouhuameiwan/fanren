@@ -14,6 +14,7 @@
 
 #include "core/model/Types.h"
 #include "core/rules/Economy.h"
+#include "game/ItemInfoView.h"
 #include "game/Scene.h"
 #include "game/Wording.h"
 #include "ui/Widgets.h"
@@ -110,6 +111,8 @@ private:
     ui::ListView sell_;
     std::string feedback_;
     bool done_ = false;
+    // 光标那一样的四行式说明（docs/ch07-foundation.md 3.3）：不变就不重算。
+    mutable DetailCache detail_;
 };
 
 }  // namespace fanren::game

@@ -15,6 +15,8 @@
 #include "game/BoardScene.h"
 #include "game/CultivationScene.h"
 #include "game/DialogueScene.h"
+#include "game/ItemInfoView.h"
+#include "game/ItemToasts.h"
 #include "game/SettingsScene.h"
 #include "game/ShopScene.h"
 #include "game/SpriteAtlas.h"
@@ -41,6 +43,8 @@ constexpr int kSettingsSummaryRows = SettingsScene::kPadRumble + 1;
 
 // 右栏列表页下方留给说明的那一截。
 constexpr int kDescriptionH = 150;
+// 物品页、法术页：左边列表占这么宽（百分比），右边是四行式说明（docs/ch07-foundation.md 3.3）。
+constexpr int kSplitListPercent = 44;
 
 // 状态页一人一行：小像框 96×132，里面贴 16×24 的行走帧 ×4（64×96，施工图 1.1 的战斗尺度）。
 // 倍数按表取（MenuScene::menuSpriteScale）：世界层倍数的 kMenuScaleNum / kMenuScaleDen，取整。
@@ -161,6 +165,11 @@ std::vector<ui::ListItem> MenuScene::itemRows(const core::GameData& data,
         row.label = item != nullptr ? item->name : entry.itemId;
         if (entry.herbAge > 0) row.label += "（" + std::to_string(entry.herbAge) + " 年）";
         row.detail = "×" + std::to_string(entry.count);
+        // 按品阶上色（docs/ch07-foundation.md 3.3）：凡品照旧正文色，往上与得物卡片同一套五档色。
+        if (item != nullptr && gradeTier(item->grade) > 0) {
+            static const ui::Theme kPalette;
+            row.labelColor = kPalette.gradeColors[gradeTier(item->grade)];
+        }
         rows.push_back(std::move(row));
     }
     return rows;
@@ -321,10 +330,11 @@ std::string MenuScene::selectedCompanion(Application& app) const {
 }
 
 void MenuScene::rebuildLists(Application& app) {
+    detail_.clear();   // 背包变了（用掉一件、送出一件），说明跟着重算
     const core::GameState& state = app.state();
     const PanelStage stage = wordingStage(state);
-    const int rows = ui::listRowsThatFit(
-        kPagePanel.h - ui::panelTitleBandHeight(true, app.theme()) - kDescriptionH, app.theme());
+    // 物品、法术两页的列表占满页高（说明挪到右边，docs/ch07-foundation.md 3.3），不再让出底下那条说明区。
+    const int rows = ui::listRowsThatFit(kPagePanel.h - ui::panelTitleBandHeight(true, app.theme()), app.theme());
 
     itemIds_.clear();
     itemAges_.clear();
@@ -921,37 +931,36 @@ void MenuScene::drawPage(Application& app) const {
             drawStatus(app, area);
             break;
         case Page::Items: {
-            std::string description;
-            const int index = items_.selection();
-            if (focus_ == Focus::Items && index >= 0 &&
-                index < static_cast<int>(itemIds_.size())) {
-                if (const core::Item* item =
-                        app.data().findItem(itemIds_[static_cast<std::size_t>(index)])) {
-                    if (!item->descKey.empty()) description = app.text(item->descKey);
-                    if (rules::fieldUsable(*item)) {
-                        if (!description.empty()) description += "\n";
-                        description += app.text("ui.menu.items.use_hint");
-                    }
-                }
-            }
             if (focus_ == Focus::ItemTarget) {
                 drawListPage(app, area, itemTargets_, true, app.text("ui.menu.items.target_hint"));
                 break;
             }
-            drawListPage(app, area, items_, focus_ == Focus::Items, description);
+            // 四行式说明（docs/ch07-foundation.md 3.3）：左边列表、右边说明——名称、效果、用途、来源、品阶与价值、
+            // 一条分隔线、原来的风味文字。原来压在列表底下 150 高的那一条放不下这么多。
+            const DetailBlock* block = nullptr;
+            const int index = items_.selection();
+            if (focus_ == Focus::Items && index >= 0 && index < static_cast<int>(itemIds_.size())) {
+                const std::string& id = itemIds_[static_cast<std::size_t>(index)];
+                const int age = index < static_cast<int>(itemAges_.size()) ? itemAges_[static_cast<std::size_t>(index)] : 0;
+                std::string extra;
+                if (const core::Item* item = app.data().findItem(id); item != nullptr && rules::fieldUsable(*item)) {
+                    extra = app.text("ui.menu.items.use_hint");
+                }
+                block = &detail_.item(app, id, age, extra);
+            }
+            drawSplitPage(app, area, items_, focus_ == Focus::Items, block);
             break;
         }
         case Page::Magic: {
-            std::string description;
+            const DetailBlock* block = nullptr;
             const int index = magics_.selection();
             const std::vector<std::string>& learned = app.state().learnedMagics;
             if (focus_ == Focus::Magic && index >= 0 && index < static_cast<int>(learned.size())) {
-                if (const core::Magic* magic =
-                        app.data().findMagic(learned[static_cast<std::size_t>(index)])) {
-                    if (!magic->descKey.empty()) description = app.text(magic->descKey);
+                if (const core::Magic* magic = app.data().findMagic(learned[static_cast<std::size_t>(index)])) {
+                    block = &detail_.magic(app, *magic);
                 }
             }
-            drawListPage(app, area, magics_, focus_ == Focus::Magic, description);
+            drawSplitPage(app, area, magics_, focus_ == Focus::Magic, block);
             break;
         }
         case Page::Journal:
@@ -1088,6 +1097,27 @@ void MenuScene::drawListPage(Application& app, const engine::Rect& area, const u
                   static_cast<float>(area.w - theme.padding * 2), theme);
     ui::drawTextBlock(e, description, engine::Rect{area.x, ruleY + 4, area.w, kDescriptionH - 4}, 20,
                       theme);
+}
+
+void MenuScene::drawSplitPage(Application& app, const engine::Rect& area, const ui::ListView& list, bool focused,
+                              const DetailBlock* block) const {
+    engine::Engine& e = app.engine();
+    const ui::Theme& theme = app.theme();
+    const int listW = area.w * kSplitListPercent / 100;
+    const engine::Rect listArea{area.x, area.y, listW, area.h};
+    if (focused) {
+        list.render(e, listArea, theme);
+    } else {
+        list.renderPreview(e, listArea, theme);
+    }
+    ui::drawRuleV(e, static_cast<float>(area.x + listW), static_cast<float>(area.y + theme.padding / 2),
+                  static_cast<float>(area.h - theme.padding), theme);
+    const engine::Rect detailArea{area.x + listW + 8, area.y, area.w - listW - 8, area.h};
+    if (block != nullptr && !block->title.empty()) {
+        drawDetailBlock(app, detailArea, *block);
+    } else {
+        ui::drawTextBlock(e, app.text("ui.iteminfo.empty"), detailArea, 18, theme);
+    }
 }
 
 void MenuScene::drawJournal(Application& app, const engine::Rect& area) const {

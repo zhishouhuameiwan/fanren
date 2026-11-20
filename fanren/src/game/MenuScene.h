@@ -31,6 +31,7 @@
 
 #include "core/model/Types.h"
 #include "engine/PostFx.h"
+#include "game/ItemInfoView.h"
 #include "game/Scene.h"
 #include "game/Wording.h"
 #include "ui/Widgets.h"
@@ -151,6 +152,9 @@ private:
     void drawPortrait(Application& app, const Member& member, const engine::Rect& box) const;
     void drawListPage(Application& app, const engine::Rect& area, const ui::ListView& list,
                       bool focused, const std::string& description) const;
+    // 物品页、法术页：左边列表、右边说明块（block 为 nullptr 时写一句「选中一样……」）。
+    void drawSplitPage(Application& app, const engine::Rect& area, const ui::ListView& list, bool focused,
+                       const DetailBlock* block) const;
     void drawJournal(Application& app, const engine::Rect& area) const;
     void drawSave(Application& app, const engine::Rect& area) const;
     void drawSettings(Application& app, const engine::Rect& area) const;
@@ -187,6 +191,8 @@ private:
     bool journalOpen_ = false;
     // 系统设置面板正压在菜单上面：同上（docs/settings.md 5.1）。
     bool settingsOpen_ = false;
+    // 物品页、法术页右边那块说明（docs/ch07-foundation.md 3.3）：选中的那一样不变就不重算。
+    mutable DetailCache detail_;
 };
 
 }  // namespace fanren::game

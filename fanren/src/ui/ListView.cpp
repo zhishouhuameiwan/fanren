@@ -296,7 +296,8 @@ void ListView::renderRows(engine::Engine& engine, const engine::Rect& area, cons
         }
 
         const engine::Color labelColor =
-            !item.enabled ? theme.paperDim : (selected ? theme.goldBright : theme.paper);
+            !item.enabled ? theme.paperDim
+                          : (selected ? theme.goldBright : (item.labelColor.a > 0 ? item.labelColor : theme.paper));
         // 禁用时右栏改写成禁用理由：玩家要看得出「不是坏了，是材料不够」。
         const std::string& right =
             (!item.enabled && !item.disabledReason.empty()) ? item.disabledReason : item.detail;
