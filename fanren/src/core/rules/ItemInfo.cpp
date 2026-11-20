@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cstdlib>
 #include <set>
 
 #include "core/battle/Battle.h"
@@ -31,6 +32,36 @@ std::string listNames(const GameData& data, const std::vector<std::string>& name
         out += "「" + names[i] + "」";
     }
     if (names.size() > limit) out += fillTemplate(word(data, "more"), {{"n", num(static_cast<int>(names.size()))}});
+    return out;
+}
+
+// 来源里的一个名字与它所在的章（店 id 前缀、编成、地图的章号；0 = 不知道）。同名的取最大的章号。
+struct Named {
+    std::string name;
+    int chapter = 0;
+};
+
+void pushNamed(std::vector<Named>& names, const std::string& name, int chapter) {
+    if (name.empty()) return;
+    for (Named& n : names) {
+        if (n.name != name) continue;
+        n.chapter = std::max(n.chapter, chapter);
+        return;
+    }
+    names.push_back(Named{name, chapter});
+}
+
+// 离当前章近的在前（docs/ch07-foundation.md 路 M 返修第 2 条）：当前章的排最前，再往前倒数；不知道章号的排最后；
+// 同一章里照原来的次序（稳定排序）。now 为 0（不给当前章的遍历）原样不动。
+std::vector<std::string> nearestFirst(std::vector<Named> names, int now) {
+    if (now > 0) {
+        const auto distance = [now](const Named& n) { return n.chapter <= 0 ? 1000 : std::abs(now - n.chapter); };
+        std::stable_sort(names.begin(), names.end(),
+                         [&distance](const Named& a, const Named& b) { return distance(a) < distance(b); });
+    }
+    std::vector<std::string> out;
+    out.reserve(names.size());
+    for (Named& n : names) out.push_back(std::move(n.name));
     return out;
 }
 
@@ -163,16 +194,20 @@ void addUses(const GameData& data, const ItemInfoSources& sources, const core::G
 void addSources(const GameData& data, const ItemInfoSources& sources, const core::GameState* state,
                 const core::Item& item, ItemInfo& info) {
     const int gate = sources.chapter > 0 ? sources.chapter : (state != nullptr ? state->chapter : 0);
+    const int sortNow = sources.chapter;   // 排序只认 game 层给的当前章；0 = 原顺序
     if (sources.shops != nullptr) {
-        std::vector<std::string> shops;
+        std::vector<Named> shops;
         for (const auto& [id, shop] : *sources.shops) {
             if (!visibleChapter(state, gate, shopChapter(id))) continue;
             const bool sells = std::any_of(shop.entries.begin(), shop.entries.end(),
                                            [&item](const ShopEntry& e) { return e.itemId == item.id; });
             if (!sells) continue;
-            pushUnique(shops, shop.nameKey.empty() ? id : data.lookupText(shop.nameKey));
+            pushNamed(shops, shop.nameKey.empty() ? id : data.lookupText(shop.nameKey), shopChapter(id));
         }
-        if (!shops.empty()) info.sources.push_back(fillTemplate(word(data, "source.shop"), {{"names", listNames(data, shops, 2)}}));
+        if (!shops.empty()) {
+            info.sources.push_back(
+                fillTemplate(word(data, "source.shop"), {{"names", listNames(data, nearestFirst(shops, sortNow), 2)}}));
+        }
     }
     if (sources.recipes != nullptr) {
         std::vector<std::string> recipes;
@@ -185,7 +220,7 @@ void addSources(const GameData& data, const ItemInfoSources& sources, const core
         }
     }
     if (sources.battles != nullptr) {
-        std::vector<std::string> foes;
+        std::vector<Named> foes;
         for (const auto& [id, battle] : *sources.battles) {
             if (!visibleChapter(state, gate, battle.chapter)) continue;
             const bool drops = std::any_of(battle.reward.drops.begin(), battle.reward.drops.end(),
@@ -194,33 +229,36 @@ void addSources(const GameData& data, const ItemInfoSources& sources, const core
             for (const core::BattleUnitSpec& unit : battle.units) {
                 if (unit.ally) continue;
                 const core::RoleTemplate* role = data.findRole(unit.roleId);
-                pushUnique(foes, role != nullptr && !role->name.empty() ? role->name : unit.roleId);
+                pushNamed(foes, role != nullptr && !role->name.empty() ? role->name : unit.roleId, battle.chapter);
             }
         }
-        if (!foes.empty()) info.sources.push_back(fillTemplate(word(data, "source.drop"), {{"names", listNames(data, foes, 3)}}));
+        if (!foes.empty()) {
+            info.sources.push_back(
+                fillTemplate(word(data, "source.drop"), {{"names", listNames(data, nearestFirst(foes, sortNow), 3)}}));
+        }
     }
     if (sources.spots != nullptr) {
         if (const auto it = sources.spots->find(item.id); it != sources.spots->end()) {
-            std::vector<std::string> chests;
-            std::vector<std::string> gathers;
-            std::vector<std::string> rewards;
+            std::vector<Named> chests;
+            std::vector<Named> gathers;
+            std::vector<Named> rewards;
             for (const ItemSpot& spot : it->second) {
                 if (!visibleChapter(state, gate, spot.chapter)) continue;
                 const std::string name = spot.mapName.empty() ? spot.mapId : spot.mapName;
                 switch (spot.kind) {
-                    case ItemSpot::Kind::Chest: pushUnique(chests, name); break;
-                    case ItemSpot::Kind::Gather: pushUnique(gathers, name); break;
-                    case ItemSpot::Kind::Reward: pushUnique(rewards, name); break;
+                    case ItemSpot::Kind::Chest: pushNamed(chests, name, spot.chapter); break;
+                    case ItemSpot::Kind::Gather: pushNamed(gathers, name, spot.chapter); break;
+                    case ItemSpot::Kind::Reward: pushNamed(rewards, name, spot.chapter); break;
                 }
             }
             if (!gathers.empty()) {
-                info.sources.push_back(fillTemplate(word(data, "source.gather"), {{"names", listNames(data, gathers, 3)}}));
+                info.sources.push_back(fillTemplate(word(data, "source.gather"), {{"names", listNames(data, nearestFirst(gathers, sortNow), 3)}}));
             }
             if (!chests.empty()) {
-                info.sources.push_back(fillTemplate(word(data, "source.chest"), {{"names", listNames(data, chests, 3)}}));
+                info.sources.push_back(fillTemplate(word(data, "source.chest"), {{"names", listNames(data, nearestFirst(chests, sortNow), 3)}}));
             }
             if (!rewards.empty()) {
-                info.sources.push_back(fillTemplate(word(data, "source.reward"), {{"names", listNames(data, rewards, 2)}}));
+                info.sources.push_back(fillTemplate(word(data, "source.reward"), {{"names", listNames(data, nearestFirst(rewards, sortNow), 2)}}));
             }
         }
     }
@@ -275,6 +313,7 @@ ItemInfo describeItem(const GameData& data, const ItemInfoSources& sources, cons
 
     std::string value = gradeName(data, item->grade);
     if (item->grade > 0) value += fillTemplate(word(data, "value.grade"), {{"n", num(item->grade)}});
+    info.grade = item->tradeable ? value : value + word(data, "dot") + word(data, "value.untradeable");
     value += word(data, "dot");
     value += item->tradeable
                  ? fillTemplate(word(data, "value.price"), {{"n", num(item->price)}, {"currency", words.currency}})

@@ -94,7 +94,7 @@
 | --- | --- |
 | 主菜单物品页 | 左 44% 列表（**按品阶上色**：`ui::ListItem::labelColor`，凡品照旧正文色）、右边说明块：名称（品阶色，灵草带年份）、效果、用途、来源、品阶、一条分隔线、原来的风味文字（暗一档）、可服用的接「按确认使用。」。列表占满页高（原来让出底下 150 高的说明区） |
 | 主菜单法术页 | 同一个分栏：名称、类别、消耗、效用、分隔线、原来的说明 |
-| 商店买卖页 | 左栏日期、钱、上一笔反馈之下，一条分隔线，接光标那一样的说明块（17 号字） |
+| 商店买卖页 | 左栏日期、钱、上一笔反馈之下，一条分隔线，接光标那一样的说明块（17 号字）。品阶行只写品阶与「不可买卖」，**不写基准价**（返修第 3 条：右边挂的是店价 = 基价 × `buyRate`，两个数打架） |
 | 战斗法术 / 物品选单 | 说明区写光标那一门 / 那一件的效果行（`magicSummary` / `effectSummary`，过 `stageWords`），金字；上一句反馈照旧在前。说明区只有 72 高，通用文字块（内边距 24）只排得下一行，这两种选单改成自己排：15 号字、内边距 12、至多三行 |
 | 得物卡片副行 | 有效果行就用效果行的第一条（「回复气血 6」「施展「火弹术」 · 火 · 威力…」），没有才用说明的首句 |
 
@@ -119,8 +119,8 @@
 
 新增：
 
-- `tests/ItemInfoTests.cpp`（17 条）：遍历全部物品（每样都有来源行与品阶行、带效果字段的都有效果行、店里卖的都写得出那家店、没有漏填的占位与缺的文案）；遍历全部法术（类别与耗法力、蓄劲与看破削架势的说法与引擎规则一致）；回气丹、黄精、火球符、玉带短剑、不可买卖、剧情所得、剧透闸（含存档章号不跟剧情时以 `sources.chapter` 为准）、凡人篇用词、伙伴喜恶逐字对上；`fillTemplate`、`shopChapter`；说明块的次序与风味文字原样。
-- `tests/MinimapTests.cpp`（11 条）：取景与换算（整张居中、开窗夹边、贴边、平移、反向换算）、标记规矩（8 格、灰、目标或通往目标的门、主角最后画）、第 7 章 18 张图、第 3、6 章剪影、小地图设置项读写；真入口（M 开关、手柄 LB、Esc 关、主菜单「地图」、设置关掉小地图就不画、地图键在键表里、提示跟着键位）。
+- `tests/ItemInfoTests.cpp`（21 条）：遍历全部物品（每样都有来源行与品阶行、带效果字段的都有效果行、店里卖的都写得出那家店、没有漏填的占位与缺的文案）；遍历全部法术（类别与耗法力、蓄劲与看破削架势的说法与引擎规则一致）；回气丹、黄精、火球符、玉带短剑、不可买卖、剧情所得、剧透闸（含存档章号不跟剧情时以 `sources.chapter` 为准）、凡人篇用词、伙伴喜恶逐字对上；`fillTemplate`、`shopChapter`；说明块的次序与风味文字原样。
+- `tests/MinimapTests.cpp`（13 条）：取景与换算（整张居中、开窗夹边、贴边、平移、反向换算）、标记规矩（8 格、灰、目标或通往目标的门、主角最后画）、第 7 章 18 张图、第 3、6 章剪影、小地图设置项读写；真入口（M 开关、手柄 LB、Esc 关、主菜单「地图」、设置关掉小地图就不画、地图键在键表里、提示跟着键位）。
 - `tests/UiStyleTests.cpp` 加 `MenuLexicon.TheAreaMapAndTheItemInfoWordsAreSafeForMortalChapters`：区域地图的固有字与 `ui.iteminfo.*` 全部字样过凡人篇禁词表（区域地图与说明是通用界面，第 1 章就看得见；钱与法力走占位，按阶段换词）。
 
 改了的旧测试（都是施工图要的行为变了，断言跟着改，不是放水）：
@@ -179,7 +179,21 @@
 
 ---
 
-## 9. 没做的、拿不准的、留给集成的
+## 9. 返修（主会话审核意见，2026-11-20）
+
+| # | 意见 | 改法 | 钉它的测试 |
+| --- | --- | --- | --- |
+| 1 | 换行符被整份改掉（`git diff --stat main...HEAD` 18954 / 15827，忽略行尾后 3227 / 100） | **原因**：我用 Python 文本模式（`open(p, 'w')`）改文件，Windows 上写出来是 CRLF；读进来又把原有的 CRLF 收成 LF。之后又被 msys `sed -i` 改过的几份恰好写回 LF，所以是一半一半。**修法**：逐个文件对照 main 上的版本按字节恢复——main 是 LF 的恢复 LF，main 本来就是 CRLF 的（`WorldScene.cpp`、`MenuScene.cpp`、`KeyBindingTests.cpp`、`CompanionsMenuTests.cpp`）不动，新文件一律 LF。单独一个提交。之后的改动一律按字节读写（替换前看文件原来是哪种行尾，照原样写回） | 修完 `git diff --stat main` 与 `--ignore-cr-at-eol` 的增删数相同 |
+| 2 | 来源名单按 id 字典序取前几个，第 7 章里金疮药写「「外刃堂收药处」、「南城药铺」等 5 处有售」，都是回不去的旧地方 | 店、掉落的妖兽、宝箱、采集点、集齐奖励的名单按「离当前章近的在前」排：当前章的最前，再往前倒数，不知道章号的（`village_general_store` 这类）排最后；同一章照原次序；名额不变。只在 `sources.chapter > 0`（game 层给了当前章）时排，单测遍历不给时照表的次序 | `ItemInfo.InChapter7TheNearestShopComesFirst`（第 7 章金疮药「有售」第一家是北街收药摊 = `ch07_fangshi_yaotan`；不给当前章时第一家是 id 最小的那家）、`InChapter7TheNearestDropAndChestComeFirstForEveryItem`（逐样物品：掉落、宝箱名单的第一个都是这一类里最大的章号）、`DropsAndChestsAreSortedNearestChapterFirst`（造三场编成、三张宝箱图，钉 7 → 5 → 3 的次序与不排序时的原次序；眼下的真数据里没有哪样东西同时由第 7 章以前与第 7 章的编成掉，所以排序本身用造的数据钉） |
+| 3 | 商店面板说明块写「基准价 60 灵石」，右边挂「30 灵石」 | `rules::ItemInfo` 加 `grade`（只有品阶，不可买卖的接「不可买卖」）；`itemDetailRows / itemDetailBlock / DetailCache::item` 加 `withPrice`，商店面板传 false；主菜单物品页照旧写基准价 | `ItemInfo.TheShopPanelsGradeRowCarriesNoBasePrice`；截图 `shop_buy.png` 重拍 |
+| 4a | 旧设置文件（没有 `minimap`、`keys` 里没有 `map`）读进来 | 取缺省值、不报警告：小地图开、地图键 M；玩家改过的别的键照旧，不整张回默认 | `MinimapSetting.TheFileKeyIsMinimapAndItDefaultsOn`、`MapWiring.AnOldSettingsFileLoadsWithTheMinimapOnAndMapOnM` |
+| 4b | 玩家旧设置里已把 M 配给了别的动作 | 改之前：叠出来的表里 M 重复 → 整表校验不过 → **玩家全部自定义键位回默认**（不会启动失败，但玩家一个字没改就丢了键位）。改之后：**玩家的键位优先，「地图」让**。设置契约之后新加的动作列在 `game::kYieldingActions`（眼下只有 `Map`；路 D 若再加键，追加在这里）：玩家没改过它、它的默认键撞上玩家已存的键，就让出来；一个键都不剩时补 A–Z 里第一个谁都没用、不是固定键也不是保留键的字母（默认表下是 B），提示跟着变成「B 地图」。玩家自己给「地图」配过键的照存的来（撞了就照旧规矩整张回默认）。`docs/settings.md` 第 6 节写明了这条 | `MapWiring.APlayerWhoAlreadyBoundMKeepsItAndTheMapKeyMovesToAFreeLetter`（菜单 = M、地图 = B、M 开菜单、B 开地图、设置没被清空） |
+
+返修后重拍：`menu_items_pill.png`（金疮药「有售」第一家是北街收药摊）、`shop_buy.png`（品阶行只写「良品（2 阶）」）。
+
+---
+
+## 10. 没做的、拿不准的、留给集成的
 
 1. **「12 张主线图」**：`maps/` 里 `ch07_*` 只有 11 张，按 `ch06_baiyaoyuan`（第 7 章开场所在、有高清图）补成 12 张。若主会话指的是别的口径，请指正。
 2. **共享文件的冲突点**（集成时要合）：`Application.h/.cpp`（末尾一块：`itemSpots()`、`worldScene()`、`explorationRewards()`、`assetRoot()`、`shops()`、`battles()`，成员 `itemSpots_`）；`io/SettingsFile.*`（`minimap`）；`SettingsScene.*`（`kMinimap = 9`，路 G「教学提示」、路 D「自动播放」也要插行，下标要一起排）；`WorldHud.*`（`drawSaveNotice` 加了 `top` 参数，缺省 16，路 G 动目标框不冲突）；`Engine.h/.cpp` 的 `Key` 枚举与键表（路 D 若也追加键，排在 `Map` 之后；本路占 M / LB，共享笔记 `route-m-keys.md` 写着）；`KeyBindingTests` 两张白名单与占位计数、`EngineTests` 键序断言、`GamepadTests` 手柄表（路 D 加键时这几处会再改一次）。

@@ -47,6 +47,7 @@ struct ItemInfoSources {
     // 剧透闸用的「当前章」。0 = 取 state->chapter。存档里的 GameState::chapter 并不跟着剧情走（第 7 章的存档里
     // 还是 1），game 层按章节表的 done_flag 推出真正的当前章填在这里（game::currentChapter）。
     int chapter = 0;
+    // （它不为 0 时，来源里的店、妖兽、宝箱采集点、集齐奖励按「离这一章近的在前」排；为 0 时照表的次序。）
 };
 
 // 随阶段换说法的词（game/Wording.h）：凡人篇是「气力」「碎银」。缺省是修仙篇的说法。
@@ -61,6 +62,9 @@ struct ItemInfo {
     std::vector<std::string> uses;      // 用途
     std::vector<std::string> sources;   // 来源（至少一条：都没有时是「剧情所得」）
     std::string value;                  // 品阶与价值（恒有）
+    // 只有品阶（不可买卖的再接「不可买卖」），不写基准价：商店面板用——那里右边挂的是店价（基价 × buyRate），
+    // 左边再写基准价两个数打架（路 M 返修第 3 条）。
+    std::string grade;
 };
 
 // 一件东西的四行说明。itemId 查不到时四样全空。

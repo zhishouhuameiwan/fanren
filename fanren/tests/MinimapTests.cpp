@@ -23,6 +23,7 @@
 #include "core/model/Types.h"
 #include "game/Application.h"
 #include "game/AreaMapScene.h"
+#include "game/KeyConfigScene.h"
 #include "game/MenuScene.h"
 #include "game/Minimap.h"
 #include "game/WorldScene.h"
@@ -418,6 +419,55 @@ TEST_F(MapWiring, TheSettingTurnsTheMinimapOffAndTheKeyIsInTheKeyTable) {
     EXPECT_STREQ(fanren::engine::Engine::keyId(fanren::engine::Engine::Key::Map), "map");
     EXPECT_EQ(app_.engine().customKeys(fanren::engine::Engine::Key::Map)[0], SDL_SCANCODE_M);
     EXPECT_EQ(app_.text("ui.map.minimap.key"), "M 地图") << "提示跟着键位走";
+}
+
+// 返修第 4 条 (a)：改版前写下的设置文件（没有 minimap 键、keys 里没有 map）读进来取缺省值、不报错：小地图开着，地图键是 M。
+TEST_F(MapWiring, AnOldSettingsFileLoadsWithTheMinimapOnAndMapOnM) {
+    const fanren::io::SettingsRead read =
+        fanren::io::parseSettings(R"({"version": 1, "bgm_volume": 6, "pad_rumble": false, "keys": {"menu": [13, 0]}})");
+    EXPECT_TRUE(read.warnings.empty()) << read.warnings.front();
+    EXPECT_TRUE(read.settings.minimap) << "缺 minimap：开";
+    EXPECT_EQ(read.settings.keys.count("map"), 0u);
+    const auto table = fanren::game::keyTableOf(read.settings);
+    EXPECT_TRUE(fanren::engine::Engine::validateKeyTable(table).ok);
+    using Key = fanren::engine::Engine::Key;
+    EXPECT_EQ(table[static_cast<std::size_t>(Key::Map)][0], SDL_SCANCODE_M) << "缺 map：默认 M";
+    EXPECT_EQ(table[static_cast<std::size_t>(Key::Menu)][0], SDL_SCANCODE_J) << "玩家改过的照旧（13 = J）";
+    app_.setSettings(read.settings);
+    EXPECT_EQ(app_.settings().keys, read.settings.keys) << "没有被整张回默认";
+    EXPECT_EQ(app_.engine().customKeys(Key::Map)[0], SDL_SCANCODE_M);
+    EXPECT_TRUE(frame().minimap);
+    press(SDL_SCANCODE_M);
+    EXPECT_EQ(top(), "AreaMap");
+}
+
+// 返修第 4 条 (b)：玩家的旧设置里早把 M 配给了别的动作（这里是「菜单」）。读进来不失败、也不整张回默认：
+// **玩家的键位优先**，新加的「地图」让出 M，改用 A–Z 里第一个谁都没用的字母（默认表里 B 空着，就是 B）。
+TEST_F(MapWiring, APlayerWhoAlreadyBoundMKeepsItAndTheMapKeyMovesToAFreeLetter) {
+    using Key = fanren::engine::Engine::Key;
+    const fanren::io::SettingsRead read =
+        fanren::io::parseSettings(R"({"version": 1, "keys": {"menu": [16, 0]}})");   // 16 = M
+    ASSERT_TRUE(read.warnings.empty());
+    const auto table = fanren::game::keyTableOf(read.settings);
+    EXPECT_TRUE(fanren::engine::Engine::validateKeyTable(table).ok) << "表照样过得了整表校验";
+    EXPECT_EQ(table[static_cast<std::size_t>(Key::Menu)], (fanren::engine::Engine::KeySlots{SDL_SCANCODE_M, 0}));
+    EXPECT_EQ(table[static_cast<std::size_t>(Key::Map)], (fanren::engine::Engine::KeySlots{SDL_SCANCODE_B, 0}));
+    app_.setSettings(read.settings);
+    EXPECT_EQ(app_.settings().keys.count("menu"), 1u) << "没有整张回默认";
+    EXPECT_EQ(app_.engine().customKeys(Key::Menu)[0], SDL_SCANCODE_M);
+    EXPECT_EQ(app_.engine().customKeys(Key::Map)[0], SDL_SCANCODE_B);
+    EXPECT_EQ(app_.text("ui.map.minimap.key"), "B 地图") << "提示跟着让出来的键走";
+    press(SDL_SCANCODE_M);
+    EXPECT_EQ(top(), "Menu") << "M 是玩家的菜单键";
+    press(SDL_SCANCODE_M);
+    EXPECT_EQ(top(), "World");
+    press(SDL_SCANCODE_B);
+    EXPECT_EQ(top(), "AreaMap");
+
+    // 玩家自己给「地图」配过键时不替他让：照存的来（这里与菜单撞了，整张表照旧规矩回默认）。
+    const fanren::io::SettingsRead both =
+        fanren::io::parseSettings(R"({"version": 1, "keys": {"menu": [16, 0], "map": [16, 0]}})");
+    EXPECT_FALSE(fanren::engine::Engine::validateKeyTable(fanren::game::keyTableOf(both.settings)).ok);
 }
 
 }  // namespace

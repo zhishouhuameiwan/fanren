@@ -12,6 +12,7 @@
 #include <filesystem>
 #include <map>
 #include <string>
+#include <tuple>
 #include <vector>
 
 #include "core/model/Types.h"
@@ -254,6 +255,127 @@ TEST(ItemInfo, TheGateChapterComesFromTheSourcesWhenTheSaveDoesNotTrackIt) {
         << dump(describeItem(s.data, sources, &state, {}, "pill_qingling_san").sources);
 }
 
+// 返修第 2 条：来源名单按「离当前章近的在前」排。第 7 章里金疮药从前写「「外刃堂收药处」、「南城药铺」等 5 处有售」——
+// 都是第 7 章回不去的旧地方。每类名额不变；不给当前章（sources.chapter == 0）照表的次序。
+std::string firstName(const std::vector<std::string>& lines, const std::string& tail) {
+    for (const std::string& line : lines) {
+        if (line.find(tail) == std::string::npos) continue;
+        const std::size_t open = line.find("「");
+        const std::size_t close = line.find("」", open);
+        if (open == std::string::npos || close == std::string::npos) return {};
+        return line.substr(open + std::string("「").size(), close - open - std::string("「").size());
+    }
+    return {};
+}
+
+TEST(ItemInfo, InChapter7TheNearestShopComesFirst) {
+    const Shipped& s = shipped();
+    fanren::core::GameState state;
+    ItemInfoSources sources = s.sources();
+    sources.chapter = 7;
+    const ItemInfo info = describeItem(s.data, sources, &state, {}, "pill_jinchuang_yao");
+    EXPECT_EQ(firstName(info.sources, "有售"), s.data.lookupText(s.shops.at("ch07_fangshi_yaotan").nameKey))
+        << dump(info.sources);
+    // 不给当前章：照店 id 的次序（第一家是 id 最小的那家卖金疮药的店）。
+    const ItemInfo plain = describeItem(s.data, s.sources(), nullptr, {}, "pill_jinchuang_yao");
+    std::string firstById;
+    for (const auto& [id, shop] : s.shops) {
+        for (const auto& e : shop.entries) {
+            if (e.itemId == "pill_jinchuang_yao" && firstById.empty()) firstById = s.data.lookupText(shop.nameKey);
+        }
+    }
+    EXPECT_EQ(firstName(plain.sources, "有售"), firstById) << dump(plain.sources);
+}
+
+TEST(ItemInfo, InChapter7TheNearestDropAndChestComeFirstForEveryItem) {
+    // 逐样物品：掉落那一行的第一个妖兽、宝箱那一行的第一张图，章号都是这一类里（第 7 章及以前）最大的那个。
+    const Shipped& s = shipped();
+    fanren::core::GameState state;
+    ItemInfoSources sources = s.sources();
+    sources.chapter = 7;
+    int dropChecked = 0;
+    int chestChecked = 0;
+    int reordered = 0;
+    for (const auto& [itemId, item] : s.data.items) {
+        std::map<std::string, int> foeChapter;   // 妖兽名 → 掉这件东西的、第 7 章及以前的编成里最大的章号
+        for (const auto& [battleId, battle] : s.battles) {
+            if (battle.chapter > 7) continue;
+            bool drops = false;
+            for (const auto& d : battle.reward.drops) drops = drops || (d.itemId == itemId && d.count > 0);
+            if (!drops) continue;
+            for (const auto& unit : battle.units) {
+                if (unit.ally) continue;
+                const auto* role = s.data.findRole(unit.roleId);
+                const std::string name = role != nullptr && !role->name.empty() ? role->name : unit.roleId;
+                foeChapter[name] = std::max(foeChapter[name], battle.chapter);
+            }
+        }
+        std::map<std::string, int> chestChapter;
+        if (const auto it = s.spots.find(itemId); it != s.spots.end()) {
+            for (const auto& spot : it->second) {
+                if (spot.kind != fanren::rules::ItemSpot::Kind::Chest || spot.chapter > 7) continue;
+                const std::string name = spot.mapName.empty() ? spot.mapId : spot.mapName;
+                chestChapter[name] = std::max(chestChapter[name], spot.chapter);
+            }
+        }
+        const ItemInfo info = describeItem(s.data, sources, &state, {}, itemId);
+        const ItemInfo plain = describeItem(s.data, s.sources(), nullptr, {}, itemId);
+        if (!foeChapter.empty()) {
+            ++dropChecked;
+            int best = 0;
+            for (const auto& [n, c] : foeChapter) best = std::max(best, c);
+            const std::string first = firstName(info.sources, "掉落");
+            ASSERT_TRUE(foeChapter.count(first)) << itemId << dump(info.sources);
+            EXPECT_EQ(foeChapter.at(first), best) << itemId << " 掉落的第一个不是离第 7 章最近的：" << dump(info.sources);
+            if (first != firstName(plain.sources, "掉落")) ++reordered;
+        }
+        if (!chestChapter.empty()) {
+            ++chestChecked;
+            int best = 0;
+            for (const auto& [n, c] : chestChapter) best = std::max(best, c);
+            const std::string first = firstName(info.sources, "的宝箱");
+            ASSERT_TRUE(chestChapter.count(first)) << itemId << dump(info.sources);
+            EXPECT_EQ(chestChapter.at(first), best) << itemId << dump(info.sources);
+        }
+    }
+    EXPECT_GT(dropChecked, 5);
+    EXPECT_GT(chestChecked, 3);
+    // 眼下的数据里没有哪样东西同时由第 7 章以前与第 7 章的编成掉（reordered 为 0），排序本身由下一条用造出来的编成钉。
+    static_cast<void>(reordered);
+}
+
+TEST(ItemInfo, DropsAndChestsAreSortedNearestChapterFirst) {
+    // 造三场编成：id 次序是第 3 章、第 5 章、第 7 章，都掉回气丹；三张宝箱图同理。当前章 7：第 7 章的排最前，再往前倒数。
+    const Shipped& s = shipped();
+    std::map<std::string, fanren::core::BattleSetup> battles;
+    for (const auto& [id, ch, foe] : std::vector<std::tuple<std::string, int, std::string>>{
+             {"a_ch3", 3, "foe_ch3"}, {"b_ch5", 5, "foe_ch5"}, {"c_ch7", 7, "foe_ch7"}, {"d_ch9", 9, "foe_ch9"}}) {
+        fanren::core::BattleSetup b;
+        b.id = id;
+        b.chapter = ch;
+        b.units.push_back(fanren::core::BattleUnitSpec{foe, false});
+        b.reward.drops.push_back(fanren::core::BagEntry{"pill_huiqi_dan", 1, 0});
+        battles[id] = b;
+    }
+    fanren::rules::ItemSpots spots;
+    spots["pill_huiqi_dan"] = {{fanren::rules::ItemSpot::Kind::Chest, "m3", "图三", 3},
+                               {fanren::rules::ItemSpot::Kind::Chest, "m7", "图七", 7},
+                               {fanren::rules::ItemSpot::Kind::Chest, "m5", "图五", 5}};
+    ItemInfoSources sources;
+    sources.battles = &battles;
+    sources.spots = &spots;
+    sources.chapter = 7;
+    fanren::core::GameState state;
+    const ItemInfo info = describeItem(s.data, sources, &state, {}, "pill_huiqi_dan");
+    EXPECT_TRUE(anyContains(info.sources, "「foe_ch7」、「foe_ch5」、「foe_ch3」掉落")) << dump(info.sources);
+    EXPECT_TRUE(anyContains(info.sources, "「图七」、「图五」、「图三」的宝箱")) << dump(info.sources);
+    EXPECT_FALSE(anyContains(info.sources, "foe_ch9")) << "第 9 章的照旧闸掉";
+    sources.chapter = 0;
+    const ItemInfo plain = describeItem(s.data, sources, nullptr, {}, "pill_huiqi_dan");
+    EXPECT_TRUE(anyContains(plain.sources, "「foe_ch3」、「foe_ch5」、「foe_ch7」等 4 处掉落")) << dump(plain.sources);
+    EXPECT_TRUE(anyContains(plain.sources, "「图三」、「图七」、「图五」的宝箱")) << "不给当前章：照表的次序";
+}
+
 TEST(ItemInfo, MortalChaptersUseTheMortalWords) {
     const Shipped& s = shipped();
     fanren::rules::InfoWords mortal;
@@ -315,6 +437,24 @@ TEST(ItemInfo, FillTemplateAndShopChapter) {
     EXPECT_EQ(fanren::rules::shopChapter("ch13_cunjin_ge"), 13);
     EXPECT_EQ(fanren::rules::shopChapter("village_general_store"), 0);
     EXPECT_EQ(fanren::rules::shopChapter("chx7_a"), 0);
+}
+
+TEST(ItemInfo, TheShopPanelsGradeRowCarriesNoBasePrice) {
+    // 返修第 3 条：商店挂牌价 = 基价 × buyRate（坊市收药摊 0.5），说明块再写「基准价 60」就与右边的「30」打架。
+    const Shipped& s = shipped();
+    const ItemInfo info = describeItem(s.data, s.sources(), nullptr, {}, "pill_qingling_san");
+    EXPECT_EQ(info.grade, "良品（2 阶）");
+    const auto shopRows = fanren::game::itemDetailRows(s.data, info, {}, /*withPrice=*/false);
+    const auto menuRows = fanren::game::itemDetailRows(s.data, info, {});
+    ASSERT_FALSE(shopRows.empty());
+    EXPECT_EQ(shopRows.back().label, "品阶");
+    EXPECT_EQ(shopRows.back().text, "良品（2 阶）") << "商店面板：只写品阶";
+    EXPECT_EQ(menuRows.back().text, "良品（2 阶） · 基准价 60 灵石") << "主菜单物品页照旧";
+    for (const auto& [id, item] : s.data.items) {
+        const ItemInfo each = describeItem(s.data, ItemInfoSources{}, nullptr, {}, id);
+        EXPECT_EQ(each.grade.find("基准价"), std::string::npos) << id;
+        if (!item.tradeable) EXPECT_NE(each.grade.find("不可买卖"), std::string::npos) << id;
+    }
 }
 
 TEST(ItemInfo, DetailRowsKeepTheOrderAndTheFlavourTextUntouched) {

@@ -434,7 +434,8 @@ void ShopScene::renderStatus(Application& app, const engine::Rect& area) const {
     ui::drawRuleH(engine, static_cast<float>(area.x), static_cast<float>(y + 4), static_cast<float>(area.w), theme);
     const engine::Rect detail{area.x - theme.padding, y + 10, area.w + theme.padding * 2,
                               std::max(0, area.y + area.h - y - 10)};
-    drawDetailBlock(app, detail, detail_.item(app, itemId, herbAge), 17);
+    // 品阶行不写基准价（返修第 3 条）：右边挂的是店价，左边再写基价两个数打架。
+    drawDetailBlock(app, detail, detail_.item(app, itemId, herbAge, {}, /*withPrice=*/false), 17);
 }
 
 void ShopScene::render(Application& app) {

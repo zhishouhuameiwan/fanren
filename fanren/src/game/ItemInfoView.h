@@ -48,9 +48,10 @@ struct DetailRow {
     bool rule = false;
 };
 // 物品说明块的行（纯，可测）：效果、用途、来源、品阶与价值各一行（同类几条用「；」连），空的那类不写；
-// 然后一条分隔线、原来的风味文字（flavor 为空就不画线）。
+// 然后一条分隔线、原来的风味文字（flavor 为空就不画线）。withPrice 为假（商店面板）时品阶行只写品阶与「不可买卖」，
+// 不写基准价：右边列表挂的是店价，两个数打架。
 [[nodiscard]] std::vector<DetailRow> itemDetailRows(const core::GameData& data, const rules::ItemInfo& info,
-                                                    const std::string& flavor);
+                                                    const std::string& flavor, bool withPrice = true);
 // 法术说明块：类别、消耗、效用（几条用「；」连），分隔线，风味文字。
 [[nodiscard]] std::vector<DetailRow> magicDetailRows(const core::GameData& data, const rules::MagicInfo& info,
                                                      const std::string& flavor);
@@ -64,7 +65,7 @@ struct DetailBlock {
 // 物品：名字（灵草带年份）、四行、分隔线、原来的风味文字；extra 非空时接在风味文字后面另起一段
 //（物品页的「按确认使用」那一句）。查不到物品时整块是空的。
 [[nodiscard]] DetailBlock itemDetailBlock(Application& app, const std::string& itemId, int herbAge,
-                                          const std::string& extra = {});
+                                          const std::string& extra = {}, bool withPrice = true);
 [[nodiscard]] DetailBlock magicDetailBlock(Application& app, const core::Magic& magic);
 
 // 选中的那一样不变就不重算（一样东西的来源要翻全部商店、编成、配方，几毫秒，不该每帧算一遍）。
@@ -72,7 +73,7 @@ struct DetailBlock {
 class DetailCache {
 public:
     [[nodiscard]] const DetailBlock& item(Application& app, const std::string& itemId, int herbAge,
-                                          const std::string& extra = {});
+                                          const std::string& extra = {}, bool withPrice = true);
     [[nodiscard]] const DetailBlock& magic(Application& app, const core::Magic& magic);
     void clear() { key_.clear(); }
 

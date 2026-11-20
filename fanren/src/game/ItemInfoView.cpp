@@ -142,13 +142,14 @@ std::string magicEffectSummary(Application& app, const core::Magic& magic) {
 }
 
 std::vector<DetailRow> itemDetailRows(const core::GameData& data, const rules::ItemInfo& info,
-                                      const std::string& flavor) {
+                                      const std::string& flavor, bool withPrice) {
     const std::string sep = "；";
     std::vector<DetailRow> rows;
     if (!info.effects.empty()) rows.push_back({label(data, "effect"), joined(info.effects, sep)});
     if (!info.uses.empty()) rows.push_back({label(data, "use"), joined(info.uses, sep)});
     if (!info.sources.empty()) rows.push_back({label(data, "source"), joined(info.sources, sep)});
-    if (!info.value.empty()) rows.push_back({label(data, "value"), info.value});
+    const std::string& value = withPrice ? info.value : info.grade;
+    if (!value.empty()) rows.push_back({label(data, "value"), value});
     if (!flavor.empty()) {
         rows.push_back({{}, {}, true});
         rows.push_back({{}, flavor});
@@ -215,7 +216,8 @@ void drawDetailBlock(Application& app, const engine::Rect& area, const DetailBlo
     }
 }
 
-DetailBlock itemDetailBlock(Application& app, const std::string& itemId, int herbAge, const std::string& extra) {
+DetailBlock itemDetailBlock(Application& app, const std::string& itemId, int herbAge, const std::string& extra,
+                            bool withPrice) {
     DetailBlock block;
     const core::Item* item = app.data().findItem(itemId);
     if (item == nullptr) return block;
@@ -224,7 +226,7 @@ DetailBlock itemDetailBlock(Application& app, const std::string& itemId, int her
     block.title = item->name.empty() ? itemId : item->name;
     if (herbAge > 0) block.title += "（" + std::to_string(herbAge) + " 年）";
     block.color = app.theme().gradeColors[std::clamp(gradeTier(item->grade), 0, 4)];
-    block.rows = itemDetailRows(app.data(), itemInfoOf(app, itemId, herbAge), flavor);
+    block.rows = itemDetailRows(app.data(), itemInfoOf(app, itemId, herbAge), flavor, withPrice);
     return block;
 }
 
@@ -237,10 +239,11 @@ DetailBlock magicDetailBlock(Application& app, const core::Magic& magic) {
     return block;
 }
 
-const DetailBlock& DetailCache::item(Application& app, const std::string& itemId, int herbAge, const std::string& extra) {
-    const std::string key = "item:" + itemId + "#" + std::to_string(herbAge) + "#" + extra;
+const DetailBlock& DetailCache::item(Application& app, const std::string& itemId, int herbAge, const std::string& extra,
+                                     bool withPrice) {
+    const std::string key = "item:" + itemId + "#" + std::to_string(herbAge) + "#" + extra + (withPrice ? "#$" : "");
     if (key != key_) {
-        block_ = itemDetailBlock(app, itemId, herbAge, extra);
+        block_ = itemDetailBlock(app, itemId, herbAge, extra, withPrice);
         key_ = key;
     }
     return block_;

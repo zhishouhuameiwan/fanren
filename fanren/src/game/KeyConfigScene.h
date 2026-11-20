@@ -24,6 +24,10 @@ namespace fanren::game {
 //   往引擎推：默认表打底，设置里列出的动作盖上去（「缺省某个动作 = 那个动作用默认」）；认不出的 id 不理。
 //   往回存：只存与默认不同的动作——于是「全部默认」就是空表，与 io::Settings{} 相等，
 //   开关一下改键面板、改了又改回去，都不会凭空多出一份文件。
+//   设置契约（docs/settings.md 第 6 节）之后新加的动作在 kYieldingActions 里：玩家没改过它、它的默认键却撞上了
+//   玩家已存的键时，它让出来（没键了就补一个空着的字母），不让整张表校验不过、回默认。玩家的键位优先。
+// 设置契约之后新加的动作。路 D 若再加键，追加在这里。
+inline constexpr engine::Engine::Key kYieldingActions[] = {engine::Engine::Key::Map};
 [[nodiscard]] engine::Engine::KeyTable keyTableOf(const io::Settings& settings);
 [[nodiscard]] std::map<std::string, io::KeySlots> keySettingsOf(const engine::Engine::KeyTable& table);
 
