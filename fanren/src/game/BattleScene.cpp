@@ -11,6 +11,7 @@
 
 #include "core/rules/Companions.h"
 #include "core/rules/Realm.h"
+#include "engine/TextLayout.h"
 #include "game/Application.h"
 #include "game/BattleHud.h"
 #include "game/BattleView.h"
@@ -1671,7 +1672,8 @@ void BattleScene::renderMenu(Application& app) const {
         const Unit& target = battle_.units()[static_cast<std::size_t>(menuTargets_[static_cast<std::size_t>(pick)])];
         if (!target.ally) note = foeStatusText(target);
     }
-    // 法术、物品选单：说明区写光标那一门 / 那一件的效果行（docs/ch07-foundation.md 3.3）。上一句反馈照旧在前。
+    // 法术、物品选单：说明区写光标那一门 / 那一件的效果行（docs/ch07-foundation.md 3.3）。说明区只有 72 高，
+    // 按通用的文字块（内边距 24）只排得下一行：这里自己排，15 号字、内边距收窄，至多三行——上一句反馈在前，效果在后。
     if (const int pick = menuList_.selection(); (menu_ == BattleMenuMode::Magic || menu_ == BattleMenuMode::Item) &&
                                                 pick >= 0 && static_cast<std::size_t>(pick) < menuIds_.size()) {
         const std::string& id = menuIds_[static_cast<std::size_t>(pick)];
@@ -1682,7 +1684,23 @@ void BattleScene::renderMenu(Application& app) const {
             effect = magicEffectSummary(app, *magic);
         }
         effect = stageWords(wordingStage(app.state()), effect);
-        if (!effect.empty()) note = note.empty() ? effect : note + "\n" + effect;
+        constexpr int kNoteFont = 15;
+        constexpr int kNoteLine = 20;
+        constexpr int kNoteInset = 12;
+        const int width = content.w - kNoteInset * 2;
+        const auto measure = [&eng](const std::string& sample) { return eng.measureText(sample, kNoteFont).x; };
+        int y = content.y + listH + 6;
+        const int bottom = content.y + listH + kMenuFeedbackH;
+        const auto put = [&](const std::string& text, const engine::Color& color) {
+            for (const engine::LayoutLine& line : engine::layoutText(text, width, measure)) {
+                if (y + kNoteFont > bottom) return;
+                if (!line.text.empty()) eng.drawText(line.text, content.x + kNoteInset, y, kNoteFont, color, theme.bodyStyle);
+                y += kNoteLine;
+            }
+        };
+        put(note, theme.paper);
+        put(effect, theme.goldBright);
+        return;
     }
     if (!note.empty()) {
         ui::drawTextBlock(eng, note, engine::Rect{content.x, content.y + listH, content.w, kMenuFeedbackH}, 16, theme);
