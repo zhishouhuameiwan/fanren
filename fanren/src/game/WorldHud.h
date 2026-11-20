@@ -75,9 +75,9 @@ void drawExploreTag(engine::Engine& engine, const ui::Theme& theme, Geometry& ge
                     const std::string& text, bool complete, float alpha);
 
 // 右上角的存盘提示。top 是面板的上沿：小地图开着时挪到它下面（docs/ch07-foundation.md 3.1，minimap::kSaveNoticeTop），
-// 关着时照旧 16。
-void drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
-                    const std::string& text, float top = 16.f);
+// 关着时照旧 16。返回画出来的那块面板（没画就是空矩形）：得物卡片要排在它下面（第一期地基包集成）。
+engine::RectF drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
+                             const std::string& text, float top = 16.f);
 
 inline constexpr float kPathHintFooterHeight = 72.f;
 // 按确认会发生什么：「[Z] 打开」，一块小面板浮在那一格的头顶。centerX 对中，bottomY 是面板底边；

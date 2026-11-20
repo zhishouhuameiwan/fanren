@@ -7,7 +7,6 @@
 #include <vector>
 #include <memory>
 #include <sstream>
-#include <string>
 
 #include "core/rules/Roster.h"
 #include "game/Application.h"
@@ -212,12 +211,41 @@ bool pushCompanionShot(Application& app, const std::string& kind, const std::str
         return true;
     }
     if (kind == "guide" && !arg.empty()) return pushGuideShot(app, arg, warmup);
+    if (kind == "seam" && !arg.empty()) return pushSeamShot(app, arg, warmup);
     if (kind == "dlg" && !arg.empty()) {
         // 气泡有 0.15 秒的淡入：照缺省的几帧拍，拍到的是半透明的那一下。多空转半秒。
         if (arg.rfind("bubble:", 0) == 0) warmup = std::max(warmup, 30);
         return pushDialogueShot(app, arg);
     }
     return false;
+}
+
+bool pushSeamShot(Application& app, const std::string& spec, int& warmup) {
+    const std::size_t at = spec.find('@');
+    if (at != std::string::npos && !pushGuideShot(app, "world" + spec.substr(at), warmup)) return false;
+    frame(app);   // 世界层入栈、目标框排好
+    std::stringstream parts(spec.substr(0, at));
+    for (std::string part; std::getline(parts, part, ',');) {
+        if (part == "lore") {
+            const core::LoreEntry* entry = app.data().lore.empty() ? nullptr : &app.data().lore.back();
+            if (entry == nullptr) return false;
+            app.loreNotices().push(app.data().lookupText("ui.guide.lore.unlocked") + app.data().lookupText(entry->titleKey));
+        } else if (part == "skip") {
+            app.noteDialogueSkipped(12);
+        } else if (part == "save") {
+            WorldScene* world = app.worldScene();
+            if (world == nullptr) return false;
+            world->showSaveNotice(app.text("ui.world.save.ok"), 30.0);
+        } else if (part == "toast") {
+            app.announceItem("pill_huiqi_dan", 1);
+            app.announceItem("material_lingshi", 3);
+        } else {
+            std::fprintf(stderr, "seam: 认不出的部件：%s\n", part.c_str());
+            return false;
+        }
+    }
+    warmup = std::max(warmup, 30);   // 见闻提示、卡片都要淡进来
+    return true;
 }
 
 bool pushGuideShot(Application& app, const std::string& spec, int& warmup) {
@@ -242,13 +270,17 @@ bool pushGuideShot(Application& app, const std::string& spec, int& warmup) {
         }
     }
     if (what == "world") return true;   // 只要底下那张世界层（目标框、头顶标记）
-    if (what == "main" || what == "side" || what == "guide" || what == "lore") {
+    // <页>#<n>：光标停在第 n 行（第一期地基包集成加的，拍见闻页最长的那一条与翻页）。
+    const std::size_t hash = what.find('#');
+    const std::string pageName = what.substr(0, hash);
+    const int startRow = hash == std::string::npos ? 0 : std::atoi(what.c_str() + hash + 1);
+    if (pageName == "main" || pageName == "side" || pageName == "guide" || pageName == "lore") {
         app.setFixedWorldClock(kShotMenuWorldClockSeconds);
-        const BoardScene::Page page = what == "main"    ? BoardScene::Page::Main
-                                      : what == "side"  ? BoardScene::Page::Side
-                                      : what == "guide" ? BoardScene::Page::Guide
-                                                        : BoardScene::Page::Lore;
-        app.pushScene(std::make_unique<BoardScene>(page));
+        const BoardScene::Page page = pageName == "main"    ? BoardScene::Page::Main
+                                      : pageName == "side"  ? BoardScene::Page::Side
+                                      : pageName == "guide" ? BoardScene::Page::Guide
+                                                            : BoardScene::Page::Lore;
+        app.pushScene(std::make_unique<BoardScene>(page, startRow));
         return true;
     }
     if (what.rfind("tutorial=", 0) == 0) {

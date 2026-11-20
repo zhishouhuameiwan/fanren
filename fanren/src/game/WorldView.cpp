@@ -1711,8 +1711,16 @@ void WorldView::drawHud(engine::Engine& engine, const ui::Theme& theme, const Wo
     const RectF tag = hud::exploreTagRect(engine, boxX, tagY, frame.exploreLine);
     hud::drawExploreTag(engine, theme, geometry_, boxX, tagY, frame.exploreLine, frame.exploreComplete,
                         covers(tag) ? kCoveringAlpha : 1.f);
+    // 第一期地基包集成：记下目标框连同收集进度那一列（「已跳过 N 句」拿它让位）。
+    objectiveColumnRect_ = box.w > 0.f ? box : tag;
+    if (box.w > 0.f && tag.w > 0.f) {
+        objectiveColumnRect_.w = std::max(box.x + box.w, tag.x + tag.w) - box.x;
+        objectiveColumnRect_.h = std::max(box.y + box.h, tag.y + tag.h) - box.y;
+    }
     if (frame.minimap) drawMinimap(engine, theme, frame, vp, covers(minimap::panelRect()));
-    hud::drawSaveNotice(engine, theme, geometry_, frame.saveNotice, frame.minimap ? minimap::kSaveNoticeTop : 16.f);
+    // 存盘提示一律排在小地图那一块之下（第一期地基包集成）：小地图关着时若照旧贴顶（16），它那五百来像素宽的
+    // 一条会与上沿正中的「见闻：XXX」、目标的边缘箭头叠在一起。
+    saveNoticeRect_ = hud::drawSaveNotice(engine, theme, geometry_, frame.saveNotice, minimap::kSaveNoticeTop);
     hud::drawPathActionHint(engine, theme, geometry_, frame.pathActionHint);
 
     // 「[Z] 打开」浮在那一格头顶：人的话在名牌上方，脚下那个调查点的话在主角头顶。

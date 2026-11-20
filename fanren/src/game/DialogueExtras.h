@@ -59,8 +59,12 @@ private:
 };
 
 // 画在屏幕上半截正中的一条小牌子：不压对话框（框贴底）、不压左上的目标框与右上的存盘提示。
-[[nodiscard]] engine::Rect skipNoticeArea(engine::Engine& engine, const std::string& text);
-void drawSkipNotice(engine::Engine& engine, const ui::Theme& theme, const SkipNotice& notice);
+// avoid：世界层左上那一列（目标框连同收集进度，第一期地基包集成）。目标写得长、框宽到正中时，提示往右让开，
+// 不压它；空矩形 = 不用让。
+[[nodiscard]] engine::Rect skipNoticeArea(engine::Engine& engine, const std::string& text,
+                                          const engine::RectF& avoid = {});
+void drawSkipNotice(engine::Engine& engine, const ui::Theme& theme, const SkipNotice& notice,
+                    const engine::RectF& avoid = {});
 
 // ---------------------------------------------------------------------------
 // 回看面板（世界层上翻开的那一份）

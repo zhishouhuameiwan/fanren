@@ -271,17 +271,18 @@ void drawExploreTag(engine::Engine& engine, const ui::Theme& theme, Geometry& ge
                     kExploreFont, faded(complete ? theme.goldBright : theme.paper, alpha), theme.bodyStyle);
 }
 
-void drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
-                    const std::string& text, float top) {
-    if (text.empty()) return;
+engine::RectF drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
+                             const std::string& text, float top) {
+    if (text.empty()) return {};
     const engine::Point size = engine.measureText(text, kNoticeFont);
-    if (size.x <= 0) return;
+    if (size.x <= 0) return {};
     const float width = static_cast<float>(size.x) + 32.f;
     const float height = static_cast<float>(size.y) + 18.f;
     const float x = static_cast<float>(engine::kLogicalWidth) - width - 16.f;
     drawPanel(engine, theme, geometry, {x, top, width, height}, 1.f);
     engine.drawText(text, static_cast<int>(x + 16.f), static_cast<int>(top + 9.f), kNoticeFont, theme.paper,
                     theme.bodyStyle);
+    return {x, top, width, height};
 }
 
 void drawInteractPrompt(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,

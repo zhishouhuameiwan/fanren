@@ -1836,8 +1836,11 @@ void Application::drawScenes() {
             break;
         }
     }
+    // 第一期地基包集成：这一帧画出来的世界层（没画就是空）。得物卡片、「已跳过 N 句」照它的 HUD 让位。
+    const WorldScene* drawnWorld = nullptr;
     for (std::size_t i = first; i < scenes_.size(); ++i) {
         scenes_[i]->render(*this);
+        if (const auto* world = dynamic_cast<const WorldScene*>(scenes_[i].get())) drawnWorld = world;
         // 脚本 fade.out 的黑幕：紧贴着世界层画，压住地图、人物、HUD，却压不住它上面的
         // 对话框——黑场里的一句旁白是演出，不是事故。世界层被不透明的场景（战斗、卡片）
         // 盖住时它也跟着不画。
@@ -1853,7 +1856,13 @@ void Application::drawScenes() {
                 toastIconsTried_ = true;
                 toastIcons_ = engine_->loadTexture("art/ui/icons.png");
             }
-            drawItemToasts(*engine_, theme_, toastGeometry_, toastIcons_, itemToasts_, heroScreenRect());
+            // 存盘提示亮着时（小地图下面那一块）卡片排到它下面，不叠在上面。
+            float toastTop = kItemToastTop;
+            if (drawnWorld != nullptr) {
+                const engine::RectF& notice = drawnWorld->view().saveNoticeRect();
+                if (notice.h > 0.f) toastTop = std::max(toastTop, notice.y + notice.h + 6.f);
+            }
+            drawItemToasts(*engine_, theme_, toastGeometry_, toastIcons_, itemToasts_, heroScreenRect(), toastTop);
         }
         // 「见闻：XXX」：同样紧贴着世界层画，对话框压在它上面。
         if (loreNotices_.active() && dynamic_cast<WorldScene*>(scenes_[i].get()) != nullptr) {
@@ -1865,7 +1874,10 @@ void Application::drawScenes() {
         }
     }
     // 地基包路 D：「已跳过 N 句」画在最上面——跳到选择时它要压在选择框之上才看得见。
-    if (skipNotice_.active()) drawSkipNotice(*engine_, theme_, skipNotice_);
+    if (skipNotice_.active()) {
+        drawSkipNotice(*engine_, theme_, skipNotice_,
+                       drawnWorld != nullptr ? drawnWorld->view().objectiveColumnRect() : engine::RectF{});
+    }
 }
 
 void Application::announceItem(const std::string& itemId, int count) {

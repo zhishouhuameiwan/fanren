@@ -50,17 +50,25 @@ float SkipNotice::opacity() const {
     return std::clamp(1.f - (age_ - kHold) / kFade, 0.f, 1.f);
 }
 
-engine::Rect skipNoticeArea(engine::Engine& engine, const std::string& text) {
+engine::Rect skipNoticeArea(engine::Engine& engine, const std::string& text, const engine::RectF& avoid) {
     const engine::Point size = engine.measureText(text, kNoticeFontSize);
     const int w = size.x + kNoticePadX * 2;
     const int h = kNoticeFontSize + kNoticePadY * 2;
-    return engine::Rect{(engine::kLogicalWidth - w) / 2, kNoticeTop, w, h};
+    int x = (engine::kLogicalWidth - w) / 2;
+    // 第一期地基包集成：与左上那一列上下有交叠、左右又够得着，就往右让到它右边再空 kAvoidGap。
+    constexpr int kAvoidGap = 12;
+    const bool rows = avoid.w > 0.f && avoid.h > 0.f && avoid.y < static_cast<float>(kNoticeTop + h) &&
+                      static_cast<float>(kNoticeTop) < avoid.y + avoid.h;
+    const int clearX = static_cast<int>(avoid.x + avoid.w + 0.999f) + kAvoidGap;
+    if (rows && x < clearX) x = clearX;
+    return engine::Rect{x, kNoticeTop, w, h};
 }
 
-void drawSkipNotice(engine::Engine& engine, const ui::Theme& theme, const SkipNotice& notice) {
+void drawSkipNotice(engine::Engine& engine, const ui::Theme& theme, const SkipNotice& notice,
+                    const engine::RectF& avoid) {
     if (!notice.active()) return;
     const float opacity = notice.opacity();
-    const engine::Rect area = skipNoticeArea(engine, notice.text());
+    const engine::Rect area = skipNoticeArea(engine, notice.text(), avoid);
     const engine::RectF areaF{static_cast<float>(area.x), static_cast<float>(area.y), static_cast<float>(area.w),
                               static_cast<float>(area.h)};
     engine.fillRect(areaF, faded(ui::withAlpha(theme.inkDeep, 220), opacity), engine::BlendMode::Alpha);

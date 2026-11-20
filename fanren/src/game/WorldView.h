@@ -375,6 +375,10 @@ public:
     [[nodiscard]] Vec2f camera() const { return camera_; }
     [[nodiscard]] float fadeAlpha() const { return mapFadeAlpha(fadeClock_); }
     [[nodiscard]] float bannerOpacity() const { return bannerAlpha(bannerClock_, bannerAfterFade_); }
+    // 第一期地基包集成：上一帧 HUD 落在哪（屏幕坐标，没画就是空矩形）。世界层之上另画的几样东西拿它让位：
+    // 得物卡片排在存盘提示下面；「已跳过 N 句」碰上很宽的目标框时往右让。
+    [[nodiscard]] const engine::RectF& saveNoticeRect() const { return saveNoticeRect_; }
+    [[nodiscard]] const engine::RectF& objectiveColumnRect() const { return objectiveColumnRect_; }
 
 private:
     struct ParticleSlot {
@@ -517,6 +521,8 @@ private:
     std::vector<WorldDrawItem> drawables_;   // 每帧复用
     std::vector<engine::RectF> plates_; // 本帧已经落下的名牌（后来的避开它们往上叠）
     std::unique_ptr<minimap::MapThumbnail> minimap_;   // 小地图的底图（换图才重建）
+    engine::RectF saveNoticeRect_{};        // drawHud 记下（第一期地基包集成）
+    engine::RectF objectiveColumnRect_{};   // 目标框连同收集进度那一列
     const core::TileMap* minimapMap_ = nullptr;        // 这一帧的地图（render 记下，drawMinimap 用）
 };
 

@@ -34,6 +34,8 @@ public:
 
     BoardScene() = default;
     explicit BoardScene(Page page) : page_(page) {}
+    // 截图口用（guide:<页>#<n>，第一期地基包集成）：一打开光标就停在第 n 行，拍那一条的右栏正文与翻页。
+    BoardScene(Page page, int startRow) : page_(page), startRow_(startRow) {}
 
     void onEnter(Application& app) override;
     bool update(Application& app, double deltaSeconds) override;
@@ -90,6 +92,7 @@ private:
     void renderSplit(Application& app, const engine::Rect& content);
 
     Page page_ = Page::Main;
+    int startRow_ = 0;
     ui::ListView list_;
     // 主线页上半截：眼下这一步的几行（行动句、要点、详情、地点），按面板宽折好了。
     struct Line {

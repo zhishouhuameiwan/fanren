@@ -150,6 +150,11 @@ public:
     // 画这一层的那个 WorldView（只读）。公开给跨路的用例：世界逻辑填的帧，经世界画面画出来之后
     // 跟随者滑在哪、与主角同不同一帧到格，要从真正在画的那一份上看。
     [[nodiscard]] const WorldView& view() const { return view_; }
+    // 截图口用（seam:，第一期地基包集成）：摆出右上角那句存盘提示，与别的顶端提示一起拍同屏。
+    void showSaveNotice(std::string text, double seconds) {
+        saveNotice_ = std::move(text);
+        saveNoticeSeconds_ = seconds;
+    }
 
     // 主角走过的格子（最近的在前，至多三格）。跟随者照它排；公开给测试看足迹记没记上。
     [[nodiscard]] const std::vector<core::Point>& footprints() const { return trail_; }

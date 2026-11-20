@@ -172,6 +172,7 @@ std::vector<std::string> BoardScene::loreBeastLines(const core::GameData& data, 
 void BoardScene::onEnter(Application& app) {
     list_.reset();
     rebuild(app);
+    for (int i = 0; i < startRow_; ++i) list_.moveDown();
 }
 
 void BoardScene::turnPage(Application& app, int step) {
@@ -267,10 +268,15 @@ void BoardScene::rebuild(Application& app) {
             break;
         }
     }
+    int rows = rowsFor(theme, currentBandH_);
     if (page_ != Page::Main) {
         const int contentH = kPanelH - ui::panelTitleBandHeight(true, theme) - kTabBandH;
-        list_.setPageSize(std::max(1, ui::listRowsThatFit(contentH, theme)));
+        rows = std::max(1, ui::listRowsThatFit(contentH, theme));
     }
+    // 第一期地基包集成：条目多过一页时（见闻 28 条、主线做过的几十步），列表底下那个「13/28」刻度画在
+    // 最后一行的位置上，与它叠字。少排一行让给刻度。
+    if (static_cast<int>(items.size()) > rows && rows > 1) --rows;
+    list_.setPageSize(rows);
     list_.setItems(std::move(items));
 }
 

@@ -791,7 +791,7 @@ TEST(GuideTutorials, TheWordsInQuotesAreTheOnesTheChapterSevenScreensShow) {
     std::set<std::string> menuPages;
     using Page = fanren::game::MenuScene::Page;
     for (Page page : {Page::Status, Page::Items, Page::Magic, Page::Journal, Page::Save, Page::Settings, Page::Home,
-                      Page::Back, Page::Party, Page::Roster}) {
+                      Page::Back, Page::Party, Page::Roster, Page::Map}) {   // Map：路 M 加的「地图」（集成后补进表）
         menuPages.insert(fanren::game::MenuScene::pageLabel(data, app.state(), page));
     }
     ASSERT_EQ(menuPages.count("储物袋"), 1u) << "先验：第 7 章「物品」那一页叫储物袋";

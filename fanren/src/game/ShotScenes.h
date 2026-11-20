@@ -38,6 +38,12 @@ bool pushCompanionShot(Application& app, const std::string& kind, const std::str
 // 记号见 ShotScenes.cpp：旗标名、weak.<角色 id>。演示用：截图口不存盘。
 bool pushGuideShot(Application& app, const std::string& spec, int& warmup);
 
+// 第一期地基包集成的截图口（kind == "seam"）：屏幕上沿几样东西同时出现时的样子。
+//   seam:<部件,部件…>[@记号…]   部件：lore（「见闻：XXX」）、skip（「已跳过 12 句」）、save（存盘提示）、
+//                               toast（两张得物卡片）；记号同 guide:（先办，用来把目标推到两行式的那一步）。
+//                               小地图开不开照设置（--settings 指一份关掉的就拍关着的）。
+bool pushSeamShot(Application& app, const std::string& spec, int& warmup);
+
 // 截图模式下世界层的时钟步长（秒）。世界层被对白、菜单压着时不走自己的 update，画的时候按「这一帧过了多久」
 // 补一步；截图时那就是从引擎开机到拍照的真实时长，灯的明灭随它变——同一个程序拍几次，对白类截图差出几百到
 // 几千像素。截图时改用这个定数。

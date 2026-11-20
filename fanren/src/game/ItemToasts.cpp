@@ -32,7 +32,7 @@ std::size_t glyphBytes(unsigned char lead) {
 constexpr float kCardW = 380.f;
 constexpr float kCardH = 60.f;
 constexpr float kCardGap = 6.f;     // 六张从 172 排下来也压不到对话框（小地图占了右上角，原来 132 起、间隔 8）
-constexpr float kCardTop = 172.f;     // 右上角的小地图之下（docs/ch07-foundation.md 3.1：小地图 12–162）
+constexpr float kCardTop = kItemToastTop;   // 右上角的小地图之下（docs/ch07-foundation.md 3.1：小地图 12–162）
 constexpr float kCardRight = 20.f;
 constexpr float kSlide = 24.f;        // 淡入时从右边滑进来这么远
 constexpr float kIconBox = 36.f;
@@ -193,20 +193,20 @@ bool ItemToasts::finished(const ItemToast& card) {
 // 画
 // ---------------------------------------------------------------------------
 
-RectF itemToastRect(std::size_t index) {
+RectF itemToastRect(std::size_t index, float top) {
     const float x = static_cast<float>(engine::kLogicalWidth) - kCardRight - kCardW;
-    const float y = kCardTop + static_cast<float>(index) * (kCardH + kCardGap);
+    const float y = top + static_cast<float>(index) * (kCardH + kCardGap);
     return RectF{x, y, kCardW, kCardH};
 }
 
 void drawItemToasts(engine::Engine& engine, const ui::Theme& theme, hud::Geometry& geometry, engine::TextureId icons,
-                    const ItemToasts& toasts, const engine::Rect& hero) {
+                    const ItemToasts& toasts, const engine::Rect& hero, float top) {
     std::size_t slot = 0;
     for (const ItemToast& card : toasts.cards()) {
         const std::size_t index = slot++;
         float a = ItemToasts::alpha(card);
         if (a <= 0.f) continue;
-        RectF rect = itemToastRect(index);
+        RectF rect = itemToastRect(index, top);
         if (card.age < ItemToasts::kFadeIn) rect.x += kSlide * (1.f - card.age / ItemToasts::kFadeIn);
         if (overlaps(rect, hero)) a *= kCoveringAlpha;
         a = stepped(a);
