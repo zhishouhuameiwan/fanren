@@ -1,12 +1,15 @@
 #include "game/ShotScenes.h"
 
 #include <cstdio>
+#include <cstdlib>
 #include <memory>
 
 #include "core/rules/Roster.h"
 #include "game/Application.h"
+#include "game/AreaMapScene.h"
 #include "game/LilianPartyScene.h"
 #include "game/MenuScene.h"
+#include "game/ShopScene.h"
 #include "game/WorldScene.h"
 
 namespace fanren::game {
@@ -106,6 +109,55 @@ bool pushCompanionShot(Application& app, const std::string& kind, const std::str
         return true;
     }
     if (kind == "walk" && !arg.empty()) return walk(app, arg);
+    // ---- 第 7 章改版·路 M（docs/ch07-foundation.md 1.6、第 3 节）----
+    // menu:items:<n> / menu:magic:<n>：物品 / 法术页，光标停在第 n 行（0 起），看那一样的四行式说明。
+    if (kind == "menu" && (arg.rfind("items:", 0) == 0 || arg.rfind("magic:", 0) == 0)) {
+        const bool items = arg.rfind("items:", 0) == 0;
+        const int row = std::atoi(arg.c_str() + 6);
+        app.setFixedWorldClock(kShotMenuWorldClockSeconds);
+        app.pushScene(std::make_unique<MenuScene>(items ? MenuScene::Page::Items : MenuScene::Page::Magic, true, row));
+        return true;
+    }
+    // menu:map：主菜单光标停在「地图」上（右栏那一句说明）。
+    if (kind == "menu" && arg == "map") {
+        app.setFixedWorldClock(kShotMenuWorldClockSeconds);
+        app.pushScene(std::make_unique<MenuScene>(MenuScene::Page::Map));
+        return true;
+    }
+    // areamap：区域地图（压在世界层上，与按 M 同一个场景）。
+    if (kind == "areamap") {
+        app.pushScene(std::make_unique<AreaMapScene>());
+        return true;
+    }
+    // toast:<物品 id>,<物品 id>…：照 announceItem 推几张得物卡片，空转到它们都出场（看副行的效果行）。
+    if (kind == "toast" && !arg.empty()) {
+        frame(app);
+        std::size_t from = 0;
+        while (from <= arg.size()) {
+            const std::size_t comma = arg.find(',', from);
+            const std::string id = arg.substr(from, comma == std::string::npos ? std::string::npos : comma - from);
+            if (!id.empty()) {
+                if (app.data().findItem(id) == nullptr) {
+                    std::fprintf(stderr, "toast: 没有这件东西：%s\n", id.c_str());
+                    return false;
+                }
+                app.announceItem(id, 1);
+            }
+            if (comma == std::string::npos) break;
+            from = comma + 1;
+        }
+        for (int i = 0; i < 40; ++i) frame(app);
+        return true;
+    }
+    // shopbuy:<店 id>：商店直接停在买货页（光标在第一样货上，看左栏的四行式说明）。
+    if (kind == "shopbuy" && !arg.empty()) {
+        if (app.shop(arg) == nullptr) {
+            std::fprintf(stderr, "shopbuy: 没有这家店：%s\n", arg.c_str());
+            return false;
+        }
+        app.pushScene(std::make_unique<ShopScene>(arg, true));
+        return true;
+    }
     return false;
 }
 

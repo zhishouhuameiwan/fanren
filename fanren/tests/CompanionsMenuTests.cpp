@@ -50,8 +50,9 @@ protected:
 
 TEST_F(MenuD, AnEmptyRosterLeavesTheEightOldPagesAndAMetCompanionAddsPartyAndRoster) {
     openMenu();
-    const std::vector<Page> old{Page::Status, Page::Items, Page::Magic, Page::Journal,
-                                Page::Save,   Page::Settings, Page::Home, Page::Back};
+    // 第 7 章改版·路 M（docs/ch07-foundation.md 3.2）在「记事」后面加了「地图」：名册空着时是九项。
+    const std::vector<Page> old{Page::Status, Page::Items,    Page::Magic, Page::Journal, Page::Map,
+                                Page::Save,   Page::Settings, Page::Home,  Page::Back};
     EXPECT_EQ(menu()->pages(), old);
     press(SDL_SCANCODE_ESCAPE);
     tick(2);
@@ -59,8 +60,8 @@ TEST_F(MenuD, AnEmptyRosterLeavesTheEightOldPagesAndAMetCompanionAddsPartyAndRos
 
     meet("e");   // probe_e 的 met 旗标：名册上有人了
     openMenu();
-    const std::vector<Page> more{Page::Status, Page::Party, Page::Roster, Page::Items, Page::Magic,
-                                 Page::Journal, Page::Save, Page::Settings, Page::Home, Page::Back};
+    const std::vector<Page> more{Page::Status,  Page::Party, Page::Roster,   Page::Items, Page::Magic,
+                                 Page::Journal, Page::Map,   Page::Save,     Page::Settings, Page::Home, Page::Back};
     EXPECT_EQ(menu()->pages(), more);
 }
 

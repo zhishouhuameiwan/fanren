@@ -7,6 +7,7 @@
 
 #include "engine/TextLayout.h"
 #include "game/Application.h"
+#include "game/ChapterCardScene.h"
 #include "game/ItemToasts.h"
 #include "game/Wording.h"
 #include "game/WorldObjects.h"
@@ -99,8 +100,19 @@ rules::InfoWords infoWords(const core::GameState& state) {
     return words;
 }
 
+int currentChapter(Application& app) {
+    int chapter = 0;
+    for (const ChapterEntry& entry : app.chapterTable().chapters) {
+        chapter = entry.number;
+        if (!app.chapterTable().chapterDone(app.state(), entry.number)) break;
+    }
+    if (const core::TileMap* map = app.currentMap()) chapter = std::max(chapter, map->chapter);
+    return std::max(chapter, app.state().chapter);
+}
+
 rules::ItemInfo itemInfoOf(Application& app, const std::string& itemId, int herbAge) {
     rules::ItemInfoSources sources;
+    sources.chapter = currentChapter(app);
     sources.recipes = &app.recipes();
     sources.shops = &app.shops();
     sources.battles = &app.battles();

@@ -24,6 +24,10 @@ class Application;
 [[nodiscard]] rules::ItemSpots buildItemSpots(const std::string& assetRoot, const core::GameData& data,
                                               const std::map<std::string, core::ExplorationReward>& rewards);
 
+// 剧透闸用的当前章：章节表里第一章没演完的那一章（全演完了就是最后一章）；与此刻所在地图的章号取大的。
+// 存档里的 GameState::chapter 不跟着剧情走，不能用它。
+[[nodiscard]] int currentChapter(Application& app);
+
 // 这一阶段的用词（凡人篇的「气力」「碎银」，game/Wording.h）。
 [[nodiscard]] rules::InfoWords infoWords(const core::GameState& state);
 

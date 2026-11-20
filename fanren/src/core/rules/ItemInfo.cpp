@@ -39,9 +39,9 @@ void pushUnique(std::vector<std::string>& names, const std::string& name) {
     if (std::find(names.begin(), names.end(), name) == names.end()) names.push_back(name);
 }
 
-// 剧透闸：给了 state 时，章号大于当前章的不列。章号 0 = 不设闸。
-bool visibleChapter(const core::GameState* state, int chapter) {
-    return state == nullptr || chapter <= 0 || chapter <= state->chapter;
+// 剧透闸：给了 state 时，章号大于当前章（gate）的不列。章号 0 = 不设闸。
+bool visibleChapter(const core::GameState* state, int gate, int chapter) {
+    return state == nullptr || chapter <= 0 || chapter <= gate;
 }
 
 std::string craftWord(const GameData& data, CraftKind kind) {
@@ -162,10 +162,11 @@ void addUses(const GameData& data, const ItemInfoSources& sources, const core::G
 
 void addSources(const GameData& data, const ItemInfoSources& sources, const core::GameState* state,
                 const core::Item& item, ItemInfo& info) {
+    const int gate = sources.chapter > 0 ? sources.chapter : (state != nullptr ? state->chapter : 0);
     if (sources.shops != nullptr) {
         std::vector<std::string> shops;
         for (const auto& [id, shop] : *sources.shops) {
-            if (!visibleChapter(state, shopChapter(id))) continue;
+            if (!visibleChapter(state, gate, shopChapter(id))) continue;
             const bool sells = std::any_of(shop.entries.begin(), shop.entries.end(),
                                            [&item](const ShopEntry& e) { return e.itemId == item.id; });
             if (!sells) continue;
@@ -186,7 +187,7 @@ void addSources(const GameData& data, const ItemInfoSources& sources, const core
     if (sources.battles != nullptr) {
         std::vector<std::string> foes;
         for (const auto& [id, battle] : *sources.battles) {
-            if (!visibleChapter(state, battle.chapter)) continue;
+            if (!visibleChapter(state, gate, battle.chapter)) continue;
             const bool drops = std::any_of(battle.reward.drops.begin(), battle.reward.drops.end(),
                                            [&item](const core::BagEntry& e) { return e.itemId == item.id && e.count > 0; });
             if (!drops) continue;
@@ -204,7 +205,7 @@ void addSources(const GameData& data, const ItemInfoSources& sources, const core
             std::vector<std::string> gathers;
             std::vector<std::string> rewards;
             for (const ItemSpot& spot : it->second) {
-                if (!visibleChapter(state, spot.chapter)) continue;
+                if (!visibleChapter(state, gate, spot.chapter)) continue;
                 const std::string name = spot.mapName.empty() ? spot.mapId : spot.mapName;
                 switch (spot.kind) {
                     case ItemSpot::Kind::Chest: pushUnique(chests, name); break;
@@ -225,7 +226,7 @@ void addSources(const GameData& data, const ItemInfoSources& sources, const core
     }
     std::vector<std::string> quests;
     for (const core::Quest& quest : data.quests) {
-        if (quest.kind != core::QuestKind::Side || !visibleChapter(state, quest.chapter)) continue;
+        if (quest.kind != core::QuestKind::Side || !visibleChapter(state, gate, quest.chapter)) continue;
         const bool pays = std::any_of(quest.rewards.begin(), quest.rewards.end(),
                                       [&item](const core::BagEntry& e) { return e.itemId == item.id && e.count > 0; });
         if (pays) pushUnique(quests, quest.titleKey.empty() ? quest.id : data.lookupText(quest.titleKey));

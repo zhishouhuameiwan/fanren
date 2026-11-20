@@ -99,8 +99,10 @@ TEST(KeyDefaults, FixedPlusDefaultCustomKeysAreExactlyTheOldNineteenBindings) {
         {SDL_SCANCODE_RETURN, 4}, {SDL_SCANCODE_KP_ENTER, 4}, {SDL_SCANCODE_Z, 4},    {SDL_SCANCODE_SPACE, 4},
         {SDL_SCANCODE_ESCAPE, 5}, {SDL_SCANCODE_X, 5},      {SDL_SCANCODE_TAB, 6},    {SDL_SCANCODE_LCTRL, 7},
         {SDL_SCANCODE_F5, 8},     {SDL_SCANCODE_E, 9},      {SDL_SCANCODE_Q, 9},
+        // 第 7 章改版·路 M（docs/ch07-foundation.md 3.2）追加的地图键：默认 M。改造前那 19 条一条没动。
+        {SDL_SCANCODE_M, 10},
     };
-    ASSERT_EQ(old.size(), 19u);
+    ASSERT_EQ(old.size(), 20u);
     std::set<std::pair<int, int>> now;
     std::size_t count = 0;
     for (std::size_t k = 0; k < Engine::kKeyCount; ++k) {
@@ -115,7 +117,7 @@ TEST(KeyDefaults, FixedPlusDefaultCustomKeysAreExactlyTheOldNineteenBindings) {
             ++count;
         }
     }
-    EXPECT_EQ(count, 19u) << "默认表里有重复的键";
+    EXPECT_EQ(count, 20u) << "默认表里有重复的键";
     EXPECT_EQ(now, old);
     EXPECT_TRUE(Engine::validateKeyTable(defaults()).ok);
     // 固定键的分布照契约第 6 节那张表：方向各一个，确认两个（Enter、小键盘 Enter），取消一个（Esc），其余没有。
@@ -169,9 +171,9 @@ TEST(KeyTableValidation, EachRuleOfTheWholeTableCheckRefusesOnItsOwn) {
         table[at(Key::Menu)] = {a, b};
         return table;
     };
-    EXPECT_TRUE(Engine::validateKeyTable(withMenu(SDL_SCANCODE_M, 0)).ok) << "先验：换一个没人用的键是可以的";
+    EXPECT_TRUE(Engine::validateKeyTable(withMenu(SDL_SCANCODE_J, 0)).ok) << "先验：换一个没人用的键是可以的";
     EXPECT_FALSE(Engine::validateKeyTable(withMenu(SDL_SCANCODE_W, 0)).ok) << "重复：W 是「向上」的";
-    EXPECT_FALSE(Engine::validateKeyTable(withMenu(SDL_SCANCODE_M, SDL_SCANCODE_M)).ok) << "同一个动作两格重复";
+    EXPECT_FALSE(Engine::validateKeyTable(withMenu(SDL_SCANCODE_J, SDL_SCANCODE_J)).ok) << "同一个动作两格重复";
     EXPECT_FALSE(Engine::validateKeyTable(withMenu(SDL_SCANCODE_UP, 0)).ok) << "固定键";
     EXPECT_FALSE(Engine::validateKeyTable(withMenu(SDL_SCANCODE_LALT, 0)).ok) << "保留键";
     EXPECT_FALSE(Engine::validateKeyTable(withMenu(0, 0)).ok) << "「菜单」没有固定键：一个键都不剩";
@@ -248,11 +250,11 @@ TEST(KeyRules, RuleFourRefusesToStripAnActionOfItsLastKey) {
 }
 
 TEST(KeyRules, RuleFiveAFreeKeyGoesStraightIn) {
-    const auto result = Engine::assignKey(defaults(), Key::Menu, 1, SDL_SCANCODE_M);
+    const auto result = Engine::assignKey(defaults(), Key::Menu, 1, SDL_SCANCODE_J);
     EXPECT_EQ(result.change, KeyChange::Assigned);
-    EXPECT_EQ(result.table[at(Key::Menu)], (Engine::KeySlots{SDL_SCANCODE_TAB, SDL_SCANCODE_M}));
+    EXPECT_EQ(result.table[at(Key::Menu)], (Engine::KeySlots{SDL_SCANCODE_TAB, SDL_SCANCODE_J}));
     KeyTable expected = defaults();
-    expected[at(Key::Menu)][1] = SDL_SCANCODE_M;
+    expected[at(Key::Menu)][1] = SDL_SCANCODE_J;
     EXPECT_EQ(result.table, expected) << "别的动作一格都没动";
 }
 
@@ -275,10 +277,10 @@ TEST(KeyRules, ClearingTheLastKeyIsRefusedClearingASpareIsNot) {
 }
 
 TEST(KeyRules, NonsenseInputIsRefusedWithoutTouchingTheTable) {
-    for (const auto& result : {Engine::assignKey(defaults(), Key::Menu, 2, SDL_SCANCODE_M),
+    for (const auto& result : {Engine::assignKey(defaults(), Key::Menu, 2, SDL_SCANCODE_J),
                                Engine::assignKey(defaults(), Key::Menu, 0, 0),
                                Engine::assignKey(defaults(), Key::Menu, 0, 600),
-                               Engine::assignKey(defaults(), Key::Count, 0, SDL_SCANCODE_M),
+                               Engine::assignKey(defaults(), Key::Count, 0, SDL_SCANCODE_J),
                                Engine::clearKey(defaults(), Key::Menu, -1)}) {
         EXPECT_EQ(result.change, KeyChange::RejectedInvalid);
         EXPECT_EQ(result.table, defaults());
@@ -354,15 +356,15 @@ TEST(KeyRules, NoSequenceOfChangesBreaksTheInvariants) {
 
 TEST_F(HeadlessKeys, CustomKeysDriveKeyDownAndKeyPressed) {
     KeyTable table = defaults();
-    table[at(Key::Menu)] = {SDL_SCANCODE_M, 0};
+    table[at(Key::Menu)] = {SDL_SCANCODE_J, 0};
     ASSERT_TRUE(engine.setCustomKeys(table).ok);
-    EXPECT_EQ(engine.customKeys(Key::Menu), (Engine::KeySlots{SDL_SCANCODE_M, 0}));
+    EXPECT_EQ(engine.customKeys(Key::Menu), (Engine::KeySlots{SDL_SCANCODE_J, 0}));
 
-    pushKey(SDL_SCANCODE_M, true);
+    pushKey(SDL_SCANCODE_J, true);
     engine.pollEvents();
     EXPECT_TRUE(engine.keyPressed(Key::Menu));
     EXPECT_TRUE(engine.keyDown(Key::Menu));
-    pushKey(SDL_SCANCODE_M, false);
+    pushKey(SDL_SCANCODE_J, false);
     engine.pollEvents();
     EXPECT_FALSE(engine.keyDown(Key::Menu));
     EXPECT_FALSE(tap(SDL_SCANCODE_TAB, Key::Menu)) << "Tab 让出来了：不再是菜单";
@@ -652,8 +654,8 @@ TEST(KeyPrompts, PadPlaceholdersOnlyLiveInTheElevenPadPrompts) {
         for (std::size_t at = bytes.find(kOpen); at != std::string::npos; at = bytes.find(kOpen, at + 1)) ++viaBytes;
     }
     EXPECT_EQ(viaBytes, viaData);
-    EXPECT_EQ(viaData, 21u) << "Original 18 placeholders plus Chapter 9's menu prompt, the world action hint "
-                               "and the 2026-11-20 interact prompt";
+    EXPECT_EQ(viaData, 27u) << "Original 18 placeholders plus Chapter 9's menu prompt, the world action hint, "
+                               "the 2026-11-20 interact prompt and the six map prompts (route M)";
 }
 
 // 复查 N1：抓键中按 Alt+F4 想退出——Alt 放过之后，同一下 SDL 还发 F4 的按下（带 Alt 修饰）。从前 F4 被抓走、配进当前格，

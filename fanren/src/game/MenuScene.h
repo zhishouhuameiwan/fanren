@@ -67,7 +67,8 @@ public:
 
     // initial：打开时光标停在哪一项；focusList：物品 / 法术页直接把光标放进右栏的列表，
     // 记事页直接翻开告示板，首页页直接进入确认（截图口用；游戏里按 Tab 打开时停在「状态」）。
-    explicit MenuScene(Page initial = Page::Status, bool focusList = false);
+    // listRow：物品 / 法术页聚焦后光标再往下挪几行（截图口 menu:items:<n> 用，看某一样的四行式说明）。
+    explicit MenuScene(Page initial = Page::Status, bool focusList = false, int listRow = 0);
     ~MenuScene() override;
 
     // 这一阶段菜单上可能出现的全部固有字（左栏、页眉、空表提示、状态页的标签、
@@ -165,6 +166,7 @@ private:
 
     Page initial_;
     bool focusList_;
+    int listRow_ = 0;
     Focus focus_ = Focus::Commands;
     ui::ListView commands_;
     ui::ListView items_;

@@ -594,6 +594,7 @@ TEST(PadTable, EachActionsPadButtonsAreTheContractsTableInDisplayOrder) {
         {Key::Skip, {PadButton::RT, PadButton::RB}},
         {Key::Save, {PadButton::Back}},
         {Key::Action, {PadButton::X}},
+        {Key::Map, {PadButton::LB}},   // 第 7 章改版·路 M（docs/ch07-foundation.md 3.2）：区域地图
     };
     ASSERT_EQ(kTable.size(), Engine::kKeyCount);
     for (const auto& [key, buttons] : kTable) {
@@ -614,9 +615,11 @@ TEST(PadTable, EveryActionHasAPadButtonNoButtonServesTwoAndLbLtServeNone) {
                                << Engine::keyId(key) << " 的键";
         }
     }
-    EXPECT_EQ(owner.count(PadButton::LB), 0u) << "LB 不配动作";
+    // 第 7 章改版·路 M（docs/ch07-foundation.md 3.2）把空着的 LB 配给了区域地图；LT 仍不配。
+    ASSERT_EQ(owner.count(PadButton::LB), 1u) << "LB 是地图键";
+    EXPECT_EQ(owner.at(PadButton::LB), Key::Map);
     EXPECT_EQ(owner.count(PadButton::LT), 0u) << "LT 不配动作";
-    EXPECT_EQ(owner.size(), 16u) << "18 个手柄键里配了动作的是 16 个（LB、LT 不配）";
+    EXPECT_EQ(owner.size(), 17u) << "18 个手柄键里配了动作的是 17 个（只有 LT 不配）";
 }
 
 TEST(PadLabels, FollowTheContractsTable) {
@@ -967,7 +970,8 @@ TEST_F(HeadlessPad, ARemovedPadLetsGoOfEverythingItHeld) {
 TEST_F(HeadlessPad, LbTheGuideAndTheStickClicksPressNothingAndLeaveTheDeviceAlone) {
     ASSERT_EQ(engine.lastInputDevice(), InputDevice::Keyboard) << "缺省是键盘";
     for (const SDL_GamepadButton button :
-         {SDL_GAMEPAD_BUTTON_LEFT_SHOULDER, SDL_GAMEPAD_BUTTON_GUIDE, SDL_GAMEPAD_BUTTON_LEFT_STICK,
+         // LB 自第 7 章改版·路 M 起是地图键（docs/ch07-foundation.md 3.2），不在这张「不配」的表里了。
+         {SDL_GAMEPAD_BUTTON_GUIDE, SDL_GAMEPAD_BUTTON_LEFT_STICK,
           SDL_GAMEPAD_BUTTON_RIGHT_STICK, SDL_GAMEPAD_BUTTON_MISC1, SDL_GAMEPAD_BUTTON_TOUCHPAD,
           SDL_GAMEPAD_BUTTON_RIGHT_PADDLE1, SDL_GAMEPAD_BUTTON_LEFT_PADDLE2}) {
         pushPadButton(kPad, button, true);
@@ -993,8 +997,8 @@ TEST_F(HeadlessPad, TheDeviceFollowsTheLastPressThatMeantSomething) {
     EXPECT_EQ(engine.lastInputDevice(), InputDevice::Gamepad) << "Alt、Win、媒体键没配动作：不切";
     EXPECT_EQ(tapKey(SDL_SCANCODE_F5), std::vector<Key>{Key::Save});
     EXPECT_EQ(engine.lastInputDevice(), InputDevice::Keyboard) << "F5（自定义键）";
-    tapPad(SDL_GAMEPAD_BUTTON_LEFT_SHOULDER);
-    EXPECT_EQ(engine.lastInputDevice(), InputDevice::Keyboard) << "LB 没配动作：不切";
+    tapPad(SDL_GAMEPAD_BUTTON_LEFT_STICK);   // 从前按的是 LB；LB 自第 7 章改版·路 M 起是地图键
+    EXPECT_EQ(engine.lastInputDevice(), InputDevice::Keyboard) << "左摇杆按下没配动作：不切";
     pushPadAxis(kPad, SDL_GAMEPAD_AXIS_LEFTY, SDL_JOYSTICK_AXIS_MIN);
     engine.pollEvents();
     EXPECT_EQ(engine.lastInputDevice(), InputDevice::Gamepad) << "摇杆推到位";
@@ -1443,8 +1447,8 @@ TEST_F(PadWiring, PromptsFollowTheDeviceThatWasPressedLast) {
     };
     ASSERT_EQ(app_.engine().lastInputDevice(), InputDevice::Keyboard);
     expectAll(kKeyboard, "键盘模式（缺省）");
-    pressPad(SDL_GAMEPAD_BUTTON_LEFT_SHOULDER);
-    expectAll(kKeyboard, "按 LB（没配动作）不切");
+    pressPad(SDL_GAMEPAD_BUTTON_LEFT_STICK);   // 从前按的是 LB；LB 自第 7 章改版·路 M 起是地图键
+    expectAll(kKeyboard, "按左摇杆（没配动作）不切");
     pressPad(SDL_GAMEPAD_BUTTON_DPAD_DOWN);
     expectAll(kPadText, "按过手柄之后");
     pressKey(SDL_SCANCODE_LALT);

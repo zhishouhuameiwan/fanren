@@ -32,7 +32,8 @@ inline constexpr const char* kSpiritStoneItemId = "material_lingshi";
 
 class ShopScene : public Scene {
 public:
-    explicit ShopScene(std::string shopId);
+    // startInBuy：一进来就在买货页（截图口 shopbuy:<店 id> 用，docs/ch07-foundation.md 1.6；游戏里一律从主页进）。
+    explicit ShopScene(std::string shopId, bool startInBuy = false);
 
     void onEnter(Application& app) override;
     bool update(Application& app, double deltaSeconds) override;
@@ -111,6 +112,7 @@ private:
     ui::ListView sell_;
     std::string feedback_;
     bool done_ = false;
+    bool startInBuy_ = false;
     // 光标那一样的四行式说明（docs/ch07-foundation.md 3.3）：不变就不重算。
     mutable DetailCache detail_;
 };

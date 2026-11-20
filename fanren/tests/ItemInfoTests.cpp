@@ -240,6 +240,20 @@ TEST(ItemInfo, LaterChaptersAreNotSpoiledByTheSourceLine) {
     EXPECT_NE(dump(open.sources), dump(gated.sources)) << "不设闸时列得更多";
 }
 
+TEST(ItemInfo, TheGateChapterComesFromTheSourcesWhenTheSaveDoesNotTrackIt) {
+    // 存档里的 GameState::chapter 不跟着剧情走（第 7 章的检查点存档里还是 1）：game 层把按章节表推出的当前章
+    // 填进 sources.chapter，闸以它为准。
+    const Shipped& s = shipped();
+    fanren::core::GameState state;   // chapter 缺省 1
+    ItemInfoSources sources = s.sources();
+    const std::string shop = s.data.lookupText(s.shops.at("ch07_fangshi_yaotan").nameKey);
+    EXPECT_FALSE(anyContains(describeItem(s.data, sources, &state, {}, "pill_qingling_san").sources, shop))
+        << "只看存档的章号：第 1 章看不见第 7 章的店";
+    sources.chapter = 7;
+    EXPECT_TRUE(anyContains(describeItem(s.data, sources, &state, {}, "pill_qingling_san").sources, shop))
+        << dump(describeItem(s.data, sources, &state, {}, "pill_qingling_san").sources);
+}
+
 TEST(ItemInfo, MortalChaptersUseTheMortalWords) {
     const Shipped& s = shipped();
     fanren::rules::InfoWords mortal;

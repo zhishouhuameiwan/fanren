@@ -43,7 +43,7 @@ int spiritStones(const core::GameState& state) {
     return state.itemCount(kSpiritStoneItemId);
 }
 
-ShopScene::ShopScene(std::string shopId) : shopId_(std::move(shopId)) {}
+ShopScene::ShopScene(std::string shopId, bool startInBuy) : shopId_(std::move(shopId)), startInBuy_(startInBuy) {}
 
 std::vector<ui::ListItem> ShopScene::buildBuyItems(const core::GameData& data,
                                                    const core::GameState& state,
@@ -306,6 +306,10 @@ void ShopScene::onEnter(Application& app) {
         feedback_ = "货在架上，价随年份。要买要卖，自己看着办。";
     }
     enterMain(app);
+    if (startInBuy_ && shopFound_) {
+        enterBuy(app);
+        feedback_.clear();
+    }
 }
 
 void ShopScene::leave(Application& app) {

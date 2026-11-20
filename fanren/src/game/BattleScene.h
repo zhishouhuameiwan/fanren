@@ -33,6 +33,9 @@ enum class BattleShot {
     Charge,    // 首领宣告蓄势、横幅亮出的那一刻
     Victory,   // 战果卡（收获全部飞到位）
     Target,    // 开局那一手：蓄满劲、点「攻击」，停在择敌（指针、气焰、劲珠一起看）
+    // 第 7 章改版·路 M（docs/ch07-foundation.md 3.3）：开局那一手打开物品 / 法术选单，看说明栏的效果行。
+    Items,
+    Magic,
 };
 
 // 「b03_gu_wai_elang」→ Opening；「b03_gu_wai_elang:mid」→ Mid。认不出的时刻返回 false。

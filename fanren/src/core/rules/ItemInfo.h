@@ -44,6 +44,9 @@ struct ItemInfoSources {
     const std::map<std::string, Shop>* shops = nullptr;
     const std::map<std::string, core::BattleSetup>* battles = nullptr;
     const ItemSpots* spots = nullptr;
+    // 剧透闸用的「当前章」。0 = 取 state->chapter。存档里的 GameState::chapter 并不跟着剧情走（第 7 章的存档里
+    // 还是 1），game 层按章节表的 done_flag 推出真正的当前章填在这里（game::currentChapter）。
+    int chapter = 0;
 };
 
 // 随阶段换说法的词（game/Wording.h）：凡人篇是「气力」「碎银」。缺省是修仙篇的说法。
@@ -63,7 +66,7 @@ struct ItemInfo {
 // 一件东西的四行说明。itemId 查不到时四样全空。
 //
 // state 可为 nullptr（单测遍历全部物品时）：那时不设剧透闸，伙伴的喜恶不写（没有「已结识」可言），配方不论得没得到都列。
-// 给了 state 时：配方只列已经得到的（Recipe::requireFlag 已置或没有门闸）；来源里的商店、妖兽、宝箱采集、支线
+// 给了 state 时（章号取 sources.chapter，为 0 才取 state->chapter）：配方只列已经得到的（Recipe::requireFlag 已置或没有门闸）；来源里的商店、妖兽、宝箱采集、支线
 // 只列章号不超过 state->chapter 的（剧透闸：第 7 章的玩家不该在说明里读到第 13 章的坊市）；全被闸掉了
 // 也写「剧情所得」。herbAge 是这一堆灵草的年份（背包按年份分堆），0 = 不写年份、只写上限。
 [[nodiscard]] ItemInfo describeItem(const core::GameData& data, const ItemInfoSources& sources,

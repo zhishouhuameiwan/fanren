@@ -14,6 +14,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <fstream>
+#include <iterator>
 #include <memory>
 #include <string>
 #include <vector>
@@ -26,6 +27,7 @@
 #include "game/Minimap.h"
 #include "game/WorldScene.h"
 #include "io/DataLoader.h"
+#include "io/SettingsFile.h"
 
 namespace {
 
@@ -299,6 +301,21 @@ TEST(MinimapMaps, Chapter3And6MapsWithoutHdArtGetASilhouette) {
         }
         EXPECT_GT(without, 0) << prefix;
     }
+}
+
+TEST(MinimapSetting, TheFileKeyIsMinimapAndItDefaultsOn) {
+    EXPECT_TRUE(fanren::io::Settings{}.minimap) << "缺省开";
+    EXPECT_TRUE(fanren::io::parseSettings(R"({"version": 1})").settings.minimap) << "缺字段：开";
+    EXPECT_FALSE(fanren::io::parseSettings(R"({"version": 1, "minimap": false})").settings.minimap);
+    const fanren::test::TempDir dir("fanren_minimap_setting");
+    const fs::path path = dir.path() / "settings.json";
+    fanren::io::Settings off;
+    off.minimap = false;
+    ASSERT_TRUE(fanren::io::saveSettings(off, path.string()).ok);
+    std::ifstream in(path, std::ios::binary);
+    const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    EXPECT_NE(text.find("\"minimap\": false"), std::string::npos) << text;
+    EXPECT_LT(text.find("\"pad_rumble\""), text.find("\"minimap\"")) << "排在 pad_rumble 后面";
 }
 
 // ===========================================================================

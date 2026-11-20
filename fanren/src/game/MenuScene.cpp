@@ -113,7 +113,8 @@ constexpr const char* kSfxSaved = "save";
 
 }  // namespace
 
-MenuScene::MenuScene(Page initial, bool focusList) : initial_(initial), focusList_(focusList) {}
+MenuScene::MenuScene(Page initial, bool focusList, int listRow)
+    : initial_(initial), focusList_(focusList), listRow_(listRow) {}
 
 MenuScene::~MenuScene() = default;
 
@@ -241,6 +242,9 @@ void MenuScene::onEnter(Application& app) {
     journalOpen_ = false;
     if (focusList_ && initial_ == Page::Items && items_.hasSelectable()) focus_ = Focus::Items;
     if (focusList_ && initial_ == Page::Magic && magics_.hasSelectable()) focus_ = Focus::Magic;
+    for (int i = 0; i < listRow_ && (focus_ == Focus::Items || focus_ == Focus::Magic); ++i) {
+        (focus_ == Focus::Items ? items_ : magics_).moveDown();
+    }
     if (focusList_ && initial_ == Page::Home) focus_ = Focus::Home;
     if (focusList_ && initial_ == Page::Party && party_.hasSelectable()) focus_ = Focus::Party;
     app.engine().playSfx(kSfxOpen);

@@ -248,6 +248,8 @@ TEST_F(SettingsWiring, TheKeysRowOpensTheKeyPanelAndRestoreBringsEveryDefaultBac
     // 确认 → 栈顶是改键面板；Esc 收回来，设置面板还在原处。
     press(SDL_SCANCODE_DOWN);
     ASSERT_EQ(panel->selection(), SettingsScene::kPadRumble);
+    press(SDL_SCANCODE_DOWN);   // 第 7 章改版·路 M 在「手柄震动」之后插了「小地图」（docs/ch07-foundation.md 3.1）
+    ASSERT_EQ(panel->selection(), SettingsScene::kMinimap);
     press(SDL_SCANCODE_DOWN);
     ASSERT_EQ(panel->selection(), SettingsScene::kKeys);
     press(SDL_SCANCODE_RETURN);
@@ -262,9 +264,9 @@ TEST_F(SettingsWiring, TheKeysRowOpensTheKeyPanelAndRestoreBringsEveryDefaultBac
     Settings custom = app_.settings();
     custom.fullscreen = true;
     custom.effects = fanren::io::EffectsLevel::Lite;
-    custom.keys = {{"menu", {SDL_SCANCODE_M, 0}}};
+    custom.keys = {{"menu", {SDL_SCANCODE_J, 0}}};
     app_.setSettings(custom);
-    ASSERT_EQ(app_.engine().customKeys(fanren::engine::Engine::Key::Menu)[0], SDL_SCANCODE_M) << "先验：键位推到了引擎";
+    ASSERT_EQ(app_.engine().customKeys(fanren::engine::Engine::Key::Menu)[0], SDL_SCANCODE_J) << "先验：键位推到了引擎";
     press(SDL_SCANCODE_RETURN);
     EXPECT_EQ(app_.settings(), Settings{});
     EXPECT_FALSE(app_.engine().fullscreen());
@@ -499,7 +501,7 @@ TEST_F(SettingsWiring, DefaultKeyPromptsAreByteForByteTheOldText) {
     EXPECT_NE(app_.data().lookupText("ui.menu.keys").find("{key.menu}"), std::string::npos);
 }
 
-// 从玩家碰得到的入口改键：设置面板「按键设置」→ 改键面板 →「菜单」第一格 → 按 M。
+// 从玩家碰得到的入口改键：设置面板「按键设置」→ 改键面板 →「菜单」第一格 → 按 J。
 // 引擎的键位、提示文案、写盘，三处都跟着变。
 TEST_F(SettingsWiring, RebindingThroughTheKeyPanelMovesTheKeyThePromptsAndTheFile) {
     using Key = fanren::engine::Engine::Key;
@@ -519,18 +521,18 @@ TEST_F(SettingsWiring, RebindingThroughTheKeyPanelMovesTheKeyThePromptsAndTheFil
     press(SDL_SCANCODE_RETURN);
     ASSERT_TRUE(keys->capturing());
     EXPECT_EQ(keys->note(), "按下新键（Esc 作罢，Backspace 清空）");
-    press(SDL_SCANCODE_M);
+    press(SDL_SCANCODE_J);
     EXPECT_FALSE(keys->capturing());
-    EXPECT_EQ(app_.engine().customKeys(Key::Menu), (fanren::engine::Engine::KeySlots{SDL_SCANCODE_M, 0}));
-    EXPECT_EQ(app_.settings().keys.at("menu"), (fanren::io::KeySlots{SDL_SCANCODE_M, 0}));
+    EXPECT_EQ(app_.engine().customKeys(Key::Menu), (fanren::engine::Engine::KeySlots{SDL_SCANCODE_J, 0}));
+    EXPECT_EQ(app_.settings().keys.at("menu"), (fanren::io::KeySlots{SDL_SCANCODE_J, 0}));
     EXPECT_EQ(app_.settings().keys.size(), 1u) << "只存与默认不同的动作";
     EXPECT_EQ(keys->note(), "改好了。");
-    EXPECT_EQ(app_.text("ui.menu.keys"), "M 关闭　Esc 返回") << "提示跟着键位走";
-    EXPECT_EQ(app_.text("ui.dialogue.keys"), "M 回看　长按 Ctrl 快进");
-    EXPECT_EQ(app_.text("ui.battle.hint.menu"), "↑↓ 选择 · ←→ 蓄劲 · 回车 确定 · Esc / M 返回 · 按住 Ctrl 加速");
+    EXPECT_EQ(app_.text("ui.menu.keys"), "J 关闭　Esc 返回") << "提示跟着键位走";
+    EXPECT_EQ(app_.text("ui.dialogue.keys"), "J 回看　长按 Ctrl 快进");
+    EXPECT_EQ(app_.text("ui.battle.hint.menu"), "↑↓ 选择 · ←→ 蓄劲 · 回车 确定 · Esc / J 返回 · 按住 Ctrl 加速");
 
-    // 新键立刻生效：在改键面板里按 M 就是「菜单键」——关面板（与 Esc 同一个口径）。Tab 不再是菜单。
-    press(SDL_SCANCODE_M);
+    // 新键立刻生效：在改键面板里按 J 就是「菜单键」——关面板（与 Esc 同一个口径）。Tab 不再是菜单。
+    press(SDL_SCANCODE_J);
     EXPECT_EQ(top(), "Settings");
     EXPECT_FALSE(fs::exists(path)) << "改键面板自己不写盘：随设置面板关闭时一起写";
     press(SDL_SCANCODE_TAB);
@@ -551,6 +553,7 @@ TEST_F(SettingsWiring, InTheKeyPanelEscCancelsBackspaceClearsAndTheLastKeyStays)
     const auto* keys = dynamic_cast<const fanren::game::KeyConfigScene*>(app_.topScene());
     ASSERT_NE(keys, nullptr);
     press(SDL_SCANCODE_UP);   // 从「向上」往上绕一格 = 最后一行「恢复默认键位」
+    press(SDL_SCANCODE_UP);   // 再一格 =「地图」（第 7 章改版·路 M 追加在「路径行动」之后）
     press(SDL_SCANCODE_UP);   // 再一格 =「路径行动」
     ASSERT_EQ(keys->row(), static_cast<int>(Key::Action));
     press(SDL_SCANCODE_RIGHT);
@@ -579,7 +582,8 @@ TEST_F(SettingsWiring, InTheKeyPanelEscCancelsBackspaceClearsAndTheLastKeyStays)
     EXPECT_EQ(keys->note(), "这是「向上」的固定键，不能挪作他用。");
     EXPECT_EQ(keys->row(), static_cast<int>(Key::Action)) << "抓走的 ↑ 不是「光标上移」";
 
-    // 恢复默认键位（最后一行）。
+    // 恢复默认键位（最后一行；「路径行动」与它之间隔着第 7 章改版·路 M 追加的「地图」）。
+    press(SDL_SCANCODE_DOWN);
     press(SDL_SCANCODE_DOWN);
     ASSERT_EQ(keys->row(), fanren::game::KeyConfigScene::kRestoreRow);
     press(SDL_SCANCODE_RETURN);
@@ -655,6 +659,7 @@ TEST_F(SettingsWiring, AfterAFailedWriteAKeyChangeMakesTheNextCloseTryAgain) {
     ASSERT_EQ(top(), "KeyConfig");
     press(SDL_SCANCODE_UP);
     press(SDL_SCANCODE_UP);
+    press(SDL_SCANCODE_UP);   // 「恢复默认键位」「地图」之上才是「路径行动」（地图是第 7 章改版·路 M 追加的）
     press(SDL_SCANCODE_RIGHT);
     press(SDL_SCANCODE_RETURN);
     press(SDL_SCANCODE_BACKSPACE);

@@ -1624,6 +1624,21 @@ void WorldView::drawObjectiveMarker(engine::Engine& engine, const ui::Theme& the
     if (dy < 0.f) t = std::min(t, (kMargin - sy) / dy);
     if (t >= 1e9f) return;
     t = std::max(t, 0.f);
+    // 小地图开着时，右上角那一块（连同左边写「N 格」的余地）不许箭头钻进去：射线在进那一块之前停下
+    //（docs/ch07-foundation.md 3.1：小地图与别的界面不重叠）。
+    if (frame.minimap) {
+        const RectF panel = minimap::panelRect();
+        const float keepLeft = panel.x - 70.f;
+        const float keepBottom = panel.y + panel.h + 30.f;
+        const float tipX = sx + dx * t;
+        const float tipY = sy + dy * t;
+        if (tipX >= keepLeft && tipY <= keepBottom) {
+            float entry = 0.f;
+            if (sx < keepLeft && dx > 0.f) entry = std::max(entry, (keepLeft - sx) / dx);
+            if (sy > keepBottom && dy < 0.f) entry = std::max(entry, (keepBottom - sy) / dy);
+            if (entry > 0.f && entry < t) t = entry;
+        }
+    }
     const float targetX = fl(target->position.x) + fl(std::max(1, target->width)) / 2.f;
     const float targetY = fl(target->position.y) + fl(std::max(1, target->height)) / 2.f;
     const int cells = static_cast<int>(std::abs(targetX - (fl(lastCell_.x) + 0.5f)) +

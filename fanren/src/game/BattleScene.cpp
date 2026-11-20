@@ -1520,6 +1520,8 @@ bool parseBattleShot(const std::string& spec, std::string& battleId, BattleShot&
     else if (moment == "charge") shot = BattleShot::Charge;
     else if (moment == "victory") shot = BattleShot::Victory;
     else if (moment == "target") shot = BattleShot::Target;
+    else if (moment == "items") shot = BattleShot::Items;
+    else if (moment == "magic") shot = BattleShot::Magic;
     else return false;
     return true;
 }
@@ -1569,6 +1571,8 @@ bool BattleScene::shotReached() const {
             return false;
         case BattleShot::Opening:
         case BattleShot::Target:
+        case BattleShot::Items:
+        case BattleShot::Magic:
             return menu_ != BattleMenuMode::Closed;
         case BattleShot::Mid:
             return lastPlayed_ == BattleEventKind::Break || (shotFallback_ && lastPlayed_ == BattleEventKind::Hit);
@@ -1596,6 +1600,9 @@ void BattleScene::prepareShot(Application& app) {
         case BattleShot::Target:
             hold = 0.3;   // 让气焰与指针走起来
             break;
+        case BattleShot::Items:
+        case BattleShot::Magic:
+            break;
         case BattleShot::Mid:
             shotFallback_ = !rewindToAction(BattleEventKind::Break, BattleEventKind::Hit);
             hold = kShotSettle;
@@ -1622,6 +1629,8 @@ void BattleScene::prepareShot(Application& app) {
                 static_cast<void>(menuChoose(app, kBattleMenuAttack));
                 if (menu_ == BattleMenuMode::Weapon) static_cast<void>(menuChoose(app, 0));
             }
+            if (shot_ == BattleShot::Items) enterItem(app);
+            if (shot_ == BattleShot::Magic) enterMagic(app);
             if (card_) hold = static_cast<double>(resultCardSettleTime(*card_)) + 0.3;
             shotHold_ = hold;
             if (hold <= 0.0) frozen_ = true;
