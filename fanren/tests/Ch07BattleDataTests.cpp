@@ -100,10 +100,13 @@ const std::vector<CompositionSpec>& designSaysSo() {
         // 伙伴改版样板（docs/ch07-companions-design.md 4.2、第 6 节⑤）：白衣少女从编成里的友军改成由队伍带入，
         // 编成里不再写死她（否则场上两个她）。玩家操控两个人这一点不变——见 Ch07IntentHand 那几条的起点。
         {"⑤", "b07_zhaoze_shouyao", {}, {"mo_jiao_tuipi"}, false, true, "cave_tunnel"},   // 蜕皮之后那一条（样板段起）
-        // 可选：环形山遭遇（可逃、不致命），be07_tiebi_yuan 兼作 Z2 东坡那一场。
+        // 可选：环形山遭遇（可逃、不致命）。
         {"可选·推山兽", "be07_tuishan_shou", {}, {"tuishan_shou"}, true, false, "mountain_forest"},
         {"可选·铁臂猿", "be07_tiebi_yuan", {}, {"tiebi_yuan", "tiebi_yuan"}, true, false, "mountain_forest"},
         {"可选·火焰鼠", "be07_huoyan_shu", {}, {"huoyan_shu", "huoyan_shu", "huoyan_shu"}, true, false, "mountain_forest"},
+        // 支线 Z2 东坡石屋那一场从前与环形山的铁臂猿共用 be07_tiebi_yuan；第 7 章试玩返修（docs/ch07-playtest-loot.md）
+        // 拆成编成一模一样、不掉东西的 be07_dongpo_tiebi_yuan，不在这张表里（敌方与铁臂猿那一行相同，下面「认得出」
+        // 那一条会把它当成撞车）——它的判据在 Ch07LootTests.cpp。
     };
     return kSpecs;
 }
@@ -163,7 +166,8 @@ protected:
     Application app_;
 };
 
-// 验收 4：五张必打 ＋ 三张遭遇与 8.2 一致——谁在场、敌友、逃不逃得、输了死不死、灵石 0、drops 空、背景。
+// 验收 4：五张必打 ＋ 三张遭遇与 8.2 一致——谁在场、敌友、逃不逃得、输了死不死、灵石 0、背景；五张必打 drops 空。
+// 三张遭遇的掉落另由 Ch07LootTests.cpp 那张对照表判（第 7 章试玩返修起掉各自的专属材料）。
 TEST_F(Ch07BattleData, TheCompositionsAreTheOnesTableEightTwoDraws) {
     ASSERT_EQ(designSaysSo().size(), 8u) << "施工图 8.2：五张必打 ＋ 三张遭遇";
     for (const CompositionSpec& spec : designSaysSo()) {
@@ -182,7 +186,11 @@ TEST_F(Ch07BattleData, TheCompositionsAreTheOnesTableEightTwoDraws) {
         EXPECT_EQ(setup->defeatIsFatal, spec.defeatIsFatal) << spec.mark << " 「败」一列";
         EXPECT_FALSE(setup->heroAbsent) << spec.mark << "：韩立在场";
         EXPECT_EQ(setup->reward.spiritStones, 0) << spec.mark << "：8.2 表下「结算卡」/ 第 9 节第 3 条，编成不掉灵石";
-        EXPECT_TRUE(setup->reward.drops.empty()) << spec.mark << "：drops 空（东西全由脚本搜身给）";
+        // 第 7 章试玩返修（用户 2026-11-20「打完怪物都是兽材……应该要区分开」）：环形山三张遭遇（明雷）改掉各自的专属材料，
+        // 不再是 drops 空；剧情战（五张必打）照旧由脚本搜身给东西。
+        const bool ringMountainFoe = std::string(spec.id) == "be07_tuishan_shou" || std::string(spec.id) == "be07_tiebi_yuan" ||
+                                     std::string(spec.id) == "be07_huoyan_shu";
+        if (!ringMountainFoe) EXPECT_TRUE(setup->reward.drops.empty()) << spec.mark << "：drops 空（东西全由脚本搜身给）";
         // 第 7 章美术重构（用户 2026-11-19 定战斗背景也用 Seedream 重做）：第 7 章的战斗改指手绘的 hd07_<原 id>，
         // 场景种类仍照 8.2 表（tools/artgen/hd_backdrops.py；时辰、粒子照原 id）。
         EXPECT_EQ(app_.battleBackdrop(spec.id), std::string("hd07_") + spec.backdrop)
@@ -690,7 +698,7 @@ TEST_F(Ch07IntentHand, NoRoundOfTheFiveTakesMoreThanThreeTenthsOfHisLife) {
 
 // 环形山遭遇（施工图 8.4；契约 docs/interfaces-octo-encounters.md「低于同章剧情战」，门禁规则 27 按「凶」判）：
 // 遭遇区要 ch07.yueyang（节点 25，③ 之后），拿 ④ 开打时的意图玩家满血去撞——三张都赢、一瓶不吃
-//（be07_tiebi_yuan 兼作支线 Z2 东坡那一场，第一侧通关就打它）。
+//（支线 Z2 东坡那一场是编成一样的 be07_dongpo_tiebi_yuan，第一侧通关就打它；这里量的这一份对它同样成立）。
 TEST_F(Ch07IntentHand, TheRingMountainEncountersNeedNoPills) {
     std::ostringstream table;
     for (const char* id : {"be07_tuishan_shou", "be07_tiebi_yuan", "be07_huoyan_shu"}) {

@@ -366,7 +366,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "material_lingshi:12,material_huolingshi"
+              "value": "material_lingshi:25,material_huolingshi,talisman_huoqiu_fu"
             }
           ]
         },

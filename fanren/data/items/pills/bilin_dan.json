@@ -1,0 +1,13 @@
+{
+  "id": "pill_bilin_dan",
+  "name": "碧鳞丹",
+  "descKey": "item.desc.pill_bilin_dan",
+  "kind": "pill",
+  "grade": 3,
+  "price": 300,
+  "tradeable": true,
+  "restoreHp": 100,
+  "restoreMp": 40,
+  "origin": "改编",
+  "note": "本作自拟。第 7 章试玩返修：碧鳄鳞 1 ＋ 火灵石 1 ＋ 寒烟草 1 → 1 粒（recipe_bilin_dan）。气血 100、法力 40：四味里最重的一味，主料碧鳄鳞只出在碧水鳄身上（精英一回 3 片，历练按档 1–3 片）。"
+}

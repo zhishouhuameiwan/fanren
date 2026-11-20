@@ -1,0 +1,11 @@
+{
+  "id": "material_huoshu_rong",
+  "name": "火鼠绒",
+  "descKey": "item.desc.material_huoshu_rong",
+  "kind": "material",
+  "grade": 1,
+  "price": 16,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "原著 ch194 秘闻里举的火焰鼠；火鼠绒是本作取的部位（改编，取「火浣」一类的说法：火燎不焦）。第 7 章试玩返修：火焰鼠的专属掉落（be07_huoyan_shu、be07_shenchu_shu、bl07_huoyan_shu_t*）。用途：两份配火龙草一份炼火元丹（recipe_huoyuan_dan）；南宫婉喜欢（她修火法，朱雀环）。"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "material_bie_lin",
+  "name": "碧鳄鳞",
+  "descKey": "item.desc.material_bie_lin",
+  "kind": "material",
+  "grade": 3,
+  "price": 90,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "原著 ch200 的碧水鳄（顶阶妖兽）；鳞是本作取的部位（改编）。第 7 章试玩返修：碧水鳄的专属掉落（精英 be07_bishui_e 一回 3 片、历练 bl07_bishui_e_t* 按档 1/2/3）。用途：一片配火灵石、寒烟草各一炼碧鳞丹（recipe_bilin_dan）；七样里卖价最高。"
+}

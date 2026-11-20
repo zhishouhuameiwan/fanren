@@ -420,12 +420,17 @@ TEST_F(Ch07Ledger, No2_FoundationPillsComeFromThreePlacesAndLeaveFromOne) {
     EXPECT_NE(source("banian.lua").find("25 - item.count(\"pill_zhuji_dan\")"), std::string::npos)
         << "35c：差额是 25 − 现有（第 9 节第 2 条「补足到 25」）";
     EXPECT_EQ(takes, (std::multiset<std::pair<std::string, std::string>>{{"zhuji.lua", "8"}})) << "第 9 节第 2 条：只有节点 36 扣 8";
-    // 编成不掉筑基丹、路径行动不给（第 9 节第 3 条的另一半）。
-    for (const char* id : {"b07_lu_shixiong", "b07_yixiantian", "b07_fengyue", "b07_zhongxinqu_duoyao", "b07_zhaoze_shouyao",
-                           "be07_tuishan_shou", "be07_tiebi_yuan", "be07_huoyan_shu"}) {
+    // 编成不掉筑基丹、路径行动不给（第 9 节第 3 条的另一半）。五张必打 drops 空；环形山三张遭遇自第 7 章试玩返修
+    //（docs/ch07-playtest-loot.md）起掉各自的专属材料，这里只判「掉的里面没有筑基丹」——这一条要守的本来就是这个。
+    for (const char* id : {"b07_lu_shixiong", "b07_yixiantian", "b07_fengyue", "b07_zhongxinqu_duoyao", "b07_zhaoze_shouyao"}) {
         const fanren::core::BattleSetup* setup = app_.battleSetup(id);
         ASSERT_NE(setup, nullptr) << id;
         EXPECT_TRUE(setup->reward.drops.empty()) << id;
+    }
+    for (const char* id : {"be07_tuishan_shou", "be07_tiebi_yuan", "be07_huoyan_shu", "be07_dongpo_tiebi_yuan"}) {
+        const fanren::core::BattleSetup* setup = app_.battleSetup(id);
+        ASSERT_NE(setup, nullptr) << id;
+        for (const auto& drop : setup->reward.drops) EXPECT_NE(drop.itemId, kZhuji) << id;
     }
     for (const fanren::core::PathAction& action : app_.data().pathActions) {
         if (action.chapter != 7) continue;

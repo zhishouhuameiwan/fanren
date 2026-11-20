@@ -1,0 +1,13 @@
+{
+  "id": "pill_hanchan_dan",
+  "name": "寒蟾丹",
+  "descKey": "item.desc.pill_hanchan_dan",
+  "kind": "pill",
+  "grade": 2,
+  "price": 100,
+  "tradeable": true,
+  "restoreHp": 70,
+  "restoreMp": 0,
+  "origin": "改编",
+  "note": "本作自拟（原著无此丹）。第 7 章试玩返修：寒蟾酥 2 ＋ 寒烟草 1 → 2 粒（recipe_hanchan_dan，ch07.feidan 起在地火屋列出）。restoreHp 70：比养精丹（55）高一档、比至元丹（300）低一个量级；第 7 章的五场必打都在地火屋开炉之前，它们的平衡（docs/ch07-balance.md）碰不到这一味。"
+}

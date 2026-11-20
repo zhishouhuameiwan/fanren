@@ -214,7 +214,12 @@
     "be07_tiebi_yuan": {
       "backdrop": "hd07_mountain_forest",
       "map": "ch07_huanxingshan",
-      "why": "野外遭遇与支线 Z2 东坡石屋：环形山，白天"
+      "why": "野外遭遇（环形山的明雷）：环形山，白天"
+    },
+    "be07_dongpo_tiebi_yuan": {
+      "backdrop": "hd07_mountain_forest",
+      "map": "ch07_huanxingshan",
+      "why": "支线 Z2 东坡石屋门口（从 be07_tiebi_yuan 拆出来的那一场）：环形山，白天"
     },
     "be07_huoyan_shu": {
       "backdrop": "hd07_mountain_forest",

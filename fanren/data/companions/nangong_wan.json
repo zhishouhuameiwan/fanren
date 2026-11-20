@@ -20,11 +20,13 @@
   "gifts": {
     "like": [
       "material_huolingshi",
-      "material_hanyan_cao"
+      "material_hanyan_cao",
+      "material_huoshu_rong",
+      "material_caie_linfen"
     ],
     "dislike": [
       "material_yaoshou_cai"
     ]
   },
-  "note": "掩月宗的南宫婉（样板施工图 docs/ch07-companions-design.md 第 2、4、7、9 节）。原著同行窗口 ch205 末到 ch209 前半：地下沼泽观战（ch205）、通道被小五行须弥禁法封死（ch206）、联手杀蛟与评银剑（ch207）、毒囊（暗场，游戏既定）、朱雀环加金光砖打穿地面与问名（ch209）。roles 三段：问名之前是白衣少女 baiyi_shaonv（名牌不写南宫婉，ch209 才问出名字）；问名之后到第 7 章完是 nangong_wan_ch07（名字对了，法力仍被压在炼气顶峰、只会朱雀环）；第 8 章起 nangong_wan。主线里她在墨蛟一战入队（guanzhan.lua 的 party.add），问名后离队（wenming.lua）。场地技 break_seal（破禁）是本作的设计：她认得出小五行须弥禁法（ch206），样板里用来开地底石窟的残禁与历练里的残禁。赠礼：火灵石是她在禁地里握着回气的东西（ch206）；寒烟草取自禁地外围乌龙潭（ch180）——喜好是本作自拟；不喜兽材也是自拟。合招 magic_duo_huanhuo 是本作自拟。"
+  "note": "掩月宗的南宫婉（样板施工图 docs/ch07-companions-design.md 第 2、4、7、9 节）。原著同行窗口 ch205 末到 ch209 前半：地下沼泽观战（ch205）、通道被小五行须弥禁法封死（ch206）、联手杀蛟与评银剑（ch207）、毒囊（暗场，游戏既定）、朱雀环加金光砖打穿地面与问名（ch209）。roles 三段：问名之前是白衣少女 baiyi_shaonv（名牌不写南宫婉，ch209 才问出名字）；问名之后到第 7 章完是 nangong_wan_ch07（名字对了，法力仍被压在炼气顶峰、只会朱雀环）；第 8 章起 nangong_wan。主线里她在墨蛟一战入队（guanzhan.lua 的 party.add），问名后离队（wenming.lua）。场地技 break_seal（破禁）是本作的设计：她认得出小五行须弥禁法（ch206），样板里用来开地底石窟的残禁与历练里的残禁。赠礼：火灵石是她在禁地里握着回气的东西（ch206）；寒烟草取自禁地外围乌龙潭（ch180）——喜好是本作自拟；不喜兽材也是自拟。合招 magic_duo_huanhuo 是本作自拟。第 7 章试玩返修（docs/ch07-playtest-loot.md）添两样喜欢的禁地妖兽材料：火鼠绒（她修火法、使朱雀环，火燎不焦的绒子正合用）、彩蛾鳞粉（女修调胭脂、染符纸的东西）——都是本作自拟。兽材照旧留在不喜里（旧存档里可能还有），明雷已不再掉它。"
 }

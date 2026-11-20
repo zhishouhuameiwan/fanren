@@ -147,7 +147,9 @@ const std::vector<HookSpec>& designSaysSo() {
         {"35c", "trigger_banian", kDihuo, "interact", true, "ch07.feidan", "ch07.chengdan", "",
          "在鼎旁盘点、决定接着炼半年是他"},
         {"36", "trigger_zhuji", kDihuo, "interact", true, "ch07.chengdan", "ch07.done", "", "就地服丹是他"},
-        {"Z2a", "trigger_yujian_dongpo", kHxs, "interact", true, "ch07.yujian_qiu", "ch07.yujian_a", "be07_tiebi_yuan",
+        // 第 7 章试玩返修（docs/ch07-playtest-loot.md）：环形山明雷 be07_tiebi_yuan 加了专属掉落，东坡这一场拆成
+        // 不掉东西的 be07_dongpo_tiebi_yuan（编成一样）——第一侧最小路线打它，交接存档的背包不许变。
+        {"Z2a", "trigger_yujian_dongpo", kHxs, "interact", true, "ch07.yujian_qiu", "ch07.yujian_a", "be07_dongpo_tiebi_yuan",
          "玉简上东坡的石屋；门口两只铁臂猿（可逃）"},
         {"Z2b", "trigger_yujian_hantan", kHxs, "interact", true, "ch07.yujian_qiu", "ch07.yujian_b", "", "玉简上北坡的寒潭"},
     };

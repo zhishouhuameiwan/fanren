@@ -1,0 +1,11 @@
+{
+  "id": "material_tuishan_ya",
+  "name": "推山兽獠牙",
+  "descKey": "item.desc.material_tuishan_ya",
+  "kind": "material",
+  "grade": 2,
+  "price": 46,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "原著 ch196 的推山兽（几丈高、一身石肤的巨型野猪）；獠牙是本作取的部位（改编）。第 7 章试玩返修：推山兽的专属掉落（be07_tuishan_shou）。用途：卖钱，同铁猿臂骨。历练里没有推山兽，全章至多这一对。"
+}

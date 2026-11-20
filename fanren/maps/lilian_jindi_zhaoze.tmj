@@ -338,7 +338,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "material_lingshi:6,pill_huiqi_dan"
+              "value": "material_lingshi:8,pill_huiqi_dan"
             },
             {
               "name": "chance",

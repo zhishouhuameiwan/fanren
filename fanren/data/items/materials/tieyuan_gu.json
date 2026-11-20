@@ -1,0 +1,11 @@
+{
+  "id": "material_tieyuan_gu",
+  "name": "铁猿臂骨",
+  "descKey": "item.desc.material_tieyuan_gu",
+  "kind": "material",
+  "grade": 2,
+  "price": 40,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "原著 ch200 的铁臂猿；臂骨是本作取的部位（改编）。第 7 章试玩返修：铁臂猿的专属掉落（be07_tiebi_yuan，环形山那只明雷；支线 Z2 东坡那一场另是 be07_dongpo_tiebi_yuan、不掉）。用途：卖钱——本章没有炼器炉，不入丹；价钱是小兽材的两三倍。历练里没有铁臂猿，全章至多这两根。"
+}

@@ -2974,6 +2974,15 @@ const std::vector<KeyOrder>& keyOrders() {
         {"item.desc.material_huolingshi", 38},     {"item.desc.material_hanyan_cao", 25},
         {"item.desc.material_huolong_cao", 28},    {"item.desc.material_yaoshou_cai", 25},
         {"magic.desc.magic_duo_huanhuo", 38},
+        // 第 7 章试玩返修（docs/ch07-playtest-loot.md）：七种妖兽的专属材料，按那一种明雷最早站在哪张图上登记
+        //（外围 25、中心区外 28、环形山 30——要 ch07.yueyang 才进得去、沼泽深处的碧水鳄 38）；四味丹的方子
+        // 门闸 ch07.feidan，地火屋那一步（44）才炼得出来。
+        {"item.desc.material_hanchan_su", 25},     {"item.desc.material_caie_linfen", 25},
+        {"item.desc.material_feishe_dan", 28},     {"item.desc.material_huoshu_rong", 30},
+        {"item.desc.material_tieyuan_gu", 30},     {"item.desc.material_tuishan_ya", 30},
+        {"item.desc.material_bie_lin", 38},
+        {"item.desc.pill_hanchan_dan", 44},        {"item.desc.pill_huoyuan_dan", 44},
+        {"item.desc.pill_tiaoyuan_wan", 44},       {"item.desc.pill_bilin_dan", 44},
     };
     return kTable;
 }

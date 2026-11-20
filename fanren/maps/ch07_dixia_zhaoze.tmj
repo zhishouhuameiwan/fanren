@@ -439,7 +439,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "pill_huiqi_dan,material_hanyan_cao"
+              "value": "pill_huiqi_dan,material_hanyan_cao:2,material_lingshi:15"
             }
           ]
         },

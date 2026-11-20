@@ -21,12 +21,12 @@
     "spirit_stones": 10,
     "drops": [
       {
-        "item_id": "material_yaoshou_cai",
-        "count": 1,
+        "item_id": "material_feishe_dan",
+        "count": 3,
         "rate": 100
       }
     ]
   },
   "origin": "改编",
-  "note": "历练「禁地旧境」第 3 档（契约 3.12：foe.battle 写「bl07_fei_she」，引擎按韩立的境界拼 _t1/_t2/_t3）。修为奖励一律为 0（否则是一条刷修为的路）；不致命，打输整趟退出；人数系数开着；奖励是兽材与少量灵石（施工图第 7 节）。"
+  "note": "历练「禁地旧境」第 3 档（契约 3.12：foe.battle 写「bl07_fei_she」，引擎按韩立的境界拼 _t1/_t2/_t3）。修为奖励一律为 0（否则是一条刷修为的路）；不致命，打输整趟退出；人数系数开着；奖励是这一种妖兽的专属材料（第几档掉几份，第 7 章试玩返修，docs/ch07-playtest-loot.md）与少量灵石。"
 }

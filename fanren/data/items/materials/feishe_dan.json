@@ -1,0 +1,11 @@
+{
+  "id": "material_feishe_dan",
+  "name": "飞蛇胆",
+  "descKey": "item.desc.material_feishe_dan",
+  "kind": "material",
+  "grade": 1,
+  "price": 18,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "原著 ch192、ch199 的飞蛇；蛇胆是本作取的部位（改编）。第 7 章试玩返修：飞蛇的专属掉落（be07_fei_she、be07_shenchu_she、bl07_fei_she_t*）。用途：一份配火龙草一份炼调元丸（recipe_tiaoyuan_wan）。"
+}

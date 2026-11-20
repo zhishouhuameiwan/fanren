@@ -345,7 +345,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "pill_jinchuang_yao:2"
+              "value": "talisman_huoqiu_fu,material_lingshi:15,pill_jinchuang_yao"
             }
           ]
         },
@@ -368,7 +368,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "pill_huiqi_dan"
+              "value": "pill_huiqi_dan,talisman_tulao_fu,material_lingshi:25"
             }
           ]
         },

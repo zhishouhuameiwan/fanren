@@ -18,8 +18,14 @@
   "rewards": {
     "cultivation": 5,
     "spirit_stones": 0,
-    "drops": []
+    "drops": [
+      {
+        "item_id": "material_tieyuan_gu",
+        "count": 2,
+        "rate": 100
+      }
+    ]
   },
   "origin": "原著",
-  "note": "第 7 章环形山野外遭遇（data/encounters/ch07_huanxingshan.json；遭遇区 require_flag ch07.yueyang）：两只铁臂猿（ch200）；兼作支线 Z2 东坡石屋那一场。可逃、输了不死（docs/interfaces-octo-encounters.md：低于同章剧情战）。灵石 0、drops 空：禁地里的东西只从脚本来。数值平衡路量过（docs/ch07-balance.md 遭遇）：铁臂猿攻 18 → 15，意图玩家满血两回合、不吃药。"
+  "note": "第 7 章环形山野外遭遇（data/encounters/ch07_huanxingshan.json；遭遇区 require_flag ch07.yueyang）：两只铁臂猿（ch200）；支线 Z2 东坡石屋那一场从前也用这一份，第 7 章试玩返修起拆成 be07_dongpo_tiebi_yuan（不掉东西，见那一份的说明）。可逃、输了不死（docs/interfaces-octo-encounters.md：低于同章剧情战）。灵石 0。掉落：第 7 章试玩返修（docs/ch07-playtest-loot.md）起掉这一种妖兽的专属材料——从前 drops 空（「禁地里的东西只从脚本来」），用户试玩说「打完怪物没回报」。数值平衡路量过（docs/ch07-balance.md 遭遇）：铁臂猿攻 18 → 15，意图玩家满血两回合、不吃药。"
 }

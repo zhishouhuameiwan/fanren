@@ -1,0 +1,25 @@
+{
+  "id": "recipe_bilin_dan",
+  "name": "碧鳞丹方",
+  "kind": "alchemy",
+  "productId": "pill_bilin_dan",
+  "productCount": 1,
+  "difficulty": 50,
+  "requiredProficiency": 30,
+  "inputs": [
+    {
+      "itemId": "material_bie_lin",
+      "count": 1
+    },
+    {
+      "itemId": "material_huolingshi",
+      "count": 1
+    },
+    {
+      "itemId": "material_hanyan_cao",
+      "count": 1
+    }
+  ],
+  "requireFlag": "ch07.feidan",
+  "note": "第 7 章试玩返修（docs/ch07-playtest-loot.md）：用禁地妖兽的专属材料与禁地采集物开的方子，门闸 ch07.feidan——与地火屋那只圆墩（facility_dihuo）同一面旗：推门进十九号、炉子能用了，这几张也一并列出（第 7 章唯一的丹炉就是它）。成算：40 ＋ 熟练/2 ＋ 资质/5 ＋ 炉品×5 − 难度，第 7 章熟练 100、地火屋炉品 4，难度这几档都顶到 95%。"
+}

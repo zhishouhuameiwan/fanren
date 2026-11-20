@@ -495,7 +495,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "pill_yangjing_dan,material_huolingshi"
+              "value": "material_lingshi:50,material_lingshi_zhong:2,talisman_tulao_fu,material_huolingshi:2"
             }
           ]
         },

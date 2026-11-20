@@ -1,0 +1,25 @@
+{
+  "id": "be07_dongpo_tiebi_yuan",
+  "name": "东坡石屋·铁臂猿",
+  "chapter": 7,
+  "terrain": "field",
+  "can_escape": true,
+  "defeat_is_fatal": false,
+  "units": [
+    {
+      "role_id": "tiebi_yuan",
+      "faction": "enemy"
+    },
+    {
+      "role_id": "tiebi_yuan",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 5,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "origin": "改编",
+  "note": "支线 Z2「钟吾的玉简」东坡石屋门口那两只铁臂猿（scripts/ch07/yujian_dongpo.lua；ch200 的铁臂猿，摆在石屋门口是本作自出）。编成、修为与环形山那只明雷 be07_tiebi_yuan 一模一样；第 7 章试玩返修（docs/ch07-playtest-loot.md）给明雷加了专属掉落，这一场拆出来、drops 照旧空：Z2 的回报是脚本给的玉髓芝与出口的门派加赏（chukou.lua），而第一侧最小路线打的就是这一场——它若也掉东西，第 7 章交接存档（tests/fixtures/ch07-end-first.sav）的背包就变了，一路牵到第 13 章。可逃、输了不死（3.1 表 Z2a）。"
+}

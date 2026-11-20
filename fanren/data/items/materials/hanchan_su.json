@@ -1,0 +1,11 @@
+{
+  "id": "material_hanchan_su",
+  "name": "寒蟾酥",
+  "descKey": "item.desc.material_hanchan_su",
+  "kind": "material",
+  "grade": 1,
+  "price": 16,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "原著 ch180 的寒冰蟾（禁地外围乌龙潭里成群的一级下阶妖兽）；蟾酥是本作取的部位（改编）。第 7 章试玩返修（docs/ch07-playtest-loot.md）：寒冰蟾的专属掉落（be07_hanbing_chan、be07_zhaoze_chan、bl07_hanbing_chan_t*）。用途：两份配寒烟草一份炼寒蟾丹（recipe_hanchan_dan，地火屋）。单卖便宜。"
+}

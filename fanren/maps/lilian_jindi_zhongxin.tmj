@@ -282,7 +282,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "pill_jinchuang_yao:2"
+              "value": "pill_jinchuang_yao,material_lingshi:6"
             },
             {
               "name": "chance",
@@ -310,7 +310,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "material_lingshi:8,material_huolong_cao"
+              "value": "material_lingshi:10,material_huolong_cao"
             }
           ]
         },

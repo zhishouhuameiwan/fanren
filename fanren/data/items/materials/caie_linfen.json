@@ -1,0 +1,11 @@
+{
+  "id": "material_caie_linfen",
+  "name": "彩蛾鳞粉",
+  "descKey": "item.desc.material_caie_linfen",
+  "kind": "material",
+  "grade": 1,
+  "price": 24,
+  "tradeable": true,
+  "origin": "改编",
+  "note": "原著 ch181 灵兽山二人放出的彩蛾；鳞粉是本作取的部位（改编）。第 7 章试玩返修：彩蛾的专属掉落（be07_cai_e）。用途：赠礼——南宫婉、陈巧倩都喜欢（data/companions）；不入丹，卖价在四样小兽材里最高。"
+}

@@ -1,0 +1,13 @@
+{
+  "id": "pill_tiaoyuan_wan",
+  "name": "调元丸",
+  "descKey": "item.desc.pill_tiaoyuan_wan",
+  "kind": "pill",
+  "grade": 2,
+  "price": 110,
+  "tradeable": true,
+  "restoreHp": 35,
+  "restoreMp": 30,
+  "origin": "改编",
+  "note": "本作自拟。第 7 章试玩返修：飞蛇胆 1 ＋ 火龙草 1 → 2 粒（recipe_tiaoyuan_wan）。气血、法力各回一截（35 / 30）：一颗药顶两样，但哪一头都不如专门的那一味。"
+}

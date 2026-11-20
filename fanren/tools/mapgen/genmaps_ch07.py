@@ -763,7 +763,9 @@ def make_dixia_zhaoze():
         facility("facility_cunji", 2, 4, "save"),
     ] + zhaoze_links("ch07_zhaoze_shenchu", "ch07.kundi", "ch07.block.zhaoze_shenchu") + [
         # ---- 样板 5.2 探索层：东岸一个宝箱、一只明雷（寒冰蟾，地下是改编）----
-        chest("chest_dongan", 32, 4, mid, "chest_dongan", [("pill_huiqi_dan", 1), ("material_hanyan_cao", 1)]),
+        # 宝箱内容：第 7 章试玩返修（docs/ch07-playtest-loot.md 第 4 节，用户 2026-11-20「找东西没啥回报感」）。
+        chest("chest_dongan", 32, 4, mid, "chest_dongan",
+              [("pill_huiqi_dan", 1), ("material_hanyan_cao", 2), ("material_lingshi", 15)]),
         foe("foe_chan", 31, 17, mid, "foe_chan", "be07_zhaoze_chan", "hanbing_chan", "left"),
     ]
     return build_map(mid, W, H, "terrain_dixia_zhaoze",
@@ -773,10 +775,14 @@ def make_dixia_zhaoze():
 # ---------------------------------------------------------------------------
 # 样板 5.2：禁地原有三张图的探索层（宝箱、采集点、明雷；主线这几张图上不放机关）
 # ---------------------------------------------------------------------------
+# 宝箱内容：第 7 章试玩返修（docs/ch07-playtest-loot.md 第 4 节，用户 2026-11-20「找东西没啥回报感」）——普通的箱子
+# 至少一样不是金疮药；藏得深的（潭背、东坡角上、残禁后）、精英守着的（鳄湾）放符箓、中阶灵石与成堆的灵石。
 def explore_waiwei(mid):
     return [
-        chest("chest_yaxia", 12, 6, mid, "chest_yaxia", [("pill_jinchuang_yao", 2)]),      # 崖下遗落的储物袋
-        chest("chest_tanbei", 46, 1, mid, "chest_tanbei", [("pill_huiqi_dan", 1)]),
+        chest("chest_yaxia", 12, 6, mid, "chest_yaxia",       # 崖下遗落的储物袋
+              [("talisman_huoqiu_fu", 1), ("material_lingshi", 15), ("pill_jinchuang_yao", 1)]),
+        chest("chest_tanbei", 46, 1, mid, "chest_tanbei",     # 潭背的角上，藏得深
+              [("pill_huiqi_dan", 1), ("talisman_tulao_fu", 1), ("material_lingshi", 25)]),
         gather("gather_hanyan", 36, 6, mid, "gather_hanyan", "material_hanyan_cao", 30),    # 寒烟草，乌龙潭边（ch180）
         foe("foe_chan", 42, 10, mid, "foe_chan", "be07_hanbing_chan", "hanbing_chan", "down"),
         foe("foe_e", 3, 18, mid, "foe_e", "be07_cai_e", "cai_e", "right"),
@@ -785,8 +791,9 @@ def explore_waiwei(mid):
 
 def explore_zhongxin(mid):
     return [
-        chest("chest_linbian", 1, 33, mid, "chest_linbian", [("pill_jinchuang_yao", 2)]),
-        chest("chest_huayuan", 2, 1, mid, "chest_huayuan", [("material_huolong_cao", 1), ("pill_huiqi_dan", 1)]),
+        chest("chest_linbian", 1, 33, mid, "chest_linbian", [("pill_yangjing_dan", 1), ("material_lingshi", 10)]),
+        chest("chest_huayuan", 2, 1, mid, "chest_huayuan",
+              [("material_huolong_cao", 2), ("pill_huiqi_dan", 1), ("material_lingshi", 15)]),
         gather("gather_huolong", 45, 24, mid, "gather_huolong", "material_huolong_cao", 30),   # 火龙草（ch191）
         foe("foe_she_lin", 8, 26, mid, "foe_she_lin", "be07_fei_she", "fei_she", "right"),
         foe("foe_she_yuan", 30, 4, mid, "foe_she_yuan", "be07_fei_she", "fei_she", "down"),
@@ -795,9 +802,11 @@ def explore_zhongxin(mid):
 
 def explore_huanxingshan(mid):
     return [
-        chest("chest_shanjiao", 1, 37, mid, "chest_shanjiao", [("pill_yangjing_dan", 1)]),
-        chest("chest_beipo", 46, 1, mid, "chest_beipo", [("material_huolong_cao", 1), ("pill_jinchuang_yao", 1)]),
-        chest("chest_dongpo", 46, 17, mid, "chest_dongpo", [("pill_huiqi_dan", 1)]),
+        chest("chest_shanjiao", 1, 37, mid, "chest_shanjiao", [("pill_yangjing_dan", 1), ("talisman_huoqiu_fu", 2)]),
+        chest("chest_beipo", 46, 1, mid, "chest_beipo",
+              [("material_huolong_cao", 1), ("material_lingshi", 20), ("pill_jinchuang_yao", 1)]),
+        chest("chest_dongpo", 46, 17, mid, "chest_dongpo",    # 东坡尽头的角上
+              [("pill_huiqi_dan", 1), ("material_lingshi_zhong", 1)]),
         gather("gather_huolong", 3, 12, mid, "gather_huolong", "material_huolong_cao", 30),
         foe("foe_tuishan", 20, 20, mid, "foe_tuishan", "be07_tuishan_shou", "tuishan_shou", "down"),
         foe("foe_tiebi", 44, 24, mid, "foe_tiebi", "be07_tiebi_yuan", "tiebi_yuan", "left"),
@@ -879,7 +888,10 @@ def make_zhaoze_shenchu():
 
         gather("gather_huolingshi_bei", 22, 3, mid, "gather_huolingshi_bei", "material_huolingshi", 30),
         gather("gather_huolingshi_wan", 39, 24, mid, "gather_huolingshi_wan", "material_huolingshi", 30),
-        chest("chest_ewan", 38, 27, mid, "chest_ewan", [("pill_yangjing_dan", 1), ("material_huolingshi", 1)]),
+        # 鳄湾的箱子碧水鳄守着（精英）：第 7 章试玩返修起放成堆的灵石、中阶灵石与符（docs/ch07-playtest-loot.md 第 4 节）。
+        chest("chest_ewan", 38, 27, mid, "chest_ewan",
+              [("material_lingshi", 50), ("material_lingshi_zhong", 2), ("talisman_tulao_fu", 1),
+               ("material_huolingshi", 2)]),
         foe("foe_chan", 12, 21, mid, "foe_chan", "be07_zhaoze_chan", "hanbing_chan", "up"),
         foe("foe_shu", 25, 4, mid, "foe_shu", "be07_shenchu_shu", "huoyan_shu", "left"),
         foe("foe_she", 36, 14, mid, "foe_she", "be07_shenchu_she", "fei_she", "left"),
@@ -948,8 +960,12 @@ def make_dixia_shiku():
 
         # ---- 样板 5.1：一道残禁（她的场地技能开），后面一个宝箱；另一个宝箱在残破石室里 ----
         gate("gate_canjin", 28, 21, mid, "gate_canjin", "break_seal", hint="ch07.gate.canjin.hint"),
-        chest("chest_xiaoshi", 33, 20, mid, "chest_xiaoshi", [("pill_yangjing_dan", 1), ("material_huolingshi", 1)]),
-        chest("chest_shishi", 2, 4, mid, "chest_shishi", [("pill_jinchuang_yao", 2)]),
+        # 宝箱内容：第 7 章试玩返修（docs/ch07-playtest-loot.md 第 4 节）——残禁后那一个藏得最深。
+        chest("chest_xiaoshi", 33, 20, mid, "chest_xiaoshi",
+              [("material_lingshi", 40), ("material_lingshi_zhong", 2), ("talisman_huoqiu_fu", 2),
+               ("pill_yangjing_dan", 1)]),
+        chest("chest_shishi", 2, 4, mid, "chest_shishi",
+              [("pill_yangjing_dan", 1), ("material_lingshi", 15), ("pill_jinchuang_yao", 1)]),
 
         facility("facility_dazuo", SHIKU_DAZUO_PANG[0] + 1, SHIKU_DAZUO_PANG[1], "meditate"),
     ]
@@ -1015,9 +1031,11 @@ def make_lilian_waiwei():
         # ---- 幻阵：陈师妹开（样板第 7 节「带对的人才开得了」）。罩住乌龙潭边矮树丛的缺口，潭边那一片只从这里进 ----
         gate("gate_huanzhen", 38, 12, mid, "gate_huanzhen", "see_through_illusion", w=2,
              hint="lilian.gate.huanzhen.hint"),
-        chest("chest_yaxia", 12, 6, mid, "chest_yaxia", [("material_lingshi", 5), ("material_hanyan_cao", 1)],
+        # 历练的宝箱每趟重抽，加码比正史收着些（docs/ch07-playtest-loot.md 第 4 节）：灵石略多，深处的多一张火球符。
+        chest("chest_yaxia", 12, 6, mid, "chest_yaxia", [("material_lingshi", 8), ("material_hanyan_cao", 1)],
               chance=60),
-        chest("chest_tanbei", 46, 1, mid, "chest_tanbei", [("pill_huiqi_dan", 1)], chance=50),
+        chest("chest_tanbei", 46, 1, mid, "chest_tanbei", [("pill_huiqi_dan", 1), ("talisman_huoqiu_fu", 1)],
+              chance=50),
         gather("gather_hanyan", 36, 6, mid, "gather_hanyan", "material_hanyan_cao", 1),
         foe("foe_chan", 42, 10, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "down", chance=70),
         foe("foe_she", 3, 18, mid, "foe_she", "bl07_fei_she", "fei_she", "right", chance=70),
@@ -1034,8 +1052,9 @@ def make_lilian_zhongxin():
         portal("portal_to_waiwei", 22, 35, "lilian_jindi_waiwei", "spawn_from_zhongxin", w=2),
         portal("portal_to_huanxingshan", 40, 0, "lilian_jindi_huanxingshan", "spawn_from_zhongxin", w=2),
         exit_facility(20, 33),
-        chest("chest_linbian", 1, 33, mid, "chest_linbian", [("pill_jinchuang_yao", 2)], chance=60),
-        chest("chest_huayuan", 2, 1, mid, "chest_huayuan", [("material_lingshi", 8), ("material_huolong_cao", 1)]),
+        chest("chest_linbian", 1, 33, mid, "chest_linbian", [("pill_jinchuang_yao", 1), ("material_lingshi", 6)],
+              chance=60),
+        chest("chest_huayuan", 2, 1, mid, "chest_huayuan", [("material_lingshi", 10), ("material_huolong_cao", 1)]),
         gather("gather_huolong", 45, 24, mid, "gather_huolong", "material_huolong_cao", 1),
         foe("foe_she_lin", 8, 26, mid, "foe_she_lin", "bl07_fei_she", "fei_she", "right", chance=70),
         foe("foe_she_yuan", 30, 4, mid, "foe_she_yuan", "bl07_fei_she", "fei_she", "down", chance=70),
@@ -1051,8 +1070,9 @@ def make_lilian_huanxingshan():
         portal("portal_to_zhongxin", 24, 39, "lilian_jindi_zhongxin", "spawn_from_huanxingshan"),
         portal("portal_to_zhaoze", 38, 35, "lilian_jindi_zhaoze", "spawn_from_huanxingshan"),
         exit_facility(26, 37),
-        chest("chest_shanjiao", 1, 37, mid, "chest_shanjiao", [("pill_yangjing_dan", 1)], chance=50),
-        chest("chest_beipo", 46, 1, mid, "chest_beipo", [("material_lingshi", 6), ("material_huolong_cao", 1)],
+        chest("chest_shanjiao", 1, 37, mid, "chest_shanjiao", [("pill_yangjing_dan", 1), ("material_lingshi", 6)],
+              chance=50),
+        chest("chest_beipo", 46, 1, mid, "chest_beipo", [("material_lingshi", 8), ("material_huolong_cao", 1)],
               chance=60),
         gather("gather_huolong", 3, 12, mid, "gather_huolong", "material_huolong_cao", 1),
         foe("foe_shu", 20, 20, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "down", chance=70),
@@ -1071,7 +1091,7 @@ def make_lilian_zhaoze():
         portal("portal_to_huanxingshan", 2, 1, "lilian_jindi_huanxingshan", "spawn_from_zhaoze", w=3),
         exit_facility(2, 4),
     ] + zhaoze_links("lilian_jindi_shenchu") + [
-        chest("chest_dongan", 32, 4, mid, "chest_dongan", [("material_lingshi", 6), ("pill_huiqi_dan", 1)],
+        chest("chest_dongan", 32, 4, mid, "chest_dongan", [("material_lingshi", 8), ("pill_huiqi_dan", 1)],
               chance=60),
         foe("foe_chan", 31, 17, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "left", chance=70),
     ]
@@ -1088,7 +1108,8 @@ def make_lilian_shenchu():
         portal("portal_to_shiku", 43, 22, "lilian_jindi_shiku", "spawn_from_shenchu", h=2),
         exit_facility(20, 26),
         gather("gather_huolingshi_bei", 22, 3, mid, "gather_huolingshi_bei", "material_huolingshi", 1),
-        chest("chest_ewan", 38, 27, mid, "chest_ewan", [("material_lingshi", 12), ("material_huolingshi", 1)]),
+        chest("chest_ewan", 38, 27, mid, "chest_ewan",
+              [("material_lingshi", 25), ("material_huolingshi", 1), ("talisman_huoqiu_fu", 1)]),
         foe("foe_shu", 25, 4, mid, "foe_shu", "bl07_huoyan_shu", "huoyan_shu", "left", chance=70),
         foe("foe_she", 36, 14, mid, "foe_she", "bl07_fei_she", "fei_she", "left", chance=70),
         foe("foe_bishui_e", 33, 26, mid, "foe_bishui_e", "bl07_bishui_e", "bishui_e", "left", elite=True,
@@ -1107,8 +1128,10 @@ def make_lilian_shiku():
         exit_facility(SHIKU_DAZUO_PANG[0] + 1, SHIKU_DAZUO_PANG[1]),
         # ---- 残禁：南宫婉开 ----
         gate("gate_canjin", 28, 21, mid, "gate_canjin", "break_seal", hint="ch07.gate.canjin.hint"),
-        chest("chest_xiaoshi", 33, 20, mid, "chest_xiaoshi", [("material_lingshi", 15), ("pill_yangjing_dan", 1)]),
-        chest("chest_shishi", 2, 4, mid, "chest_shishi", [("pill_jinchuang_yao", 2)], chance=60),
+        chest("chest_xiaoshi", 33, 20, mid, "chest_xiaoshi",
+              [("material_lingshi", 30), ("pill_yangjing_dan", 1), ("talisman_huoqiu_fu", 1)]),
+        chest("chest_shishi", 2, 4, mid, "chest_shishi", [("pill_jinchuang_yao", 1), ("material_lingshi", 8)],
+              chance=60),
         # 石窟大厅这一只每趟都在（不写 chance）：历练至少有一仗是定了的，用例也不靠抽签。
         foe("foe_chan", 24, 20, mid, "foe_chan", "bl07_hanbing_chan", "hanbing_chan", "up"),
     ]

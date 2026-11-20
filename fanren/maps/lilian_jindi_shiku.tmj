@@ -254,7 +254,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "material_lingshi:15,pill_yangjing_dan"
+              "value": "material_lingshi:30,pill_yangjing_dan,talisman_huoqiu_fu"
             }
           ]
         },
@@ -277,7 +277,7 @@
             {
               "name": "loot",
               "type": "string",
-              "value": "pill_jinchuang_yao:2"
+              "value": "pill_jinchuang_yao,material_lingshi:8"
             },
             {
               "name": "chance",

@@ -1,0 +1,13 @@
+{
+  "id": "pill_huoyuan_dan",
+  "name": "火元丹",
+  "descKey": "item.desc.pill_huoyuan_dan",
+  "kind": "pill",
+  "grade": 2,
+  "price": 120,
+  "tradeable": true,
+  "restoreHp": 0,
+  "restoreMp": 45,
+  "origin": "改编",
+  "note": "本作自拟。第 7 章试玩返修：火鼠绒 2 ＋ 火龙草 1 → 2 粒（recipe_huoyuan_dan）。restoreMp 45：落在聚气散（30）与聚灵丹（75）、回气丹（90）之间。"
+}

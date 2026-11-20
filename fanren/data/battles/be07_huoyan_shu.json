@@ -22,8 +22,14 @@
   "rewards": {
     "cultivation": 4,
     "spirit_stones": 0,
-    "drops": []
+    "drops": [
+      {
+        "item_id": "material_huoshu_rong",
+        "count": 3,
+        "rate": 100
+      }
+    ]
   },
   "origin": "原著",
-  "note": "第 7 章环形山野外遭遇（data/encounters/ch07_huanxingshan.json；遭遇区 require_flag ch07.yueyang）：三只火焰鼠（ch194 秘闻里的一级下阶）。可逃、输了不死（docs/interfaces-octo-encounters.md：低于同章剧情战）。灵石 0、drops 空：禁地里的东西只从脚本来。数值平衡路量过（docs/ch07-balance.md 遭遇）：火焰鼠法力 30 → 0，意图玩家满血三回合、不吃药。"
+  "note": "第 7 章环形山野外遭遇（data/encounters/ch07_huanxingshan.json；遭遇区 require_flag ch07.yueyang）：三只火焰鼠（ch194 秘闻里的一级下阶）。可逃、输了不死（docs/interfaces-octo-encounters.md：低于同章剧情战）。灵石 0。掉落：第 7 章试玩返修（docs/ch07-playtest-loot.md）起掉这一种妖兽的专属材料——从前 drops 空（「禁地里的东西只从脚本来」），用户试玩说「打完怪物没回报」。数值平衡路量过（docs/ch07-balance.md 遭遇）：火焰鼠法力 30 → 0，意图玩家满血三回合、不吃药。"
 }
