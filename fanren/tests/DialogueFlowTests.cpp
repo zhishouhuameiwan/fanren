@@ -243,6 +243,46 @@ TEST_F(DialogueFlow, SkippingStopsAtTheChoiceKeepsTheSideEffectsAndLogsWhatWasSk
     EXPECT_EQ(spoken(kD), 1);
 }
 
+// 审核返修 1：键盘上取消键 X 紧挨确认键 Z。确认框弹出后 0.35 秒内不收确认键，X→Z 连按两下不会把一整场戏跳掉。
+TEST_F(DialogueFlow, ConfirmRightAfterTheSkipAskOpensDoesNotSkip) {
+    EXPECT_DOUBLE_EQ(DialogueScene::skipAskGuardSeconds(/*headless=*/false), 0.35);
+    EXPECT_DOUBLE_EQ(DialogueScene::skipAskGuardSeconds(/*headless=*/true), 0.0) << "无头缺省不设，测试不空等";
+    start("skip_to_end.lua");
+    ASSERT_NE(dialogue(), nullptr);
+    dialogue()->setSkipAskGuard(DialogueScene::kSkipAskGuardSeconds);   // 照窗口里的样子
+    press(SDL_SCANCODE_X);       // 取消键（默认键位 X）
+    ASSERT_TRUE(dialogue()->askingSkip());
+    press(SDL_SCANCODE_Z);       // 紧跟着按确认：两帧之内
+    ASSERT_NE(dialogue(), nullptr);
+    EXPECT_TRUE(dialogue()->askingSkip()) << "弹出后立刻按确认不收，确认框还开着";
+    EXPECT_FALSE(app_.skippingDialogue());
+    EXPECT_EQ(spoken(kB), 0) << "什么都没跳";
+    // 防误触时段里上下移、取消照收。
+    press(SDL_SCANCODE_DOWN);
+    press(SDL_SCANCODE_UP);
+    // 过了 0.35 秒再按确认：默认项仍是「跳过」，这回跳。
+    tick(30);
+    press(SDL_SCANCODE_Z);
+    tick(3);
+    EXPECT_EQ(app_.state().flag("test_d.end"), 1) << "一路跳到脚本结束";
+    EXPECT_EQ(spoken(kD), 1);
+}
+
+// 审核返修 2：框上沿第二块键位牌只写这一框真能做的事。
+TEST(DialogueKeyHint, TheSkipHalfOnlyShowsWhereASkipIsPossible) {
+    EXPECT_STREQ(DialogueScene::keyHint2Key(/*hasChoices=*/false, /*canSkip=*/true), "ui.dialogue.keys2");
+    EXPECT_STREQ(DialogueScene::keyHint2Key(/*hasChoices=*/true, /*canSkip=*/true), "ui.dialogue.keys_auto")
+        << "带选项的框里取消键是选项自己的取消";
+    EXPECT_STREQ(DialogueScene::keyHint2Key(/*hasChoices=*/false, /*canSkip=*/false), "ui.dialogue.keys_auto")
+        << "不经脚本的框没有「一段」可跳";
+}
+
+TEST_F(DialogueFlow, TheKeyPlateTextsSayWhatTheKeysDoUnderDefaultKeys) {
+    EXPECT_EQ(app_.text("ui.dialogue.keys2"), "E 自动　Esc 跳过");
+    EXPECT_EQ(app_.text("ui.dialogue.keys_auto"), "E 自动");
+    EXPECT_EQ(app_.text("ui.dialogue.keys_auto").find("跳过"), std::string::npos);
+}
+
 TEST_F(DialogueFlow, SkippingRunsToTheEndOfTheScriptAndTabThenOpensTheLog) {
     start("skip_to_end.lua");
     ASSERT_EQ(top(), "Dialogue");

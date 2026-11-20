@@ -232,13 +232,17 @@
 - 设置键 `auto_advance`（`io::Settings::autoAdvance`，缺省关）；设置面板「游戏」组在「手柄震动」之后加一行「自动播放」，后两行各往后挪一行（面板高 622 → 652、仍上下居中）。
 - 对话中按**路径行动键**（默认 E / Q，手柄 X）开关，当场写进设置文件。这个键在对话框里原本空闲，已在改键面板与手柄表里，不用另开新键位（路 M 还要加开图键，两路都往 `Engine::Key` 追加会撞）。
 - 一句全显之后停 `autoAdvanceDelay(字数)` = min(4, 0.8 + 0.06 × 字数) 秒就翻；**有选项的框里没有任何计时**，选择永远等玩家自己按。
-- 框上沿右侧多一块键位牌「E 自动　Esc 跳过」（手柄版「X 自动　B 跳过」），开着时再左边一块金底「自动」小标。
+- 框上沿右侧多一块键位牌，只写这一框真能做的事（审核返修 2，`DialogueScene::keyHint2Key`）：脚本里不带选项的对白写「E 自动　Esc 跳过」
+  （手柄版「X 自动　B 跳过」）；带选项的框、不经脚本的框（路径行动、提示）只写「E 自动」（`ui.dialogue.keys_auto`）。
+  自动播放开着时再左边一块金底「自动」小标。
 - 文案在 `data/text/ui_dialogue.json`。
 
 ## 7. 整段跳过（4.3）与插话气泡（4.4）
 
 **整段跳过**
-- 对话中按**取消键**（Esc / X，手柄 B）→ 确认框「跳过这一段对话？」跳过 / 接着看。取消键在不带选项的对话框里原本空闲；带选项的框里它仍是选项自己的取消（返回 nil），不弹跳过。
+- 对话中按**取消键**（Esc / X，手柄 B）→ 确认框「跳过这一段对话？」跳过 / 接着看，默认停在「跳过」。
+  **防误触**（审核返修 1）：键盘上 X 紧挨 Z，确认框弹出后 0.35 秒内不收确认键（上下移、取消照收），X→Z 连按两下不会把一整场戏跳掉；
+  无头模式缺省不设这个延时（测试不空等），单测用 `setSkipAskGuard` 显式打开它来钉。取消键在不带选项的对话框里原本空闲；带选项的框里它仍是选项自己的取消（返回 nil），不弹跳过。
   只在脚本的对白里能跳（`Application::canSkipDialogue`：有脚本在跑、正等这一句）；路径行动、提示那种不经脚本的框没有「一段」可跳。
 - 确认后，后面的 `talk` 不压对话框，直接记进回看与 `spokenKeys`，就地完成；`give`、`flag.set`、`teleport` 等照常（得物卡片照弹），`wait` 与淡入淡出压成当场完成。
 - 跳到下一条要玩家动手的命令（`choice`、`battle`、`shop`、结局卡、`game_over`）或脚本结束就收住。**选择永远不自动选**：跳到选择就停，选择框照常弹出。
@@ -257,7 +261,7 @@
 
 **新增**
 - `tests/DialogueBudgetTests.cpp`（3 条）：量具自证；第 7 章 56 个脚本每个最长连续 ≤ 8；主线对白 9,000–10,000 字。
-- `tests/DialogueFlowTests.cpp`（12 条）：
+- `tests/DialogueFlowTests.cpp`（15 条；审核返修加了 3 条：弹出后立刻按确认不跳、键位牌只写能做的事、默认键位下两块牌的字）：
   - 自动播放的停顿公式；设置文件往返、缺省关；开着自动播放时两句自己翻、**选择停 42 秒也不被自动选**、玩家按了才走；关着时十秒不动；对话里按 E 开关。
   - 整段跳过：确认框「接着看」不跳；「跳过」一路跳到选择、中间的 `give` 与 `flag.set` 照常、跳过的句子进了回看与 `spokenKeys`、**选择不被自动选**、提示写「2 句」「Tab」、选完之后照常逐框；跳到脚本结束、按 Tab 翻开回看、提示过后 Tab 照旧开主菜单；有选项时 Esc 是选项的取消；脚本外的提示框不给跳。
   - 气泡：说话人在画面上时脚本不等人、不压对话框、记进回看、到点自己消失；不在画面上时退回普通对白、等确认。气泡框贴边不出屏、尖角指着人。
@@ -267,7 +271,7 @@
 | --- | --- | --- |
 | `SettingsWiringTests.cpp` 行号的 `static_assert` 与「按键设置」那一条 | `kAutoAdvance == 9`、`kKeys == 10`、`kRestore == 11`、`kRowCount == 12`；从「手柄震动」下去多走一格 | 设置面板插了「自动播放」一行（新真值） |
 | `UiStyleTests.cpp` 设置面板行名表 | 加「自动播放」 | 同上 |
-| `KeyBindingTests.cpp` `KeyPrompts` 两条白名单 | 加 `ui.dialogue.keys2`、`ui.dialogue.skipped` 与两条 `.pad`；`{pad.` 处数 21 → 24 | 对白框第二块键位牌与跳过提示要跟着键位、设备走 |
+| `KeyBindingTests.cpp` `KeyPrompts` 两条白名单 | 加 `ui.dialogue.keys2`、`ui.dialogue.keys_auto`、`ui.dialogue.skipped` 与三条 `.pad`；`{pad.` 处数 21 → 25 | 对白框第二块键位牌与跳过提示要跟着键位、设备走 |
 | `Ch07AcceptanceTests.cpp` `keyOrders()` | 23 条 `lore.ch07.*` 按解锁那一场登记步序 | `ch07_lore.json` 以 ch07 开头，被章内先后表扫到；表里查不到的 key 判红 |
 | `Ch07AcceptanceTests.cpp` `No6_TheNamePlatesFollowTheSameOrder` | 先验「核到 > 100 句带名牌的」→ > 60 | 带名牌的句子从一百多句降到 90 句（新真值） |
 | `Ch07AcceptanceTests.cpp` `No22_…` 主线字数 | 「≥ 17300 的八成」→「≥ 9000 的八成、≤ 10000」 | 主线对白砍到 9,000–10,000（新真值） |
@@ -280,7 +284,7 @@
 
 | 图 | 截图口 | 看什么 |
 | --- | --- | --- |
-| `d_auto_badge.png` | `--map ch06_baiyaoyuan --scene dlg:auto:ch07.chaibao.stones` | 框上沿：金底「自动」小标、「E 自动　Esc 跳过」、「Tab 回看　长按 Ctrl 快进」 |
+| `d_auto_badge.png` | `--map ch06_baiyaoyuan --scene dlg:auto:ch07.chaibao.stones` | 框上沿：金底「自动」小标、「E 自动」、「Tab 回看　长按 Ctrl 快进」。截图口压的框不经脚本，所以第二块牌只写「E 自动」；脚本对白里写「E 自动　Esc 跳过」由单测钉 |
 | `d_skip_ask.png` | `--map ch07_yuelu_dian --scene dlg:skipask:ch07.cangshi.dingyan:xu_lao` | 跳过确认框（框被抬高让开主角时，确认框挪到框下方） |
 | `d_skipped_notice.png` | `--map ch07_jindi_wai --scene dlg:skipped:12` | 「已跳过 12 句 · 按 Tab 回看」 |
 | `d_bubble.png` | `--map ch07_dixia_shiku --scene dlg:bubble:baiyi_shaonv:ch07.chahua_jun.say` | 跟在身后的白衣少女头顶的气泡 |
@@ -309,9 +313,25 @@
 - 第二次全量（改完之后，955 秒）：**2322 / 2324 通过**。只剩 `PadWiring.HoldingTab…` 与 `PadWiring.HoldingEsc…` 两条墙钟用例，
   即上面那条对照里基线构建同样会挂的那两条。本路新加的 15 条、Ch07 全部验收与对账、第 1–6、8–13 章通关都过了。
 
+### 审核返修（2026-11-20，主会话）
+
+1. 跳过确认框防误触：弹出后 0.35 秒内不收确认键，默认项仍是「跳过」；单测 `DialogueFlow.ConfirmRightAfterTheSkipAskOpensDoesNotSkip`。
+2. 键位牌与能做的事对齐：只有 `!hasChoices_ && app.canSkipDialogue()` 时写「跳过」那一半；新文案 `ui.dialogue.keys_auto`(.pad) 进了 `KeyPrompts` 两张白名单，`{pad.` 处数 24 → 25。
+3. 墙钟三条各单独跑三遍（机器仍被其他会话占着，单条用例 3–30 秒）：
+
+   | 用例 | 三遍结果 |
+   | --- | --- |
+   | `PadWiring.HoldingTabForASecondOpensTheMainMenuOnceAndItStaysOpen` | 过、过、过 |
+   | `PadWiring.HoldingEscForASecondOpensTheMainMenuOnceAndItStaysOpen` | 挂（一秒 24 帧，要 30）、过、过 |
+   | `SoftwareEngine.WithVSyncOffAFrameStillTakesAtLeastA240thOfASecond` | 过、挂（十帧 172 毫秒，上界 120）、过 |
+
+   挂的两遍都是墙钟超限，不是逻辑断言。干净机器上的全量复跑留给集成会话。
+
+**返修后全量 ctest**：见交付汇报（下一次提交补进这里）。
+
 ## 11. 没做成的、拿不准的、交回主会话的
 
-1. **规则清单里没有着落的三条**（路 G 的教学卡清单与目标要点都没有）：
+1. **规则清单里没有着落的三条**（路 G 的教学卡清单与目标要点都没有；主会话审核定为只是说法、不对应玩法，不补）：
    - `shimen.board` 的「过了时辰另算」（借地火超时另收钱）——引擎里借地火是脚本收定金，没有按时辰计费的机制，删掉不丢玩法；
    - `chouhan.grumble` 的「墙上有价目」——同上，只是一句说法；
    - `yeyu.drain` 的「符放出去后一直抽法力」——台词仍在（缩写），但如果引擎里水罩符真有持续耗法力，路 G 可能要补一张卡或一行要点。

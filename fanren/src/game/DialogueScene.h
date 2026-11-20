@@ -77,6 +77,17 @@ public:
     [[nodiscard]] bool askingSkip() const { return askSkip_; }
     // 翻开跳过确认框（取消键走的就是它；截图口也直接调）。
     void openSkipAsk(Application& app);
+    // 确认框弹出后多久之内不收确认键（防误触，审核返修 1）：键盘上取消键 X 紧挨确认键 Z，连按翻对白时
+    // X→Z 两下就会把一整场戏跳掉。窗口里是 0.35 秒；无头模式缺省不设（测试不空等），测试要钉它时用
+    // setSkipAskGuard 显式打开。
+    static constexpr double kSkipAskGuardSeconds = 0.35;
+    [[nodiscard]] static double skipAskGuardSeconds(bool headless) { return headless ? 0.0 : kSkipAskGuardSeconds; }
+    void setSkipAskGuard(double seconds) { skipAskGuardOverride_ = seconds; }
+    // 框上沿第二块键位牌写哪一条（审核返修 2）：只在这一框真能整段跳过时才写「跳过」那一半——
+    // 带选项的框里取消键是选项自己的取消，不经脚本的框（路径行动、提示）没有「一段」可跳。
+    [[nodiscard]] static const char* keyHint2Key(bool hasChoices, bool canSkip) {
+        return !hasChoices && canSkip ? "ui.dialogue.keys2" : "ui.dialogue.keys_auto";
+    }
     // 确认框的矩形：对话框（box 是这一帧实际画的位置）正上方居中；上面放不下（框被抬高让开主角时）就放在框下方。
     [[nodiscard]] static engine::Rect skipAskArea(const engine::Rect& box, const ui::Theme& theme);
 
@@ -139,6 +150,9 @@ private:
     // 整段跳过的确认框（4.3）：「跳过这一段对话？」跳过 / 接着看。
     bool askSkip_ = false;
     ui::ListView skipView_;
+    double askSkipSeconds_ = 0.0;              // 确认框弹出了多久
+    double askSkipGuard_ = 0.0;                // 这一回不收确认键的时长
+    std::optional<double> skipAskGuardOverride_;   // setSkipAskGuard
 };
 
 }  // namespace fanren::game

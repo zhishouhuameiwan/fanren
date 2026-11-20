@@ -4,6 +4,8 @@
 
   "ui.dialogue.keys2": "{key.action} 自动　Esc 跳过",
   "ui.dialogue.keys2.pad": "{pad.action} 自动　{pad.cancel} 跳过",
+  "ui.dialogue.keys_auto": "{key.action} 自动",
+  "ui.dialogue.keys_auto.pad": "{pad.action} 自动",
   "ui.dialogue.auto": "自动",
   "ui.dialogue.skip.ask": "跳过这一段对话？",
   "ui.dialogue.skip.yes": "跳过",

@@ -220,6 +220,14 @@ bool DialogueScene::update(Application& app, double deltaSeconds) {
     // 开着时吃掉别的输入：确认「跳过」就记一笔、把这一句收掉，后面的 talk 由 Application 直接记进回看；
     // 「接着看」或取消键关掉确认框，这一句照旧。
     if (askSkip_) {
+        askSkipSeconds_ += deltaSeconds;
+        // 防误触：弹出后 askSkipGuard_ 秒内不收确认键（上下移、取消照收）。
+        if (askSkipSeconds_ < askSkipGuard_) {
+            if (eng.keyPressed(engine::Engine::Key::Up)) skipView_.moveUp();
+            if (eng.keyPressed(engine::Engine::Key::Down)) skipView_.moveDown();
+            if (eng.keyPressed(engine::Engine::Key::Cancel)) askSkip_ = false;
+            return true;
+        }
         if (skipView_.update(eng)) {
             askSkip_ = false;
             if (skipView_.selection() == 0) {
@@ -432,7 +440,7 @@ int DialogueScene::renderKeyHint2(Application& app, const engine::Rect& box, int
     // 键名跟着键位与设备走（Application::text 展开 {key.action} / {pad.*}）。
     engine::Engine& eng = app.engine();
     const ui::Theme& theme = app.theme();
-    const std::string hint = app.text("ui.dialogue.keys2");
+    const std::string hint = app.text(keyHint2Key(hasChoices_, app.canSkipDialogue()));
     const engine::Point size = eng.measureText(hint, kHintFontSize);
     if (size.x <= 0) return right;
     const int w = size.x + kHintPadX * 2;
@@ -479,6 +487,8 @@ void DialogueScene::openSkipAsk(Application& app) {
     skipView_.setPageSize(2);
     skipView_.setItems(std::move(items));
     askSkip_ = true;
+    askSkipSeconds_ = 0.0;
+    askSkipGuard_ = skipAskGuardOverride_ ? *skipAskGuardOverride_ : skipAskGuardSeconds(app.headless());
 }
 
 void DialogueScene::renderSkipAsk(Application& app, const engine::Rect& box) const {
