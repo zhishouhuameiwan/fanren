@@ -103,6 +103,7 @@ constexpr Engine::KeyTable kDefaultKeys{{
     {SDL_SCANCODE_LCTRL, 0},                  // Skip
     {SDL_SCANCODE_F5, 0},                     // Save
     {SDL_SCANCODE_E, SDL_SCANCODE_Q},         // Action
+    {SDL_SCANCODE_M, 0},                      // Map（区域地图，docs/ch07-foundation.md 3.2）
 }};
 
 // 保留键：左右 Alt（Alt+Enter）、左右 Win、菜单键，与抓键时当「清空」用的 Backspace、Delete。
@@ -113,11 +114,11 @@ constexpr std::array<SDL_Scancode, 7> kReservedKeys{
 
 // 动作 id（设置文件 keys 里的键），按 Key 的次序。与 io::kKeyActionIds 是同一组词（KeyVocabulary 用例钉着）。
 constexpr std::array<const char*, kKeyCount> kKeyIds{
-    "up", "down", "left", "right", "confirm", "cancel", "menu", "skip", "save", "action",
+    "up", "down", "left", "right", "confirm", "cancel", "menu", "skip", "save", "action", "map",
 };
 
 // 手柄键位（docs/gamepad.md 第 2 节，固定、不可改）：按位置认键，叫法用 Xbox 的。每个动作的手柄键按显示优先的次序排
-// （提示文案 {pad.<id>} 取那个动作的第一个）。一个手柄键只属于一个动作；LB、LT 不配动作，不在表里。
+// （提示文案 {pad.<id>} 取那个动作的第一个）。一个手柄键只属于一个动作；LT 不配动作，不在表里（LB 自第 7 章改版起配给区域地图）。
 constexpr std::size_t kPadButtonCount = static_cast<std::size_t>(Engine::PadButton::Count);
 
 struct PadKey {
@@ -125,7 +126,7 @@ struct PadKey {
     Engine::Key key;
 };
 
-constexpr std::array<PadKey, 16> kPadKeys{{
+constexpr std::array<PadKey, 17> kPadKeys{{
     {Engine::PadButton::DpadUp, Engine::Key::Up},       {Engine::PadButton::StickUp, Engine::Key::Up},
     {Engine::PadButton::DpadDown, Engine::Key::Down},   {Engine::PadButton::StickDown, Engine::Key::Down},
     {Engine::PadButton::DpadLeft, Engine::Key::Left},   {Engine::PadButton::StickLeft, Engine::Key::Left},
@@ -134,6 +135,7 @@ constexpr std::array<PadKey, 16> kPadKeys{{
     {Engine::PadButton::Y, Engine::Key::Menu},          {Engine::PadButton::Start, Engine::Key::Menu},
     {Engine::PadButton::RT, Engine::Key::Skip},         {Engine::PadButton::RB, Engine::Key::Skip},
     {Engine::PadButton::Back, Engine::Key::Save},       {Engine::PadButton::X, Engine::Key::Action},
+    {Engine::PadButton::LB, Engine::Key::Map},   // 区域地图（docs/ch07-foundation.md 3.2：LB 原先空着）
 }};
 
 // 左摇杆数字化后的四向与它们对应的方向键。
@@ -152,7 +154,7 @@ constexpr float kTriggerPressValue = 0.5f;
 constexpr float kTriggerHoldValue = 0.3f;
 constexpr int kMaxRumbleMs = 1000;
 
-// 这个手柄键配的是哪个动作（LB、LT = 没配）。
+// 这个手柄键配的是哪个动作（LT = 没配）。
 [[nodiscard]] std::optional<Engine::Key> padKeyOf(Engine::PadButton button) {
     for (const PadKey& p : kPadKeys) {
         if (p.button == button) return p.key;

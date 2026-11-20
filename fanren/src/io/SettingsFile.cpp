@@ -175,6 +175,7 @@ SettingsRead parseSettingsImpl(std::string_view text) {
     readBool(root, "screen_shake", s.screenShake, warnings);
     readWord(root, "text_speed", kTextSpeedWords, s.textSpeed, warnings);
     readBool(root, "pad_rumble", s.padRumble, warnings);
+    readBool(root, "minimap", s.minimap, warnings);
     readKeys(root, s.keys, warnings);
     return read;
 }
@@ -192,6 +193,7 @@ std::string settingsText(const Settings& s) {
     root["screen_shake"] = s.screenShake;
     root["text_speed"] = textSpeedId(s.textSpeed);
     root["pad_rumble"] = s.padRumble;   // docs/gamepad.md 第 8 节：样例里排在 text_speed 后面
+    root["minimap"] = s.minimap;        // docs/ch07-foundation.md 3.1：排在 pad_rumble 后面
     // 键位按第 6 节那张表的次序写；表外的 id（只可能是代码里直接塞进来的）排在后面照写，不悄悄丢。
     nlohmann::ordered_json keys = nlohmann::ordered_json::object();
     for (const std::string_view id : kKeyActionIds) {

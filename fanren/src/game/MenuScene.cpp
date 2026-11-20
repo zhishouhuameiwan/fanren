@@ -12,6 +12,7 @@
 #include "core/rules/Roster.h"
 #include "engine/TextLayout.h"
 #include "game/Application.h"
+#include "game/AreaMapScene.h"
 #include "game/BoardScene.h"
 #include "game/CultivationScene.h"
 #include "game/DialogueScene.h"
@@ -35,7 +36,7 @@ constexpr int kCommandRows = 8;
 constexpr engine::Rect kInfoPanel{48, 540, 300, 132};
 constexpr engine::Rect kPagePanel{372, 48, 860, 624};
 // Page 枚举里一共几项（menuStrings 逐项取字）。
-constexpr int kPageCount = 10;
+constexpr int kPageCount = 11;
 
 // 「设置」页的摘要列哪几行（系统设置面板的行下标）：有值的那九项（含手柄震动，docs/gamepad.md 第 8 节），
 // 按键设置、恢复默认不列。
@@ -88,6 +89,7 @@ constexpr const char* kSfxSaved = "save";
         case MenuScene::Page::Back: return "ui.menu.back";
         case MenuScene::Page::Party: return "ui.menu.party";
         case MenuScene::Page::Roster: return "ui.menu.roster";
+        case MenuScene::Page::Map: return "ui.menu.map";
     }
     return "";
 }
@@ -208,8 +210,9 @@ void MenuScene::onEnter(Application& app) {
     backdropReady_ = false;
 
     // 左栏有哪几项：前八项照旧；名册上有人才在「状态」后面插进队伍、名册（文件头）。
-    pages_ = {Page::Status, Page::Items, Page::Magic, Page::Journal,
-              Page::Save,   Page::Settings, Page::Home, Page::Back};
+    // 「地图」（docs/ch07-foundation.md 3.2）排在「记事」后面：两样都是「我该去哪」的答案。
+    pages_ = {Page::Status, Page::Items,    Page::Magic, Page::Journal, Page::Map,
+              Page::Save,   Page::Settings, Page::Home,  Page::Back};
     if (!rules::roster(app.data().companions, app.state()).empty()) {
         pages_.insert(pages_.begin() + 1, {Page::Party, Page::Roster});
     }
@@ -513,6 +516,11 @@ bool MenuScene::activate(Application& app) {
             // 只读的一页，与「状态」一样：确认只响一声。
             e.playSfx(kSfxConfirm);
             return true;
+        case Page::Map:
+            // 区域地图（docs/ch07-foundation.md 3.2）：菜单合上、地图压在世界层上（帧末先出栈后入栈）。
+            e.playSfx(kSfxConfirm);
+            app.pushScene(std::make_unique<AreaMapScene>());
+            return false;
     }
     return true;
 }
@@ -987,6 +995,9 @@ void MenuScene::drawPage(Application& app) const {
         case Page::Roster:
             drawListPage(app, area, roster_, false, app.text("ui.menu.roster.hint"));
             break;
+        case Page::Map:
+            drawMapPage(app, area);
+            break;
     }
 }
 
@@ -1118,6 +1129,11 @@ void MenuScene::drawSplitPage(Application& app, const engine::Rect& area, const 
     } else {
         ui::drawTextBlock(e, app.text("ui.iteminfo.empty"), detailArea, 18, theme);
     }
+}
+
+void MenuScene::drawMapPage(Application& app, const engine::Rect& area) const {
+    // 右栏写一句说明（含地图键，跟着键位与设备走）；确认才打开全屏的区域地图。
+    ui::drawTextBlock(app.engine(), app.text("ui.menu.map.desc"), area, 20, app.theme());
 }
 
 void MenuScene::drawJournal(Application& app, const engine::Rect& area) const {

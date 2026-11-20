@@ -43,7 +43,8 @@ public:
     // 前八项的次序即画面上的次序；返回首页需要确认，「返回」只关闭菜单。
     // Party（队伍）、Roster（名册）追加在末尾是为了不挪动前八项的值（截图口按名字取它们）；
     // 画面上它俩排在「状态」后面，且只在名册上有人时出现（见文件头）。
-    enum class Page { Status, Items, Magic, Journal, Save, Settings, Home, Back, Party, Roster };
+    // Map（地图）是第 7 章改版·路 M 追加的（docs/ch07-foundation.md 3.2）：画面上排在「记事」后面，确认打开区域地图。
+    enum class Page { Status, Items, Magic, Journal, Save, Settings, Home, Back, Party, Roster, Map };
 
     // 小像按几倍画：人物表的世界层倍数的三分之四，取整（旧表 3 → 4，高清表 2 → 2），至少 1。
     // 菜单的小像一向比走在地图上的大三分之一（16×24 的旧表：地图 ×3、菜单 ×4）。
@@ -159,6 +160,7 @@ private:
     void drawSave(Application& app, const engine::Rect& area) const;
     void drawSettings(Application& app, const engine::Rect& area) const;
     void drawHome(Application& app, const engine::Rect& area) const;
+    void drawMapPage(Application& app, const engine::Rect& area) const;
     void drawParty(Application& app, const engine::Rect& area) const;
 
     Page initial_;

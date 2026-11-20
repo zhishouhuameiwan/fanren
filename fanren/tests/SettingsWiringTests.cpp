@@ -42,7 +42,9 @@ using fanren::io::TextSpeed;
 static_assert(SettingsScene::kBgmVolume == 0 && SettingsScene::kSfxVolume == 1 && SettingsScene::kFullscreen == 2 &&
               SettingsScene::kScale == 3 && SettingsScene::kVSync == 4 && SettingsScene::kEffects == 5 &&
               SettingsScene::kScreenShake == 6 && SettingsScene::kTextSpeed == 7 && SettingsScene::kPadRumble == 8 &&
-              SettingsScene::kKeys == 9 && SettingsScene::kRestore == 10 && SettingsScene::kRowCount == 11);
+              SettingsScene::kMinimap == 9 && SettingsScene::kKeys == 10 && SettingsScene::kRestore == 11 &&
+              SettingsScene::kRowCount == 12);
+// 第 7 章改版·路 M（docs/ch07-foundation.md 3.1）在「手柄震动」之后插了「小地图」：第 9 行是它，「按键设置」「恢复默认」再各往后挪一行。
 // 标题画面：新的旅程 0 / 继续旅程 1 / 设置 2 / 离开 3（契约 5.1）。
 static_assert(fanren::game::TitleScene::kNewJourney == 0 && fanren::game::TitleScene::kContinue == 1 &&
               fanren::game::TitleScene::kSettings == 2 && fanren::game::TitleScene::kQuit == 3);

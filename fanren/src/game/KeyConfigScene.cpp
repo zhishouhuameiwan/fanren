@@ -16,7 +16,8 @@ using KeyChange = engine::Engine::KeyChange;
 
 // 摆位。面板居中；一行 = 列表行高（字号 + 行距，与各面板同一个数）。
 // 最右加了一列只读的「手柄」（docs/gamepad.md 第 7 节）：面板从 840 宽加到 980、仍居中，原有各列离面板左边的距离不变。
-constexpr engine::Rect kPanel{150, 70, 980, 580};
+// 「地图」一行加进来时（docs/ch07-foundation.md 3.2）高 580 → 610、仍上下居中，各行与说明区的间距不变。
+constexpr engine::Rect kPanel{150, 55, 980, 610};
 constexpr int kTopGap = 6;
 constexpr int kIndent = 20;          // 动作名比面板内边距再缩进这么多（与设置面板的行名同一处起笔）
 constexpr int kFixedX = 190;         // 「固定」那一栏从面板左边起多远

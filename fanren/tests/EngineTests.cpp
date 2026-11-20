@@ -163,8 +163,11 @@ constexpr Color kBlue{0, 0, 255, 255};
 // Save 当年的规矩：新键追加在 Count 之前、既有键之后，已有键的编号一个都不许动。
 static_assert(static_cast<int>(Engine::Key::Action) == static_cast<int>(Engine::Key::Save) + 1,
               "Action 要紧跟在 Save 之后");
-static_assert(static_cast<int>(Engine::Key::Count) == static_cast<int>(Engine::Key::Action) + 1,
-              "Action 要在 Count 之前");
+// 第 7 章改版·路 M（docs/ch07-foundation.md 3.2）照同一个规矩在 Action 之后追加了 Map（区域地图）。
+static_assert(static_cast<int>(Engine::Key::Map) == static_cast<int>(Engine::Key::Action) + 1,
+              "Map 要紧跟在 Action 之后");
+static_assert(static_cast<int>(Engine::Key::Count) == static_cast<int>(Engine::Key::Map) + 1,
+              "Map 要在 Count 之前");
 
 TEST(EngineLifecycle, InitialisesAndShutsDownInHeadlessMode) {
     Engine engine;

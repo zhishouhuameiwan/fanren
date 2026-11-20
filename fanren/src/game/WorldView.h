@@ -43,6 +43,9 @@
 namespace fanren::game {
 
 class Application;
+namespace minimap {
+class MapThumbnail;   // game/Minimap.h（它要 include 本文件，这里只前置声明）
+}
 
 // 像素尺度（施工图 1.1）：地图与人物是 16px 的像素美术，放大三倍，一格在屏幕上 48 像素。
 // 逻辑格仍是 engine::kTileSize = 32：地图、碰撞、对象、测试全都不动，48 只活在渲染层。
@@ -236,6 +239,14 @@ struct WorldFrame {
     std::vector<Gather> gathers;
     std::vector<Foe> foes;
     std::vector<Gate> gates;
+
+    // ---- 小地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.1）----
+    // minimap：这一帧画不画右上角那块小地图（设置开着、世界层在最上面、没有对白与过场）。
+    // objects：此刻用的那份对象状态（采集点「采过」看它）；heroFacing：主角朝向（小地图上那个三角）。
+    bool minimap = false;
+    const core::WorldObjectState* objects = nullptr;
+    int heroFacing = 2;
+    std::string minimapKey;   // 小地图右下角那一小行「M 地图」（跟着键位与设备走，经 Application::text）
 
     void clear();
 };
@@ -452,6 +463,9 @@ private:
     void drawObjectiveMarker(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame,
                              const Viewport& vp);
     void drawHud(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame, const Viewport& vp);
+    // 右上角的小地图（docs/ch07-foundation.md 3.1）。covering：它盖住主角时淡成半透明。
+    void drawMinimap(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame, const Viewport& vp,
+                     bool covering);
 
     // ---- 画面状态（advance 推进）----
     bool entered_ = false;          // reset 之后见过地图没有
@@ -487,6 +501,8 @@ private:
     std::set<std::string> warned_;
     std::vector<WorldDrawItem> drawables_;   // 每帧复用
     std::vector<engine::RectF> plates_; // 本帧已经落下的名牌（后来的避开它们往上叠）
+    std::unique_ptr<minimap::MapThumbnail> minimap_;   // 小地图的底图（换图才重建）
+    const core::TileMap* minimapMap_ = nullptr;        // 这一帧的地图（render 记下，drawMinimap 用）
 };
 
 }  // namespace fanren::game

@@ -555,7 +555,9 @@ TEST(KeyPrompts, PlaceholdersOnlyLiveInTheFourPromptsThatGoThroughText) {
     ASSERT_TRUE(loaded.ok) << loaded.error;
     const std::set<std::string> allowed{"ui.menu.keys", "ui.battle.hint.menu", "ui.battle.hint.watch", "ui.dialogue.keys",
                                         "objective.ch09.n20_huicheng", "ui.world.path.key",
-                                        "ui.world.interact.key"};   // 2026-11-20：地图上头顶的按键小牌子（docs/gamepad.md 第 6 节）
+                                        "ui.world.interact.key",   // 2026-11-20：地图上头顶的按键小牌子（docs/gamepad.md 第 6 节）
+                                        // 2026-11-20 第 7 章改版·路 M：区域地图的按键提示、小地图角上的「M 地图」、主菜单「地图」的说明
+                                        "ui.map.hint", "ui.map.hint.pan", "ui.map.minimap.key", "ui.menu.map.desc"};
 
     constexpr std::string_view kOpen = "{key.";
     std::set<std::string> carriers;
@@ -610,6 +612,7 @@ TEST(KeyPrompts, PadPlaceholdersOnlyLiveInTheElevenPadPrompts) {
         "objective.ch09.n20_huicheng.pad",
         "ui.world.path.key.pad",
         "ui.world.interact.key.pad",   // 2026-11-20：地图上头顶的按键小牌子
+        "ui.map.hint.pad", "ui.map.hint.pan.pad", "ui.map.minimap.key.pad", "ui.menu.map.desc.pad",   // 第 7 章改版·路 M
     };
     constexpr std::string_view kOpen = "{pad.";
     constexpr std::string_view kPadSuffix = ".pad";
