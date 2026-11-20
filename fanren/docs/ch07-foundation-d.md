@@ -327,7 +327,8 @@
 
    挂的两遍都是墙钟超限，不是逻辑断言。干净机器上的全量复跑留给集成会话。
 
-**返修后全量 ctest**：见交付汇报（下一次提交补进这里）。
+**返修后全量 ctest**（818 秒）：**2326 / 2327 通过**。只挂 `SoftwareEngine.WithVSyncOffAFrameStillTakesAtLeastA240thOfASecond`
+（墙钟上界，同上表；本路不碰引擎帧率）。两条 `PadWiring.Holding…` 这一遍都过了。
 
 ## 11. 没做成的、拿不准的、交回主会话的
 
