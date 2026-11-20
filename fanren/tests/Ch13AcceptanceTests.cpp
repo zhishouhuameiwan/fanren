@@ -74,13 +74,12 @@ void verifyRun(Driver& driver, const Side& side) {
     ASSERT_TRUE(ready.ok) << ready.error;
     const auto continued = resumed.continueJourney(path.string());
     ASSERT_TRUE(continued.ok) << continued.error;
-    // continueJourney 不恢复朝向（技术债 G-31）：落图按 default spawn shiwu 的朝下。章末站位是洞口西侧、面朝东
-    //（18.2 第 7 条），朝向这一行单独断，其余逐行比。
-    EXPECT_EQ(resumed.state().facing, 2);
-    GameState facingAligned = resumed.state();
-    facingAligned.facing = driver.state().facing;
+    // 技术债 G-31 已修（2026-11-20）：continueJourney 读档后连朝向一起放回。章末站位是洞口西侧、面朝东
+    //（18.2 第 7 条），读回来也朝东，不再落成 default spawn shiwu 的朝下。从前这一行钉的是 2（现状），
+    // 现在整份逐行比、朝向不再单独对齐。
+    EXPECT_EQ(resumed.state().facing, 1);
     const auto drift = test::saveLineDifferences(test::comparableSaveLines(driver.state()),
-                                                 test::comparableSaveLines(facingAligned));
+                                                 test::comparableSaveLines(resumed.state()));
     EXPECT_TRUE(drift.empty()) << test::joinLines(drift);
     resumed.shutdown();
     ASSERT_FALSE(::testing::Test::HasFailure());

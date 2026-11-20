@@ -297,13 +297,35 @@ void ListView::renderRows(engine::Engine& engine, const engine::Rect& area, cons
 
         const engine::Color labelColor =
             !item.enabled ? theme.paperDim : (selected ? theme.goldBright : theme.paper);
-        engine.drawText(item.label, innerX, y, theme.bodyFontSize, labelColor, theme.bodyStyle);
-
         // 禁用时右栏改写成禁用理由：玩家要看得出「不是坏了，是材料不够」。
         const std::string& right =
             (!item.enabled && !item.disabledReason.empty()) ? item.disabledReason : item.detail;
+
+        // 名字太长就截成「…」，不许画出面板（2026-11-20 用户试玩：记事里支线一行拼成
+        //「任务名：这一步（地名）」四十多个字，整行越过了右边框）。有右栏时给它留出位置：
+        // 最多留它全宽，至多四个字宽——再长的右栏由 drawRightColumn 自己缩小、截断。
+        const int rightEdge = area.x + area.w - theme.padding;
+        int room = rightEdge - innerX;
         if (!right.empty()) {
-            const int labelEnd = innerX + engine.measureText(item.label, theme.bodyFontSize).x;
+            const int reserve = std::min(engine.measureText(right, theme.bodyFontSize).x, theme.bodyFontSize * 4);
+            room -= reserve + 16;
+        }
+        std::string label = item.label;
+        if (room > 0 && engine.measureText(label, theme.bodyFontSize).x > room) {
+            std::vector<std::string> glyphs = engine::splitGraphemes(item.label);
+            int width = engine.measureText(label, theme.bodyFontSize).x;
+            while (width > room && !glyphs.empty()) {
+                glyphs.pop_back();
+                label.clear();
+                for (const std::string& glyph : glyphs) label += glyph;
+                label += "…";
+                width = engine.measureText(label, theme.bodyFontSize).x;
+            }
+        }
+        engine.drawText(label, innerX, y, theme.bodyFontSize, labelColor, theme.bodyStyle);
+
+        if (!right.empty()) {
+            const int labelEnd = innerX + engine.measureText(label, theme.bodyFontSize).x;
             drawRightColumn(engine, right, labelEnd, area.x + area.w - theme.padding, y, theme);
         }
         y += rowHeight;

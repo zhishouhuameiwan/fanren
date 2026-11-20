@@ -609,10 +609,14 @@ core::Result<bool> Application::continueJourney(const std::string& savePath) {
     // 载图失败时不压任何场景：标题画面还开着，把错说出来，玩家可以改选「新的旅程」
     // （那一条会把状态整个换掉，这里读进来的半截不会带过去）。
     const core::Point at = state_.position;
+    // 朝向也一样：loadMap 按出生点的 facing 改写它。从前只放回了坐标，读档后人总朝着出生点那一向，
+    // 存下来的朝向形同虚设（2026-11-20 第 7 章章首存档摆在包的正下方、面朝它，读回来却朝右对着蒲团）。
+    const int facing = state_.facing;
     const std::string mapId = state_.mapId;   // 拷一份：loadMap 会改写 state_.mapId
     auto loaded = loadMap(mapId, std::string{});
     if (!loaded) return loaded;
     state_.position = at;
+    state_.facing = facing;
     pendingCards_.clear();
     itemToasts_.clear();   // 读档前那一局拿到的东西，不该在读回来的这一局里弹出来
     screenFade_ = 0.f;

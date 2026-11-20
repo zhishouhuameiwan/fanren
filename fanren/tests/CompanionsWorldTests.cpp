@@ -404,6 +404,18 @@ TEST_F(CompanionsWorld, NoCompanionNoFollowers) {
 // 2. 宝箱（契约 2.4、3.5）
 // ---------------------------------------------------------------------------
 
+// 读档站回存下的那一格，也朝回存下的那一向（2026-11-20：从前朝向被换成出生点的，第 7 章章首存档
+// 摆在包的正下方、面朝它，读回来却朝右对着蒲团）。出生点 spawn_main 朝下，这里存朝上、朝左两种。
+TEST_F(CompanionsWorld, LoadingASaveRestoresTheFacingNotJustTheCell) {
+    stand({2, 3}, 0);
+    saveAndReload();
+    EXPECT_EQ(app_.state().position, (Point{2, 3}));
+    EXPECT_EQ(app_.state().facing, 0);
+    stand({5, 5}, 3);
+    saveAndReload();
+    EXPECT_EQ(app_.state().facing, 3);
+}
+
 TEST_F(CompanionsWorld, AChestOpensOnceAndStaysOpenAcrossASave) {
     stand({2, 3}, 2);   // 面朝 (2,4) 的宝箱
     ASSERT_NE(named(frame().chests, "chest_a"), nullptr);

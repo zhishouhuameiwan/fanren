@@ -4,6 +4,9 @@
 #include <cmath>
 #include <numbers>
 #include <utility>
+#include <vector>
+
+#include "engine/TextLayout.h"
 
 namespace fanren::game::hud {
 namespace {
@@ -137,6 +140,15 @@ namespace {
 constexpr float kBoxPadX = 14.f;
 constexpr float kBoxPadY = 9.f;
 constexpr float kBoxBullet = 18.f;   // 行首那枚金菱形占的宽
+// 目标正文最宽这么多像素，再长就折行（2026-11-20 用户试玩：第 7 章第 2 步的目标 68 个字，
+// 一行横过大半个屏幕；记事里同一句干脆画出了框外）。
+constexpr int kObjectiveWrapPx = 520;
+constexpr int kObjectiveLineGap = 3;
+
+std::vector<engine::LayoutLine> objectiveLines(engine::Engine& engine, const std::string& text) {
+    return engine::layoutText(text, kObjectiveWrapPx,
+                              [&engine](const std::string& sample) { return engine.measureText(sample, kObjectiveFont).x; });
+}
 
 }  // namespace
 
@@ -145,9 +157,14 @@ RectF objectiveBoxRect(engine::Engine& engine, float x, float y, const std::stri
     if (text.empty()) return RectF{};
     const engine::Point body = engine.measureText(text, kObjectiveFont);
     if (body.x <= 0) return RectF{};
+    const std::vector<engine::LayoutLine> lines = objectiveLines(engine, text);
+    int bodyW = 0;
+    for (const engine::LayoutLine& line : lines) bodyW = std::max(bodyW, line.width);
+    const int rows = std::max<int>(1, static_cast<int>(lines.size()));
+    const int bodyH = body.y * rows + kObjectiveLineGap * (rows - 1);
     const engine::Point place = where.empty() ? engine::Point{} : engine.measureText(where, kWhereFont);
-    const float width = static_cast<float>(std::max(body.x, place.x)) + kBoxPadX * 2.f + kBoxBullet;
-    const float height = static_cast<float>(body.y) +
+    const float width = static_cast<float>(std::max(bodyW, place.x)) + kBoxPadX * 2.f + kBoxBullet;
+    const float height = static_cast<float>(bodyH) +
                          (where.empty() ? 0.f : static_cast<float>(place.y) + 4.f) + kBoxPadY * 2.f;
     return RectF{x, y, width, height};
 }
@@ -165,11 +182,15 @@ void drawObjectiveBox(engine::Engine& engine, const ui::Theme& theme, Geometry& 
 
     // 淡的时候字色也跟着淡：只有「盖住主角」与「没盖住」两档，文字缓存里多一份而已。
     const int textX = static_cast<int>(x + kBoxPadX + kBoxBullet);
-    engine.drawText(text, textX, static_cast<int>(y + kBoxPadY), kObjectiveFont, faded(theme.paper, alpha),
-                    theme.bodyStyle);
+    int lineY = static_cast<int>(y + kBoxPadY);
+    const std::vector<engine::LayoutLine> lines = objectiveLines(engine, text);
+    for (std::size_t i = 0; i < lines.size(); ++i) {
+        if (i > 0) lineY += body.y + kObjectiveLineGap;
+        engine.drawText(lines[i].text, textX, lineY, kObjectiveFont, faded(theme.paper, alpha), theme.bodyStyle);
+    }
     if (!where.empty()) {
-        engine.drawText(where, textX, static_cast<int>(y + kBoxPadY) + body.y + 4, kWhereFont,
-                        faded(theme.goldBright, alpha), theme.bodyStyle);
+        engine.drawText(where, textX, lineY + body.y + 4, kWhereFont, faded(theme.goldBright, alpha),
+                        theme.bodyStyle);
     }
 }
 

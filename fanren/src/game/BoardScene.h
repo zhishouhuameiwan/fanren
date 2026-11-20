@@ -54,6 +54,9 @@ private:
     // 当前这一步的两行：做什么、在哪儿。取不到目标链时留空，面板照常开得出来。
     std::string current_;
     std::string where_;
+    // 「做什么」那一句按面板宽折成的行（第 7 章第 2 步 68 个字，一行放不下），与上半截实际占的高。
+    std::vector<std::string> currentLines_;
+    int currentBandH_ = 0;
 };
 
 }  // namespace fanren::game

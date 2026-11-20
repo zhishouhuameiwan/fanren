@@ -29,8 +29,12 @@
 //   ch04-siege.sav   节点 6 开战之前（炼气八层、两门法术、峰上炼下的药，站在演武场）
 //   ch06-start.sav   第 5 章章末交过来的那一份（tests/fixtures/ch05-end-first.sav，炼气八层，站在南城东门里）
 //   ch07-start.sav   第 6 章章末交过来的那一份（tests/fixtures/ch06-end-first.sav，炼气九层，站在百药园叶师叔那一包旁边）
+#include <algorithm>
 #include <cstdio>
+#include <deque>
+#include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "core/model/Types.h"
@@ -50,6 +54,40 @@ using fanren::rules::Realm;
 //
 // 不摆在对象本身那一格：踏入型触发会在读档后的第一帧就响，玩家还没看清自己在哪
 // 就被拖进剧情；而交互型触发要的恰恰是「站在旁边、面朝它按确认」。
+//
+// 旁边那一格还得没被占格的对象压着、而且走得到这张图的缺省出生点（2026-11-20：第 7 章章首存档摆在
+// 百药园那一包「右边一格」，可伙伴改版在屋里放了历练石碑，那一格连同旁边一格被石碑和蒲团封成了死角，
+// 用户一读档就困在屋里出不来）。TileMap::walkable 只看碰撞层，占格的对象另查。
+[[nodiscard]] bool occupied(const TileMap& map, Point p) {
+    for (const MapObject& o : map.objects) {
+        if (o.type != "facility" && o.type != "npc" && o.type != "chest" && o.type != "gather" && o.type != "foe" &&
+            o.type != "gate") {
+            continue;
+        }
+        const int w = std::max(1, o.width);
+        const int h = std::max(1, o.height);
+        if (p.x >= o.position.x && p.x < o.position.x + w && p.y >= o.position.y && p.y < o.position.y + h) return true;
+    }
+    return false;
+}
+
+[[nodiscard]] bool reachesSpawn(const TileMap& map, Point from) {
+    const MapObject* spawn = map.defaultSpawn();
+    if (spawn == nullptr) return true;
+    std::set<std::pair<int, int>> seen{{from.x, from.y}};
+    std::deque<Point> queue{from};
+    while (!queue.empty()) {
+        const Point at = queue.front();
+        queue.pop_front();
+        if (at == spawn->position) return true;
+        for (const Point next : {Point{at.x + 1, at.y}, Point{at.x - 1, at.y}, Point{at.x, at.y + 1}, Point{at.x, at.y - 1}}) {
+            if (!map.walkable(next) || occupied(map, next) || !seen.insert({next.x, next.y}).second) continue;
+            queue.push_back(next);
+        }
+    }
+    return false;
+}
+
 [[nodiscard]] bool placeBeside(const TileMap& map, const std::string& objectName, Point& out) {
     const MapObject* target = nullptr;
     for (const MapObject& o : map.objects) {
@@ -64,7 +102,7 @@ using fanren::rules::Realm;
                             {base.x, base.y - 1}, {base.x, base.y + 1},
                             {base.x - 2, base.y}, {base.x, base.y - 2}};
     for (const Point& p : around) {
-        if (map.walkable(p)) {
+        if (map.walkable(p) && !occupied(map, p) && reachesSpawn(map, p)) {
             out = p;
             return true;
         }

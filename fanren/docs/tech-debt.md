@@ -808,7 +808,12 @@ R-3（一炉不炼、攻防战必败、全章没有提示）已修：目标链�
 
 `role_means_available` 只认编成里写死的 `ally`，在队的 `qu_hun_shadan` 由 `addPartyUnits` 加入、门禁看不到。第 10、11 章在队的场次都不登曲魂（照登会让来源检查红），结果是门禁低估了我方手段——偏严，不会放过打不到的仗。**将来怎么修**：门禁读章末 / 章内 party 的口径要有来源（目标链上的 party.add / remove），代价是给 validate 加一套队伍时间线；收益只在「只有队员打得到」的编成上。
 
-### G-31：`continueJourney` 读档后不恢复朝向（门禁审查 G-7、测试路 B 第 3 条，LOW）
+### G-31：`continueJourney` 读档后不恢复朝向（门禁审查 G-7、测试路 B 第 3 条，LOW）——**已修，2026-11-20**
+
+> 已修：`continueJourney` 在 `loadMap` 之后把存档里的 `facing` 写回。用例 `CompanionsWorld.LoadingASaveRestoresTheFacingNotJustTheCell` 钉住读档前后朝向一致；`Ch13AcceptanceTests` 那一行从「钉成 2」改成断言章末的朝东（1），整份存档逐行比。
+> 起因：用户试玩第 7 章，`saves/ch07-start.sav` 把人摆在包旁边、面朝包，读回来却朝着出生点那一向。同一天那份存档还改了站位：伙伴改版放的历练石碑把原来那一格封成了死角，人一读档就困在屋里。
+
+原文：
 
 `Application::continueJourney`（`src/game/Application.cpp` 约第 561–577 行）只放回 `position`，`loadMap` 第 323–327 行随后用出生点的 `facing` 覆盖。玩家读档后可能背对着刚才说话的人。第 11 章终档把落点选在面朝北也对得上的格子（14,24）绕过。**修法**：`continueJourney` 在 `loadMap` 之后把存档里的 `facing` 写回；补一条读档前后朝向逐字相同的用例。
 

@@ -1100,10 +1100,18 @@ void MenuScene::drawJournal(Application& app, const engine::Rect& area) const {
     y += 36;
     // 与告示板上半截同一个判据（rules::currentObjective）：两处说的必须是同一件事。
     if (const core::Objective* step = rules::currentObjective(app.data().objectives, app.state())) {
-        e.drawText(app.text(step->textKey), x, y, theme.bodyFontSize, theme.paper, theme.bodyStyle);
+        // 目标一句可能很长（第 7 章第 2 步 68 个字）：按页宽折行，地名接在最后一行下面
+        //（2026-11-20 用户试玩：「记事里面描述没有换行，导致超出界面了」）。
+        const std::string text = app.text(step->textKey);
+        const int width = std::max(1, area.w - theme.padding * 2);
+        const std::vector<engine::LayoutLine> lines = engine::layoutText(
+            text, width, [&e, &theme](const std::string& s) { return e.measureText(s, theme.bodyFontSize).x; });
+        for (const engine::LayoutLine& line : lines) {
+            e.drawText(line.text, x, y, theme.bodyFontSize, theme.paper, theme.bodyStyle);
+            y += theme.bodyFontSize + theme.lineSpacing;
+        }
         const std::string key = core::mapDisplayNameKey(step->targetMap);
-        e.drawText(key.empty() ? step->targetMap : app.text(key), x, y + 32, 18, theme.paperDim,
-                   theme.bodyStyle);
+        e.drawText(key.empty() ? step->targetMap : app.text(key), x, y + 4, 18, theme.paperDim, theme.bodyStyle);
     }
     e.drawText(app.text("ui.menu.journal.hint"), x, area.y + area.h - 48, 18, theme.paperDim,
                theme.bodyStyle);
