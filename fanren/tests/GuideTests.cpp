@@ -33,6 +33,7 @@
 #include "game/DialogueScene.h"
 #include "game/Guide.h"
 #include "game/LoreNotices.h"
+#include "game/MenuScene.h"
 #include "game/TutorialScene.h"
 #include "game/WorldScene.h"
 #include "io/DataLoader.h"
@@ -345,7 +346,7 @@ namespace {
 // Application 发得出的引擎事件（Application.cpp、BattleScene::openMenu、WorldScene::noteGuideEvents）。
 const std::set<std::string>& knownEvents() {
     static const std::set<std::string> events{
-        "battle.command", "battle.round2", "battle.round3", "battle.item_cast", "foe.near", "foe.alert",
+        "battle.command", "battle.round2", "battle.item_cast", "foe.near", "foe.alert",
         "loot.near",      "gate.near",     "world.idle",    "world.hurt",       "roster.joined", "bond.gained",
         "facility.field", "facility.meditate", "facility.alchemy",
     };
@@ -377,7 +378,11 @@ TEST(GuideTutorials, ChapterSevenHasAtLeastFourteenShortCardsEachWiredToAnEventT
             EXPECT_NE(line, key) << card.id;
             EXPECT_LE(glyphs(line), 30u) << card.id << "：" << line;
         }
-        EXPECT_TRUE(knownEvents().count(card.trigger) != 0 || objectiveEvents.count(card.trigger) != 0)
+        // battle.after.<id>：开战前看过 <id> 那张，轮到我方时发（BattleScene::openMenu）。<id> 得是真有的卡。
+        const std::string after = "battle.after.";
+        const bool afterCard = card.trigger.rfind(after, 0) == 0 &&
+                               fanren::rules::findTutorial(data.tutorials, card.trigger.substr(after.size())) != nullptr;
+        EXPECT_TRUE(knownEvents().count(card.trigger) != 0 || objectiveEvents.count(card.trigger) != 0 || afterCard)
             << card.id << " 挂的事件没人发：" << card.trigger;
         EXPECT_EQ(flags.count(fanren::rules::tutorialSeenFlag(card.id)), 1u) << card.id << " 的旗标没登记";
     }
@@ -772,4 +777,74 @@ TEST(GuideBoard, ChapterSevenSideQuestsSayWhatTheyGive) {
         EXPECT_NE(line.find("奖励"), std::string::npos) << id;
         EXPECT_EQ(line.find(it->rewardKey), std::string::npos) << id << " 的奖励文案没进 data/text：" << line;
     }
+}
+
+TEST(GuideTutorials, TheWordsInQuotesAreTheOnesTheChapterSevenScreensShow) {
+    // 审核返修 1：卡片里带「」的界面词要与第 7 章屏幕上实际显示的字一致。
+    // 主菜单那几页按第 7 章的状态叫（领了储物袋之后「物品」那一页叫「储物袋」，MenuScene::pageLabel）。
+    Application app;
+    ASSERT_TRUE(app.init(assetRoot(), /*headless=*/true).ok);
+    auto save = fanren::io::loadGame((fs::path(assetRoot()) / "saves" / "ch07-start.sav").string());
+    ASSERT_TRUE(save.ok);
+    app.state() = save.value;
+    const GameData& data = app.data();
+    std::set<std::string> menuPages;
+    using Page = fanren::game::MenuScene::Page;
+    for (Page page : {Page::Status, Page::Items, Page::Magic, Page::Journal, Page::Save, Page::Settings, Page::Home,
+                      Page::Back, Page::Party, Page::Roster}) {
+        menuPages.insert(fanren::game::MenuScene::pageLabel(data, app.state(), page));
+    }
+    ASSERT_EQ(menuPages.count("储物袋"), 1u) << "先验：第 7 章「物品」那一页叫储物袋";
+    // 别处的界面词：战斗指令（BattleScene::rootRows 的字面量）、赠与、默契档名、记事页签、目标框的数。
+    std::set<std::string> others{"攻击", "物品", "防御", "逃跑", "合招", "1/3", "!"};
+    others.insert(data.lookupText("ui.menu.party.gift"));
+    for (int tier = 1; tier <= 5; ++tier) others.insert(data.lookupText("ui.bond.tier" + std::to_string(tier)));
+    for (const char* tab : {"ui.guide.tab.main", "ui.guide.tab.side", "ui.guide.tab.guide", "ui.guide.tab.lore"}) {
+        others.insert(data.lookupText(tab));
+    }
+    // 按字符串找「」，不用正则：std::regex 的 [^」] 按字节排除，会把含 0x8D 之类字节的汉字（「队伍」的伍）一并排掉。
+    const std::string open = "「";
+    const std::string close = "」";
+    const std::string menu = "主菜单";
+    int afterMenu = 0;
+    for (const fanren::core::TutorialCard& card : data.tutorials) {
+        for (const std::string& key : card.bodyKeys) {
+            const std::string line = data.lookupText(key);
+            for (std::size_t at = line.find(open); at != std::string::npos; at = line.find(open, at + open.size())) {
+                const std::size_t end = line.find(close, at + open.size());
+                ASSERT_NE(end, std::string::npos) << card.id << " 的「」没配对：" << line;
+                const std::string word = line.substr(at + open.size(), end - at - open.size());
+                const bool menuPage = at >= menu.size() && line.compare(at - menu.size(), menu.size(), menu) == 0;
+                if (menuPage) {
+                    ++afterMenu;
+                    EXPECT_EQ(menuPages.count(word), 1u) << card.id << "：主菜单没有「" << word << "」这一页：" << line;
+                } else {
+                    EXPECT_TRUE(menuPages.count(word) != 0 || others.count(word) != 0)
+                        << card.id << "：「" << word << "」不是第 7 章屏幕上的字：" << line;
+                }
+            }
+        }
+    }
+    EXPECT_GE(afterMenu, 4) << "先验：记事、队伍、储物袋这几处都按「主菜单「X」」写";
+    app.shutdown();
+}
+
+TEST_F(TutorialFlow, DefendWaitsForTheBattleAfterBoostWasTaught) {
+    // 审核返修 2：「防御换先手」挂 battle.after.boost——蓄劲在这一场里才讲的，这一场不讲防御；下一场开战时
+    // 蓄劲已经看过，第 1 回合就讲。
+    app_.setTutorialsEnabled(true);
+    tick(2);
+    drainCards();
+    app_.noteBattleStart();   // 第一场：开战时蓄劲还没看过
+    EXPECT_TRUE(std::find(app_.tutorialsSeenAtBattleStart().begin(), app_.tutorialsSeenAtBattleStart().end(), "boost") ==
+                app_.tutorialsSeenAtBattleStart().end());
+    app_.state().setFlag("tutorial.seen.boost");   // 这一场第 2 回合讲了蓄劲
+    // 这一场接下来轮到我方：只对开战前看过的卡发 battle.after.*，于是防御不排。
+    for (const std::string& seen : app_.tutorialsSeenAtBattleStart()) app_.tutorialEvent("battle.after." + seen);
+    EXPECT_TRUE(std::find(app_.pendingTutorials().begin(), app_.pendingTutorials().end(), "defend") ==
+                app_.pendingTutorials().end());
+    app_.noteBattleStart();   // 下一场
+    for (const std::string& seen : app_.tutorialsSeenAtBattleStart()) app_.tutorialEvent("battle.after." + seen);
+    EXPECT_FALSE(std::find(app_.pendingTutorials().begin(), app_.pendingTutorials().end(), "defend") ==
+                 app_.pendingTutorials().end()) << "下一场第 1 回合该排上防御";
 }

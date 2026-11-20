@@ -76,7 +76,8 @@
 | `world.idle` | 每帧，顶上是走图时 | 记事与地图（keys） |
 | `objective.<步 id>` | 主线换到这一步（读档后头一回也发） | 交药看年份（`objective.n02_jiaoyao`） |
 | `facility.<kind>` | `openFacility`（过了解锁闸之后） | 小瓶绿液（field）、打坐回气（meditate）、炼丹成功率（alchemy） |
-| `battle.command` / `battle.round2` / `battle.round3` / `battle.item_cast` | `BattleScene::openMenu`（轮到我方）；第 4 回合起、背包里有能施法的道具才发最后一个 | 破绽与架势、蓄劲、防御换先手、道具施法 |
+| `battle.command` / `battle.round2` / `battle.item_cast` | `BattleScene::openMenu`（轮到我方）；第 2 回合起发 round2；第 4 回合起、背包里有能施法的道具才发 item_cast | 破绽与架势（第一场第 1 回合）、蓄劲（同一场第 2 回合）、道具施法 |
+| `battle.after.<卡 id>` | `BattleScene::openMenu`：对**开战前**就看过的每一张卡各发一个（开战时 `Application::noteBattleStart` 记下） | 防御换先手（`battle.after.boost`：蓄劲讲过之后的**下一场**第 1 回合） |
 | `foe.near` / `foe.alert` | `WorldScene::noteGuideEvents`：明雷 6 格以内 / 在追 | 偷袭明雷、明雷追击与绕行 |
 | `loot.near` / `gate.near` | 同上：没开的宝箱、没采的采集点 / 关着的机关 2 格以内 | 宝箱与采集、机关与场地技 |
 | `roster.joined` / `bond.gained` / `world.hurt` | 每帧走图时：名册有人 / 谁的默契 > 0 / 气血不到一半 | 伙伴上场与默契、赠礼、战斗外用药 |
@@ -122,7 +123,7 @@
 * **支线**：左列任务名 + 状态，右栏标题、摘要、当前步骤（地名）/ 过期原因 / 已了结、**奖励**。
   奖励读 `Quest::rewards`（物品名 × 数量，钱按 `Wording::currencyName` 叫碎银 / 灵石——G-25 的那条「第 1–5 章不许上屏灵石」单测钉着）。
   第 7 章两条支线的回报是脚本按情形发的、刻意不进 `rewards`（`Ch07SliceTests` 钉着 Z1 的 `rewards` 为空），所以 `Quest` 加了可选的
-  `reward_key`（一句话），两条各写一句，文案在 `ui_guide.json`。**收掉技术债 G-25**（`docs/tech-debt.md` 那一条留给集成时改状态）。
+  `reward_key`（一句话），两条各写一句，文案在 `data/text/ch07_quests.json`（`ch07.quest.*.reward`；`ui_guide.json` 只放界面固有字）。**收掉技术债 G-25**（`docs/tech-debt.md` 那一条留给集成时改状态）。
 * **指南**：看过的教学卡，右栏写全文，确认键重看（`Application::replayTutorial`，不看开关、不改旗标）。
 * **见闻**：按类别（妖兽、灵草、人物、所闻）列解锁了的条目；妖兽条目自动补「已知破绽　火、土」（没记下写「尚未看破」）与「掉落　寒蟾酥」
   （`rules::loreDrops`：把这个角色编进敌方的每一场仗的 `rewards.drops` 并起来）。
@@ -184,10 +185,10 @@
 | 3 | 教学卡 ≥14 张、各只弹一次；关掉设置后不弹；规则数字与引擎一致 | 满足（16 张；数字逐条核过，见第 3 节表） | `GuideTutorials.*`、`TutorialFlow.*` |
 | 4 | 记事四页能翻；支线写出奖励；指南列得出看过的卡；见闻页显示妖兽已知破绽与掉落 | 满足 | `BoardPages.*`、`GuideBoard.*`；截图 g05–g08 |
 | 5 | 第 1–6、8–13 章目标框画面不变 | 满足（没新字段的步骤走老重载、「前往」行照旧；那些章的测试一条没改） | `GuideRoute.OtherChaptersKeepTheirOldWhereLine` |
-| 6 | 全量 ctest 通过 | **2333 / 2333** | `build-g/ctest_full3.log` |
+| 6 | 全量 ctest 通过 | **2335 / 2335**（审核返修后，多了返修的两条） | `build-g/ctest_full4.log` |
 
 全量跑了三遍：第一遍 4 条红（见 10.3）、修完后第二遍 1 条红（`SoftwareEngine.WithVSyncOffAFrameStillTakesAtLeastA240thOfASecond`：129 ms 超了 120 ms 的上界——那会儿我同时在拍截图，
-单独重跑 3/3 过），第三遍全绿。
+单独重跑 3/3 过），第三遍全绿（2333/2333）。审核返修后第四遍：2335/2335。
 
 ### 10.2 截图（`fanren/build-g/shots/`，脚本 `build-g/shots.bat`）
 
@@ -206,6 +207,10 @@
 | `g11_head_mark_quest.png` | 百药园药篓（Z1 的目标触发区）头顶的「支」 |
 | `g12_settings.png` | 设置面板「教学提示」一行 |
 | `g13_objective_hint_qiannian.png` | 第 11 步：黄精芝进度与要点（站在黄枫谷，「前往　百药园」直达不写经） |
+| `g14_tutorial_field_item.png` | 返修：「战斗外用药」写主菜单「储物袋」（第 7 章那一页的实际叫法） |
+| `g15_tutorial_gift.png` | 返修：「赠礼」写「队伍」→「赠与」 |
+
+返修后重拍了全部 15 张（g07 指南页里「记事与地图」第一行跟着改了）。
 
 ### 10.3 第一遍全量的四条红与处理
 
@@ -220,8 +225,8 @@
 
 ### 10.4 没做成的、拿不准的
 
-1. **「可接」标记没做**（2.6）：任务数据没有「谁给的」，第 7 章两条支线都是剧情脚本自动接的。只做了「进行中、这一步要找他 / 去这里」与「商店」。要做得给 `data/quests` 加字段，留第二期。
-2. **肩键翻页没做**（2.4）：LB 眼下不配任何动作、RB 是快进；记事翻页用左右键（手柄十字键左右就是这两个键，提示写「←→ 翻页」）。要加 LB/RB 得动引擎的键位表与手柄白名单，归键位那一摊。
+1. **「可接」标记不做**（2.6，主会话审定）：等第二期给任务数据加「谁给的」字段时一起做。眼下只做「进行中、这一步要找他 / 去这里」与「商店」。
+2. **肩键翻页不做**（2.4，主会话审定）：LB 已由路 M 配给地图键；记事翻页用左右键（手柄十字键左右）。
 3. **共享文件的冲突点**（集成时要手合）：
    * `SettingsScene`：三路都在「游玩」组插一行，`kTutorialCards = 9` 与路 M「小地图」、路 D「自动播放」的行号要重排；面板高我从 622 改到 652，三行都进来要再加高或挪位；
      `tests/SettingsWiringTests.cpp` 的 `static_assert` 与 `UiStyleTests` 的行名表要一起改。
@@ -232,9 +237,19 @@
    * `tests/Ch07AcceptanceTests.cpp` 的节点表：路 D 加的见闻文案也要在那里登记（不然 No6 会红），删掉的对白 key 若被节点表引用要同步。
    * `data/lore/ch07.json`、`data/text/ch07_lore.json`：两路同名，合并办法见第 5 节。
 4. **教学卡「记事与地图」第二行**写着「区域地图也在主菜单」，指的是路 M 加的那一项；我这一支上主菜单还没有它，单独看这一支这句话是超前的。
-5. **教学卡的触发时机是我定的**（第 3 节那张表），没在真机上从头玩一遍看节奏。可能偏密的地方：章首第一帧弹「记事与地图」、第一场仗头三回合每回合一张。
+5. **教学卡的触发时机是我定的**（第 3 节那张表），没在真机上从头玩一遍看节奏。第一场仗已按审核改成两张（破绽、蓄劲），防御挪到下一场；章首第一帧仍弹「记事与地图」。
 6. **头顶「支」与目标菱形会同在一处**（主线与支线指着同一个触发区时，如药篓）：两样都画，菱形在上、圆章贴边，没做避让。
 7. **门禁要补的规则**（不跑门禁，只记下）：`data/tutorials`（trigger 在事件表里、文案 key 在、`tutorial.seen.<id>` 已登记、≤3 行 ≤30 字）、
    `data/lore`（category 四选一、key 在、unlock_flag 已登记、role_id 存在、标题 ≤10 正文 ≤120）、目标链的 `hint_key / detail_key / progress`（key 在、物品存在）、
    `data/quests` 新字段 `reward_key`（key 在）。`GuideTests` 在真树上已经查着这些，门禁照抄即可。
-8. 要点、奖励那两句（`reward_key`）文案放在 `ui_guide.json` 里，key 叫 `ch07.quest.*.reward`；要是嫌它不该在界面词文件里，集成时挪进 `ch07_quests.json` 即可（那个文件不归任何一路）。
+8. 奖励那两句（`reward_key`）已按审核挪进 `data/text/ch07_quests.json`。
+
+### 10.5 审核返修（2026-11-20，主会话）
+
+| # | 要求 | 做了什么 |
+| --- | --- | --- |
+| 1 | 卡片里带「」的界面词要与第 7 章屏幕上的字一致 | 逐张核过 16 张：「战斗外用药」主菜单「物品」→「储物袋」（第 7 章领了储物袋，`MenuScene::pageLabel` 走 `bagWord`）；「道具施法」写明是战斗里的「物品」指令（战斗指令仍叫物品）；「赠礼」补上「赠与」；「记事与地图」改成主菜单「记事」。新单测 `GuideTutorials.TheWordsInQuotesAreTheOnesTheChapterSevenScreensShow`：卡片里紧跟「主菜单」的「X」必须是第 7 章状态下主菜单页表里的一页，其余「X」必须是战斗指令、赠与、默契档名、记事页签之一 |
+| 2 | 第一场仗只讲两张，防御挪到下一场 | 删掉 `battle.round3`；新事件 `battle.after.<卡 id>`（开战时记下看过哪几张，轮到我方时对它们各发一个），「防御换先手」挂 `battle.after.boost`。新单测 `TutorialFlow.DefendWaitsForTheBattleAfterBoostWasTaught` |
+| 3 | 奖励文案挪出 `ui_guide.json` | 挪进 `data/text/ch07_quests.json` |
+
+返修后全量 ctest 见 10.1（第四遍）。

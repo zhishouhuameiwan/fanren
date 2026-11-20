@@ -417,6 +417,10 @@ public:
     [[nodiscard]] const std::vector<std::string>& pendingTutorials() const { return pendingTutorials_; }
     // 至今弹过（或设置里关了、只记了看过）的卡，按次序。测试用它断言「弹了哪几张」。
     [[nodiscard]] const std::vector<std::string>& tutorialLog() const { return tutorialLog_; }
+    // 开战时记一笔「这一场之前看过哪几张卡」：BattleScene::onEnter 调。轮到我方时对其中每一张发「battle.after.<id>」，
+    // 于是「防御换先手」挂 battle.after.boost，就落在蓄劲讲过之后的**下一场**仗第 1 回合，不与蓄劲挤在同一场。
+    void noteBattleStart();
+    [[nodiscard]] const std::vector<std::string>& tutorialsSeenAtBattleStart() const { return battleStartSeen_; }
     // 记事「指南」页重看一张：直接压卡片，不看开关、不改旗标。
     void replayTutorial(const std::string& cardId);
     // 全部战斗编成（见闻页的「掉落」从这里查）。
@@ -600,6 +604,7 @@ private:
     bool tutorialsEnabled_ = false;
     std::vector<std::string> pendingTutorials_;
     std::vector<std::string> tutorialLog_;
+    std::vector<std::string> battleStartSeen_;   // noteBattleStart
     bool guideBaselined_ = false;
     std::set<std::string> loreKnown_;
     std::string guideObjective_;

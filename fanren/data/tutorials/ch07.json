@@ -82,7 +82,7 @@
         "tutorial.defend.l2",
         "tutorial.defend.l3"
       ],
-      "trigger": "battle.round3",
+      "trigger": "battle.after.boost",
       "min_chapter": 7,
       "max_chapter": 7
     },

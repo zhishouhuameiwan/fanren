@@ -1867,6 +1867,11 @@ rules::ChapterDoneFn Application::chapterDoneFn() const {
     return [this](int number) { return chapters_.chapterDone(state_, number); };
 }
 
+void Application::noteBattleStart() {
+    battleStartSeen_.clear();
+    for (const core::TutorialCard* card : rules::seenTutorials(data_.tutorials, state_)) battleStartSeen_.push_back(card->id);
+}
+
 void Application::replayTutorial(const std::string& cardId) {
     if (rules::findTutorial(data_.tutorials, cardId) == nullptr) return;
     pushScene(std::make_unique<TutorialScene>(cardId));

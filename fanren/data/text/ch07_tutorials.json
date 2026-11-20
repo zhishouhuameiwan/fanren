@@ -1,6 +1,6 @@
 {
   "tutorial.keys.title": "记事与地图",
-  "tutorial.keys.l1": "按菜单键开主菜单，「记事」里有目标的来龙去脉。",
+  "tutorial.keys.l1": "按菜单键打开主菜单「记事」，看目标的来龙去脉。",
   "tutorial.keys.l2": "记事分主线、支线、指南、见闻四页；区域地图也在主菜单。",
   "tutorial.keys.l3": "看过的教学卡都收在「指南」页，随时能重看。",
   "tutorial.herb_age.title": "交药看年份",
@@ -28,8 +28,8 @@
   "tutorial.defend.l2": "下一回合排在最前头，先于众人出手。",
   "tutorial.defend.l3": "防御不耗劲，也不耽误攒劲。",
   "tutorial.item_cast.title": "道具施法",
-  "tutorial.item_cast.l1": "符箓在「物品」里用：不耗法力，用一张少一张，不能蓄劲。",
-  "tutorial.item_cast.l2": "土牢符削三点架势、不伤人，正好拿来破势。",
+  "tutorial.item_cast.l1": "战斗里选「物品」用符箓：不耗法力，用一张少一张。",
+  "tutorial.item_cast.l2": "土牢符削三点架势、不伤人；符箓不能蓄劲。",
   "tutorial.item_cast.l3": "敌人已破势或没有架势时用不出去，也不耗符。",
   "tutorial.ambush.title": "偷袭明雷",
   "tutorial.ambush.l1": "地上走动的妖兽是明雷，碰上就要开打。",
@@ -56,11 +56,11 @@
   "tutorial.companion.l2": "一起打赢一仗默契加二，每人每天至多加六。",
   "tutorial.companion.l3": "默契到「相熟」能追击；有的伙伴到「知己」能出合招。",
   "tutorial.gift.title": "赠礼",
-  "tutorial.gift.l1": "主菜单「队伍」里选一位伙伴，可以送东西给她。",
+  "tutorial.gift.l1": "主菜单「队伍」里选一位伙伴，再选「赠与」送她东西。",
   "tutorial.gift.l2": "每人每天收一次：合心意加五，寻常加二，不喜欢不加。",
   "tutorial.gift.l3": "各人喜好不同，送得多了自然摸得清。",
   "tutorial.field_item.title": "战斗外用药",
-  "tutorial.field_item.l1": "气血不到一半了：主菜单「物品」里能直接吃药。",
+  "tutorial.field_item.l1": "气血不到一半了：主菜单「储物袋」里能直接吃药。",
   "tutorial.field_item.l2": "金疮药回十五气血，养精丹回五十五。",
   "tutorial.field_item.l3": "伙伴也能吃，只回气血；满了的不会白吃。"
 }
