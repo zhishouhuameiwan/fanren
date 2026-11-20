@@ -175,4 +175,66 @@
 
 ## 10. 结果与没做成的
 
-见文末（交付时填）。
+### 10.1 验收判据（2.8）
+
+| # | 判据 | 结果 | 证据 |
+| --- | --- | --- | --- |
+| 1 | 50 步行动句 ≤16 字；要数量的都有进度；长句都在 detail_key | 满足（最长 11 字；6 步带进度；50 步都有详情） | `GuideObjectives.*` |
+| 2 | 第 7 章每一步都写得出「去哪、经哪」，或目标在本图；有单测 | 满足（50 步逐步走过，全部走得到） | `GuideRoute.EveryChapterSevenStepSaysWhereToGoAndWhichMapsToPass`、`GuideRoute.TheWholeRoute…` |
+| 3 | 教学卡 ≥14 张、各只弹一次；关掉设置后不弹；规则数字与引擎一致 | 满足（16 张；数字逐条核过，见第 3 节表） | `GuideTutorials.*`、`TutorialFlow.*` |
+| 4 | 记事四页能翻；支线写出奖励；指南列得出看过的卡；见闻页显示妖兽已知破绽与掉落 | 满足 | `BoardPages.*`、`GuideBoard.*`；截图 g05–g08 |
+| 5 | 第 1–6、8–13 章目标框画面不变 | 满足（没新字段的步骤走老重载、「前往」行照旧；那些章的测试一条没改） | `GuideRoute.OtherChaptersKeepTheirOldWhereLine` |
+| 6 | 全量 ctest 通过 | **2333 / 2333** | `build-g/ctest_full3.log` |
+
+全量跑了三遍：第一遍 4 条红（见 10.3）、修完后第二遍 1 条红（`SoftwareEngine.WithVSyncOffAFrameStillTakesAtLeastA240thOfASecond`：129 ms 超了 120 ms 的上界——那会儿我同时在拍截图，
+单独重跑 3/3 过），第三遍全绿。
+
+### 10.2 截图（`fanren/build-g/shots/`，脚本 `build-g/shots.bat`）
+
+| 图 | 内容 |
+| --- | --- |
+| `g01_objective_n01.png` | 章首：第 1 步，没有要点（与老版式同样子） |
+| `g02_objective_hint_progress.png` | 第 2 步：行动句 + 「0/3」+ 要点小字 |
+| `g03_objective_via.png` | 第 4 步：「前往　岳麓殿（经黄枫谷）」 |
+| `g04_tutorial_card.png` | 教学卡「蓄劲」 |
+| `g05_board_main.png` | 记事·主线：眼下（行动句、要点、详情、地点）+ 做过的 + 底栏详情 |
+| `g06_board_side.png` | 记事·支线：右栏摘要、眼下、奖励 |
+| `g07_board_guide.png` | 记事·指南 |
+| `g08_board_lore.png` | 记事·见闻：寒冰蟾的已知破绽「火、土」与掉落「寒蟾酥」 |
+| `g09_lore_notice.png` | 「见闻：飞蛇」提示 |
+| `g10_head_mark_shop.png` | 坊市收药摊主的「商」 |
+| `g11_head_mark_quest.png` | 百药园药篓（Z1 的目标触发区）头顶的「支」 |
+| `g12_settings.png` | 设置面板「教学提示」一行 |
+| `g13_objective_hint_qiannian.png` | 第 11 步：黄精芝进度与要点（站在黄枫谷，「前往　百药园」直达不写经） |
+
+### 10.3 第一遍全量的四条红与处理
+
+| 测试 | 原因 | 处理 |
+| --- | --- | --- |
+| `Lexicon.NoChapterSaysAWordItHasNotEarnedYet` | 卡名写了「掌天瓶」——全 14 章禁用（人间篇只叫小瓶 / 绿瓶）。**施工图 2.3 的卡名清单里就写着「掌天瓶绿液」**，照抄会犯 | 卡名改「小瓶绿液」 |
+| `Ch07Walkthrough.FirstSideWalksTheWholeChapterAndEveryGateHoldsThenOpens` | 判卷要求目标行含 3.4 的 R-3 提示原文，原文现在挪进了详情 | `expectHint` 改为在行动句、要点、详情三者里找（原文一字未改） |
+| `Ch07Acceptance.No6_EachGatedWordStaysOutOfTheKeysBeforeItsNode` | 新文案（`tutorial.*`、`lore.ch07.*`）不在节点表里 | 节点表登记：教学卡步序 0；五条妖兽按解锁那张图的步序 |
+| `SettingsWording.ThePanelAndBothEntrancesPassTheForbiddenWordScan` | 设置行名表少了「教学提示」 | 表里加一行 |
+
+这三条旧测试的改动加上第 7 节那四处，是本路改过的全部旧测试。
+
+### 10.4 没做成的、拿不准的
+
+1. **「可接」标记没做**（2.6）：任务数据没有「谁给的」，第 7 章两条支线都是剧情脚本自动接的。只做了「进行中、这一步要找他 / 去这里」与「商店」。要做得给 `data/quests` 加字段，留第二期。
+2. **肩键翻页没做**（2.4）：LB 眼下不配任何动作、RB 是快进；记事翻页用左右键（手柄十字键左右就是这两个键，提示写「←→ 翻页」）。要加 LB/RB 得动引擎的键位表与手柄白名单，归键位那一摊。
+3. **共享文件的冲突点**（集成时要手合）：
+   * `SettingsScene`：三路都在「游玩」组插一行，`kTutorialCards = 9` 与路 M「小地图」、路 D「自动播放」的行号要重排；面板高我从 622 改到 652，三行都进来要再加高或挪位；
+     `tests/SettingsWiringTests.cpp` 的 `static_assert` 与 `UiStyleTests` 的行名表要一起改。
+   * `script::CommandKind`：我在末尾追加 `Tutorial`，路 D 会追加 `Bubble`——两个都要，次序随便但不能互相覆盖；`ScriptHost` 的命令名表、`api.lua` 尾部同理。
+   * `WorldScene.cpp` / `WorldView.*` / `WorldHud.*`：我动了目标框（`describe` 里那几行、`drawHud` 的目标框调用、`objectiveBoxRect / drawObjectiveBox` 新重载）、
+     `describe` 末尾两行（`markHeads`、`noteGuideEvents`）、`drawNamePlates` 里头顶标记几行、`WorldFrame` 追加字段。路 M 会改同一个 `drawHud`（存盘提示挪位、小地图）。
+   * `Application.*`：教学卡、见闻提示一整块追加在头文件 BGM 段之前与私有成员末尾；`tick` 里两行、`drawScenes` 里一段、`openFacility` 一行、`dispatch` 一个 case、三处 `resetGuideWatch()`。
+   * `tests/Ch07AcceptanceTests.cpp` 的节点表：路 D 加的见闻文案也要在那里登记（不然 No6 会红），删掉的对白 key 若被节点表引用要同步。
+   * `data/lore/ch07.json`、`data/text/ch07_lore.json`：两路同名，合并办法见第 5 节。
+4. **教学卡「记事与地图」第二行**写着「区域地图也在主菜单」，指的是路 M 加的那一项；我这一支上主菜单还没有它，单独看这一支这句话是超前的。
+5. **教学卡的触发时机是我定的**（第 3 节那张表），没在真机上从头玩一遍看节奏。可能偏密的地方：章首第一帧弹「记事与地图」、第一场仗头三回合每回合一张。
+6. **头顶「支」与目标菱形会同在一处**（主线与支线指着同一个触发区时，如药篓）：两样都画，菱形在上、圆章贴边，没做避让。
+7. **门禁要补的规则**（不跑门禁，只记下）：`data/tutorials`（trigger 在事件表里、文案 key 在、`tutorial.seen.<id>` 已登记、≤3 行 ≤30 字）、
+   `data/lore`（category 四选一、key 在、unlock_flag 已登记、role_id 存在、标题 ≤10 正文 ≤120）、目标链的 `hint_key / detail_key / progress`（key 在、物品存在）、
+   `data/quests` 新字段 `reward_key`（key 在）。`GuideTests` 在真树上已经查着这些，门禁照抄即可。
+8. 要点、奖励那两句（`reward_key`）文案放在 `ui_guide.json` 里，key 叫 `ch07.quest.*.reward`；要是嫌它不该在界面词文件里，集成时挪进 `ch07_quests.json` 即可（那个文件不归任何一路）。
