@@ -175,6 +175,8 @@
 - 全量 ctest（`build-m/test.bat`，`-j 4`）：**2338 / 2338 通过**，用时 480 秒。
   中途第二轮有一条 `SoftwareEngine.WithVSyncOffAFrameStillTakesAtLeastA240thOfASecond`（关垂直同步时一帧至少 1/240 秒）没过，
   单跑三次都过、第三轮全量也过：是机器负载下的计时抖动，与本路无关。
+- 返修后全量 ctest：**2344 / 2344 通过**，用时 334 秒。返修后头一轮有一条 `KeyRepeat.OnAPadOnlyTheFourDirectionsRepeat`
+  （十字键按住 400 毫秒至少连发 3 次，按真实时钟数）数到 2 次没过，单跑三次都过、再跑一轮全量也过：同样是负载下的计时抖动。
 - 没跑门禁（`validate.py`、`validate_selftest.py`、各种 `--check`），照施工图 1.5。
 
 ---
