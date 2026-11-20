@@ -72,6 +72,14 @@ public:
     // 无头下对话框直接全显，看不出速率，所以测试问的是这一个函数，不另写一份。
     [[nodiscard]] static std::optional<double> revealRate(const Application& app);
 
+    // ---- 对白减负（第 7 章地基包路 D，docs/ch07-foundation.md 4.2、4.3）----
+    // 跳过确认框开着没有（截图口与测试问它）。
+    [[nodiscard]] bool askingSkip() const { return askSkip_; }
+    // 翻开跳过确认框（取消键走的就是它；截图口也直接调）。
+    void openSkipAsk(Application& app);
+    // 确认框的矩形：对话框（box 是这一帧实际画的位置）正上方居中；上面放不下（框被抬高让开主角时）就放在框下方。
+    [[nodiscard]] static engine::Rect skipAskArea(const engine::Rect& box, const ui::Theme& theme);
+
     void onEnter(Application& app) override;
     bool update(Application& app, double deltaSeconds) override;
     void render(Application& app) override;
@@ -90,11 +98,16 @@ private:
     void renderLog(Application& app) const;
     // 框上沿的两块小牌：左边说话人的名签，右边那行按键提示。
     void renderNameTag(Application& app, const engine::Rect& box) const;
-    void renderKeyHint(Application& app, const engine::Rect& box) const;
+    // 返回这块键位牌的左边沿：地基包路 D 的两块小牌依次往左排。
+    [[nodiscard]] int renderKeyHint(Application& app, const engine::Rect& box) const;
     // 头像：area 由 game/Portraits.h 的 portraitLayout 给。
     void renderPortrait(Application& app, const PortraitFrame& portrait, const engine::Rect& area) const;
     // 正文读完、等着按确认时右下角那个缓慢起伏的「▼」。
     void renderContinueMark(Application& app, const engine::Rect& box) const;
+    // 地基包路 D：框上沿第二块键位牌（自动、跳过）、自动播放开着时的「自动」小标、跳过确认框。
+    [[nodiscard]] int renderKeyHint2(Application& app, const engine::Rect& box, int right) const;
+    void renderAutoBadge(Application& app, const engine::Rect& box, int right) const;
+    void renderSkipAsk(Application& app, const engine::Rect& box) const;
 
     std::string speaker_;
     std::string body_;
@@ -120,6 +133,12 @@ private:
 
     std::string speakerRole_;   // setPortrait
     std::string face_;
+
+    // 自动播放：这一句全显之后过了多久（4.2）。
+    double autoSeconds_ = 0.0;
+    // 整段跳过的确认框（4.3）：「跳过这一段对话？」跳过 / 接着看。
+    bool askSkip_ = false;
+    ui::ListView skipView_;
 };
 
 }  // namespace fanren::game

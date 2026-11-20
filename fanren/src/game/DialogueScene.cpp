@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "game/Application.h"
+#include "game/DialogueExtras.h"
 #include "game/Portraits.h"
 
 namespace fanren::game {
@@ -86,6 +87,7 @@ void DialogueScene::onEnter(Application& app) {
     revealAccumulator_ = 0.0;
     done_ = false;
     time_ = 0.0;
+    autoSeconds_ = 0.0;
     // 无头模式没人看动画，直接全显，免得 bot 要空跑几十帧等文字。
     // 文字速度选了瞬显的，第一帧就是整句（不等第一次 update）。
     if (app.headless() || revealAtOnce_ || !revealRate(app)) revealAll();
@@ -214,6 +216,33 @@ bool DialogueScene::update(Application& app, double deltaSeconds) {
         return true;
     }
 
+    // ---- 地基包路 D：整段跳过的确认框（docs/ch07-foundation.md 4.3）----
+    // 开着时吃掉别的输入：确认「跳过」就记一笔、把这一句收掉，后面的 talk 由 Application 直接记进回看；
+    // 「接着看」或取消键关掉确认框，这一句照旧。
+    if (askSkip_) {
+        if (skipView_.update(eng)) {
+            askSkip_ = false;
+            if (skipView_.selection() == 0) {
+                app.beginDialogueSkip();
+                finish(app, -1);
+                return false;
+            }
+            return true;
+        }
+        if (skipView_.cancelled()) askSkip_ = false;
+        return true;
+    }
+    // 路径行动键：自动播放开 / 关（4.2），立刻写进设置。选项框里也能按，只是选项永远不会被自动选。
+    if (eng.keyPressed(engine::Engine::Key::Action)) {
+        app.toggleAutoAdvance();
+        autoSeconds_ = 0.0;
+    }
+    // 取消键：整段跳过（只在脚本的对白里；有选项时不行——那一下归选项自己的取消）。
+    if (!hasChoices_ && eng.keyPressed(engine::Engine::Key::Cancel) && app.canSkipDialogue()) {
+        openSkipAsk(app);
+        return true;
+    }
+
     // 长按 Skip（Ctrl）一路快进：先把这一句全显出来。
     // 按住期间每个框停 kFastForwardDwell 就自动翻过去，**但有选项时绝不自动选**
     // ——替玩家做选择是这套快进唯一不可接受的后果。
@@ -249,6 +278,15 @@ bool DialogueScene::update(Application& app, double deltaSeconds) {
         if (fastForward) {
             holdSeconds_ += deltaSeconds;
             if (holdSeconds_ >= kFastForwardDwell) {
+                finish(app, -1);
+                return false;
+            }
+        }
+        // 自动播放（4.2）：全显之后停 autoAdvanceDelay 就翻过去。**只在没有选项的框里**——
+        // 有选项的框走下面那一支，那里没有任何计时，选择永远等玩家自己按。
+        if (app.settings().autoAdvance) {
+            autoSeconds_ += deltaSeconds;
+            if (autoSeconds_ >= autoAdvanceDelay(graphemes_.size())) {
                 finish(app, -1);
                 return false;
             }
@@ -293,7 +331,11 @@ void DialogueScene::render(Application& app) {
     // 框里整块都留给正文，名字也不必与正文挤在同一个平面上。
     ui::drawPanel(eng, box, std::string{}, theme);
     renderNameTag(app, box);
-    renderKeyHint(app, box);
+    const int hintLeft = renderKeyHint(app, box);
+    // 地基包路 D：第二块键位牌（自动 / 跳过）与「自动」小标，依次排在第一块的左边；确认框压在最上面。
+    const int hint2Left = renderKeyHint2(app, box, hintLeft);
+    renderAutoBadge(app, box, hint2Left);
+    if (askSkip_) renderSkipAsk(app, box);
 
     const engine::Rect content = ui::panelContentArea(box, std::string{}, theme);
     const int optionRows = hasChoices_ ? choices_.count() : 0;
@@ -353,7 +395,7 @@ void DialogueScene::renderPortrait(Application& app, const PortraitFrame& portra
                   theme.goldDim);
 }
 
-void DialogueScene::renderKeyHint(Application& app, const engine::Rect& box) const {
+int DialogueScene::renderKeyHint(Application& app, const engine::Rect& box) const {
     // 两个键的提示钉在框的右上角。**没有这一行，这两个键等于不存在**——
     // 玩家不会去猜一个没写在任何地方的快捷键，而「对白太多」这件事一半是
     // 按键太多，长按快进正是那一半的解。
@@ -364,7 +406,7 @@ void DialogueScene::renderKeyHint(Application& app, const engine::Rect& box) con
     // 默认键位下展开出来就是改造前写死的那句「Tab 回看　长按 Ctrl 快进」。
     const std::string hint = app.text("ui.dialogue.keys");
     const engine::Point size = eng.measureText(hint, kHintFontSize);
-    if (size.x <= 0) return;
+    if (size.x <= 0) return box.x + box.w - kTagInset;
     const int w = size.x + kHintPadX * 2;
     const engine::Rect plate{box.x + box.w - kTagInset - w, box.y - kHintHeight / 2, w,
                              kHintHeight};
@@ -374,6 +416,82 @@ void DialogueScene::renderKeyHint(Application& app, const engine::Rect& box) con
     ui::drawFrame(eng, plateF, theme.goldDim);
     eng.drawText(hint, plate.x + kHintPadX, plate.y + (kHintHeight - kHintFontSize) / 2 - 1,
                  kHintFontSize, theme.paperDim);
+    return plate.x;
+}
+
+// ---------------------------------------------------------------------------
+// 地基包路 D：自动播放与整段跳过的画法（docs/ch07-foundation.md 4.2、4.3）
+// ---------------------------------------------------------------------------
+
+namespace {
+constexpr int kPlateGap = 8;          // 框上沿几块小牌之间的空
+constexpr int kSkipAskWidth = 420;
+}  // namespace
+
+int DialogueScene::renderKeyHint2(Application& app, const engine::Rect& box, int right) const {
+    // 键名跟着键位与设备走（Application::text 展开 {key.action} / {pad.*}）。
+    engine::Engine& eng = app.engine();
+    const ui::Theme& theme = app.theme();
+    const std::string hint = app.text("ui.dialogue.keys2");
+    const engine::Point size = eng.measureText(hint, kHintFontSize);
+    if (size.x <= 0) return right;
+    const int w = size.x + kHintPadX * 2;
+    const engine::Rect plate{right - kPlateGap - w, box.y - kHintHeight / 2, w, kHintHeight};
+    const engine::RectF plateF{static_cast<float>(plate.x), static_cast<float>(plate.y),
+                               static_cast<float>(plate.w), static_cast<float>(plate.h)};
+    eng.fillRect(plateF, theme.inkDeep, engine::BlendMode::Alpha);
+    ui::drawFrame(eng, plateF, theme.goldDim);
+    eng.drawText(hint, plate.x + kHintPadX, plate.y + (kHintHeight - kHintFontSize) / 2 - 1, kHintFontSize,
+                 theme.paperDim);
+    return plate.x;
+}
+
+void DialogueScene::renderAutoBadge(Application& app, const engine::Rect& box, int right) const {
+    if (!app.settings().autoAdvance) return;
+    engine::Engine& eng = app.engine();
+    const ui::Theme& theme = app.theme();
+    const std::string label = app.text("ui.dialogue.auto");
+    const engine::Point size = eng.measureText(label, kHintFontSize);
+    const int w = size.x + kHintPadX * 2;
+    const engine::Rect plate{right - kPlateGap - w, box.y - kHintHeight / 2, w, kHintHeight};
+    const engine::RectF plateF{static_cast<float>(plate.x), static_cast<float>(plate.y),
+                               static_cast<float>(plate.w), static_cast<float>(plate.h)};
+    // 金底墨字：与旁边两块暗牌一眼分得开——它说的是「现在正自动着」，不是一条键位提示。
+    eng.fillRect(plateF, theme.gold, engine::BlendMode::Alpha);
+    ui::drawFrame(eng, plateF, theme.goldBright);
+    eng.drawText(label, plate.x + kHintPadX, plate.y + (kHintHeight - kHintFontSize) / 2 - 1, kHintFontSize,
+                 theme.inkDeep);
+}
+
+engine::Rect DialogueScene::skipAskArea(const engine::Rect& box, const ui::Theme& theme) {
+    const int h = ui::panelTitleBandHeight(/*hasTitle=*/true, theme) + ui::listAreaHeight(2, theme);
+    const int x = (engine::kLogicalWidth - kSkipAskWidth) / 2;
+    const int above = box.y - h - kTagHeight;
+    if (above >= kBoxMargin / 2) return engine::Rect{x, above, kSkipAskWidth, h};
+    return engine::Rect{x, box.y + box.h + kTagHeight / 2, kSkipAskWidth, h};
+}
+
+void DialogueScene::openSkipAsk(Application& app) {
+    std::vector<ui::ListItem> items(2);
+    items[0].label = app.text("ui.dialogue.skip.yes");
+    items[1].label = app.text("ui.dialogue.skip.no");
+    skipView_.reset();
+    skipView_.setPageSize(2);
+    skipView_.setItems(std::move(items));
+    askSkip_ = true;
+}
+
+void DialogueScene::renderSkipAsk(Application& app, const engine::Rect& box) const {
+    engine::Engine& eng = app.engine();
+    const ui::Theme& theme = app.theme();
+    const engine::Rect area = skipAskArea(box, theme);
+    // 垫一层实底：面板本身半透明，压在地图上字会透。
+    eng.fillRect(engine::RectF{static_cast<float>(area.x), static_cast<float>(area.y), static_cast<float>(area.w),
+                               static_cast<float>(area.h)},
+                 theme.inkDeep, engine::BlendMode::Alpha);
+    const std::string title = app.text("ui.dialogue.skip.ask");
+    ui::drawPanel(eng, area, title, theme);
+    skipView_.render(eng, ui::panelContentArea(area, title, theme), theme);
 }
 
 void DialogueScene::renderContinueMark(Application& app, const engine::Rect& box) const {

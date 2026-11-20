@@ -59,6 +59,9 @@ struct Settings {
     bool screenShake = true;
     TextSpeed textSpeed = TextSpeed::Normal;
     bool padRumble = true;   // 文件里的键 pad_rumble
+    // 对白自动播放（第 7 章地基包路 D，docs/ch07-foundation.md 4.2）：一句显示完停一会儿自动翻下一句，
+    // 有选项时停住。缺省关 = 改造前的行为。文件里的键 auto_advance。
+    bool autoAdvance = false;
     // 动作 id → 两格键位。没列出的动作用默认键位；空表 = 全部默认。一期只存、只往返，不推给引擎。
     std::map<std::string, KeySlots> keys;
 

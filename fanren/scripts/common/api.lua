@@ -411,3 +411,17 @@ bond = {
     get = function(companion_id) return __host.bond_get(companion_id or "") end,
     tier = function(companion_id) return __host.bond_tier(companion_id or "") end,
 }
+
+-- ---------------------------------------------------------------------------
+-- 伙伴插话气泡（第 7 章地基包路 D，docs/ch07-foundation.md 4.4）
+--
+-- 在那个角色头顶浮一条气泡：不压场景、不收输入，人照走；同时记进对话回看。
+-- 角色此刻不在画面上（不在队里、不在这张图、出了镜头）时退回成普通对白——话不能丢。
+-- seconds 是停多久（不含淡入淡出），省略为 3 秒。
+-- ---------------------------------------------------------------------------
+function bubble(role_id, text_key, seconds)
+    assert(type(role_id) == "string" and role_id ~= "", "bubble() 需要说话人的角色 id")
+    assert(type(text_key) == "string" and text_key ~= "", "bubble() 需要文案 key")
+    local ms = math.floor((seconds or 3) * 1000 + 0.5)
+    emit{ kind = "bubble", a = text_key, b = role_id, x = ms }
+end
