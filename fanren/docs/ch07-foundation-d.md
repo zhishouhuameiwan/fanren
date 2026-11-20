@@ -303,7 +303,9 @@
   - `PadWiring.Holding{Tab,Esc,PadY}ForASecond…`、`SoftwareEngine.WithVSyncOffAFrameStillTakesAtLeastA240thOfASecond`：墙上时钟的用例
     （「一秒里至少走 30 帧」「十帧不超过 120 毫秒」）。跑的时候另外两路的测试也在这台机器上并行，单条小用例要 6 秒。
 - 改完后把这 6 条连同全部对白用例、`KeyPrompts` 单独复跑（35 条）：34 条通过，VSync 那条在并行下仍超时；**单独跑 3 次 3 次通过**。
-  这 4 条与本路改动无关（不碰引擎帧率、不碰世界层按住菜单键的路径）。
+  这 4 条与本路改动无关（不碰引擎帧率、不碰世界层按住菜单键的路径）。**对照**：同一时刻用主检出现成的基线构建
+  （`E:\fanren\fanren\build-s7\fanren_tests.exe`，不含本路改动，只执行、不改文件）跑 `PadWiring.Holding*`，同样挂
+  （一秒只走到 10–18 帧，要求 30）。
 - 第二次全量在交付时仍在后台跑（机器被占满，约每分钟一两条），结果见交付汇报。
 
 ## 11. 没做成的、拿不准的、交回主会话的
