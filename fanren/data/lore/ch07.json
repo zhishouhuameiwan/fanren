@@ -1,0 +1,47 @@
+{
+  "id": "lore_ch07",
+  "name": "第 7 章见闻",
+  "chapter": 7,
+  "entries": [
+    {
+      "id": "hanbing_chan",
+      "category": "yaoshou",
+      "title_key": "lore.ch07.hanbing_chan.title",
+      "body_key": "lore.ch07.hanbing_chan.body",
+      "unlock_flag": "ch07.pojin",
+      "role_id": "hanbing_chan"
+    },
+    {
+      "id": "cai_e",
+      "category": "yaoshou",
+      "title_key": "lore.ch07.cai_e.title",
+      "body_key": "lore.ch07.cai_e.body",
+      "unlock_flag": "ch07.pojin",
+      "role_id": "cai_e"
+    },
+    {
+      "id": "fei_she",
+      "category": "yaoshou",
+      "title_key": "lore.ch07.fei_she.title",
+      "body_key": "lore.ch07.fei_she.body",
+      "unlock_flag": "ch07.yixiantian",
+      "role_id": "fei_she"
+    },
+    {
+      "id": "huoyan_shu",
+      "category": "yaoshou",
+      "title_key": "lore.ch07.huoyan_shu.title",
+      "body_key": "lore.ch07.huoyan_shu.body",
+      "unlock_flag": "ch07.yueyang",
+      "role_id": "huoyan_shu"
+    },
+    {
+      "id": "bishui_e",
+      "category": "yaoshou",
+      "title_key": "lore.ch07.bishui_e.title",
+      "body_key": "lore.ch07.bishui_e.body",
+      "unlock_flag": "ch07.kundi",
+      "role_id": "bishui_e"
+    }
+  ]
+}
