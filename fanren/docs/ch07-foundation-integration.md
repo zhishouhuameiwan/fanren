@@ -14,7 +14,7 @@
 | 工作树 | `E:\fanren\.claude\worktrees\happy-maxwell-8427c8` |
 | 合并次序 | 路 G `claude/ch07-foundation-g-96ce1c` → 路 D `claude/ch07-foundation-d-cd9304` → 路 M `claude/ch07-foundation-m-377c44`，都是 `--no-ff` |
 | 全量 ctest | **2394 / 2394 通过**（`build-int`，`-j 4`，376 秒，`build-int/ctest_full1.log`）；三条墙钟用例也在其中、都过 |
-| 换行符 | `git diff --stat main...HEAD` 与加 `--ignore-cr-at-eol` 的结果相同（157 个文件，+10322 / −1223，交付前复核） |
+| 换行符 | `git diff --stat main...HEAD` 与加 `--ignore-cr-at-eol` 的结果逐数相同（每次提交后复核；代码部分 157 个文件，加上三份文档 160 个） |
 | 存档版本 | `kSaveVersion` 仍是 10；没有新存档字段 |
 | 试玩 | `fanren/build-int/` 与主检出 `E:\fanren\fanren\build-s7\` 各三个启动脚本（第 7 节） |
 
