@@ -142,6 +142,10 @@ public:
     // 这一帧要画的东西（render 里 describe 装好交给 WorldView 的那一份）。公开给无头测试：
     // 跟随者站在哪、宝箱开没开、明雷在不在，要从画面拿到的那一份上断言，不另算一遍。
     const WorldFrame& describeFrame(Application& app);
+    // 教学卡的走图事件（第一期地基包 2.3）：describe 末尾按这一帧的样子发给 Application::tutorialEvent。
+    static void noteGuideEvents(Application& app, const WorldFrame& frame);
+    // 头顶标记（第一期地基包 2.6）：describe 末尾给 NPC 标「支」「商」，收支线的触发区目标。
+    void markHeads(Application& app, const core::TileMap& map);
 
     // 画这一层的那个 WorldView（只读）。公开给跨路的用例：世界逻辑填的帧，经世界画面画出来之后
     // 跟随者滑在哪、与主角同不同一帧到格，要从真正在画的那一份上看。

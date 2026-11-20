@@ -542,6 +542,10 @@ void WorldFrame::clear() {
     objectiveTarget = nullptr;
     objectiveText.clear();
     objectiveWhere.clear();
+    objectiveHint.clear();
+    questTargets.clear();
+    questMark.clear();
+    objectiveId.clear();
     mapTitle.clear();
     dangerStars = 0;
     saveNotice.clear();
@@ -640,6 +644,7 @@ void WorldView::advance(Application& app, double deltaSeconds) {
     foes_.advance(dt);
     fadeClock_ += dt;
     bannerClock_ += dt;
+    objectiveFlash_ = std::max(0.f, objectiveFlash_ - dt);
     if (const core::TileMap* map = app.currentMap()) {
         const Vec2f target = cameraTarget(map->width, map->height, focusCell());
         camera_.x = approach(camera_.x, target.x, dt, kCameraRate);
@@ -930,6 +935,7 @@ void WorldView::render(Application& app, const WorldFrame& frame) {
     // UI：不糊、不压暗、不被调色。
     const ui::Theme& theme = app.theme();
     drawNamePlates(engine, theme, frame, vp);
+    drawQuestTargets(engine, theme, frame, vp);
     drawFoeMarks(engine, frame, vp);
     drawObjectiveMarker(engine, theme, frame, vp);
     drawHud(engine, theme, frame, vp);
@@ -1566,6 +1572,11 @@ void WorldView::drawNamePlates(engine::Engine& engine, const ui::Theme& theme, c
         }
         plates_.push_back(plate);
         hud::drawNamePlate(engine, theme, npc.name, footX, plateBottom);
+        // 头顶标记（第一期地基包 2.6）：一枚小圆章贴在名牌左边，不抢名字、也不压路径行动气泡。
+        if (!npc.mark.empty() && plate.w > 0.f) {
+            hud::drawHeadMark(engine, theme, geometry_, plate.x - 12.f, plateBottom - plate.h / 2.f, npc.mark,
+                              npc.markQuest);
+        }
         if (npc.bubble == PathBubble::None) continue;
         const char* id = pathBubbleSprite(npc.bubble);
         const ObjectSprite* bubble = id != nullptr ? objectSprite(id) : nullptr;
@@ -1574,6 +1585,18 @@ void WorldView::drawNamePlates(engine::Engine& engine, const ui::Theme& theme, c
         const float bob = std::round(std::sin(clock_ * 2.4f + fl(object.position.x))) * kPixel;
         drawObjectSprite(engine, objectsTexture_, *bubble, footX, plateBottom - 22.f + bob, 0.f, kWhite,
                          BlendMode::Alpha);
+    }
+}
+
+void WorldView::drawQuestTargets(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame,
+                                 const Viewport& vp) {
+    // 支线的触发区（不是人）：那一格头顶浮一枚「支」，轻轻漂。
+    for (const core::MapObject* object : frame.questTargets) {
+        const float cx = (fl(object->position.x) + fl(std::max(1, object->width)) / 2.f) * kCell - vp.camX;
+        const float top = fl(object->position.y) * kCell - vp.camY;
+        if (cx < -kCell || cx > kViewW + kCell || top < -kCell || top > kViewH + kCell) continue;
+        const float bob = std::round(std::sin(clock_ * 2.0f + fl(object->position.y))) * kPixel;
+        hud::drawHeadMark(engine, theme, geometry_, cx, top - 14.f + bob, frame.questMark, true);
     }
 }
 
@@ -1646,9 +1669,22 @@ void WorldView::drawHud(engine::Engine& engine, const ui::Theme& theme, const Wo
     // 目标框排在横幅下面，横幅淡出后也不往上挪：会自己换位置的框，玩家每次都得重新找。
     const float boxX = 16.f;
     const float boxY = hud::PlaceBanner::bottom();
-    const RectF box = hud::objectiveBoxRect(engine, boxX, boxY, frame.objectiveText, frame.objectiveWhere);
-    hud::drawObjectiveBox(engine, theme, geometry_, boxX, boxY, frame.objectiveText, frame.objectiveWhere,
-                          covers(box) ? kCoveringAlpha : 1.f);
+    // 换了一步（不是头一回见到目标、也不是读档）：框闪一下，响一声提示音（第一期地基包 2.1）。
+    constexpr float kObjectiveFlashSeconds = 1.2f;
+    if (frame.objectiveId != seenObjective_) {
+        if (!seenObjective_.empty() && !frame.objectiveId.empty()) {
+            objectiveFlash_ = kObjectiveFlashSeconds;
+            engine.playSfx("ui_open");
+        }
+        seenObjective_ = frame.objectiveId;
+    }
+    // 两下：亮—暗—亮—灭，一闪而过会被正在看人物的眼睛漏掉。
+    const float flashPhase = objectiveFlash_ / kObjectiveFlashSeconds;
+    const float flash = objectiveFlash_ > 0.f ? flashPhase * (0.5f + 0.5f * std::cos(flashPhase * 4.f * std::numbers::pi_v<float>)) : 0.f;
+    const RectF box =
+        hud::objectiveBoxRect(engine, boxX, boxY, frame.objectiveText, frame.objectiveHint, frame.objectiveWhere);
+    hud::drawObjectiveBox(engine, theme, geometry_, boxX, boxY, frame.objectiveText, frame.objectiveHint,
+                          frame.objectiveWhere, covers(box) ? kCoveringAlpha : 1.f, flash);
     // 收集进度紧贴在目标框底下（没有目标时顶到目标框的位置），一直在：横幅几秒就淡了，进度要随时看得到。
     const float tagY = box.h > 0.f ? box.y + box.h + 6.f : boxY;
     const RectF tag = hud::exploreTagRect(engine, boxX, tagY, frame.exploreLine);

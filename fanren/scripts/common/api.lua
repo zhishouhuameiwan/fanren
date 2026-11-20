@@ -411,3 +411,19 @@ bond = {
     get = function(companion_id) return __host.bond_get(companion_id or "") end,
     tier = function(companion_id) return __host.bond_tier(companion_id or "") end,
 }
+
+-- ---------------------------------------------------------------------------
+-- 教学卡（第一期地基包，docs/ch07-foundation.md 2.3）
+--
+-- tutorial("id") 叫一张 data/tutorials/ 里的卡。不等：卡片等这段戏演完、回到走图时才弹；
+-- 看过的、不在这一章的、设置里关了教学提示的都不弹（关了照样记作看过，记事「指南」页里翻得到）。
+-- 返回 ok, code；code 为 ASCII 机器码，成功时是空串：
+--   "no_card"  data/tutorials/ 里没有这张
+--   "skipped"  这张看过了、或不在这一章，这一次不弹
+-- ---------------------------------------------------------------------------
+
+function tutorial(card_id)
+    assert(type(card_id) == "string" and card_id ~= "", "tutorial() 需要教学卡 id")
+    local result = emit{ kind = "tutorial", a = card_id }
+    return result.ok == true, result.code or ""
+end

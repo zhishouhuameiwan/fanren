@@ -236,13 +236,58 @@ struct BagEntry {
 //
 // **不新造一套进度**：doneFlag 就是剧情脚本本来就要置的那个完成旗标，
 // 所以目标链不可能与剧情走岔——脚本演完，这一步自动算完。
+// 一步目标「还差多少」的读法（第一期地基包，docs/ch07-foundation.md 2.1）。
+// 与任务谓词同一个精神：**只从背包与旗标读，不另存进度**——进度条与剧情不可能走散。
+struct ObjectiveProgress {
+    enum class Kind {
+        None,       // 这一步不数数
+        Item,       // 背包里 item 有几件（各年份合计）
+        AgedItem,   // 背包里 item 年份不低于 minAge 的有几件（与脚本 item.count_aged 同一个口径）
+        Flags,      // flags 里置了几个
+    };
+    Kind kind = Kind::None;
+    std::string item;
+    int minAge = 0;
+    int need = 0;                     // Flags 时由加载器填成 flags 的个数
+    std::vector<std::string> flags;
+};
+
 struct Objective {
     std::string id;           // 章内唯一，形如 n3_baoming
-    std::string textKey;      // 玩家看到的那一行
+    std::string textKey;      // 玩家看到的那一行（第 7 章起是至多 16 个字的行动句）
     std::string doneFlag;     // 置位即视为已完成
     std::string targetMap;    // 去哪张图
     std::string targetObject; // 那张图上的哪个对象（npc_/trigger_…）
     int chapter = 1;
+    // ---- 第一期地基包（docs/ch07-foundation.md 2.1），一律可空、追加在末尾 ----
+    std::string hintKey;      // 要点：目标框里行动句下面那一行小字（至多 28 个字）
+    std::string detailKey;    // 详情：只在记事里显示（原来的长句）
+    ObjectiveProgress progress;
+};
+
+// ---- 教学卡与见闻（第一期地基包，docs/ch07-foundation.md 2.3、2.5）----
+//
+// 教学卡：某个系统第一次出现时弹一张三行的小卡，看过一次就记旗标 tutorial.seen.<id>，之后在记事的
+// 「指南」页里翻得到。规则（谁该弹、看过没有）在 core/rules/Tutorials.h。
+struct TutorialCard {
+    std::string id;
+    std::string titleKey;
+    std::vector<std::string> bodyKeys;   // 至多三行
+    std::string trigger;                 // 引擎事件名；空串 = 只由脚本 tutorial("id") 触发
+    int minChapter = 0;                  // 与对白头像同一个口径：只在这几章里弹
+    int maxChapter = 0;
+};
+
+// 见闻：记事「见闻」页的一条。unlockFlag 置位即解锁（空串 = 一开始就有）。
+// roleId 只给妖兽条目用：页面据此补「已知破绽」（GameState::knownWeaknesses）与「掉落」（编成的 rewards.drops）。
+struct LoreEntry {
+    std::string id;
+    std::string category;   // shijian / yaoshou / lingcao / renwu
+    std::string titleKey;
+    std::string bodyKey;
+    std::string unlockFlag;
+    std::string roleId;
+    int chapter = 0;
 };
 
 // ---- 任务（P3 第 5 章增补，契约 docs/interfaces-p3-ch05.md 第 1 节）----
@@ -294,6 +339,9 @@ struct Quest {
     std::string failTextKey;
     // 只给测试对账脚本里的 give（契约 Q4：任务系统不发奖励）。
     std::vector<BagEntry> rewards;
+    // 奖励的一句话（第一期地基包 2.4，G-25）：回报由脚本按情形发、不进 rewards 的支线（第 7 章两条），
+    // 记事的支线页就写这一句。可空；rewards 不空时以 rewards 为准。
+    std::string rewardKey;
     std::string origin;
     std::string note;
 };
@@ -364,6 +412,9 @@ struct GameData {
     std::vector<PathAction> pathActions;
     // 伙伴（io/CompanionLoader.h），伙伴 id → 数据。目录不存在 = 一位也没有。
     std::map<std::string, Companion> companions;
+    // 教学卡（data/tutorials/*.json）与见闻（data/lore/*.json），按文件名、文件内次序。目录不存在 = 一条也没有。
+    std::vector<TutorialCard> tutorials;
+    std::vector<LoreEntry> lore;
 
     [[nodiscard]] const Item* findItem(const std::string& id) const;
     [[nodiscard]] const Magic* findMagic(const std::string& id) const;

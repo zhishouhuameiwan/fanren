@@ -34,6 +34,24 @@ namespace fanren::rules {
     const std::vector<core::Objective>& chain, const core::GameState& state);
 
 // ---------------------------------------------------------------------------
+// 进度（第一期地基包，docs/ch07-foundation.md 2.1）
+// ---------------------------------------------------------------------------
+//
+// 「还差多少」：从背包与旗标读出来，不另存。have 夹在 [0, need] 里——身上揣了五株、
+// 这一步只要三株，画面上写 3/3 而不是 5/3。
+struct ProgressCount {
+    int have = 0;
+    int need = 0;
+};
+
+// 这一步不数数（progress.kind == None）或 need <= 0 时返回 false，out 不动。
+[[nodiscard]] bool objectiveProgress(const core::Objective& step, const core::GameState& state,
+                                     ProgressCount& out);
+
+// 「1/3」。目标框把它接在行动句后面，记事里同样。
+[[nodiscard]] std::string progressLabel(const ProgressCount& count);
+
+// ---------------------------------------------------------------------------
 // 跨图指路（第 4 章复验 N-7）
 // ---------------------------------------------------------------------------
 //
@@ -76,5 +94,18 @@ struct PortalLink {
                                                  const std::string& fromMap,
                                                  const std::string& goalMap,
                                                  const core::GameState& state);
+
+// 整条路（第一期地基包，docs/ch07-foundation.md 2.2）：从 fromMap 走到 goalMap 要过的每一道门，按先后。
+// 第一道就是 nextPortalToward 给的那一道（同一次广度优先、同一个平手规则），最后一道通到 goalMap。
+// 口径与 nextPortalToward 逐条相同：只走开着的门；fromMap == goalMap 或走不到时返回空表。
+// 目标框据此写「前往　目标图（经甲、乙）」——「经」的是途中那几张图（每道门的 targetMap，最后一道除外）。
+[[nodiscard]] std::vector<const PortalLink*> routeToward(const std::vector<PortalLink>& links,
+                                                         const std::string& fromMap,
+                                                         const std::string& goalMap,
+                                                         const core::GameState& state);
+
+// 途中那几张图（routeToward 每道门的 targetMap，去掉最后一道——那就是目标图本身）。
+// 直达或不在一张图上时为空。
+[[nodiscard]] std::vector<std::string> routeWaypoints(const std::vector<const PortalLink*>& route);
 
 }  // namespace fanren::rules

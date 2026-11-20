@@ -231,6 +231,8 @@ int main(int argc, char** argv) {
     }
     // 野外遭遇：Application 缺省关着（几百条无头测试不该冷不丁被拖进一场仗），上线的游戏打开。
     app.setEncountersEnabled(true);
+    // 教学卡（第一期地基包 2.3）：同一个套路，缺省关着；正常游玩打开，截图与无头不弹。
+    app.setTutorialsEnabled(interactive);
 
     // ---- 系统设置（docs/settings.md 第 2 节「谁读、谁写」）----
     //

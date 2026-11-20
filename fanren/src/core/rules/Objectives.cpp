@@ -1,5 +1,6 @@
 #include "core/rules/Objectives.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <deque>
 #include <map>
@@ -60,6 +61,34 @@ std::vector<const core::Objective*> completedObjectives(const std::vector<core::
     return done;
 }
 
+bool objectiveProgress(const core::Objective& step, const core::GameState& state, ProgressCount& out) {
+    const core::ObjectiveProgress& p = step.progress;
+    if (p.kind == core::ObjectiveProgress::Kind::None || p.need <= 0) return false;
+    int have = 0;
+    switch (p.kind) {
+        case core::ObjectiveProgress::Kind::Item:
+            have = state.itemCount(p.item);
+            break;
+        case core::ObjectiveProgress::Kind::AgedItem:
+            have = state.itemCountAtLeastAge(p.item, p.minAge);
+            break;
+        case core::ObjectiveProgress::Kind::Flags:
+            for (const std::string& flag : p.flags) {
+                if (state.flag(flag) != 0) ++have;
+            }
+            break;
+        case core::ObjectiveProgress::Kind::None:
+            return false;
+    }
+    out.need = p.need;
+    out.have = std::clamp(have, 0, p.need);
+    return true;
+}
+
+std::string progressLabel(const ProgressCount& count) {
+    return std::to_string(count.have) + "/" + std::to_string(count.need);
+}
+
 std::vector<PortalLink> portalLinksOf(const core::TileMap& map) {
     std::vector<PortalLink> links;
     for (const core::MapObject& object : map.objects) {
@@ -104,6 +133,43 @@ const PortalLink* nextPortalToward(const std::vector<PortalLink>& links,
         }
     }
     return nullptr;
+}
+
+std::vector<const PortalLink*> routeToward(const std::vector<PortalLink>& links, const std::string& fromMap,
+                                           const std::string& goalMap, const core::GameState& state) {
+    if (fromMap.empty() || goalMap.empty() || fromMap == goalMap) return {};
+
+    // 与 nextPortalToward 同一趟广度优先、同一个遍历次序：每张图记下「第一次走到它用的是哪道门」，
+    // 走到目标图就顺着这张表倒回起点。于是这条路的第一道门必与 nextPortalToward 给的那一道相同。
+    std::map<std::string, const PortalLink*> cameBy;
+    cameBy.emplace(fromMap, nullptr);
+    std::deque<std::string> frontier{fromMap};
+
+    while (!frontier.empty()) {
+        const std::string here = frontier.front();
+        frontier.pop_front();
+        for (const PortalLink& link : links) {
+            if (link.fromMap != here || !portalOpen(link, state)) continue;
+            if (cameBy.count(link.targetMap) != 0) continue;
+            cameBy.emplace(link.targetMap, &link);
+            if (link.targetMap == goalMap) {
+                std::vector<const PortalLink*> route;
+                for (const PortalLink* hop = &link; hop != nullptr; hop = cameBy.at(hop->fromMap)) {
+                    route.push_back(hop);
+                }
+                std::reverse(route.begin(), route.end());
+                return route;
+            }
+            frontier.push_back(link.targetMap);
+        }
+    }
+    return {};
+}
+
+std::vector<std::string> routeWaypoints(const std::vector<const PortalLink*>& route) {
+    std::vector<std::string> maps;
+    for (std::size_t i = 0; i + 1 < route.size(); ++i) maps.push_back(route[i]->targetMap);
+    return maps;
 }
 
 }  // namespace fanren::rules

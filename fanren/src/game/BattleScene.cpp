@@ -857,6 +857,19 @@ void BattleScene::openMenu(Application& app) {
     if (!battle_.units()[static_cast<std::size_t>(actor)].ally) return;
     setBoost(boost_);   // 换了人：夹回这一位的劲以内
     enterRoot(app);
+    // 教学卡（第一期地基包 2.3）：轮到我方下令时讲战斗规则，一回合讲一样（破绽 → 蓄劲 → 防御 → 道具施法）。
+    app.tutorialEvent("battle.command");
+    if (battle_.round() >= 2) app.tutorialEvent("battle.round2");
+    if (battle_.round() >= 3) app.tutorialEvent("battle.round3");
+    if (battle_.round() >= 4) {
+        for (const core::BagEntry& entry : app.state().bag) {
+            const core::Item* item = app.data().findItem(entry.itemId);
+            if (entry.count > 0 && item != nullptr && !item->castMagic.empty()) {
+                app.tutorialEvent("battle.item_cast");
+                break;
+            }
+        }
+    }
 }
 
 void BattleScene::closeMenu() {

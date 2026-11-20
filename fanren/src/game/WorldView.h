@@ -167,6 +167,9 @@ struct WorldFrame {
         std::string name;          // 名牌上的字（data/roles 里查不到时是 role_id 本身）
         int facing = 2;            // 同 GameState::facing
         PathBubble bubble = PathBubble::None;
+        // 头顶标记（第一期地基包 2.6）：「支」有支线要找他、「商」开着铺子。空串 = 没有。
+        std::string mark;
+        bool markQuest = false;    // 支线（翠色）还是商店（金色）
     };
     struct Portal {
         const core::MapObject* object = nullptr;
@@ -218,6 +221,13 @@ struct WorldFrame {
     const core::MapObject* objectiveTarget = nullptr;   // 目标就在这张图上时是它
     std::string objectiveText;                      // 左上角目标框第一行
     std::string objectiveWhere;                     // 第二行（WorldScene::objectiveWhereText）
+    // 要点（第一期地基包 2.1）：行动句下面那一行小字。空串 = 这一步没写要点（第 7 章以外各章），
+    // 目标框与从前逐像素相同。
+    std::string objectiveHint;
+    // 不是人的支线目标（触发区）：头顶同样浮一枚「支」（第一期地基包 2.6）。
+    std::vector<const core::MapObject*> questTargets;
+    std::string questMark;     // 「支」这个字（ui_guide.json）
+    std::string objectiveId;                        // 这一步的 id：换了就闪一下、响一声（WorldView::drawHud）
     std::string mapTitle;                           // 地名横幅
     int dangerStars = 0;                            // 野外图的危险星级（0 = 这张图没有遭遇；算法见 docs/interfaces-octo-encounters.md）
     std::string saveNotice;                         // 空串 = 不显示
@@ -452,6 +462,8 @@ private:
     void drawObjectiveMarker(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame,
                              const Viewport& vp);
     void drawHud(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame, const Viewport& vp);
+    // 支线触发区头顶的「支」（第一期地基包 2.6）。
+    void drawQuestTargets(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame, const Viewport& vp);
 
     // ---- 画面状态（advance 推进）----
     bool entered_ = false;          // reset 之后见过地图没有
@@ -467,6 +479,9 @@ private:
     float fadeClock_ = kMapFadeSeconds;
     float bannerClock_ = 0.f;
     bool bannerAfterFade_ = false;
+    // 换目标那一闪（第一期地基包 2.1）：上一帧画的是哪一步、这一闪还剩几秒。
+    std::string seenObjective_;
+    float objectiveFlash_ = 0.f;
     bool advanced_ = false;         // 上一次 render 之后 advance 过没有
 
     // ---- 资源（render 时按需载入，无头模式从不碰）----

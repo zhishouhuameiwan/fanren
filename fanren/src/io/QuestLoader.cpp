@@ -250,7 +250,7 @@ struct Problem {
     std::string unknown;
     if (firstUnknownKey(j,
                         {"id", "name", "chapter", "kind", "title_key", "summary_key", "accept",
-                         "steps", "complete", "fail", "fail_text_key", "rewards", "origin",
+                         "steps", "complete", "fail", "fail_text_key", "rewards", "reward_key", "origin",
                          "note"},
                         unknown)) {
         why = problem(where, "有不认识的字段 " + unknown + "（字段表见 docs/interfaces-p3-ch05.md 1.2）");
@@ -342,7 +342,8 @@ struct Problem {
             out.rewards.push_back(std::move(reward));
         }
     }
-    if (!readOptionalString(j, "origin", out.origin) || !readOptionalString(j, "note", out.note)) {
+    if (!readOptionalString(j, "origin", out.origin) || !readOptionalString(j, "note", out.note) ||
+        !readOptionalString(j, "reward_key", out.rewardKey)) {
         why = problem(where, "origin / note 必须是字符串");
         return false;
     }

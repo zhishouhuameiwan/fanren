@@ -19,7 +19,9 @@
 #include "core/rules/Companions.h"
 #include "core/rules/Field.h"
 #include "core/rules/Lilian.h"
+#include "core/rules/Lore.h"
 #include "core/rules/Realm.h"
+#include "core/rules/Tutorials.h"
 #include "game/AlchemyScene.h"
 #include "game/BattleScene.h"
 #include "game/BoardScene.h"
@@ -34,6 +36,7 @@
 #include "game/SettingsScene.h"
 #include "game/ShopScene.h"
 #include "game/TitleScene.h"
+#include "game/TutorialScene.h"
 #include "game/WorldScene.h"
 #include "io/BattleLoader.h"
 #include "io/DataLoader.h"
@@ -575,6 +578,7 @@ void Application::returnToTitle() {
     bgmOverride_.clear();
     itemsGiven_ = false;
     itemToasts_.clear();
+    resetGuideWatch();
     shops_ = initialShops_;
     // 历练里返回首页：那一趟就此作罢（与读档、新开局同一个口径），不然 inLilian() 还为真，
     // 回到首页再「继续旅程」之前，存档闸、worldObjects() 都还指着那一趟。
@@ -591,6 +595,7 @@ core::Result<bool> Application::startNewJourney() {
     spokenKeys_.clear();
     pendingCards_.clear();
     itemToasts_.clear();
+    resetGuideWatch();
     screenFade_ = 0.f;
     auto loaded = loadMap(kNewGameMap, std::string{});
     if (!loaded) return loaded;
@@ -619,6 +624,7 @@ core::Result<bool> Application::continueJourney(const std::string& savePath) {
     state_.facing = facing;
     pendingCards_.clear();
     itemToasts_.clear();   // 读档前那一局拿到的东西，不该在读回来的这一局里弹出来
+    resetGuideWatch();
     screenFade_ = 0.f;
     replaceScene(std::make_unique<WorldScene>());
     return core::Result<bool>::success(true);
@@ -740,6 +746,8 @@ void Application::openFacility(const core::MapObject& facility) {
         showMessage("ui.facility.locked");
         return;
     }
+    // 教学卡（第一期地基包 2.3）：第一次打开灵田、打坐、炼丹……压在面板上面讲一句。
+    tutorialEvent("facility." + kind);
 
     if (kind == "meditate") {
         // 此地的打坐效率（map_spec 4.6 的 effectiveness，百分比；契约 docs/interfaces-p3-ch08.md 1.4）：
@@ -1555,6 +1563,14 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
             return true;
         }
 
+        // ---- 第一期地基包：教学卡（docs/ch07-foundation.md 2.3）----
+        case CommandKind::Tutorial: {
+            // 不等卡片弹出：卡片等这段戏演完才弹（flushTutorials），脚本照常往下走。
+            outcome.code = requestTutorial(command.a);
+            outcome.ok = outcome.code.empty();
+            return true;
+        }
+
         // ---- 伙伴改版：默契加分（docs/interfaces-companions.md 2.2、3.8）----
         case CommandKind::BondAdd: {
             // 伙伴 id 必须在 data/companions 里查得到：拼错的 id 记下一笔谁也读不到的账，
@@ -1720,6 +1736,9 @@ void Application::tick(double deltaSeconds) {
 
     // 章节卡排在改栈之前：这一帧要压的卡与别的压栈一起在下面落地，下一帧就在最上面。
     flushChapterCards();
+    // 教学卡与见闻提示（第一期地基包）：同样排在改栈之前。
+    watchGuide();
+    flushTutorials();
 
     // 帧末统一改栈，避免在 update 中途让容器失效。
     while (pendingPops_ > 0 && !scenes_.empty()) {
@@ -1742,6 +1761,7 @@ void Application::tick(double deltaSeconds) {
 
     // 得物卡片的时钟：只在世界层露着时走——给完东西紧接着开战、开菜单，卡片停在那里，回到地图上再放完。
     if (worldShown()) itemToasts_.advance(static_cast<float>(deltaSeconds));
+    if (worldShown()) loreNotices_.advance(static_cast<float>(deltaSeconds));
 
     // 玩法计时器。系统菜单（主菜单、标题画面）的时间另记，见方案 2.2 的防刷口径：
     // 「首次游玩 ≥ 10 小时」数的是玩的时间，不是开着菜单发呆的时间。
@@ -1780,6 +1800,10 @@ void Application::drawScenes() {
             }
             drawItemToasts(*engine_, theme_, toastGeometry_, toastIcons_, itemToasts_, heroScreenRect());
         }
+        // 「见闻：XXX」：同样紧贴着世界层画，对话框压在它上面。
+        if (loreNotices_.active() && dynamic_cast<WorldScene*>(scenes_[i].get()) != nullptr) {
+            drawLoreNotice(*engine_, theme_, loreGeometry_, loreNotices_);
+        }
     }
 }
 
@@ -1812,6 +1836,105 @@ int Application::run() {
         if (scenes_.empty() && !scripts_->isRunning()) break;
     }
     return 0;
+}
+
+// ---------------------------------------------------------------------------
+// 教学卡与见闻提示（第一期地基包，docs/ch07-foundation.md 2.3、2.5）
+// ---------------------------------------------------------------------------
+
+void Application::tutorialEvent(const std::string& event) {
+    if (!tutorialsEnabled_ || event.empty()) return;
+    const core::TutorialCard* card = rules::tutorialForEvent(data_.tutorials, event, state_, chapterDoneFn());
+    if (card == nullptr) return;
+    // 已经排着就不再排：同一个事件每帧都可能来一遍（走在宝箱旁边、每回合开菜单）。
+    if (std::find(pendingTutorials_.begin(), pendingTutorials_.end(), card->id) != pendingTutorials_.end()) return;
+    pendingTutorials_.push_back(card->id);
+}
+
+std::string Application::requestTutorial(const std::string& cardId) {
+    const core::TutorialCard* card = rules::findTutorial(data_.tutorials, cardId);
+    if (card == nullptr) return "no_card";
+    if (!rules::tutorialEligible(*card, state_, chapterDoneFn())) return "skipped";
+    // 关着（无头测试的缺省）：脚本照常走，不排卡、不记旗标——与 tutorialEvent 同一个闸。
+    if (!tutorialsEnabled_) return "skipped";
+    if (std::find(pendingTutorials_.begin(), pendingTutorials_.end(), card->id) == pendingTutorials_.end()) {
+        pendingTutorials_.push_back(card->id);
+    }
+    return {};
+}
+
+rules::ChapterDoneFn Application::chapterDoneFn() const {
+    return [this](int number) { return chapters_.chapterDone(state_, number); };
+}
+
+void Application::replayTutorial(const std::string& cardId) {
+    if (rules::findTutorial(data_.tutorials, cardId) == nullptr) return;
+    pushScene(std::make_unique<TutorialScene>(cardId));
+}
+
+void Application::flushTutorials() {
+    if (pendingTutorials_.empty()) return;
+    if (pendingPops_ > 0 || !pendingPush_.empty() || scenes_.empty()) return;
+    Scene* top = scenes_.back().get();
+    // 两种时候弹：
+    //   · 战斗里轮到我方（BattleScene 开菜单时才发事件；卡片压上去，战斗只更新最上面那一层，于是输入暂停）；
+    //   · 不在战斗里：脚本演完、没有命令等着回填，顶上是走图或设施面板。对白、选项、章节卡、菜单开着都等。
+    const bool inBattle = dynamic_cast<BattleScene*>(top) != nullptr;
+    if (!inBattle) {
+        if (scripts_ == nullptr || scripts_->isRunning() || commandPending_) return;
+        const bool calm = dynamic_cast<WorldScene*>(top) != nullptr || dynamic_cast<FieldScene*>(top) != nullptr ||
+                          dynamic_cast<CultivationScene*>(top) != nullptr ||
+                          dynamic_cast<AlchemyScene*>(top) != nullptr;
+        if (!calm) return;
+    }
+    const std::string id = pendingTutorials_.front();
+    pendingTutorials_.erase(pendingTutorials_.begin());
+    const core::TutorialCard* card = rules::findTutorial(data_.tutorials, id);
+    if (card == nullptr || rules::tutorialSeen(*card, state_)) return;
+    // 看过一次就记下；设置里关了教学提示也照样记（判据 3：关掉后不弹，但记事「指南」页里翻得到）。
+    state_.flags[rules::tutorialSeenFlag(id)] = 1;
+    tutorialLog_.push_back(id);
+    if (settings_.tutorialCards) pushScene(std::make_unique<TutorialScene>(id));
+}
+
+void Application::resetGuideWatch() {
+    guideBaselined_ = false;
+    loreKnown_.clear();
+    guideObjective_.clear();
+    pendingTutorials_.clear();
+    loreNotices_.clear();
+}
+
+void Application::watchGuide() {
+    // 见闻：前后两份解锁表一比，多出来的报一句「见闻：XXX」。头一回（新开局、读档）只记不报。
+    std::set<std::string> known = rules::unlockedLoreIds(data_.lore, state_);
+    if (guideBaselined_) {
+        for (const core::LoreEntry* entry : rules::newlyUnlockedLore(data_.lore, loreKnown_, known)) {
+            loreNotices_.push(data_.lookupText("ui.guide.lore.unlocked") + data_.lookupText(entry->titleKey));
+        }
+    }
+    loreKnown_ = std::move(known);
+
+    // 主线目标：换了一步就发「objective.<id>」（教学卡可以挂在某一步上，例如交药那一步讲年份）。
+    // 头一回也发：读第 7 章章首存档时，那一步挂着的卡同样该弹。
+    const core::Objective* step = rules::currentObjective(data_.objectives, state_);
+    const std::string stepId = step != nullptr ? step->id : std::string{};
+    if (!stepId.empty() && (!guideBaselined_ || stepId != guideObjective_)) tutorialEvent("objective." + stepId);
+    guideObjective_ = stepId;
+    guideBaselined_ = true;
+
+    if (!tutorialsEnabled_ || scenes_.empty() || dynamic_cast<WorldScene*>(scenes_.back().get()) == nullptr) return;
+    // 下面几样只在走图时看（打完仗回到地图上才说「战斗外也能吃药」）。
+    tutorialEvent("world.idle");
+    bool anyMet = false;
+    bool anyBond = false;
+    for (const auto& [id, companion] : data_.companions) {
+        if (!companion.metFlag.empty() && state_.flag(companion.metFlag) != 0) anyMet = true;
+        if (state_.bondOf(id) > 0) anyBond = true;
+    }
+    if (anyMet) tutorialEvent("roster.joined");
+    if (anyBond) tutorialEvent("bond.gained");
+    if (state_.maxHp > 0 && state_.hp * 2 < state_.maxHp) tutorialEvent("world.hurt");
 }
 
 }  // namespace fanren::game
