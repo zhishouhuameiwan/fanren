@@ -50,7 +50,8 @@ constexpr float kBannerHold = 3.0f;
 constexpr float kBannerFadeOut = 0.8f;
 
 // 交互闪光：四帧由小到大再散开，放完歇一会儿再闪——一直闪的点看久了是噪点。
-constexpr float kSparkleCycle = 2.2f;
+// 2.2 → 1.3（2026-11-20 用户试玩：能捡、能按的东西要有闪光提示——原来两秒多才闪一下，看不出来）。
+constexpr float kSparkleCycle = 1.3f;
 
 constexpr Color kWhite{255, 255, 255, 255};
 constexpr Color kPortalOpen{176, 214, 255, 210};    // 开着的门：冷白
@@ -471,6 +472,9 @@ void WorldFrame::clear() {
     dangerStars = 0;
     saveNotice.clear();
     pathActionHint.clear();
+    interactHint.clear();
+    interactCell = core::Point{-1, -1};
+    interactNpc = nullptr;
     followers.clear();
     chests.clear();
     gathers.clear();
@@ -1545,6 +1549,19 @@ void WorldView::drawHud(engine::Engine& engine, const ui::Theme& theme, const Wo
                           covers(box) ? kCoveringAlpha : 1.f);
     hud::drawSaveNotice(engine, theme, geometry_, frame.saveNotice);
     hud::drawPathActionHint(engine, theme, geometry_, frame.pathActionHint);
+
+    // 「[Z] 打开」浮在那一格头顶：人的话在名牌上方，脚下那个调查点的话在主角头顶。
+    if (!frame.interactHint.empty() && frame.interactCell.x >= 0) {
+        const float cx = (fl(frame.interactCell.x) + 0.5f) * kCell - vp.camX;
+        float bottom = fl(frame.interactCell.y) * kCell - vp.camY - 4.f;
+        if (frame.interactNpc != nullptr) {
+            const float npcFoot = fl(frame.interactCell.y + 1) * kCell - vp.camY;
+            bottom = headTop(frame.interactNpc->property("role_id"), npcFoot, vp) - 30.f;
+        } else if (frame.interactCell.x == lastCell_.x && frame.interactCell.y == lastCell_.y) {
+            bottom = footY - kCell * 1.5f - 6.f;
+        }
+        hud::drawInteractPrompt(engine, theme, geometry_, frame.interactHint, cx, bottom);
+    }
 }
 
 }  // namespace fanren::game

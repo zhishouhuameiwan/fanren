@@ -270,6 +270,15 @@ bool WorldScene::interact(Application& app) {
     if (const core::MapObject* gate = worldobj::presentAt(state, objects, *map, front, worldobj::kGate)) {
         return operateGate(app, *gate);
     }
+    // 面前什么都没有时，再看脚下：按键型的触发区常常画在一片空地上（崖下两尸那一格），
+    // 人走到目标圈里、面朝哪边都有可能。只认面前那一格，玩家站在金圈正中按确认毫无反应，
+    // 只会以为卡关了（2026-11-20 用户试玩第 7 章）。
+    if (const core::MapObject* here = map->objectAt(state.position, "trigger")) {
+        if (here->property("mode") == "interact" && triggerReady(state, *here, companions)) {
+            app.startEvent(here->property("script"));
+            return true;
+        }
+    }
     return false;
 }
 
@@ -460,6 +469,65 @@ std::string WorldScene::pathActionHint(Application& app) const {
     return labels.empty() ? std::string{} : app.text("ui.world.path.key") + " " + labels;
 }
 
+std::string WorldScene::interactHint(Application& app, core::Point& cell, const core::MapObject*& npcOut) const {
+    cell = core::Point{-1, -1};
+    npcOut = nullptr;
+    const core::TileMap* map = app.currentMap();
+    if (map == nullptr || app.topScene() != this) return {};
+    if (app.scripts().isRunning() || app.awaitingCommand()) return {};
+    const core::GameState& state = app.state();
+    const core::Point front = facingCell(state);
+    const Companions& companions = app.data().companions;
+    const core::WorldObjectState& objects = app.worldObjects();
+    const auto hint = [&app](const char* verb) {
+        return app.text("ui.world.interact.key") + " " + app.text(verb);
+    };
+    if (const core::MapObject* npc = visibleNpcAt(state, *map, front, companions)) {
+        if (!npc->property("script").empty()) {
+            cell = front;
+            npcOut = npc;
+            return hint("ui.world.interact.talk");
+        }
+    }
+    if (const core::MapObject* trigger = map->objectAt(front, "trigger")) {
+        if (trigger->property("mode") == "interact" && triggerReady(state, *trigger, companions)) {
+            cell = front;
+            return hint("ui.world.interact.examine");
+        }
+    }
+    if (map->objectAt(front, "facility") != nullptr) {
+        cell = front;
+        return hint("ui.world.interact.use");
+    }
+    if (const core::MapObject* chest = worldobj::presentAt(state, objects, *map, front, worldobj::kChest)) {
+        if (worldobj::chestOpened(objects, *chest)) return {};
+        cell = front;
+        return hint("ui.world.interact.open");
+    }
+    if (const core::MapObject* gather = worldobj::presentAt(state, objects, *map, front, worldobj::kGather)) {
+        if (worldobj::gatherDepleted(objects, *gather, state.day)) return {};
+        cell = front;
+        return hint("ui.world.interact.gather");
+    }
+    if (const core::MapObject* foe = worldobj::presentAt(state, objects, *map, front, worldobj::kFoe)) {
+        cell = front;
+        // 站在它面前那一格按确认是一场普通的仗，侧后才是偷袭（interact() 同一判据）。
+        return hint(worldobj::foeFrontCell(*foe) == state.position ? "ui.world.interact.fight"
+                                                                    : "ui.world.interact.ambush");
+    }
+    if (worldobj::presentAt(state, objects, *map, front, worldobj::kGate) != nullptr) {
+        cell = front;
+        return hint("ui.world.interact.gate");
+    }
+    if (const core::MapObject* here = map->objectAt(state.position, "trigger")) {
+        if (here->property("mode") == "interact" && triggerReady(state, *here, companions)) {
+            cell = state.position;
+            return hint("ui.world.interact.examine");
+        }
+    }
+    return {};
+}
+
 // 存盘提示停留多久。够看清，又不至于杵在屏幕上碍事。
 constexpr double kSaveNoticeSeconds = 3.0;
 
@@ -582,10 +650,13 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
             // 判据与走位、交互同一组函数（worldobj）。
             if (!worldobj::present(state, objects, object)) continue;
             if (object.type == worldobj::kChest) {
-                frame_.chests.push_back(WorldFrame::Chest{&object, worldobj::chestOpened(objects, object)});
+                const bool opened = worldobj::chestOpened(objects, object);
+                frame_.chests.push_back(WorldFrame::Chest{&object, opened});
+                if (!opened) frame_.hotspots.push_back(&object);
             } else if (object.type == worldobj::kGather) {
-                frame_.gathers.push_back(
-                    WorldFrame::Gather{&object, worldobj::gatherDepleted(objects, object, state.day)});
+                const bool depleted = worldobj::gatherDepleted(objects, object, state.day);
+                frame_.gathers.push_back(WorldFrame::Gather{&object, depleted});
+                if (!depleted) frame_.hotspots.push_back(&object);
             } else if (object.type == worldobj::kFoe) {
                 frame_.foes.push_back(WorldFrame::Foe{&object, object.property("look"),
                                                       facingFromName(object.property("facing")),
@@ -625,6 +696,7 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     // 存盘那一句：画在屏幕右上角，不跟目标框抢地方，几秒后自己消失。
     if (saveNoticeSeconds_ > 0.0) frame_.saveNotice = saveNotice_;
     frame_.pathActionHint = pathActionHint(app);
+    frame_.interactHint = interactHint(app, frame_.interactCell, frame_.interactNpc);
 }
 
 const core::Objective* WorldScene::objectiveOf(Application& app) {

@@ -6,6 +6,7 @@
 
 #include "core/rules/Calendar.h"
 #include "core/rules/Companions.h"
+#include "core/rules/FieldItems.h"
 #include "core/rules/Objectives.h"
 #include "core/rules/Realm.h"
 #include "core/rules/Roster.h"
@@ -13,6 +14,7 @@
 #include "game/Application.h"
 #include "game/BoardScene.h"
 #include "game/CultivationScene.h"
+#include "game/DialogueScene.h"
 #include "game/SettingsScene.h"
 #include "game/ShopScene.h"
 #include "game/SpriteAtlas.h"
@@ -325,9 +327,11 @@ void MenuScene::rebuildLists(Application& app) {
         kPagePanel.h - ui::panelTitleBandHeight(true, app.theme()) - kDescriptionH, app.theme());
 
     itemIds_.clear();
+    itemAges_.clear();
     for (const core::BagEntry& entry : state.bag) {
         if (entry.itemId == kSpiritStoneItemId || entry.count <= 0) continue;
         itemIds_.push_back(entry.itemId);
+        itemAges_.push_back(entry.herbAge);
     }
     items_.reset();
     items_.setEmptyHint(app.text("ui.menu.items.empty"));
@@ -592,6 +596,157 @@ void MenuScene::giveSelected(Application& app) {
     focus_ = Focus::Party;
 }
 
+// ---------------------------------------------------------------------------
+// 战斗外用药
+// ---------------------------------------------------------------------------
+
+namespace {
+
+// 一句旁白（空说话人、进对话记录），与 WorldScene 开宝箱那一句同一个样子。
+void narrateLine(Application& app, const std::string& body) {
+    app.pushDialogueLine(std::string{}, body);
+    app.pushScene(std::make_unique<DialogueScene>(std::string{}, body));
+}
+
+std::string fillSlot(std::string text, const std::string& slot, const std::string& value) {
+    for (std::size_t at = text.find(slot); at != std::string::npos; at = text.find(slot, at + value.size())) {
+        text.replace(at, slot.size(), value);
+    }
+    return text;
+}
+
+}  // namespace
+
+void MenuScene::rebuildItemTargets(Application& app) {
+    const core::GameData& data = app.data();
+    const core::GameState& state = app.state();
+    std::vector<ui::ListItem> rows;
+    itemTargetIndex_.clear();
+    const auto vitals = [&app](int hp, int maxHp, int mp, int maxMp) {
+        std::string text = app.text("ui.menu.items.target_hp");
+        text = fillSlot(text, "{hp}", std::to_string(hp));
+        text = fillSlot(text, "{max}", std::to_string(maxHp));
+        if (maxMp > 0) {
+            std::string m = app.text("ui.menu.items.target_mp");
+            m = fillSlot(m, "{mp}", std::to_string(mp));
+            m = fillSlot(m, "{max}", std::to_string(maxMp));
+            text += "  " + m;
+        }
+        return text;
+    };
+    ui::ListItem hero;
+    hero.label = app.speakerName("hanli");
+    hero.detail = vitals(state.hp, state.maxHp, state.mp, state.maxMp);
+    rows.push_back(std::move(hero));
+    itemTargetIndex_.push_back(-1);
+    // 队里的每一位（歇着的也列：养伤不分上不上场）。同伴的法力不记账，只列气血。
+    for (std::size_t i = 0; i < state.party.size(); ++i) {
+        const core::PartyMember& member = state.party[i];
+        const core::RoleTemplate* role = data.findRole(member.roleId);
+        if (role == nullptr) continue;
+        ui::ListItem row;
+        row.label = role->name;
+        row.detail = vitals(member.hp < 0 ? role->maxHp : member.hp, role->maxHp, 0, 0);
+        rows.push_back(std::move(row));
+        itemTargetIndex_.push_back(static_cast<int>(i));
+    }
+    const int keep = itemTargets_.selection();
+    itemTargets_.reset();
+    itemTargets_.setPageSize(std::max<int>(1, static_cast<int>(rows.size())));
+    itemTargets_.setItems(std::move(rows));
+    for (int i = 0; i < keep; ++i) itemTargets_.moveDown();
+}
+
+void MenuScene::useSelectedItem(Application& app) {
+    engine::Engine& e = app.engine();
+    const int index = items_.selection();
+    if (index < 0 || index >= static_cast<int>(itemIds_.size())) {
+        e.playSfx(kSfxError);
+        return;
+    }
+    const core::Item* item = app.data().findItem(itemIds_[static_cast<std::size_t>(index)]);
+    if (item == nullptr || !rules::fieldUsable(*item)) {
+        // 不是不能点，是此刻用不上：说一句，不然玩家只会觉得按键坏了。
+        e.playSfx(kSfxError);
+        app.showMessage("ui.menu.items.cannot_use");
+        return;
+    }
+    usingItemId_ = item->id;
+    usingItemAge_ = itemAges_[static_cast<std::size_t>(index)];
+    // 只有主角一个人时不必再问给谁。
+    if (app.state().party.empty()) {
+        applyItemTo(app, -1);
+        return;
+    }
+    e.playSfx(kSfxConfirm);
+    itemTargets_.reset();
+    rebuildItemTargets(app);
+    focus_ = Focus::ItemTarget;
+}
+
+void MenuScene::applyItemTo(Application& app, int target) {
+    engine::Engine& e = app.engine();
+    core::GameState& state = app.state();
+    const core::Item* item = app.data().findItem(usingItemId_);
+    // 列表是打开时拼的；别处动过背包（极少见）就重拼、不扣。
+    if (item == nullptr || state.itemCountOfAge(usingItemId_, usingItemAge_) < 1) {
+        e.playSfx(kSfxError);
+        rebuildLists(app);
+        rebuildCompanionLists(app);
+        itemTargets_.reset();
+        focus_ = Focus::Items;
+        return;
+    }
+    std::string name;
+    rules::FieldGain gain;
+    core::PartyMember* member = nullptr;
+    const core::RoleTemplate* role = nullptr;
+    if (target < 0) {
+        name = app.speakerName("hanli");
+        gain = rules::fieldGain(*item, state.hp, state.maxHp, state.mp, state.maxMp);
+    } else if (target < static_cast<int>(state.party.size())) {
+        member = &state.party[static_cast<std::size_t>(target)];
+        role = app.data().findRole(member->roleId);
+        if (role != nullptr) {
+            name = role->name;
+            gain = rules::fieldGain(*item, member->hp < 0 ? role->maxHp : member->hp, role->maxHp, 0, 0);
+        }
+    }
+    if (!gain.any()) {
+        // 满着就不扣：白白吃掉一颗药比按了没反应更糟。
+        e.playSfx(kSfxError);
+        app.showMessage("ui.menu.items.full");
+        return;
+    }
+    (void)state.removeItemOfAge(usingItemId_, 1, usingItemAge_);   // 上面核过数量，扣得成
+    if (member != nullptr) {
+        member->hp = (member->hp < 0 ? role->maxHp : member->hp) + gain.hp;
+    } else {
+        state.hp += gain.hp;
+        state.mp += gain.mp;
+    }
+    e.playSfx(kSfxConfirm);
+    std::string line = app.text(gain.hp > 0 && gain.mp > 0 ? "ui.menu.items.used_both"
+                                : gain.hp > 0             ? "ui.menu.items.used_hp"
+                                                          : "ui.menu.items.used_mp");
+    line = fillSlot(line, "{name}", name);
+    line = fillSlot(line, "{item}", item->name);
+    line = fillSlot(line, "{hp}", std::to_string(gain.hp));
+    line = fillSlot(line, "{mp}", std::to_string(gain.mp));
+    narrateLine(app, line);
+    const bool picking = focus_ == Focus::ItemTarget;
+    rebuildLists(app);
+    rebuildCompanionLists(app);
+    loadMembers(app);   // 状态页的血条跟着变
+    // 还剩、而且是从「给谁用」进来的，就停在那一层，好接着喂；用完了回物品列表。
+    if (picking && state.itemCountOfAge(usingItemId_, usingItemAge_) > 0) {
+        rebuildItemTargets(app);
+    } else {
+        itemTargets_.reset();
+        focus_ = Focus::Items;
+    }
+}
+
 bool MenuScene::update(Application& app, double) {
     engine::Engine& e = app.engine();
     // 能走到这里，说明菜单又是最上面那一层了：告示板、设置面板若开过，此刻已经收了。
@@ -625,6 +780,7 @@ bool MenuScene::update(Application& app, double) {
                          : focus_ == Focus::Party        ? party_
                          : focus_ == Focus::PartyActions ? partyActions_
                          : focus_ == Focus::Gift         ? gifts_
+                         : focus_ == Focus::ItemTarget   ? itemTargets_
                                                          : magics_;
     const int before = list.selection();
     const bool confirmed = list.update(e);
@@ -635,6 +791,25 @@ bool MenuScene::update(Application& app, double) {
     }
     if (focus_ == Focus::PartyActions) {
         updatePartyActions(app, confirmed);
+        return true;
+    }
+    if (focus_ == Focus::ItemTarget) {
+        if (itemTargets_.cancelled()) {
+            itemTargets_.reset();
+            focus_ = Focus::Items;
+            e.playSfx(kSfxCancel);
+        } else if (confirmed) {
+            const int row = itemTargets_.selection();
+            if (row >= 0 && row < static_cast<int>(itemTargetIndex_.size())) {
+                applyItemTo(app, itemTargetIndex_[static_cast<std::size_t>(row)]);
+            } else {
+                e.playSfx(kSfxError);
+            }
+        }
+        return true;
+    }
+    if (focus_ == Focus::Items && confirmed && !list.cancelled()) {
+        useSelectedItem(app);
         return true;
     }
     if (focus_ == Focus::Gift) {
@@ -753,7 +928,15 @@ void MenuScene::drawPage(Application& app) const {
                 if (const core::Item* item =
                         app.data().findItem(itemIds_[static_cast<std::size_t>(index)])) {
                     if (!item->descKey.empty()) description = app.text(item->descKey);
+                    if (rules::fieldUsable(*item)) {
+                        if (!description.empty()) description += "\n";
+                        description += app.text("ui.menu.items.use_hint");
+                    }
                 }
+            }
+            if (focus_ == Focus::ItemTarget) {
+                drawListPage(app, area, itemTargets_, true, app.text("ui.menu.items.target_hint"));
+                break;
             }
             drawListPage(app, area, items_, focus_ == Focus::Items, description);
             break;

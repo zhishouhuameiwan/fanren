@@ -185,6 +185,23 @@ void drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& ge
     engine.drawText(text, static_cast<int>(x + 16.f), 25, kNoticeFont, theme.paper, theme.bodyStyle);
 }
 
+void drawInteractPrompt(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
+                        const std::string& text, float centerX, float bottomY) {
+    if (text.empty()) return;
+    constexpr int kFont = 18;
+    const engine::Point size = engine.measureText(text, kFont);
+    if (size.x <= 0) return;
+    const float width = static_cast<float>(size.x) + 20.f;
+    constexpr float kHeight = 32.f;
+    const float maxX = static_cast<float>(engine::kLogicalWidth) - width - 4.f;
+    const float x = std::clamp(centerX - width / 2.f, 4.f, std::max(4.f, maxX));
+    const float y = std::clamp(bottomY - kHeight, 4.f, static_cast<float>(engine::kLogicalHeight) - kHeight - 4.f);
+    drawPanel(engine, theme, geometry, {x, y, width, kHeight}, 0.92f);
+    engine.drawText(text, static_cast<int>(x + 10.f),
+                    static_cast<int>(y + (kHeight - static_cast<float>(size.y)) / 2.f), kFont, theme.goldBright,
+                    theme.bodyStyle);
+}
+
 void drawPathActionHint(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
                         const std::string& text) {
     if (text.empty()) return;

@@ -135,6 +135,10 @@
 | `ui.keys.desc.restore` | 全部动作回到默认键位。按 Enter 执行。 | 全部动作回到默认键位。按 {pad.confirm} 执行。 | …按 A 执行。 |
 | `ui.battle.hint.menu` | ↑↓ 选择 · ←→ 蓄劲 · 回车 确定 · Esc / {key.menu} 返回 · 按住 {key.skip} 加速 | ↑↓ 选择 · ←→ 蓄劲 · {pad.confirm} 确定 · {pad.cancel} / {pad.menu} 返回 · 按住 {pad.skip} 加速 | ↑↓ 选择 · ←→ 蓄劲 · A 确定 · B / Y 返回 · 按住 RT 加速 |
 | `ui.battle.hint.watch` | 按住 {key.skip} 加速 | 按住 {pad.skip} 加速 | 按住 RT 加速 |
+| `ui.world.interact.key`（2026-11-20 追加） | [{key.confirm}] | [{pad.confirm}] | [A] |
+
+  `ui.world.interact.key` 是地图上「靠近能按的东西时头顶那块小牌子」的键位（`WorldScene::interactHint`，后面接「打开 / 采集 / 调查 / 交谈 / 使用 / 偷袭 / 迎战 / 查看」），
+  用户 2026-11-20 试玩第 7 章时要的：「可以拾取的道具或者可以交互的道具……离近之后要有对应按钮提示」。`KeyPrompts` 两条白名单随之各加一条。
 
 - 上表每一条的显示点都必须经 `app.text()`（今天不经它的改成经它——`.pad` 只在那里生效）；`.pad` 里只许有 `{pad.*}`、不许有 `{key.*}`。
   `KeyPrompts` 那一组用例加一条钉住：`{pad.` 只出现在上表 11 条的 `.pad` 版里、每条 `.pad` 都有键盘版本体、id 认得（`Engine::keyFromId`）、括号闭合。

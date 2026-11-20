@@ -65,6 +65,11 @@ void drawSaveNotice(engine::Engine& engine, const ui::Theme& theme, Geometry& ge
                     const std::string& text);
 
 inline constexpr float kPathHintFooterHeight = 72.f;
+// 按确认会发生什么：「[Z] 打开」，一块小面板浮在那一格的头顶。centerX 对中，bottomY 是面板底边；
+// 出了屏幕边就往里挪，不跟着跑出去。
+void drawInteractPrompt(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
+                        const std::string& text, float centerX, float bottomY);
+
 void drawPathActionHint(engine::Engine& engine, const ui::Theme& theme, Geometry& geometry,
                         const std::string& text);
 

@@ -223,4 +223,65 @@ TEST(MenuPortrait, OldSheetsDrawExactlyAsBeforeAndHdSheetsStayInsideTheBox) {
     }
 }
 
+// ---------------------------------------------------------------------------
+// 战斗外用药（2026-11-20 用户试玩：「储物袋里面的东西并不能使用，比如金创药」）
+// 金疮药 restoreHp 15。只有主角一人时按确认直接用；有队员时先选给谁；满的不扣；用不上的说一句。
+// ---------------------------------------------------------------------------
+
+class MenuUse : public MenuD {
+protected:
+    void bagOnly(const std::string& item, int n) {
+        app_.state().bag.clear();
+        app_.state().addItem(item, n);
+    }
+};
+
+TEST_F(MenuUse, AHealingPillHealsTheHeroAtOnceWhenHeIsAlone) {
+    bagOnly("pill_jinchuang_yao", 2);
+    app_.state().party.clear();
+    app_.state().hp = app_.state().maxHp - 10;
+    openMenu();
+    press(SDL_SCANCODE_DOWN);     // 物品
+    press(SDL_SCANCODE_RETURN);   // 进列表，光标在金疮药
+    press(SDL_SCANCODE_RETURN);   // 用
+    tick();
+    EXPECT_EQ(app_.state().hp, app_.state().maxHp) << "补满为止，不溢出";
+    EXPECT_EQ(bagCount("pill_jinchuang_yao"), 1);
+    EXPECT_EQ(lastLine(), "韩立用了金疮药，气血回了 10 点。");
+    dismissLine();
+
+    // 满了再用：不扣，说一句。
+    press(SDL_SCANCODE_RETURN);
+    tick();
+    EXPECT_EQ(bagCount("pill_jinchuang_yao"), 1);
+    EXPECT_EQ(lastLine(), "气血、法力都是满的，不必浪费。");
+}
+
+TEST_F(MenuUse, WithACompanionAlongThePillGoesToWhoeverIsChosen) {
+    meet("a");
+    bagOnly("pill_jinchuang_yao", 1);
+    app_.state().party = {{"zhang_tie", 5, true}};
+    openMenu();
+    for (int i = 0; i < 3; ++i) press(SDL_SCANCODE_DOWN);   // 状态、队伍、名册之后是物品
+    ASSERT_EQ(menu()->pages()[3], Page::Items);
+    press(SDL_SCANCODE_RETURN);   // 进列表
+    press(SDL_SCANCODE_RETURN);   // 用 → 给谁用（第 0 行主角，第 1 行张铁）
+    press(SDL_SCANCODE_DOWN);
+    press(SDL_SCANCODE_RETURN);
+    tick();
+    EXPECT_EQ(app_.state().party[0].hp, 20);
+    EXPECT_EQ(bagCount("pill_jinchuang_yao"), 0);
+}
+
+TEST_F(MenuUse, SomethingThatOnlyWorksInBattleSaysSoAndStaysInTheBag) {
+    bagOnly("material_dansha", 3);
+    openMenu();
+    press(SDL_SCANCODE_DOWN);
+    press(SDL_SCANCODE_RETURN);
+    press(SDL_SCANCODE_RETURN);
+    tick();
+    EXPECT_EQ(bagCount("material_dansha"), 3);
+    EXPECT_EQ(lastLine(), "这件东西眼下用不上。");
+}
+
 }  // namespace

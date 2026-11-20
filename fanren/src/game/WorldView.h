@@ -216,6 +216,11 @@ struct WorldFrame {
     int dangerStars = 0;                            // 野外图的危险星级（0 = 这张图没有遭遇；算法见 docs/interfaces-octo-encounters.md）
     std::string saveNotice;                         // 空串 = 不显示
     std::string pathActionHint;                     // 面向可交互 NPC 时的键位与行动名
+    // 按确认会发生什么（2026-11-20 用户试玩：「离近之后要有对应按钮提示」）：「[Z] 打开」之类，
+    // 浮在那一格的头顶。空串 = 面前没有能按的东西。interactNpc 非空时浮在那个人的名牌上方。
+    std::string interactHint;
+    core::Point interactCell{-1, -1};
+    const core::MapObject* interactNpc = nullptr;
     std::vector<Follower> followers;                // 空 = 没人跟（改版前的样子）
     std::vector<Chest> chests;
     std::vector<Gather> gathers;

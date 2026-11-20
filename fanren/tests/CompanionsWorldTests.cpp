@@ -130,6 +130,8 @@ std::string probeMap() {
         object("gate_a", "gate", 10, 4, {prop("id", "probe_world.gate_a"), prop("skill", "break_seal"), prop("opens", "probe.gate_a_open")}),
         object("gate_b", "gate", 10, 6, {prop("id", "probe_world.gate_b"), prop("skill", "illusion")}),
         object("gate_c", "gate", 11, 6, {prop("id", "probe_world.gate_c"), prop("skill", "nobody"), prop("hint", "ui.facility.locked")}),
+        // 按键型调查点，画在一片空地上（照第 7 章崖下两尸那一格）。
+        object("trigger_look", "trigger", 6, 8, {prop("script", "t/look.lua"), prop("mode", "interact"), propBool("once", false)}),
     };
     std::string list;
     for (const std::string& o : objects) list += (list.empty() ? "" : ",") + o;
@@ -158,6 +160,7 @@ protected:
         writeFile(root_->path() / "maps" / "probe_world.tmj", probeMap());
         writeFile(root_->path() / "scripts" / "t" / "noop.lua", R"(flag.set("probe.noop"))");
         writeFile(root_->path() / "scripts" / "t" / "chat.lua", R"(flag.set("probe.chatted"))");
+        writeFile(root_->path() / "scripts" / "t" / "look.lua", R"(flag.set("probe.looked"))");
         // probe_foe_hard：照谷外孤狼那张编成（可逃、不致命），敌人换成第 13 章的强敌。
         std::ifstream in(root_->path() / "data" / "battles" / (std::string(kWolfBattle) + ".json"), std::ios::binary);
         std::string battle((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
@@ -825,6 +828,68 @@ TEST_F(CompanionsWorld, ACompanionInThePartyIsNotAlsoStandingOnTheMap) {
     // 不是伙伴的队员不受影响：韩母在队里，图上的韩母照旧在。
     party({{"han_mu", true}});
     EXPECT_TRUE(npcShown("han_mu"));
+}
+
+// ---------------------------------------------------------------------------
+// 按键提示与脚下的调查点（2026-11-20 用户试玩第 7 章：「离近之后要有对应按钮提示」；
+// 「到了位置无法继续往下走」——崖下两尸那一格，人站在金圈里、面朝崖按确认没反应）
+// ---------------------------------------------------------------------------
+
+class CompanionsPrompt : public CompanionsWorld {
+protected:
+    std::string hint() {
+        cell_ = Point{-1, -1};
+        const fanren::core::MapObject* npc = nullptr;
+        return scene().interactHint(app_, cell_, npc);
+    }
+    std::string expect(const char* verb) { return app_.text("ui.world.interact.key") + " " + verb; }
+    bool sparkles(const std::string& name) {
+        for (const fanren::core::MapObject* object : frame().hotspots) {
+            if (object->name == name) return true;
+        }
+        return false;
+    }
+    Point cell_{-1, -1};
+};
+
+TEST_F(CompanionsPrompt, AnInteractSpotUnderfootAnswersConfirmWhicheverWayTheHeroFaces) {
+    stand({6, 8}, 0);   // 站在调查点上，面朝上方的空地
+    EXPECT_EQ(hint(), expect("调查"));
+    EXPECT_EQ(cell_, (Point{6, 8})) << "提示落在脚下那一格";
+    EXPECT_TRUE(sparkles("trigger_look"));
+    ASSERT_TRUE(scene().interact(app_));
+    drain();
+    EXPECT_EQ(app_.state().flag("probe.looked"), 1);
+}
+
+TEST_F(CompanionsPrompt, AnInteractSpotInFrontStillWinsOverTheOneUnderfoot) {
+    stand({6, 9}, 0);   // 面朝 (6,8) 的调查点
+    EXPECT_EQ(hint(), expect("调查"));
+    EXPECT_EQ(cell_, (Point{6, 8}));
+    stand({1, 1}, 2);   // 什么都不挨着
+    EXPECT_TRUE(hint().empty());
+    EXPECT_FALSE(scene().interact(app_));
+}
+
+TEST_F(CompanionsPrompt, AClosedChestSparklesAndSaysOpenUntilItIsOpened) {
+    EXPECT_TRUE(sparkles("chest_a"));
+    stand({2, 3}, 2);   // 面朝 (2,4) 的宝箱
+    EXPECT_EQ(hint(), expect("打开"));
+    EXPECT_EQ(cell_, (Point{2, 4}));
+    ASSERT_TRUE(scene().interact(app_));
+    drain();
+    EXPECT_TRUE(hint().empty()) << "开过的空箱子不再提示";
+    EXPECT_FALSE(sparkles("chest_a")) << "开过的箱子不再闪";
+}
+
+TEST_F(CompanionsPrompt, AGatherPointSaysGatherAndAFoeSaysAmbushFromTheSideAndFightFromTheFront) {
+    EXPECT_TRUE(sparkles("gather_a"));
+    stand({4, 3}, 2);   // 面朝 (4,4) 的采集点
+    EXPECT_EQ(hint(), expect("采集"));
+    stand({8, 3}, 2);   // foe_a 在 (8,4)、面朝左：从它头顶那一格看下去是侧面
+    EXPECT_EQ(hint(), expect("偷袭"));
+    stand({7, 4}, 1);   // 它面前那一格
+    EXPECT_EQ(hint(), expect("迎战"));
 }
 
 }  // namespace

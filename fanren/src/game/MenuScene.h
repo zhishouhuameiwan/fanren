@@ -101,7 +101,7 @@ public:
     [[nodiscard]] std::string name() const override { return "Menu"; }
 
 private:
-    enum class Focus { Commands, Items, Magic, Home, Party, PartyActions, Gift };
+    enum class Focus { Commands, Items, Magic, Home, Party, PartyActions, Gift, ItemTarget };
 
     // 一个在队的人：状态页一行。小像在打开菜单时就解析好（贴图句柄 + 取哪一帧），
     // 不在 render 里每帧去查索引、载图——缺图的那一行每帧都会打一次 WARNING。
@@ -134,6 +134,10 @@ private:
     void updateParty(Application& app, bool confirmed);
     void updatePartyActions(Application& app, bool confirmed);
     void giveSelected(Application& app);
+    // 战斗外用药（rules::FieldItems）：物品页按确认 → 不止一人时先选给谁 → 扣一件、说一句。
+    void useSelectedItem(Application& app);
+    void applyItemTo(Application& app, int target);   // target：-1 主角，否则 GameState::party 的下标
+    void rebuildItemTargets(Application& app);
     // 确认了左栏的某一项。返回 false 表示菜单就此关闭。
     bool activate(Application& app);
     void close(Application& app);
@@ -161,6 +165,11 @@ private:
     ui::ListView magics_;
     ui::ListView homeChoices_;
     std::vector<std::string> itemIds_;    // items_ 的第 i 行是哪件东西
+    std::vector<int> itemAges_;           // 同一行的灵草年份（非灵草为 0），扣东西时按它扣
+    ui::ListView itemTargets_;            // 用药：给谁用
+    std::vector<int> itemTargetIndex_;    // itemTargets_ 的第 i 行：-1 主角，否则 party 下标
+    std::string usingItemId_;             // 正在选「给谁用」的那件东西
+    int usingItemAge_ = 0;
     std::vector<Member> members_;
     std::vector<Page> pages_;             // 左栏此刻有哪几项，按画面次序
     ui::ListView party_;                  // 队伍页：队里每个人

@@ -46,6 +46,9 @@ public:
     bool pathAction(Application& app);
 
     [[nodiscard]] std::string pathActionHint(Application& app) const;
+    // 此刻按确认会发生什么：「[Z] 打开」之类，空串 = 没有。判据与 interact() 同一个次序；
+    // cell 写那一格（站在脚下那个调查点上时就是主角自己那格），npc 写面前那个人（不是人则 nullptr）。
+    [[nodiscard]] std::string interactHint(Application& app, core::Point& cell, const core::MapObject*& npc) const;
 
     // 两个纯判定：只看存档状态与地图对象，不碰渲染与输入。
     // 公开出来是为了能直接单测——它们实现的那几个地图属性此前正是
