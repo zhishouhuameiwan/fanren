@@ -6,5 +6,11 @@
   "ui.world.bag.full": "身上再也装不下了，先腾些地方。",
   "ui.world.gate.open": "{name}上前施为，前路开了。",
   "ui.world.gate.need": "这里要{name}来才行。",
-  "ui.world.gate.unknown": "似乎要用别的法子。"
+  "ui.world.gate.unknown": "似乎要用别的法子。",
+  "ui.world.explore.chests": "宝箱 {n}/{total}",
+  "ui.world.explore.gathers": "采集 {n}/{total}",
+  "ui.world.explore.complete": "已寻遍",
+  "ui.world.explore.done": "{place}能找的都找到了。",
+  "ui.world.explore.done.items": "{place}能找的都找到了，又在角落里拾得{items}。",
+  "ui.world.explore.bond": "{names}与你更有默契了。"
 }

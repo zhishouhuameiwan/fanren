@@ -42,9 +42,24 @@ bool walk(Application& app, const std::string& steps) {
             case 'D': dy = 1; break;
             case 'L': dx = -1; break;
             case 'R': dx = 1; break;
+            case 'Z':
+            case '.':
+                break;
             default:
-                std::fprintf(stderr, "walk: 认不出的方向 %c（只认 U D L R）\n", step);
+                std::fprintf(stderr, "walk: 认不出的方向 %c（只认 U D L R，与按确认 Z、等一会儿 .）\n", step);
                 return false;
+        }
+        // Z：面朝前方按一下确认（WorldScene::interact，开箱、采集就是这一下）；「.」：空转一刻（0.25 秒），
+        // 让得物卡片淡入、排队的几张出场（docs/ch07-playtest-ui.md 第 6 节的截图就是这样拍的）。
+        if (step == 'Z' || step == '.') {
+            WorldScene* world = topWorld(app);
+            if (world == nullptr) {
+                std::fprintf(stderr, "walk: %c 之前栈顶已不是世界层，停下\n", step);
+                return false;
+            }
+            if (step == 'Z') (void)world->interact(app);
+            for (int i = 0; i < (step == 'Z' ? 1 : 15); ++i) frame(app);
+            continue;
         }
         // 每一步之前核栈顶仍是世界层：上一步撞上明雷、踩响触发器，压上来的是战斗或对白，
         // 再往下走就是对着被压住的那一层乱走，拍出来的也不是要的那一屏。

@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "core/model/Exploration.h"
 #include "core/model/Lilian.h"
 #include "core/model/Types.h"
 #include "core/rules/Crafting.h"
@@ -20,6 +21,7 @@
 #include "core/rules/PathActions.h"
 #include "engine/Engine.h"
 #include "game/ChapterCardScene.h"
+#include "game/ItemToasts.h"
 #include "game/Portraits.h"
 #include "game/WorldHud.h"
 #include "game/Scene.h"
@@ -191,6 +193,19 @@ public:
     // 发了东西（剧情给物、路径行动给物）：记一笔，帧末响一声 item_get。
     // 同一帧里连发几样只响一声——一次发放响一次，不是每件都响（终审 M-3）。
     void noteItemsGiven() { itemsGiven_ = true; }
+
+    // ---- 得物卡片与集齐奖励（docs/ch07-playtest-ui.md）----
+    //
+    // 拿到一样东西：推一张得物卡片（game/ItemToasts.h：不挡路、不进场景栈，几秒后自己淡出），并记一笔
+    // noteItemsGiven（帧末响一声 item_get）。开箱、采集、脚本 give()、路径行动给物、集齐奖励都走这里。
+    // 只管「让玩家看见」：东西进不进背包由调用方先办好。
+    void announceItem(const std::string& itemId, int count);
+    // 卡片的那一份：世界层露着时随 tick 走时钟（被战斗、菜单整个盖住时停着，回来再接着放），
+    // 画在世界层之上、对话框之下。世界层按确认（面前没有别的能按的）收起它们（WorldScene::update）。
+    [[nodiscard]] ItemToasts& itemToasts() { return itemToasts_; }
+    [[nodiscard]] const ItemToasts& itemToasts() const { return itemToasts_; }
+    // 这张图「找齐」的奖励（data/exploration/*.json，init 时读，game/Exploration.h 发）；没配为 nullptr。
+    [[nodiscard]] const core::ExplorationReward* explorationReward(const std::string& mapId) const;
 
     // ---- 时间 ----
     // 推进游戏内日历若干天，并结算所有按天走的系统。
@@ -538,6 +553,15 @@ private:
 
     PortraitBook portraits_;   // portraits()
     double fixedWorldClock_ = 0.0;   // fixedWorldClock()
+
+    // 得物卡片（itemToasts）与集齐奖励表（explorationReward）。图标图集画的时候才载，无头从不碰。
+    ItemToasts itemToasts_;
+    std::map<std::string, core::ExplorationReward> explorationRewards_;
+    engine::TextureId toastIcons_ = engine::kInvalidTexture;
+    bool toastIconsTried_ = false;
+    hud::Geometry toastGeometry_;
+    // 从栈顶往下第一层不透明的是不是世界层（玩家此刻眼里的底图是不是地图）。卡片只在这时走时钟。
+    [[nodiscard]] bool worldShown() const;
     io::Settings settings_;
     // 「已落盘」的那一份：enable 时读进来生效的、之后每次写盘成功写下的。shutdown 时与 settings_ 不同就补写。
     io::Settings savedSettings_;

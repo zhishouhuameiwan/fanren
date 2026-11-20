@@ -10,6 +10,7 @@
 #include "core/rules/Objectives.h"
 #include "game/Application.h"
 #include "game/DialogueScene.h"
+#include "game/Exploration.h"
 #include "game/PathActionScene.h"
 #include "game/WorldObjects.h"
 
@@ -326,6 +327,15 @@ std::string describeItems(Application& app, const std::vector<worldobj::ItemStac
     return out;
 }
 
+// 开箱、采集拿到东西（docs/ch07-playtest-ui.md 第 2 节）：一件一张得物卡片，不压对话框——人照走，卡片几秒后自己淡出。
+// 对话记录里照旧记那一行「打开箱子，得了……」（回看面板与测试都认它）。这一下若正好把这张图找齐了，
+// 再发集齐奖励（explore::settle：旁白一句，那一句压对话框——一张图只有一次）。
+void announceHaul(Application& app, const std::string& line, const std::vector<worldobj::ItemStack>& items) {
+    app.pushDialogueLine(std::string{}, line);
+    for (const worldobj::ItemStack& stack : items) app.announceItem(stack.itemId, stack.count);
+    explore::settle(app);
+}
+
 // 不在队里的伙伴此刻的名字：她现在该用的那个角色的名字（问名之前叫「白衣女子」，之后叫「南宫婉」）。
 std::string companionName(Application& app, const std::string& companionId) {
     const std::string role = rules::currentRole(app.data().companions, companionId, app.state());
@@ -350,8 +360,7 @@ bool WorldScene::openChest(Application& app, const core::MapObject& chest) {
     }
     worldobj::giveItems(app.state(), app.data(), loot);
     objects.openedChests.insert(chest.property("id"));
-    app.noteItemsGiven();
-    narrate(app, fill(app.text("ui.world.chest.got"), "{items}", describeItems(app, loot)));
+    announceHaul(app, fill(app.text("ui.world.chest.got"), "{items}", describeItems(app, loot)), loot);
     return true;
 }
 
@@ -370,8 +379,7 @@ bool WorldScene::gatherAt(Application& app, const core::MapObject& gather) {
     }
     worldobj::giveItems(app.state(), app.data(), haul);
     objects.gatheredDay[gather.property("id")] = today;
-    app.noteItemsGiven();
-    narrate(app, fill(app.text("ui.world.gather.got"), "{items}", describeItems(app, haul)));
+    announceHaul(app, fill(app.text("ui.world.gather.got"), "{items}", describeItems(app, haul)), haul);
     return true;
 }
 
@@ -562,6 +570,14 @@ bool WorldScene::update(Application& app, double deltaSeconds) {
     }
 
     if (eng.keyPressed(engine::Engine::Key::Confirm)) {
+        // 得物卡片还亮着、面前又没有别的能按的东西（多半正对着刚开空的箱子）：这一下是「收起卡片」，
+        // 不再弹一句「箱子是空的」。面前有能按的（另一个箱子、一个人），照常交互，卡片自己淡出。
+        core::Point cell;
+        const core::MapObject* npc = nullptr;
+        if (app.itemToasts().dismissable() && interactHint(app, cell, npc).empty()) {
+            app.itemToasts().dismiss();
+            return true;
+        }
         interact(app);
         return true;
     }
@@ -693,6 +709,10 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     frame_.mapTitle = app.text(map->displayNameKey);
     // 地名下那一行危险度（有遭遇的图才有，见 Application::dangerStars）。
     frame_.dangerStars = app.dangerStars();
+    // 收集进度「宝箱 2/3 · 采集 1/2」（docs/ch07-playtest-ui.md 第 3 节）：历练里、图上没有宝箱采集点时为空。
+    const explore::Tally tally = explore::currentTally(app);
+    frame_.exploreLine = explore::progressLine(app, tally);
+    frame_.exploreComplete = tally.complete();
     // 存盘那一句：画在屏幕右上角，不跟目标框抢地方，几秒后自己消失。
     if (saveNoticeSeconds_ > 0.0) frame_.saveNotice = saveNotice_;
     frame_.pathActionHint = pathActionHint(app);

@@ -143,6 +143,31 @@ constexpr const char* kMapShiku = "ch07_dixia_shiku";
 constexpr const char* kHuolingshi = "material_huolingshi";
 constexpr const char* kNangong = "nangong_wan";   // 伙伴 id（data/companions/）
 
+// 试玩返修·集齐奖励（docs/ch07-playtest-ui.md 第 4 节的表，抄在这里，不从 data/exploration 读）：禁地六张图各一份，
+// 这张图在场的宝箱全开、采集点都采过就发一次——灵石、一样材料，此刻上场的伙伴默契 +1。
+struct Haul {
+    const char* map;
+    const char* flag;
+    int stones;
+    const char* item;
+};
+constexpr Haul kHauls[] = {
+    {"ch07_jindi_waiwei", "ch07.xunbian_waiwei", 10, "material_hanyan_cao"},
+    {"ch07_jindi_zhongxin", "ch07.xunbian_zhongxin", 10, "material_huolong_cao"},
+    {"ch07_huanxingshan", "ch07.xunbian_huanxingshan", 15, "material_huolong_cao"},
+    {"ch07_dixia_zhaoze", "ch07.xunbian_zhaoze", 8, "material_hanyan_cao"},
+    {"ch07_zhaoze_shenchu", "ch07.xunbian_shenchu", 12, "material_huolingshi"},
+    {"ch07_dixia_shiku", "ch07.xunbian_shiku", 12, "material_huolingshi"},
+};
+constexpr int kHaulBond = 1;
+
+const Haul* haulOf(const std::string& mapId) {
+    for (const Haul& h : kHauls) {
+        if (mapId == h.map) return &h;
+    }
+    return nullptr;
+}
+
 // ---- 本章动到的东西（施工图第 2 节、3.2、第 9 节）----
 constexpr const char* kLingshi = "material_lingshi";
 constexpr const char* kZhong = "material_lingshi_zhong";
@@ -641,6 +666,7 @@ protected:
         throwFights_.clear();
         explored_.clear();
         explorePressed_.clear();
+        hauled_.clear();
         lingshiAfterDanbao_ = -1;
         crafts_ = 0;
         strictWalk_ = false;
@@ -1435,10 +1461,21 @@ protected:
     }
 
     // 面朝那个对象按确认。返回「按了有反应」。
+    // 这一下要是把这张图找齐了（集齐奖励的旗标从 0 变 1），记下是哪一步、她那一刻在不在场上。
     bool pressObject(const MapObject& object) {
         if (!faceObject(object)) return false;
         drainKeys();
+        const std::string mapId = state().mapId;
+        const Haul* haul = haulOf(mapId);
+        const bool hauledBefore = haul == nullptr || flag(haul->flag) != 0;
+        bool herFielded = false;
+        for (const fanren::core::PartyMember& member : state().party) {
+            if (member.active && fanren::rules::companionOfRole(app().data().companions, member.roleId) == kNangong) {
+                herFielded = true;
+            }
+        }
         const bool handled = world_.interact(app());
+        if (!hauledBefore && flag(haul->flag) != 0) hauled_[mapId] = Hauled{currentStep_, herFielded};
         if (app().scripts().isRunning()) pumpScripts();
         dismissDialogues();
         return handled;
@@ -2064,6 +2101,12 @@ protected:
     std::set<Step> explored_;                  // 伙伴改版样板：全收集路线走过的探索步
     bool checkpoints_ = false;                 // 伙伴改版样板：这一趟沿途比 / 写三份检查点（settleCheckpoint）
     std::vector<std::string> explorePressed_;  // 探索时按过 / 踩过 / 打过的对象名
+    // 试玩返修·集齐奖励：哪张图在哪一步、按哪一下时发的，那一刻她在不在场上（默契只给上场的伙伴）。
+    struct Hauled {
+        Step step{};
+        bool herFielded = false;
+    };
+    std::map<std::string, Hauled> hauled_;
 
     // ---- 两条通关共用的几样判卷 ----
 
@@ -2501,8 +2544,25 @@ void Ch07Walkthrough::expectTheFullCollection(const char* label) {
         EXPECT_EQ(flag(f), 1) << label << "：全收集路线把四处插话都踩到了（" << f << "）";
         interjections += flag(f) != 0 ? 1 : 0;
     }
-    EXPECT_EQ(s.bondOf(kNangong), 12 + 8 + 5 + 8 + battleGain + 2 * interjections)
-        << label << "：默契只从 4.6 那几处来";
+    // 试玩返修·集齐奖励（docs/ch07-playtest-ui.md 第 4 节）：六张图都找齐、各发一次，都是在那张图的探索那一步按出来的；
+    // 默契给那一刻上场的伙伴 +1——她入队在地下沼泽，所以只有后三张图算她的。
+    const std::map<std::string, Step> exploreStepOf = {
+        {kMapWaiwei, Step::ExploreWaiwei}, {kMapZhongxin, Step::ExploreZhongxin}, {kMapHxs, Step::ExploreHxs},
+        {kMapZhaoze, Step::ExploreZhaoze}, {kMapShenchu, Step::ExploreShenchu},  {kMapShiku, Step::ExploreShiku}};
+    int haulBond = 0;
+    for (const Haul& h : kHauls) {
+        EXPECT_EQ(flag(h.flag), 1) << label << "：" << h.map << " 找齐了却没发集齐奖励";
+        const auto it = hauled_.find(h.map);
+        if (it == hauled_.end()) {
+            ADD_FAILURE() << label << "：" << h.map << " 的集齐奖励不是探索时按出来的";
+            continue;
+        }
+        EXPECT_EQ(it->second.step, exploreStepOf.at(h.map)) << label << "：" << h.map << " 不是在它那一步找齐的";
+        if (it->second.herFielded) haulBond += kHaulBond;
+    }
+    EXPECT_EQ(haulBond, 3 * kHaulBond) << label << "：她只在地下沼泽、沼泽深处、地底石窟三张图上跟着";
+    EXPECT_EQ(s.bondOf(kNangong), 12 + 8 + 5 + 8 + battleGain + 2 * interjections + haulBond)
+        << label << "：默契只从 4.6 那几处与集齐奖励来";
     EXPECT_GE(s.bondOf(kNangong), 45) << label << "：样板施工图 4.6 / 验收 4「全收集路线不低于 45」（过三档）";
     EXPECT_GE(fanren::rules::bondTier(s.bondOf(kNangong)), 3);
 
@@ -2560,7 +2620,14 @@ void Ch07Walkthrough::expectTheFullCollection(const char* label) {
         if (setup == nullptr) continue;
         for (const auto& drop : setup->reward.drops) designed[b.step][drop.itemId] += drop.count;
     }
-    // 探索那几步的背包增量：图上写的 loot / item ＋ 打赢的仗掉的东西。药另算——仗里会吃，只许少不许多。
+    // 集齐奖励记在找齐的那一步上（上面已核过就是那张图的探索步）。
+    for (const Haul& h : kHauls) {
+        const auto it = hauled_.find(h.map);
+        if (it == hauled_.end()) continue;
+        designed[it->second.step][kLingshi] += h.stones;
+        designed[it->second.step][h.item] += 1;
+    }
+    // 探索那几步的背包增量：图上写的 loot / item ＋ 打赢的仗掉的东西 ＋ 集齐奖励。药另算——仗里会吃，只许少不许多。
     for (const StepRecord& r : steps_) {
         if (!r.finished || infoOf(r.step).kind != Kind::Explore) continue;
         const std::map<std::string, int> got = diffOf(r.bagBefore, r.bagAfter);

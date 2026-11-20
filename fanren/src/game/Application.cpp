@@ -38,6 +38,7 @@
 #include "io/BattleLoader.h"
 #include "io/DataLoader.h"
 #include "io/EncounterLoader.h"
+#include "io/ExplorationLoader.h"
 #include "io/LilianLoader.h"
 #include "io/RecipeLoader.h"
 #include "io/SaveFile.h"
@@ -249,6 +250,19 @@ core::Result<bool> Application::init(const std::string& assetRoot, bool headless
         }
     }
     lilianSites_ = std::move(sites.value);
+
+    // 集齐奖励表（docs/ch07-playtest-ui.md 第 4 节）。与历练地同一个态度：没有目录是合法的（一张也没配），
+    // 写坏了拦启动。物品 id 在这里对一遍：发奖那一刻才发现查不到，玩家拿到的就是一张写着 id 的卡片。
+    auto rewards = io::loadExplorationRewards(assetRoot_ + "/data/exploration");
+    if (!rewards) return core::Result<bool>::failure(rewards.error);
+    for (const auto& [mapId, reward] : rewards.value) {
+        for (const core::BagEntry& entry : reward.items) {
+            if (data_.findItem(entry.itemId) == nullptr) {
+                return core::Result<bool>::failure("集齐奖励 " + mapId + " 的物品 " + entry.itemId + " 不在 data/items");
+            }
+        }
+    }
+    explorationRewards_ = std::move(rewards.value);
 
     scripts_ = std::make_unique<script::ScriptHost>();
     // 脚本出错不该静默：错误直接汇进引擎日志，开发期一眼看见。
@@ -560,6 +574,7 @@ void Application::returnToTitle() {
     screenFade_ = 0.f;
     bgmOverride_.clear();
     itemsGiven_ = false;
+    itemToasts_.clear();
     shops_ = initialShops_;
     // 历练里返回首页：那一趟就此作罢（与读档、新开局同一个口径），不然 inLilian() 还为真，
     // 回到首页再「继续旅程」之前，存档闸、worldObjects() 都还指着那一趟。
@@ -575,6 +590,7 @@ core::Result<bool> Application::startNewJourney() {
     dialogueLog_.clear();
     spokenKeys_.clear();
     pendingCards_.clear();
+    itemToasts_.clear();
     screenFade_ = 0.f;
     auto loaded = loadMap(kNewGameMap, std::string{});
     if (!loaded) return loaded;
@@ -598,6 +614,7 @@ core::Result<bool> Application::continueJourney(const std::string& savePath) {
     if (!loaded) return loaded;
     state_.position = at;
     pendingCards_.clear();
+    itemToasts_.clear();   // 读档前那一局拿到的东西，不该在读回来的这一局里弹出来
     screenFade_ = 0.f;
     replaceScene(std::make_unique<WorldScene>());
     return core::Result<bool>::success(true);
@@ -853,7 +870,7 @@ bool Application::applyPathEffect(const core::PathAction& action, const rules::P
         }
         case Kind::GiveItem:
             state_.addItem(effect.item.itemId, effect.item.count, effect.item.herbAge);
-            noteItemsGiven();
+            announceItem(effect.item.itemId, effect.item.count);
             return true;
         case Kind::TakeItem:
             return state_.removeItem(effect.item.itemId, effect.item.count);
@@ -1215,7 +1232,8 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
         }
         case CommandKind::GiveItem:
             state_.addItem(command.a, command.x <= 0 ? 1 : command.x, command.y);
-            noteItemsGiven();
+            // 主线里给的东西同样弹一张得物卡片（docs/ch07-playtest-ui.md 第 2 节）：卡片不挡脚本，对白照常往下走。
+            announceItem(command.a, command.x <= 0 ? 1 : command.x);
             return true;
         case CommandKind::TakeItem: {
             // 东西不够就如实报失败，让脚本能走「你没有这个」的分支。
@@ -1718,6 +1736,9 @@ void Application::tick(double deltaSeconds) {
         engine_->playSfx("item_get");
     }
 
+    // 得物卡片的时钟：只在世界层露着时走——给完东西紧接着开战、开菜单，卡片停在那里，回到地图上再放完。
+    if (worldShown()) itemToasts_.advance(static_cast<float>(deltaSeconds));
+
     // 玩法计时器。系统菜单（主菜单、标题画面）的时间另记，见方案 2.2 的防刷口径：
     // 「首次游玩 ≥ 10 小时」数的是玩的时间，不是开着菜单发呆的时间。
     if (systemSceneActive()) {
@@ -1747,7 +1768,30 @@ void Application::drawScenes() {
                                             static_cast<float>(engine::kLogicalHeight)},
                               ui::withAlpha(theme_.inkDeep, alpha), engine::BlendMode::Alpha);
         }
+        // 得物卡片：紧贴着世界层（与黑幕之上）画，对话框压在它上面——一边读对白一边看得见刚拿到了什么。
+        if (itemToasts_.active() && dynamic_cast<WorldScene*>(scenes_[i].get()) != nullptr) {
+            if (!toastIconsTried_) {
+                toastIconsTried_ = true;
+                toastIcons_ = engine_->loadTexture("art/ui/icons.png");
+            }
+            drawItemToasts(*engine_, theme_, toastGeometry_, toastIcons_, itemToasts_, heroScreenRect());
+        }
     }
+}
+
+void Application::announceItem(const std::string& itemId, int count) {
+    itemToasts_.push(makeItemToast(data_, state_, itemId, count));
+    noteItemsGiven();
+}
+
+const core::ExplorationReward* Application::explorationReward(const std::string& mapId) const {
+    const auto it = explorationRewards_.find(mapId);
+    return it == explorationRewards_.end() ? nullptr : &it->second;
+}
+
+bool Application::worldShown() const {
+    const auto shown = std::find_if(scenes_.rbegin(), scenes_.rend(), [](const ScenePtr& s) { return s->opaque(); });
+    return shown != scenes_.rend() && dynamic_cast<const WorldScene*>(shown->get()) != nullptr;
 }
 
 int Application::run() {
