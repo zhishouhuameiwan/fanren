@@ -1,10 +1,15 @@
 #include "game/ShotScenes.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <memory>
+#include <sstream>
+#include <string>
 
 #include "core/rules/Roster.h"
 #include "game/Application.h"
+#include "game/BoardScene.h"
+#include "game/TutorialScene.h"
 #include "game/LilianPartyScene.h"
 #include "game/MenuScene.h"
 #include "game/WorldScene.h"
@@ -106,6 +111,58 @@ bool pushCompanionShot(Application& app, const std::string& kind, const std::str
         return true;
     }
     if (kind == "walk" && !arg.empty()) return walk(app, arg);
+    if (kind == "guide" && !arg.empty()) return pushGuideShot(app, arg, warmup);
+    return false;
+}
+
+bool pushGuideShot(Application& app, const std::string& spec, int& warmup) {
+    // guide:<那一屏>[@记号,记号…]。记号先办（演示用的存档状态），再压那一屏：
+    //   旗标名          置这一面旗（ch07.chaibao、tutorial.seen.boost、ch07.pojin……）
+    //   weak.<角色 id>  把这个角色的破绽全记下（见闻页的「已知破绽」）
+    const std::size_t at = spec.find('@');
+    const std::string what = spec.substr(0, at);
+    if (at != std::string::npos) {
+        std::stringstream marks(spec.substr(at + 1));
+        for (std::string mark; std::getline(marks, mark, ',');) {
+            if (mark.rfind("weak.", 0) == 0) {
+                const core::RoleTemplate* role = app.data().findRole(mark.substr(5));
+                if (role == nullptr) {
+                    std::fprintf(stderr, "guide: 没有这个角色：%s\n", mark.c_str());
+                    return false;
+                }
+                app.state().learnWeaknesses(role->id, role->weaknesses);
+            } else if (!mark.empty()) {
+                app.state().setFlag(mark);
+            }
+        }
+    }
+    if (what == "world") return true;   // 只要底下那张世界层（目标框、头顶标记）
+    if (what == "main" || what == "side" || what == "guide" || what == "lore") {
+        app.setFixedWorldClock(kShotMenuWorldClockSeconds);
+        const BoardScene::Page page = what == "main"    ? BoardScene::Page::Main
+                                      : what == "side"  ? BoardScene::Page::Side
+                                      : what == "guide" ? BoardScene::Page::Guide
+                                                        : BoardScene::Page::Lore;
+        app.pushScene(std::make_unique<BoardScene>(page));
+        return true;
+    }
+    if (what.rfind("tutorial=", 0) == 0) {
+        app.pushScene(std::make_unique<TutorialScene>(what.substr(9)));
+        return true;
+    }
+    if (what.rfind("lorenote=", 0) == 0) {
+        // 见闻提示要淡进来：多空转几帧（世界层露着时它才走时钟）。
+        for (const core::LoreEntry& entry : app.data().lore) {
+            if (entry.id == what.substr(9)) {
+                app.loreNotices().push(app.data().lookupText("ui.guide.lore.unlocked") + app.data().lookupText(entry.titleKey));
+                warmup = std::max(warmup, 30);
+                return true;
+            }
+        }
+        std::fprintf(stderr, "guide: 没有这条见闻：%s\n", what.c_str());
+        return false;
+    }
+    std::fprintf(stderr, "guide: 认不出的一屏：%s\n", what.c_str());
     return false;
 }
 

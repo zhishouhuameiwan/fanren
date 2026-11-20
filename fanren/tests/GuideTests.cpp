@@ -757,3 +757,19 @@ TEST(GuideTutorials, ACardLivesBetweenTheEndOfTheChapterBeforeAndTheEndOfItsLast
     card.maxChapter = 0;
     EXPECT_TRUE(fanren::rules::tutorialInChapter(card, nullptr)) << "两头都不设限";
 }
+
+TEST(GuideBoard, ChapterSevenSideQuestsSayWhatTheyGive) {
+    // G-25：两条第 7 章支线的回报是脚本按情形发的（不进 rewards），支线页照样写得出「奖励」那一行。
+    const GameData& data = realData();
+    GameState state;
+    state.setFlag("story.xiuxian_known");
+    for (const char* id : {"q07_baigong", "q07_yujian"}) {
+        const auto it = std::find_if(data.quests.begin(), data.quests.end(),
+                                     [id](const fanren::core::Quest& q) { return q.id == id; });
+        ASSERT_NE(it, data.quests.end()) << id;
+        EXPECT_TRUE(it->rewards.empty()) << id << "：回报照旧不进 rewards（Ch07SliceTests 钉着）";
+        const std::string line = BoardScene::rewardLine(data, state, *it);
+        EXPECT_NE(line.find("奖励"), std::string::npos) << id;
+        EXPECT_EQ(line.find(it->rewardKey), std::string::npos) << id << " 的奖励文案没进 data/text：" << line;
+    }
+}
