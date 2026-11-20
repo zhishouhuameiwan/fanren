@@ -2,6 +2,9 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
+#include <string>
+#include <vector>
 #include <memory>
 #include <sstream>
 #include <string>
@@ -10,6 +13,7 @@
 #include "game/Application.h"
 #include "game/BoardScene.h"
 #include "game/TutorialScene.h"
+#include "game/DialogueScene.h"
 #include "game/LilianPartyScene.h"
 #include "game/MenuScene.h"
 #include "game/WorldScene.h"
@@ -87,10 +91,55 @@ bool walk(Application& app, const std::string& steps) {
     return true;
 }
 
+// 地基包路 D（docs/ch07-foundation.md 4.2–4.4）的四张图：
+//   dlg:auto:<文案 key>[:<说话人>]      自动播放开着的对话框（框上沿的「自动」小标）。只改这一局的设置，不写盘
+//   dlg:skipask:<文案 key>[:<说话人>]   整段跳过的确认框
+//   dlg:skipped:<句数>                  跳完之后那一条「已跳过 N 句 · 按 Tab 回看」
+//   dlg:bubble:<角色 id>:<文案 key>     插话气泡：这个角色若不在队里先让她入队（跟在主角身后），气泡浮在她头顶
+bool pushDialogueShot(Application& app, const std::string& arg) {
+    std::vector<std::string> parts;
+    for (std::size_t from = 0;;) {
+        const std::size_t at = arg.find(':', from);
+        parts.push_back(arg.substr(from, at == std::string::npos ? std::string::npos : at - from));
+        if (at == std::string::npos) break;
+        from = at + 1;
+    }
+    const std::string& what = parts[0];
+    if ((what == "auto" || what == "skipask") && parts.size() >= 2) {
+        const std::string speaker = parts.size() > 2 ? app.speakerName(parts[2]) : std::string{};
+        auto scene = std::make_unique<DialogueScene>(speaker, app.text(parts[1]));
+        if (parts.size() > 2) scene->setPortrait(parts[2], script::kDefaultFace);
+        scene->revealAtOnce();
+        if (what == "auto") {
+            io::Settings next = app.settings();
+            next.autoAdvance = true;
+            app.setSettings(next);
+        } else {
+            scene->openSkipAsk(app);
+        }
+        app.pushScene(std::move(scene));
+        return true;
+    }
+    if (what == "skipped" && parts.size() == 2) {
+        app.noteDialogueSkipped(std::atoi(parts[1].c_str()));
+        return true;
+    }
+    if (what == "bubble" && parts.size() == 3) {
+        if (!app.state().partyHas(parts[1])) (void)app.state().partyAdd(parts[1]);
+        // 跟随者要等世界层排开才找得到：先挂在主角身后一格，排开之后每帧按角色重找。
+        const core::Point hero = app.state().position;
+        app.pushSpeechBubble(parts[1], parts[2], 30.f,
+                             Vec2f{static_cast<float>(hero.x), static_cast<float>(hero.y + 1)});
+        return true;
+    }
+    std::fprintf(stderr, "dlg: 认不出的 %s\n", arg.c_str());
+    return false;
+}
+
 }  // namespace
 
 bool pushCompanionShot(Application& app, const std::string& kind, const std::string& arg, int& warmup) {
-    (void)warmup;   // 这几个入口都不用比缺省更长的空转
+    // 这几个入口都不用比缺省更长的空转；地基包路 D 的气泡图例外（见下）。
     if (kind == "lilian" && !arg.empty()) {
         // 认不出的历练地如实报错：组队面板照样画得出来，拍出一张看着正常、其实什么都不是的图最难查。
         if (app.lilianSite(arg) == nullptr) {
@@ -112,6 +161,11 @@ bool pushCompanionShot(Application& app, const std::string& kind, const std::str
     }
     if (kind == "walk" && !arg.empty()) return walk(app, arg);
     if (kind == "guide" && !arg.empty()) return pushGuideShot(app, arg, warmup);
+    if (kind == "dlg" && !arg.empty()) {
+        // 气泡有 0.15 秒的淡入：照缺省的几帧拍，拍到的是半透明的那一下。多空转半秒。
+        if (arg.rfind("bubble:", 0) == 0) warmup = std::max(warmup, 30);
+        return pushDialogueShot(app, arg);
+    }
     return false;
 }
 

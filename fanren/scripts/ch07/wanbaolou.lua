@@ -18,18 +18,11 @@ end
 
 talk("", "ch07.wanbaolou.pick")
 talk("", "ch07.wanbaolou.boss")
-talk("", "ch07.wanbaolou.boss_ask")
 talk("", "ch07.wanbaolou.alias")
 talk("", "ch07.wanbaolou.guard")
-talk("", "ch07.wanbaolou.want")
 talk("", "ch07.wanbaolou.brick")
 talk("tian_buli", "ch07.wanbaolou.fubao1")
-talk("tian_buli", "ch07.wanbaolou.fubao2")
-talk("tian_buli", "ch07.wanbaolou.fubao3")
-talk("", "ch07.wanbaolou.rest")
 talk("tian_buli", "ch07.wanbaolou.items1")
-talk("tian_buli", "ch07.wanbaolou.items2")
-talk("tian_buli", "ch07.wanbaolou.price")
 
 local pick = choice{
     "ch07.wanbaolou.opt_one",
@@ -62,7 +55,6 @@ give("talisman_tianleizi")
 give("talisman_jinguangzhuan")
 magic.learn("magic_ji_jinfu")
 magic.learn("magic_ji_jinguangzhuan")
-talk("", "ch07.wanbaolou.jue")
 
 if pick == 1 then
     talk("tian_buli", "ch07.wanbaolou.ask1")

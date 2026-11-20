@@ -14,10 +14,7 @@ if item.count_aged("herb_huangjing_zhi", 1000) < 2 then
 end
 
 talk("", "ch07.yuanjiao.months")
-talk("", "ch07.yuanjiao.ma")
-talk("", "ch07.yuanjiao.done")
 talk("", "ch07.yuanjiao.why")
 talk("", "ch07.yuanjiao.who")
-talk("", "ch07.yuanjiao.next")
 
 flag.set("ch07.qiannian")

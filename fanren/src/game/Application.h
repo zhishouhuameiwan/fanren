@@ -23,6 +23,7 @@
 #include "core/rules/Tutorials.h"
 #include "engine/Engine.h"
 #include "game/ChapterCardScene.h"
+#include "game/DialogueExtras.h"
 #include "game/ItemToasts.h"
 #include "game/LoreNotices.h"
 #include "game/Portraits.h"
@@ -500,6 +501,31 @@ public:
     [[nodiscard]] const std::vector<SpokenLine>& dialogueLog() const { return dialogueLog_; }
     void pushDialogueLine(std::string speaker, std::string body, std::string roleId = {}, std::string face = {});
 
+    // ---- 对白减负（第 7 章地基包路 D，docs/ch07-foundation.md 4.2–4.4）----
+    // 自动播放开 / 关：改设置、当场写盘（对话框里按路径行动键走这里）。
+    void toggleAutoAdvance();
+    // 此刻能不能整段跳过：有脚本在跑、正等着一句 talk 演完（路径行动、提示那种不经脚本的框不跳）。
+    [[nodiscard]] bool canSkipDialogue() const;
+    // 开始整段跳过：从下一条命令起，talk 不再逐框显示，直接记进回看（spokenKeys 照记），
+    // 直到下一条要玩家动手的命令（选择、战斗、商店、结局卡）或脚本结束。途中 give、set_flag、teleport 照常，
+    // wait 与淡入淡出压成当场完成。选择永远不自动选：跳到选择就停。
+    void beginDialogueSkip();
+    [[nodiscard]] bool skippingDialogue() const { return dialogueSkipping_; }
+    // 跳完之后那一条「已跳过 N 句 · 按 Tab 回看」。停着的时候世界层上的菜单键翻开回看面板。
+    [[nodiscard]] const SkipNotice& skipNotice() const { return skipNotice_; }
+    // 插话气泡（bubble 命令）。
+    [[nodiscard]] const SpeechBubbles& speechBubbles() const { return speechBubbles_; }
+    // 浮一只气泡（不记回看；bubble 命令自己先记）。跟随者按 roleId 每帧重找，找不到用 fallbackCell。截图口也调它。
+    void pushSpeechBubble(const std::string& roleId, const std::string& textKey, float seconds,
+                          std::optional<Vec2f> fallbackCell);
+    // 弹「已跳过 N 句 · 按 Tab 回看」（endDialogueSkip 与截图口共用）。
+    void noteDialogueSkipped(int lines);
+    // 这个角色此刻在画面上的哪一格（世界格，带滑步的小数）：跟随者、主角按画面上的位置，NPC 按图上那一格。
+    // 不在画面上（没有世界层、人不在这张图上、出了镜头）返回空——bubble 据此退回成普通对白。
+    [[nodiscard]] std::optional<Vec2f> bubbleCell(const std::string& roleId);
+    // 一格在屏幕上的位置（逻辑像素，格的左上角）；没有世界层时返回空。
+    [[nodiscard]] std::optional<engine::Point> cellToScreen(Vec2f cell) const;
+
 private:
     // 取出脚本命令并派发。能就地完成的（给物品、置旗标）直接执行并 resume；
     // 需要玩家参与的（对话、选择、战斗）压入场景，由场景回填。
@@ -552,8 +578,19 @@ private:
     std::vector<std::string> spokenKeys_;
     // 回看用的对话记录。上限比 key 那一份小：回看是「刚才说了什么」，
     // 不是通关实录，六十行已经比任何一场戏都长（最长的一场 39 句）。
-    static constexpr std::size_t kDialogueLogCap = 60;
+    // 地基包路 D：整段跳过把一整段直接塞进来，跳过之前那一段、跳过的这一段都要翻得全——调到 120。
+    static constexpr std::size_t kDialogueLogCap = 120;
     std::vector<SpokenLine> dialogueLog_;
+    // 地基包路 D：整段跳过、跳完的提示、插话气泡。
+    bool dialogueSkipping_ = false;
+    int skippedLines_ = 0;
+    SkipNotice skipNotice_;
+    SpeechBubbles speechBubbles_;
+    void endDialogueSkip();
+    void resetDialogueExtras();
+    // 记一句话（spokenKeys + 回看），不压对话框。sayAs、整段跳过、气泡共用。
+    void recordSpoken(const std::string& roleId, const std::string& textKey, const std::string& face);
+    void drawSpeechBubbles();
     int pendingPops_ = 0;
 
     ChapterTable chapters_;

@@ -7,7 +7,6 @@
 -- 登 tests/ObjectiveTests.cpp 的 kScriptTransfers（坊市 → 山洞）。
 
 talk("", "ch07.fangshi_chu.go")
-talk("", "ch07.fangshi_chu.loop")
 
 advance_days(6)
 

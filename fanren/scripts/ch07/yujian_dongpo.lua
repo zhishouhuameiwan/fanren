@@ -7,7 +7,6 @@
 -- 第一侧最小路线打它，交接存档的背包不能变；见 data/battles/be07_dongpo_tiebi_yuan.json 的说明）。
 -- 赢：成熟的玉髓芝 2（300 年）——节点 32b 嗅灵兽一并交上去，门派多给一份赏。过期：ch07.didao（掉进地道就回不来了）。
 
-talk("", "ch07.yujian_dongpo.hut")
 talk("", "ch07.yujian_dongpo.apes")
 
 local won = battle("be07_dongpo_tiebi_yuan")
@@ -18,6 +17,5 @@ end
 
 talk("", "ch07.yujian_dongpo.inside")
 give("herb_yusui_zhi", 2, 300)
-talk("", "ch07.yujian_dongpo.leave")
 
 flag.set("ch07.yujian_a")

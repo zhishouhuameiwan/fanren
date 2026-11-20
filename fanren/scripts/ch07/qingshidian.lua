@@ -8,15 +8,10 @@
 -- 末尾 teleport ch07_dixia_zhaoze 石阶口 (3,2)（genmaps_ch07.py 的 ZHAOZE_SHIJIE）；登 kScriptTransfers。
 
 talk("", "ch07.qingshidian.bad")
-talk("", "ch07.qingshidian.enough")
 talk("", "ch07.qingshidian.jade")
-talk("", "ch07.qingshidian.hall")
 talk("", "ch07.qingshidian.door")
 talk("", "ch07.qingshidian.doubt")
-talk("", "ch07.qingshidian.people")
 talk("", "ch07.qingshidian.inside")
-talk("", "ch07.qingshidian.hole")
-talk("", "ch07.qingshidian.down")
 
 flag.set("ch07.didao")
 teleport("ch07_dixia_zhaoze", 3, 2)

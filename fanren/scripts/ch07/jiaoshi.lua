@@ -13,14 +13,11 @@
 -- 置 ch07.xinglai：石阶口那一格（trigger_fengkou）从此备着。
 
 talk("", "ch07.jiaoshi.sword")
-talk("", "ch07.jiaoshi.lump")
 talk("", "ch07.jiaoshi.smoke")
-talk("", "ch07.jiaoshi.dark")
 talk("", "ch07.jiaoshi.wake")
 talk("baiyi_shaonv", "ch07.jiaoshi.dream")
 talk("", "ch07.jiaoshi.promise")
 talk("baiyi_shaonv", "ch07.jiaoshi.gong")
-talk("", "ch07.jiaoshi.box")
 talk("", "ch07.jiaoshi.herbs")
 give("herb_yusui_zhi", 8, 400)
 give("herb_zihou_hua", 7, 400)
@@ -28,6 +25,5 @@ give("herb_tianling_guo", 7, 300)
 give("herb_yusui_zhi", 2, 1)
 give("material_mojiao_cailiao", 1)
 bond.add("nangong_wan", 12)
-talk("", "ch07.jiaoshi.after")
 
 flag.set("ch07.xinglai")

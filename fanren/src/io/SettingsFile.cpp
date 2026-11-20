@@ -176,6 +176,7 @@ SettingsRead parseSettingsImpl(std::string_view text) {
     readWord(root, "text_speed", kTextSpeedWords, s.textSpeed, warnings);
     readBool(root, "pad_rumble", s.padRumble, warnings);
     readBool(root, "tutorial_cards", s.tutorialCards, warnings);
+    readBool(root, "auto_advance", s.autoAdvance, warnings);   // 地基包路 D：对白自动播放
     readKeys(root, s.keys, warnings);
     return read;
 }
@@ -194,6 +195,7 @@ std::string settingsText(const Settings& s) {
     root["text_speed"] = textSpeedId(s.textSpeed);
     root["pad_rumble"] = s.padRumble;   // docs/gamepad.md 第 8 节：样例里排在 text_speed 后面
     root["tutorial_cards"] = s.tutorialCards;   // 第一期地基包 2.3
+    root["auto_advance"] = s.autoAdvance;   // 地基包路 D（docs/ch07-foundation.md 4.2）
     // 键位按第 6 节那张表的次序写；表外的 id（只可能是代码里直接塞进来的）排在后面照写，不悄悄丢。
     nlohmann::ordered_json keys = nlohmann::ordered_json::object();
     for (const std::string_view id : kKeyActionIds) {

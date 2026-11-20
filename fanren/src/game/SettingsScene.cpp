@@ -14,8 +14,8 @@ namespace {
 
 // 摆位。面板居中；一行 = 列表行高（字号 + 行距，与各面板同一个数）。
 // 「手柄震动」一行加进来时（docs/gamepad.md 第 8 节）高 592 → 622、仍上下居中，说明行与按键提示的间距不变。
-// 「教学提示」一行（第一期地基包 2.3）再高一行 622 → 652，仍上下居中。
-constexpr engine::Rect kPanel{330, 34, 620, 652};
+// 「自动播放」（地基包路 D）、「教学提示」（路 G）各加一行：622 → 682，仍上下居中。
+constexpr engine::Rect kPanel{330, 19, 620, 682};
 constexpr int kTopGap = 6;          // 标题带之下、第一个分组之上
 constexpr int kIndent = 20;         // 行名比分组名缩进这么多
 constexpr int kValueLeft = 300;     // 值那一栏从面板左边起多远
@@ -53,6 +53,7 @@ constexpr std::array<RowText, SettingsScene::kRowCount> kRowText{{
     {"ui.settings.screen_shake", "ui.settings.desc.screen_shake"},
     {"ui.settings.text_speed", "ui.settings.desc.text_speed"},
     {"ui.settings.pad_rumble", "ui.settings.desc.pad_rumble"},
+    {"ui.settings.auto_advance", "ui.settings.desc.auto_advance"},   // 文案在 data/text/ui_dialogue.json
     {"ui.settings.tutorial_cards", "ui.settings.desc.tutorial_cards"},
     {"ui.settings.keys", "ui.settings.desc.keys"},
     {"ui.settings.restore", "ui.settings.desc.restore"},
@@ -67,7 +68,7 @@ struct Group {
 constexpr std::array<Group, 3> kGroups{{
     {"ui.settings.group.sound", SettingsScene::kBgmVolume, 2},
     {"ui.settings.group.display", SettingsScene::kFullscreen, 5},
-    {"ui.settings.group.play", SettingsScene::kTextSpeed, 4},
+    {"ui.settings.group.play", SettingsScene::kTextSpeed, 5},
 }};
 
 // 各档的叫法。
@@ -123,6 +124,7 @@ std::string SettingsScene::valueText(const core::GameData& data, const io::Setti
         case kScreenShake: return data.lookupText(onOffKey(settings.screenShake));
         case kTextSpeed: return data.lookupText(textSpeedKey(settings.textSpeed));
         case kPadRumble: return data.lookupText(onOffKey(settings.padRumble));
+        case kAutoAdvance: return data.lookupText(onOffKey(settings.autoAdvance));
         case kTutorialCards: return data.lookupText(onOffKey(settings.tutorialCards));
         default: return {};
     }
@@ -176,6 +178,8 @@ io::Settings SettingsScene::adjusted(const io::Settings& settings, int row, int 
         case kPadRumble:
             next.padRumble = step < 0;   // 开 / 关
             break;
+        case kAutoAdvance:
+            next.autoAdvance = step < 0;   // 开 / 关（与上面几行同一个次序：← 开、→ 关）
         case kTutorialCards:
             next.tutorialCards = step < 0;   // 开 / 关
             break;

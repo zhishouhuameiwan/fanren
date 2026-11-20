@@ -11,14 +11,11 @@
 -- 末尾 teleport ch07_huanxingshan 地面破洞旁 (38,35)（genmaps_ch07.py 的 HXS_POKONG）；登 kScriptTransfers。
 
 talk("", "ch07.wenming.climb")
-talk("", "ch07.wenming.light")
 talk("", "ch07.jiaoshi.name_ask")
-talk("", "ch07.wenming.veil")
 talk("nangong_wan_ch07", "ch07.jiaoshi.name_say")
 bond.add("nangong_wan", 8)
 talk("", "ch07.jiaoshi.name_after")
 party.remove("baiyi_shaonv")
-talk("", "ch07.wenming.part")
 
 flag.set("ch07.nangong")
 teleport("ch07_huanxingshan", 38, 35)

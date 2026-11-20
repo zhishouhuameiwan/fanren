@@ -1,0 +1,15 @@
+{
+  "ui.settings.auto_advance": "自动播放",
+  "ui.settings.desc.auto_advance": "对白读完停一两秒自动翻下一句；遇到选项一定停下，等你自己选。对话里按路径行动键也能随时开关。",
+
+  "ui.dialogue.keys2": "{key.action} 自动　Esc 跳过",
+  "ui.dialogue.keys2.pad": "{pad.action} 自动　{pad.cancel} 跳过",
+  "ui.dialogue.keys_auto": "{key.action} 自动",
+  "ui.dialogue.keys_auto.pad": "{pad.action} 自动",
+  "ui.dialogue.auto": "自动",
+  "ui.dialogue.skip.ask": "跳过这一段对话？",
+  "ui.dialogue.skip.yes": "跳过",
+  "ui.dialogue.skip.no": "接着看",
+  "ui.dialogue.skipped": "已跳过 {n} 句 · 按 {key.menu} 回看",
+  "ui.dialogue.skipped.pad": "已跳过 {n} 句 · 按 {pad.menu} 回看"
+}

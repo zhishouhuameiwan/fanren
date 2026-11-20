@@ -7,9 +7,7 @@
 -- 六七日后马师伯来：三味主药天生自长、没有种子、幼苗离了原地难活；不肯说出处，只说去了等于送死。
 -- advance_days(6)：「六七日后」（施工图 3.3）。马师伯本章不摆 NPC，只在挂点里说话（3.1 开头）。
 
-talk("", "ch07.dufang.read")
 talk("", "ch07.dufang.aux")
-talk("", "ch07.dufang.bottle")
 talk("", "ch07.dufang.main")
 talk("", "ch07.dufang.dingyan")
 
@@ -17,9 +15,6 @@ advance_days(6)
 
 talk("", "ch07.dufang.ma_came")
 talk("ma_shibo", "ch07.dufang.ma_seed")
-talk("ma_shibo", "ch07.dufang.ma_move")
-talk("", "ch07.dufang.where")
-talk("ma_shibo", "ch07.dufang.ma_death")
 talk("", "ch07.dufang.think")
 
 flag.set("ch07.dufang")

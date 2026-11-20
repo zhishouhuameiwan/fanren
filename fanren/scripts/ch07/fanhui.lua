@@ -9,11 +9,8 @@
 -- 中途 teleport ch06_baiyaoyuan (24,10)（genmaps_ch07.py 的 BAIYAOYUAN_LUKOU）：回园之后的几句在园子里说。登 kScriptTransfers（山洞 → 百药园）。
 
 talk("", "ch07.fanhui.dawn")
-talk("", "ch07.fanhui.face")
 talk("", "ch07.fanhui.kill")
-talk("", "ch07.fanhui.yuanyang")
 talk("", "ch07.fanhui.clean")
-talk("", "ch07.fanhui.carry")
 if take("pill_qingling_san", 1) then
     talk("", "ch07.fanhui.qingling")
 else
@@ -23,12 +20,9 @@ end
 advance_days(1)
 teleport("ch06_baiyaoyuan", 24, 10)
 
-talk("", "ch07.fanhui.home")
 talk("", "ch07.fanhui.seclusion")
 advance_days(3)
 talk("", "ch07.fanhui.pills")
-talk("", "ch07.fanhui.hers")
-talk("", "ch07.fanhui.ledger")
 talk("", "ch07.fanhui.month")
 advance_days(30)
 

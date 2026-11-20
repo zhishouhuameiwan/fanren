@@ -556,7 +556,9 @@ TEST(KeyPrompts, PlaceholdersOnlyLiveInTheFourPromptsThatGoThroughText) {
     const std::set<std::string> allowed{"ui.menu.keys", "ui.battle.hint.menu", "ui.battle.hint.watch", "ui.dialogue.keys",
                                         "objective.ch09.n20_huicheng", "ui.world.path.key",
                                         "ui.world.interact.key",    // 2026-11-20：地图上头顶的按键小牌子（docs/gamepad.md 第 6 节）
-                                        "ui.guide.tutorial.close"};   // 第一期地基包：教学卡底下那一行「[Z] 知道了」
+                                        "ui.guide.tutorial.close",   // 第一期地基包：教学卡底下那一行「[Z] 知道了」
+                                        // 地基包路 D（docs/ch07-foundation.md 4.2–4.3）：对白框第二块键位牌、跳过之后的提示。
+                                        "ui.dialogue.keys2", "ui.dialogue.keys_auto", "ui.dialogue.skipped"};
 
     constexpr std::string_view kOpen = "{key.";
     std::set<std::string> carriers;
@@ -612,6 +614,7 @@ TEST(KeyPrompts, PadPlaceholdersOnlyLiveInTheElevenPadPrompts) {
         "ui.world.path.key.pad",
         "ui.world.interact.key.pad",   // 2026-11-20：地图上头顶的按键小牌子
         "ui.guide.tutorial.close.pad",   // 第一期地基包：教学卡底下那一行
+        "ui.dialogue.keys2.pad", "ui.dialogue.keys_auto.pad", "ui.dialogue.skipped.pad",   // 地基包路 D：对白框第二块键位牌、跳过之后的提示
     };
     constexpr std::string_view kOpen = "{pad.";
     constexpr std::string_view kPadSuffix = ".pad";
@@ -651,8 +654,10 @@ TEST(KeyPrompts, PadPlaceholdersOnlyLiveInTheElevenPadPrompts) {
         for (std::size_t at = bytes.find(kOpen); at != std::string::npos; at = bytes.find(kOpen, at + 1)) ++viaBytes;
     }
     EXPECT_EQ(viaBytes, viaData);
-    EXPECT_EQ(viaData, 22u) << "Original 18 placeholders plus Chapter 9's menu prompt, the world action hint, "
-                               "the 2026-11-20 interact prompt and the tutorial card's close prompt";
+    EXPECT_EQ(viaData, 26u) << "Original 18 placeholders plus Chapter 9's menu prompt, the world action hint, "
+                               "the 2026-11-20 interact prompt, the tutorial card's close prompt, and the ch07 "
+                               "foundation route D dialogue prompts (keys2.pad has two, keys_auto.pad and skipped.pad "
+                               "one each)";
 }
 
 // 复查 N1：抓键中按 Alt+F4 想退出——Alt 放过之后，同一下 SDL 还发 F4 的按下（带 Alt 修饰）。从前 F4 被抓走、配进当前格，

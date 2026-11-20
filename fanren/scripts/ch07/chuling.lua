@@ -7,7 +7,6 @@
 
 talk("", "ch07.chuling.ask")
 talk("yu_zhishi", "ch07.chuling.yu")
-talk("", "ch07.chuling.token")
 talk("", "ch07.chuling.where")
 
 flag.set("ch07.chuling")

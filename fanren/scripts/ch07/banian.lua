@@ -18,13 +18,10 @@ if item.count("pill_zhuji_dan") < 4 then
 end
 
 talk("", "ch07.banian.first")
-talk("", "ch07.banian.go_on")
 
 advance_days(180)
 
 talk("", "ch07.banian.rate")
-talk("", "ch07.banian.bigu")
-talk("", "ch07.banian.chouhan")
 local rest = item.count("material_zhuji_yaofen")
 if rest > 0 then
     take("material_zhuji_yaofen", rest)

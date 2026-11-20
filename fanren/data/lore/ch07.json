@@ -42,6 +42,190 @@
       "body_key": "lore.ch07.bishui_e.body",
       "unlock_flag": "ch07.kundi",
       "role_id": "bishui_e"
+    },
+    {
+      "id": "yuelu_ru_menjin",
+      "category": "shijian",
+      "title_key": "lore.ch07.yuelu_ru_menjin.title",
+      "body_key": "lore.ch07.yuelu_ru_menjin.body",
+      "unlock_flag": "ch07.yuelu",
+      "role_id": ""
+    },
+    {
+      "id": "cangshi_xulao",
+      "category": "renwu",
+      "title_key": "lore.ch07.cangshi_xulao.title",
+      "body_key": "lore.ch07.cangshi_xulao.body",
+      "unlock_flag": "ch07.cangshi",
+      "role_id": ""
+    },
+    {
+      "id": "dihuo_wen_dihuo",
+      "category": "shijian",
+      "title_key": "lore.ch07.dihuo_wen_dihuo.title",
+      "body_key": "lore.ch07.dihuo_wen_dihuo.body",
+      "unlock_flag": "ch07.yinsi",
+      "role_id": ""
+    },
+    {
+      "id": "dufang_zhuyao",
+      "category": "lingcao",
+      "title_key": "lore.ch07.dufang_zhuyao.title",
+      "body_key": "lore.ch07.dufang_zhuyao.body",
+      "unlock_flag": "ch07.dufang",
+      "role_id": ""
+    },
+    {
+      "id": "chuangong_jindi",
+      "category": "shijian",
+      "title_key": "lore.ch07.chuangong_jindi.title",
+      "body_key": "lore.ch07.chuangong_jindi.body",
+      "unlock_flag": "ch07.lianqi",
+      "role_id": ""
+    },
+    {
+      "id": "chuangong_lianqishu",
+      "category": "shijian",
+      "title_key": "lore.ch07.chuangong_lianqishu.title",
+      "body_key": "lore.ch07.chuangong_lianqishu.body",
+      "unlock_flag": "ch07.lianqi",
+      "role_id": ""
+    },
+    {
+      "id": "fangshi_guiju",
+      "category": "shijian",
+      "title_key": "lore.ch07.fangshi_guiju.title",
+      "body_key": "lore.ch07.fangshi_guiju.body",
+      "unlock_flag": "ch07.fangshi",
+      "role_id": ""
+    },
+    {
+      "id": "wanbaolou_fubao",
+      "category": "shijian",
+      "title_key": "lore.ch07.wanbaolou_fubao.title",
+      "body_key": "lore.ch07.wanbaolou_fubao.body",
+      "unlock_flag": "ch07.wanbaolou",
+      "role_id": ""
+    },
+    {
+      "id": "chuangong_fengjin",
+      "category": "shijian",
+      "title_key": "lore.ch07.chuangong_fengjin.title",
+      "body_key": "lore.ch07.chuangong_fengjin.body",
+      "unlock_flag": "ch07.fudan_fa",
+      "role_id": ""
+    },
+    {
+      "id": "liedui_qipai",
+      "category": "shijian",
+      "title_key": "lore.ch07.liedui_qipai.title",
+      "body_key": "lore.ch07.liedui_qipai.body",
+      "unlock_flag": "ch07.qipai",
+      "role_id": ""
+    },
+    {
+      "id": "liedui_duyue",
+      "category": "shijian",
+      "title_key": "lore.ch07.liedui_duyue.title",
+      "body_key": "lore.ch07.liedui_duyue.body",
+      "unlock_flag": "ch07.qipai",
+      "role_id": ""
+    },
+    {
+      "id": "yixiantian_guiju",
+      "category": "shijian",
+      "title_key": "lore.ch07.yixiantian_guiju.title",
+      "body_key": "lore.ch07.yixiantian_guiju.body",
+      "unlock_flag": "ch07.yixiantian",
+      "role_id": ""
+    },
+    {
+      "id": "shulin_qianyin",
+      "category": "shijian",
+      "title_key": "lore.ch07.shulin_qianyin.title",
+      "body_key": "lore.ch07.shulin_qianyin.body",
+      "unlock_flag": "ch07.fengyue",
+      "role_id": ""
+    },
+    {
+      "id": "tongmen_sanceng",
+      "category": "shijian",
+      "title_key": "lore.ch07.tongmen_sanceng.title",
+      "body_key": "lore.ch07.tongmen_sanceng.body",
+      "unlock_flag": "ch07.zhongwu",
+      "role_id": ""
+    },
+    {
+      "id": "yueyang_baozhu",
+      "category": "shijian",
+      "title_key": "lore.ch07.yueyang_baozhu.title",
+      "body_key": "lore.ch07.yueyang_baozhu.body",
+      "unlock_flag": "ch07.yueyang",
+      "role_id": ""
+    },
+    {
+      "id": "xiaoshidian_wangchen",
+      "category": "lingcao",
+      "title_key": "lore.ch07.xiaoshidian_wangchen.title",
+      "body_key": "lore.ch07.xiaoshidian_wangchen.body",
+      "unlock_flag": "ch07.wuyou",
+      "role_id": ""
+    },
+    {
+      "id": "fengkou_sunv",
+      "category": "shijian",
+      "title_key": "lore.ch07.fengkou_sunv.title",
+      "body_key": "lore.ch07.fengkou_sunv.body",
+      "unlock_flag": "ch07.kundi",
+      "role_id": ""
+    },
+    {
+      "id": "chukou_guiju",
+      "category": "shijian",
+      "title_key": "lore.ch07.chukou_guiju.title",
+      "body_key": "lore.ch07.chukou_guiju.body",
+      "unlock_flag": "ch07.chujindi",
+      "role_id": ""
+    },
+    {
+      "id": "chukou_duyue",
+      "category": "shijian",
+      "title_key": "lore.ch07.chukou_duyue.title",
+      "body_key": "lore.ch07.chukou_duyue.body",
+      "unlock_flag": "ch07.chujindi",
+      "role_id": ""
+    },
+    {
+      "id": "xieshili_xieshili",
+      "category": "shijian",
+      "title_key": "lore.ch07.xieshili_xieshili.title",
+      "body_key": "lore.ch07.xieshili_xieshili.body",
+      "unlock_flag": "ch07.xieshili",
+      "role_id": ""
+    },
+    {
+      "id": "chouhan_lingshi",
+      "category": "shijian",
+      "title_key": "lore.ch07.chouhan_lingshi.title",
+      "body_key": "lore.ch07.chouhan_lingshi.body",
+      "unlock_flag": "ch07.dihuo",
+      "role_id": ""
+    },
+    {
+      "id": "shijiu_dihuojian",
+      "category": "shijian",
+      "title_key": "lore.ch07.shijiu_dihuojian.title",
+      "body_key": "lore.ch07.shijiu_dihuojian.body",
+      "unlock_flag": "ch07.feidan",
+      "role_id": ""
+    },
+    {
+      "id": "zhuji_qingyuan",
+      "category": "shijian",
+      "title_key": "lore.ch07.zhuji_qingyuan.title",
+      "body_key": "lore.ch07.zhuji_qingyuan.body",
+      "unlock_flag": "ch07.done",
+      "role_id": ""
     }
   ]
 }

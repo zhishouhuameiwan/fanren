@@ -9,18 +9,14 @@
 -- 李师祖的 NPC 站在殿门前（visible ch07.ma_songyao / hidden ch07.jihe），钟掌门只在台词里（第 6 章已出场）。
 -- advance_days(2)；teleport ch07_jindi_wai 荒山的石坳 (5,4)（genmaps_ch07.py 的 JINDI_WAI_HUANGSHAN）；登 kScriptTransfers。
 
-talk("", "ch07.jihe.hall")
 talk("", "ch07.jihe.chen")
-talk("", "ch07.jihe.lu")
 talk("", "ch07.jihe.count")
 talk("zhong_lingdao", "ch07.jihe.zhang")
 talk("", "ch07.jihe.stone")
 give("material_lingshi_zhong", 1)
-talk("", "ch07.jihe.bag")
 give("story_bubao_faqi")
 talk("", "ch07.jihe.li")
 talk("li_huayuan", "ch07.jihe.li_go")
-talk("", "ch07.jihe.mang")
 
 advance_days(2)
 

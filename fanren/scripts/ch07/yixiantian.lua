@@ -7,7 +7,6 @@
 -- 毁尸，带走五六个储物袋（东西在节点 34 清点，这里不给）。原著那几句骂人的话与「像被蚊子叮了一下」不用。
 
 talk("", "ch07.yixiantian.path")
-talk("", "ch07.yixiantian.noflight")
 talk("", "ch07.yixiantian.block")
 talk("luosai_huzi", "ch07.yixiantian.huzi")
 talk("yan_xiongdi", "ch07.yixiantian.yan")
@@ -21,7 +20,5 @@ if not won then
 end
 
 talk("", "ch07.yixiantian.after")
-talk("", "ch07.yixiantian.bags")
-talk("", "ch07.yixiantian.burn")
 
 flag.set("ch07.yixiantian")

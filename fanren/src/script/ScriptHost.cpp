@@ -55,6 +55,7 @@ const std::unordered_map<std::string, CommandKind>& kindTable() {
         {"realm_demote", CommandKind::RealmDemote},
         {"bond_add", CommandKind::BondAdd},
         {"tutorial", CommandKind::Tutorial},
+        {"bubble", CommandKind::Bubble},   // 地基包路 D：伙伴插话气泡
     };
     return table;
 }

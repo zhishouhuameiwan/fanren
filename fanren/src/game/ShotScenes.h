@@ -9,6 +9,8 @@
 //   walk:<方向串>             让主角照真入口（WorldScene::tryStep）走几步再拍：U 上 D 下 L 左 R 右，
 //                             每一步照游戏的次序一帧帧走到主角与跟随者都停下；撞墙的那一步不算错，照样往下走。
 //                             另认 Z（面朝前方按确认：开箱、采集）与 .（空转 0.25 秒，等得物卡片淡入）
+//   dlg:auto|skipask|skipped|bubble:…  地基包路 D 的对白减负四张图（自动小标、跳过确认框、跳过提示、插话气泡），
+//                             参数见 ShotScenes.cpp 的 pushDialogueShot
 //
 // 带伙伴的世界层、四人战斗面板不另开入口：存档里有伙伴（--load）、编成照旧（battle:<编成 id>）就拍得到。
 #include <string>

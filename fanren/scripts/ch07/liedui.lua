@@ -14,25 +14,11 @@
 
 advance_days(1)
 
-talk("", "ch07.liedui.morning")
 talk("", "ch07.liedui.qingxu")
-talk("fuyunzi", "ch07.liedui.fuyun")
-talk("li_huayuan", "ch07.liedui.li_bet")
 talk("fuyunzi", "ch07.liedui.fuyun_bet")
-talk("", "ch07.liedui.rules")
-talk("", "ch07.liedui.qiong")
 talk("qiong_qianbei", "ch07.liedui.qiong_bet")
-talk("", "ch07.liedui.qiong_gone")
-talk("", "ch07.liedui.li_turn")
 talk("li_huayuan", "ch07.liedui.li_world")
-talk("li_huayuan", "ch07.liedui.li_seven")
-talk("li_huayuan", "ch07.liedui.li_respect")
-talk("li_huayuan", "ch07.liedui.li_promise")
-talk("", "ch07.liedui.no_master")
 talk("", "ch07.liedui.yanyue")
-talk("", "ch07.liedui.others")
-talk("", "ch07.liedui.girl")
-talk("luosai_huzi", "ch07.liedui.huzi")
 talk("", "ch07.liedui.face")
 
 -- 太南谷那笔账：第 6 章 8b 以物易物补不齐时，卖符少女让他先欠着的养精丹，ch06.qianyao 记瓶数
@@ -43,8 +29,6 @@ if flag.get("ch06.qianyao") > 0 then
     talk("", "ch07.liedui.qian_done")
     flag.set("ch06.qianyao", 0)
 end
-
-talk("", "ch07.liedui.fly")
 
 flag.set("ch07.qipai")
 teleport("ch07_jindi_wai", 23, 25)

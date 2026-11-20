@@ -7,8 +7,6 @@
 -- give("weapon_wuming_sixian")：暗器，揣在身上普攻多一类（施工图 8.2；BATTLE_EXTRA_MEANS 的「暗器」来路）。
 
 talk("", "ch07.liangshi.cliff")
-talk("", "ch07.liangshi.bodies")
-talk("", "ch07.liangshi.how")
 talk("", "ch07.liangshi.bags")
 talk("", "ch07.liangshi.probe")
 talk("", "ch07.liangshi.thread")

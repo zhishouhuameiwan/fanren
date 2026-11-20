@@ -20,25 +20,11 @@
 -- 末尾 teleport ch06_baiyaoyuan (24,10)（BAIYAOYUAN_LUKOU）；登 kScriptTransfers。
 
 talk("", "ch07.chukou.out")
-talk("", "ch07.chukou.wait")
-talk("", "ch07.chukou.first")
-talk("", "ch07.chukou.counts")
-talk("", "ch07.chukou.sit")
-talk("", "ch07.chukou.chen")
-talk("", "ch07.chukou.late")
-talk("", "ch07.chukou.han")
-talk("", "ch07.chukou.yanyue")
-talk("nichang_xianzi", "ch07.chukou.nichang")
-talk("", "ch07.chukou.veil")
 talk("", "ch07.chukou.xiang")
 if flag.get("ch07.xiang") == 1 then
     talk("", "ch07.chukou.xiang_old")
 end
-talk("", "ch07.chukou.close")
 
-talk("", "ch07.chukou.beast")
-talk("", "ch07.chukou.others")
-talk("", "ch07.chukou.turn")
 local handed = 0
 local n = item.count_aged("herb_yusui_zhi", 100)
 if n > 0 and take_aged("herb_yusui_zhi", n, 100) then
@@ -57,26 +43,15 @@ if handed >= 20 then
 else
     talk("", "ch07.chukou.pile_small")
 end
-talk("", "ch07.chukou.sniff")
 if flag.get("ch07.yujian_a") ~= 0 and flag.get("ch07.yujian_b") ~= 0 then
     talk("", "ch07.chukou.yujian")
     give("material_lingshi", 50)
     give("material_lingshi_zhong", 1)
 end
 
-talk("", "ch07.chukou.bet")
-talk("", "ch07.chukou.fuyun")
-talk("", "ch07.chukou.li_iron")
 talk("", "ch07.chukou.ship")
-talk("", "ch07.chukou.han_smile")
 
-talk("", "ch07.chukou.last")
 talk("li_huayuan", "ch07.chukou.li_ask")
-talk("", "ch07.chukou.answer")
-talk("li_huayuan", "ch07.chukou.li_where")
-talk("", "ch07.chukou.story")
-talk("li_huayuan", "ch07.chukou.li_luck")
-talk("li_huayuan", "ch07.chukou.li_offer")
 
 local pick = choice{
     "ch07.chukou.opt_pause",
@@ -86,7 +61,6 @@ if pick ~= 2 then
     pick = 1
 end
 if pick == 1 then
-    talk("", "ch07.chukou.pause")
     talk("li_huayuan", "ch07.chukou.pause_li")
     talk("", "ch07.chukou.pause_kneel")
 else

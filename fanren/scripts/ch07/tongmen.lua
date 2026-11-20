@@ -10,9 +10,7 @@
 -- **原著「果皮果肉果核」那个比方不用**（13 第 5 条）。末尾 advance_days(1)：树洞里睡到第三日凌晨。
 
 talk("", "ch07.tongmen.wall")
-talk("", "ch07.tongmen.bodies")
 talk("", "ch07.tongmen.garden")
-talk("", "ch07.tongmen.snakes")
 talk("", "ch07.tongmen.dodge")
 talk("zhong_wu", "ch07.tongmen.boots")
 if take("story_hei_xue", 1) then
@@ -35,13 +33,8 @@ else
     talk("zhong_wu", "ch07.tongmen.found_zw")
 end
 talk("zhong_wu", "ch07.tongmen.wall_who")
-talk("zhong_wu", "ch07.tongmen.swap")
 talk("", "ch07.tongmen.swap_do")
 talk("", "ch07.tongmen.layers")
-talk("", "ch07.tongmen.ring")
-talk("", "ch07.tongmen.pearl")
-talk("", "ch07.tongmen.tower")
-talk("", "ch07.tongmen.part")
 talk("", "ch07.tongmen.hollow")
 
 advance_days(1)

@@ -579,6 +579,7 @@ void Application::returnToTitle() {
     itemsGiven_ = false;
     itemToasts_.clear();
     resetGuideWatch();
+    resetDialogueExtras();   // 地基包路 D：跳过、跳完的提示、气泡
     shops_ = initialShops_;
     // 历练里返回首页：那一趟就此作罢（与读档、新开局同一个口径），不然 inLilian() 还为真，
     // 回到首页再「继续旅程」之前，存档闸、worldObjects() 都还指着那一趟。
@@ -596,6 +597,7 @@ core::Result<bool> Application::startNewJourney() {
     pendingCards_.clear();
     itemToasts_.clear();
     resetGuideWatch();
+    resetDialogueExtras();   // 地基包路 D：跳过、跳完的提示、气泡
     screenFade_ = 0.f;
     auto loaded = loadMap(kNewGameMap, std::string{});
     if (!loaded) return loaded;
@@ -625,6 +627,7 @@ core::Result<bool> Application::continueJourney(const std::string& savePath) {
     pendingCards_.clear();
     itemToasts_.clear();   // 读档前那一局拿到的东西，不该在读回来的这一局里弹出来
     resetGuideWatch();
+    resetDialogueExtras();   // 地基包路 D：跳过、跳完的提示、气泡
     screenFade_ = 0.f;
     replaceScene(std::make_unique<WorldScene>());
     return core::Result<bool>::success(true);
@@ -980,14 +983,19 @@ std::string Application::worldBgm() const {
     return map_ == nullptr ? std::string{} : map_->bgm;
 }
 
-void Application::sayAs(const std::string& roleId, const std::string& textKey, const std::string& face) {
+void Application::recordSpoken(const std::string& roleId, const std::string& textKey, const std::string& face) {
     // 先记下 key 再建场景：建场景会把 key 换成正文，之后就查不到它了。
     if (spokenKeys_.size() >= kSpokenLogCap) spokenKeys_.erase(spokenKeys_.begin());
     spokenKeys_.push_back(textKey);
     const std::string speaker = roleId.empty() ? std::string{} : speakerName(roleId);
-    const std::string body = text(textKey);
     // 同一行同时进两份记录：key 那份给测试，这份给玩家回看。
-    pushDialogueLine(speaker, body, roleId, face);
+    pushDialogueLine(speaker, text(textKey), roleId, face);
+}
+
+void Application::sayAs(const std::string& roleId, const std::string& textKey, const std::string& face) {
+    recordSpoken(roleId, textKey, face);
+    const std::string speaker = roleId.empty() ? std::string{} : speakerName(roleId);
+    const std::string body = text(textKey);
     auto scene = std::make_unique<DialogueScene>(speaker, body);
     // 头像要的是角色 id 与表情，不是名字（伙伴改版 3.9）；画不画由对话框自己定。
     scene->setPortrait(roleId, face);
@@ -1190,11 +1198,42 @@ void Application::showMessage(const std::string& textKey) {
 bool Application::dispatch(const script::Command& command, script::CommandResult& outcome) {
     using script::CommandKind;
 
+    // 地基包路 D（docs/ch07-foundation.md 4.3）：整段跳过一路跳到要玩家动手的那一条为止。
+    // **选择永远不自动选**：跳到选择就停，选择框照常弹出来等玩家按。
+    if (dialogueSkipping_ && (command.kind == CommandKind::Choice || command.kind == CommandKind::Battle ||
+                              command.kind == CommandKind::Shop || command.kind == CommandKind::Ending ||
+                              command.kind == CommandKind::GameOver)) {
+        endDialogueSkip();
+    }
+
     switch (command.kind) {
         case CommandKind::Talk:
+            // 整段跳过中：不压对话框，只记进回看（spokenKeys 照记），就地完成。
+            if (dialogueSkipping_) {
+                recordSpoken(command.b, command.a, command.c.empty() ? std::string(script::kDefaultFace) : command.c);
+                ++skippedLines_;
+                return true;
+            }
             // 与路径行动的话同一个入口（sayAs），口径只有一处定义。表情没给就是缺省那一个。
             sayAs(command.b, command.a, command.c.empty() ? std::string(script::kDefaultFace) : command.c);
             return false;
+        case CommandKind::Bubble: {
+            // 伙伴插话气泡（4.4）：浮在那个人头顶，不压场景、不收输入，人照走；同时记进回看。
+            // 那个人不在画面上：退回成普通对白，话不能丢。整段跳过中与 talk 一样只记一笔。
+            if (dialogueSkipping_) {
+                recordSpoken(command.b, command.a, std::string(script::kDefaultFace));
+                ++skippedLines_;
+                return true;
+            }
+            const std::optional<Vec2f> cell = bubbleCell(command.b);
+            if (!cell) {
+                sayAs(command.b, command.a);
+                return false;
+            }
+            recordSpoken(command.b, command.a, std::string(script::kDefaultFace));
+            pushSpeechBubble(command.b, command.a, command.x > 0 ? static_cast<float>(command.x) / 1000.f : 3.f, cell);
+            return true;
+        }
         case CommandKind::Choice: {
             std::vector<std::string> options;
             options.reserve(command.options.size());
@@ -1318,9 +1357,9 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
                                          : command.kind == CommandKind::FadeIn
                                              ? FadeScene::Kind::In
                                              : FadeScene::Kind::Wait;
-            if (headless_) {
+            if (headless_ || dialogueSkipping_) {
                 // 无头没人看，当场到终值、当场回填：与改造前一样一帧也不多等，
-                // 测试与无头 bot 的节奏不受影响。
+                // 测试与无头 bot 的节奏不受影响。整段跳过中（地基包路 D）同样压成当场完成。
                 setScreenFade(FadeScene::levelAt(kind, screenFade_, 0.0, 0.0));
                 return true;
             }
@@ -1706,7 +1745,11 @@ void Application::pumpScriptCommands() {
         if (commandPending_) return;
 
         script::Command command;
-        if (!scripts_->pollCommand(command)) return;
+        if (!scripts_->pollCommand(command)) {
+            // 地基包路 D：整段跳过一路跳到脚本结束——收住，弹「已跳过 N 句」。
+            if (dialogueSkipping_ && !scripts_->isRunning()) endDialogueSkip();
+            return;
+        }
 
         commandPending_ = true;
         script::CommandResult result;
@@ -1731,7 +1774,15 @@ void Application::tick(double deltaSeconds) {
 
     if (!scenes_.empty()) {
         Scene& top = *scenes_.back();
-        if (!top.update(*this, deltaSeconds)) popScene();
+        // 地基包路 D：「已跳过 N 句 · 按 Tab 回看」停着时，世界层上的菜单键翻开回看面板（不开主菜单）。
+        // 这一帧世界层不再 update：同一下按键不能既翻回看又开主菜单。
+        if (skipNotice_.holding() && engine_ && engine_->keyPressed(engine::Engine::Key::Menu) &&
+            dynamic_cast<WorldScene*>(&top) != nullptr) {
+            skipNotice_.clear();
+            pushScene(std::make_unique<DialogueLogScene>());
+        } else if (!top.update(*this, deltaSeconds)) {
+            popScene();
+        }
     }
 
     // 章节卡排在改栈之前：这一帧要压的卡与别的压栈一起在下面落地，下一帧就在最上面。
@@ -1762,6 +1813,9 @@ void Application::tick(double deltaSeconds) {
     // 得物卡片的时钟：只在世界层露着时走——给完东西紧接着开战、开菜单，卡片停在那里，回到地图上再放完。
     if (worldShown()) itemToasts_.advance(static_cast<float>(deltaSeconds));
     if (worldShown()) loreNotices_.advance(static_cast<float>(deltaSeconds));
+    // 地基包路 D：跳过提示照墙上的钟走（打开回看、进了战斗都照走）；气泡只在世界层露着时走。
+    skipNotice_.advance(static_cast<float>(deltaSeconds));
+    if (worldShown()) speechBubbles_.advance(static_cast<float>(deltaSeconds));
 
     // 玩法计时器。系统菜单（主菜单、标题画面）的时间另记，见方案 2.2 的防刷口径：
     // 「首次游玩 ≥ 10 小时」数的是玩的时间，不是开着菜单发呆的时间。
@@ -1804,7 +1858,13 @@ void Application::drawScenes() {
         if (loreNotices_.active() && dynamic_cast<WorldScene*>(scenes_[i].get()) != nullptr) {
             drawLoreNotice(*engine_, theme_, loreGeometry_, loreNotices_);
         }
+        // 地基包路 D：插话气泡紧贴世界层画，对话框压在它上面。
+        if (speechBubbles_.active() && dynamic_cast<WorldScene*>(scenes_[i].get()) != nullptr) {
+            drawSpeechBubbles();
+        }
     }
+    // 地基包路 D：「已跳过 N 句」画在最上面——跳到选择时它要压在选择框之上才看得见。
+    if (skipNotice_.active()) drawSkipNotice(*engine_, theme_, skipNotice_);
 }
 
 void Application::announceItem(const std::string& itemId, int count) {
@@ -1942,4 +2002,134 @@ void Application::watchGuide() {
     if (state_.maxHp > 0 && state_.hp * 2 < state_.maxHp) tutorialEvent("world.hurt");
 }
 
+}  // namespace fanren::game
+
+namespace fanren::game {
+// ---------------------------------------------------------------------------
+// 对白减负（第 7 章地基包路 D，docs/ch07-foundation.md 4.2–4.4）
+// ---------------------------------------------------------------------------
+
+void Application::resetDialogueExtras() {
+    dialogueSkipping_ = false;
+    skippedLines_ = 0;
+    skipNotice_.clear();
+    speechBubbles_.clear();
+}
+
+void Application::toggleAutoAdvance() {
+    io::Settings next = settings_;
+    next.autoAdvance = !next.autoAdvance;
+    setSettings(next);
+    // 写盘失败不拦着：这一局里照样生效，原因打到标准错误（与设置面板以外的写盘同一个态度）。
+    if (auto saved = saveSettings(); !saved) {
+        std::fprintf(stderr, "[settings] 自动播放没写进设置文件：%s\n", saved.error.c_str());
+    }
+}
+
+bool Application::canSkipDialogue() const {
+    return scripts_ != nullptr && scripts_->isRunning() && commandPending_ && !dialogueSkipping_;
+}
+
+void Application::beginDialogueSkip() {
+    if (!canSkipDialogue()) return;
+    dialogueSkipping_ = true;
+    skippedLines_ = 0;
+    skipNotice_.clear();
+}
+
+void Application::endDialogueSkip() {
+    if (!dialogueSkipping_) return;
+    dialogueSkipping_ = false;
+    noteDialogueSkipped(skippedLines_);
+}
+
+void Application::noteDialogueSkipped(int lines) {
+    std::string line = text("ui.dialogue.skipped");
+    if (const std::size_t at = line.find("{n}"); at != std::string::npos) line.replace(at, 3, std::to_string(lines));
+    skipNotice_.show(std::move(line));
+}
+
+void Application::pushSpeechBubble(const std::string& roleId, const std::string& textKey, float seconds,
+                                   std::optional<Vec2f> fallbackCell) {
+    SpeechBubble bubble;
+    bubble.roleId = roleId;
+    bubble.text = text(textKey);
+    bubble.seconds = seconds > 0.f ? seconds : 3.f;
+    bubble.fixedCell = fallbackCell;
+    speechBubbles_.push(std::move(bubble));
+}
+
+std::optional<engine::Point> Application::cellToScreen(Vec2f cell) const {
+    for (auto it = scenes_.rbegin(); it != scenes_.rend(); ++it) {
+        if (const auto* world = dynamic_cast<const WorldScene*>(it->get())) {
+            const Vec2f camera = world->view().camera();
+            return engine::Point{static_cast<int>(std::lround(cell.x * kWorldTilePx - camera.x)),
+                                 static_cast<int>(std::lround(cell.y * kWorldTilePx - camera.y))};
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<Vec2f> Application::bubbleCell(const std::string& roleId) {
+    if (roleId.empty() || map_ == nullptr || !worldShown()) return std::nullopt;
+    WorldScene* world = nullptr;
+    for (auto it = scenes_.rbegin(); it != scenes_.rend() && world == nullptr; ++it) {
+        world = dynamic_cast<WorldScene*>(it->get());
+    }
+    if (world == nullptr) return std::nullopt;
+    std::optional<Vec2f> cell;
+    // 跟在身后的伙伴：画面上她此刻站在哪儿（带滑步）。
+    for (const FollowerTrack::Slot& slot : world->view().followers()) {
+        if (slot.roleId == roleId) {
+            cell = slot.slide.position();
+            break;
+        }
+    }
+    // 图上站着的 NPC（只算此刻在场的）。
+    if (!cell) {
+        for (const WorldFrame::Npc& npc : world->describeFrame(*this).npcs) {
+            if (npc.roleId == roleId && npc.object != nullptr) {
+                cell = Vec2f{static_cast<float>(npc.object->position.x), static_cast<float>(npc.object->position.y)};
+                break;
+            }
+        }
+    }
+    if (!cell) return std::nullopt;
+    // 出了镜头也算不在画面上。镜头按逻辑位置算（与 heroScreenRect 同一个算法）：画面的镜头要渲染过才有，
+    // 无头下没有渲染，而「在不在画面上」是规则层的判断，不该随有没有窗口变。
+    const Vec2f focus{static_cast<float>(state_.position.x) + 0.5f, static_cast<float>(state_.position.y) + 0.5f};
+    const Vec2f camera = cameraTarget(map_->width, map_->height, focus);
+    const std::optional<engine::Point> screen = engine::Point{
+        static_cast<int>(std::lround(cell->x * kWorldTilePx - camera.x)),
+        static_cast<int>(std::lround(cell->y * kWorldTilePx - camera.y))};
+    if (!screen || screen->x + kWorldTilePx < 0 || screen->y + kWorldTilePx < 0 || screen->x >= engine::kLogicalWidth ||
+        screen->y >= engine::kLogicalHeight) {
+        return std::nullopt;
+    }
+    return cell;
+}
+
+void Application::drawSpeechBubbles() {
+    if (engine_ == nullptr) return;
+    const WorldScene* world = nullptr;
+    for (auto it = scenes_.rbegin(); it != scenes_.rend() && world == nullptr; ++it) {
+        world = dynamic_cast<const WorldScene*>(it->get());
+    }
+    for (const SpeechBubble& bubble : speechBubbles_.bubbles()) {
+        // 跟随者每帧重找：人走气泡跟着走。找不到（离队、换了图）就用压气泡那一刻的格。
+        std::optional<Vec2f> cell;
+        if (world != nullptr) {
+            for (const FollowerTrack::Slot& slot : world->view().followers()) {
+                if (slot.roleId == bubble.roleId) cell = slot.slide.position();
+            }
+        }
+        if (!cell) cell = bubble.fixedCell;
+        if (!cell) continue;
+        const std::optional<engine::Point> screen = cellToScreen(*cell);
+        if (!screen) continue;
+        // 头顶：格的上沿再往上半格（人比一格高出一截）。
+        const engine::Point anchor{screen->x + kWorldTilePx / 2, screen->y - kWorldTilePx / 2};
+        drawSpeechBubble(*engine_, theme_, bubble.text, anchor, SpeechBubbles::opacity(bubble));
+    }
+}
 }  // namespace fanren::game

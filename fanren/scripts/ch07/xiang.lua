@@ -7,7 +7,6 @@
 
 talk("", "ch07.xiang.come")
 talk("xiang_zhili", "ch07.xiang.pitch")
-talk("xiang_zhili", "ch07.xiang.pitch2")
 talk("", "ch07.xiang.think")
 
 local pick = choice{
@@ -24,6 +23,5 @@ else
     talk("", "ch07.xiang.later")
     talk("xiang_zhili", "ch07.xiang.later_reply")
 end
-talk("", "ch07.xiang.gone")
 
 flag.set("ch07.xiang", pick)
