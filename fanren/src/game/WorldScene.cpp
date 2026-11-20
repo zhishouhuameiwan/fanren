@@ -174,8 +174,9 @@ bool WorldScene::tryStep(Application& app, int dx, int dy) {
     if (visibleNpcAt(state, *map, target, companions) != nullptr) return false;
     if (map->objectAt(target, "facility") != nullptr) return false;
     // 宝箱、采集点、明雷占格；机关关着时占格、开了不占（契约 2.4）。在不在场、开没开问 worldobj，
-    // 状态经 Application::worldObjects()——历练里是「这一趟」那份。
-    if (worldobj::blockerAt(state, app.worldObjects(), *map, target) != nullptr) return false;
+    // 状态经 Application::worldObjects()——历练里是「这一趟」那份。会走的明雷按它此刻那一格（foePoses）。
+    const worldobj::FoePoses* poses = foePoses(app);
+    if (worldobj::blockerAt(state, app.worldObjects(), *map, target, poses) != nullptr) return false;
 
     const core::Point from = state.position;
     state.position = target;
@@ -185,8 +186,9 @@ bool WorldScene::tryStep(Application& app, int dx, int dy) {
 
     // 明雷：踏进它面前那一格就被看见，直接开打，不加不减（契约 3.4）。排在触发器与传送点前面：
     // 被看见是这一步最先发生的事。逃跑成功退回 from——开打前站的那一格。
-    if (const core::MapObject* foe = worldobj::foeWatching(state, app.worldObjects(), *map, target)) {
-        startFoeBattle(app, *foe, /*preemptive=*/false, from);
+    // 会走的明雷按它此刻的格与朝向；它们不站在传送点、踏入触发区旁边（FoePatrol），面前那一格压不着它们。
+    if (const core::MapObject* foe = worldobj::foeWatching(state, app.worldObjects(), *map, target, poses)) {
+        engageFoe(app, *foe, /*preemptive=*/false, from);
         return true;
     }
 
@@ -255,17 +257,19 @@ bool WorldScene::interact(Application& app) {
     // 每一类只取这一格上第一个在场的（开了的机关不算）。
     const core::GameState& state = app.state();
     core::WorldObjectState& objects = app.worldObjects();
+    const worldobj::FoePoses* poses = foePoses(app);
     if (const core::MapObject* chest = worldobj::presentAt(state, objects, *map, front, worldobj::kChest)) {
         return openChest(app, *chest);
     }
     if (const core::MapObject* gather = worldobj::presentAt(state, objects, *map, front, worldobj::kGather)) {
         return gatherAt(app, *gather);
     }
-    if (const core::MapObject* foe = worldobj::presentAt(state, objects, *map, front, worldobj::kFoe)) {
+    if (const core::MapObject* foe = worldobj::presentAt(state, objects, *map, front, worldobj::kFoe, poses)) {
         // 站在它的侧面或背后、面朝它按确认是偷袭（契约 3.4）。站在它面前那一格的人照理进格时
         // 就被看见了；读档、逃跑、它重生时人恰好站在那里，按确认就是一场普通的仗。
-        const bool preemptive = !(worldobj::foeFrontCell(*foe) == state.position);
-        startFoeBattle(app, *foe, preemptive, state.position);
+        // 会走的明雷按它此刻的朝向：它背对着你走、或张望转开了头，从后面摸上去照样是偷袭。
+        const bool preemptive = !(worldobj::foeFrontCell(*foe, poses) == state.position);
+        engageFoe(app, *foe, preemptive, state.position);
         return true;
     }
     if (const core::MapObject* gate = worldobj::presentAt(state, objects, *map, front, worldobj::kGate)) {
@@ -447,6 +451,40 @@ void WorldScene::startFoeBattle(Application& app, const core::MapObject& foe, bo
                     });
 }
 
+void WorldScene::engageFoe(Application& app, const core::MapObject& foe, bool preemptive, core::Point returnCell) {
+    // 先让会走的明雷收手：在追的放弃回去，回到世界层之后几秒内谁也不看人、不因走到面前开打——
+    // 逃跑回来、敌人跑了，人都还站在原地，不给这一段，同一只（或旁边那只）转眼又是一仗。
+    foes_.onBattle();
+    startFoeBattle(app, foe, preemptive, returnCell);
+}
+
+const worldobj::FoePoses* WorldScene::foePoses(const Application& app) const {
+    return foes_.posesFor(app.currentMap());
+}
+
+bool WorldScene::advanceFoes(Application& app, double deltaSeconds) {
+    const core::TileMap* map = app.currentMap();
+    if (map == nullptr) return false;
+    foes_.sync(map);
+    const core::GameState& state = app.state();
+    const core::WorldObjectState& objects = app.worldObjects();
+    const Companions& companions = app.data().companions;
+    // 明雷走不走得上去、看不看得穿，与主角走位问的是同一组问题（tryStep）：在场的 NPC、设施、四种新对象
+    // （明雷按此刻站位）。墙、主角那一格、传送点与踏入触发区那一圈由 FoePatrol 自己管。跟随的伙伴不占格，不算。
+    foepatrol::Surroundings around;
+    around.hero = state.position;
+    around.solid = [&](core::Point cell) {
+        return visibleNpcAt(state, *map, cell, companions) != nullptr || map->objectAt(cell, "facility") != nullptr ||
+               worldobj::blockerAt(state, objects, *map, cell, foes_.posesFor(map)) != nullptr;
+    };
+    around.present = [&](const core::MapObject& foe) { return worldobj::foePresent(state, objects, foe); };
+    const core::MapObject* caught = foes_.advance(around, deltaSeconds);
+    if (caught == nullptr) return false;
+    // 追上了：主角正站在它面前那一格——与「迈进面前那一格」同一判据，不算先手。逃跑成功就站回原地（这一格）。
+    engageFoe(app, *caught, /*preemptive=*/false, state.position);
+    return true;
+}
+
 bool WorldScene::pathAction(Application& app) {
     const core::TileMap* map = app.currentMap();
     if (map == nullptr || gPathActionOpener == nullptr) return false;
@@ -487,6 +525,7 @@ std::string WorldScene::interactHint(Application& app, core::Point& cell, const 
     const core::Point front = facingCell(state);
     const Companions& companions = app.data().companions;
     const core::WorldObjectState& objects = app.worldObjects();
+    const worldobj::FoePoses* poses = foePoses(app);
     const auto hint = [&app](const char* verb) {
         return app.text("ui.world.interact.key") + " " + app.text(verb);
     };
@@ -517,11 +556,11 @@ std::string WorldScene::interactHint(Application& app, core::Point& cell, const 
         cell = front;
         return hint("ui.world.interact.gather");
     }
-    if (const core::MapObject* foe = worldobj::presentAt(state, objects, *map, front, worldobj::kFoe)) {
+    if (const core::MapObject* foe = worldobj::presentAt(state, objects, *map, front, worldobj::kFoe, poses)) {
         cell = front;
-        // 站在它面前那一格按确认是一场普通的仗，侧后才是偷袭（interact() 同一判据）。
-        return hint(worldobj::foeFrontCell(*foe) == state.position ? "ui.world.interact.fight"
-                                                                    : "ui.world.interact.ambush");
+        // 站在它面前那一格按确认是一场普通的仗，侧后才是偷袭（interact() 同一判据，会走的按它此刻的朝向）。
+        return hint(worldobj::foeFrontCell(*foe, poses) == state.position ? "ui.world.interact.fight"
+                                                                           : "ui.world.interact.ambush");
     }
     if (worldobj::presentAt(state, objects, *map, front, worldobj::kGate) != nullptr) {
         cell = front;
@@ -550,6 +589,11 @@ bool WorldScene::update(Application& app, double deltaSeconds) {
     engine::Engine& eng = app.engine();
     stepCooldown_ = std::max(0.0, stepCooldown_ - deltaSeconds);
     saveNoticeSeconds_ = std::max(0.0, saveNoticeSeconds_ - deltaSeconds);
+
+    // 明雷巡逻与追击（docs/ch07-playtest-foes.md）。排在上面那道「脚本在跑就不受理」之后：脚本、对话、菜单、
+    // 战斗压着的时候它们一律停住（后三样压在栈上时 update 根本轮不到世界层）。排在按键之前：这一帧有一只
+    // 追上了就开打，这一帧的按键不再受理。
+    if (advanceFoes(app, deltaSeconds)) return true;
 
     // 存盘。**只在世界层受理**：对话、战斗、面板里按 F5 不该有反应，
     // 因为存档里没有场景栈，那时候存下去读回来是另一个局面。
@@ -630,6 +674,9 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
 
     const Companions& companions = app.data().companions;
     const core::WorldObjectState& objects = app.worldObjects();
+    // 会走的明雷认一下图：换了图（还没轮到 update）就是全体在图上那一格，与 update 里 sync 之后同一个样子。
+    foes_.sync(map);
+    const worldobj::FoePoses* poses = foes_.posesFor(map);
     for (const core::MapObject& object : map->objects) {
         if (object.type == "npc") {
             // 在场判定与走位、对话共用同一个 visibleNpcAt 背后那一条：
@@ -674,9 +721,17 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
                 frame_.gathers.push_back(WorldFrame::Gather{&object, depleted});
                 if (!depleted) frame_.hotspots.push_back(&object);
             } else if (object.type == worldobj::kFoe) {
-                frame_.foes.push_back(WorldFrame::Foe{&object, object.property("look"),
-                                                      facingFromName(object.property("facing")),
-                                                      object.property("elite") == "true"});
+                // 站在哪、面朝哪按此刻的站位（会走的明雷），头顶冒不冒「!」、这一步滑多久看它在追还是在巡逻。
+                const worldobj::FoePose pose = worldobj::foePose(object, poses);
+                WorldFrame::Foe foe{&object, object.property("look"), pose.facing, object.property("elite") == "true"};
+                foe.cell = pose.cell;
+                if (const foepatrol::Walker* walker = foes_.find(map, object)) {
+                    foe.alert = walker->alert;
+                    foe.stepSeconds = static_cast<float>(walker->mode == foepatrol::Mode::Chase
+                                                             ? foepatrol::kChaseStepSeconds
+                                                             : foepatrol::kPatrolStepSeconds);
+                }
+                frame_.foes.push_back(std::move(foe));
             } else {
                 frame_.gates.push_back(WorldFrame::Gate{&object, worldobj::gateOpen(objects, object)});
             }

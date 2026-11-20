@@ -13,7 +13,9 @@
 
 #include "core/model/Types.h"
 #include "core/rules/Objectives.h"
+#include "game/FoePatrol.h"
 #include "game/Scene.h"
+#include "game/WorldObjects.h"
 #include "game/WorldView.h"
 
 namespace fanren::game {
@@ -148,6 +150,10 @@ public:
     // 主角走过的格子（最近的在前，至多三格）。跟随者照它排；公开给测试看足迹记没记上。
     [[nodiscard]] const std::vector<core::Point>& footprints() const { return trail_; }
 
+    // 会走的明雷此刻的样子（巡逻与追击，game/FoePatrol.h）。公开给测试：它走到哪一格、在追还是在巡逻、
+    // 宽限还剩多久，从真在驱动的那一份上看。
+    [[nodiscard]] const foepatrol::FoePatrol& foePatrol() const { return foes_; }
+
 private:
     // 当前该做的那一步。没有目标链、或全章走完时是 nullptr。
     [[nodiscard]] static const core::Objective* objectiveOf(Application& app);
@@ -176,6 +182,14 @@ private:
     // 开打。returnCell 是逃跑成功时主角退回的那一格（开打前站的那一格）。
     static void startFoeBattle(Application& app, const core::MapObject& foe, bool preemptive,
                                core::Point returnCell);
+    // 明雷开打的唯一入口（迈进面前格、偷袭、被追上都走它）：先让会走的明雷收手、起宽限，再开打。
+    void engageFoe(Application& app, const core::MapObject& foe, bool preemptive, core::Point returnCell);
+    // 会走的明雷推进一帧；有一只追上了（主角正在它面前）就开打并返回 true。
+    bool advanceFoes(Application& app, double deltaSeconds);
+    // 此刻这张图上明雷的站位表（交给 worldobj 的判定）；图还没 sync 过时为 nullptr = 都在图上那一格。
+    [[nodiscard]] const worldobj::FoePoses* foePoses(const Application& app) const;
+
+    foepatrol::FoePatrol foes_;
 
     std::vector<core::Point> trail_;
     const core::TileMap* trailMap_ = nullptr;

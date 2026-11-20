@@ -529,6 +529,11 @@
               "name": "look",
               "type": "string",
               "value": "hanbing_chan"
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "16,21"
             }
           ]
         },
@@ -562,6 +567,11 @@
               "name": "look",
               "type": "string",
               "value": "huoyan_shu"
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "29,4"
             }
           ]
         },
@@ -595,6 +605,11 @@
               "name": "look",
               "type": "string",
               "value": "fei_she"
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "36,17"
             }
           ]
         },
@@ -633,6 +648,11 @@
               "name": "elite",
               "type": "bool",
               "value": true
+            },
+            {
+              "name": "patrol",
+              "type": "string",
+              "value": "33,26"
             }
           ]
         },

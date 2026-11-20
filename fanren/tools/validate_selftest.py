@@ -2972,22 +2972,27 @@ def v_build(work: Path, bad: bool) -> None:
     add_object(payload, make_object("chest_v_b", "chest", c[1], {
         "id": prefix + "dup", "loot": "no_such_item" if bad else "material_fuzhi"}))
     add_object(payload, make_object("chest_v_c", "chest", c[2], dict(
-        {"id": prefix + ("dup" if bad else "chest_c"), "loot": "material_fuzhi"}, **({"chance": "50"} if bad else {}))))
+        {"id": prefix + ("dup" if bad else "chest_c"), "loot": "material_fuzhi"},
+        **({"chance": "50", "patrol": "%d,%d" % c[2]} if bad else {}))))
     add_object(payload, make_object("gather_v", "gather", c[3], {
         "id": prefix + "gather", "item": "herb_huangjing_cao", "respawn_days": "0" if bad else "3"}))
     add_object(payload, make_object("foe_v_a", "foe", c[4], {
         "id": prefix + "foe_a", "battle": "no_such_battle" if bad else "be03_guwai_gulang",
         "look": "no_such_look" if bad else "wild_wolf", "facing": "north" if bad else "left"}))
-    add_object(payload, make_object("foe_v_elite", "foe", c[5], {
-        "id": prefix + "foe_elite", "battle": "probe_elite", "look": "wild_wolf", "facing": "down", "elite": True}))
+    add_object(payload, make_object("foe_v_elite", "foe", c[5], dict(
+        {"id": prefix + "foe_elite", "battle": "probe_elite", "look": "wild_wolf", "facing": "down", "elite": True},
+        # 巡逻路线斜着走：写坏了（引擎当没写）。
+        **({"patrol": "%d,%d" % (c[5][0] + 1, c[5][1] + 1)} if bad else {}))))
     if bad:
         # 形状坏的另一只：占两格、elite 不是布尔。
         add_object(payload, make_object("foe_v_shape", "foe", (c[5][0] - 1, c[5][1] - 2), {
             "id": prefix + "foe_shape", "battle": "be03_guwai_gulang", "look": "wild_wolf", "facing": "up",
             "elite": "yes"}, size=(2, 1)))
-    add_object(payload, make_object("foe_v_fatal", "foe", c[6], {
-        "id": prefix + "foe_fatal", "battle": "b03_gu_wai_elang" if bad else "be03_guwai_gulang",
-        "look": "wild_wolf", "facing": "down"}))
+    add_object(payload, make_object("foe_v_fatal", "foe", c[6], dict(
+        {"id": prefix + "foe_fatal", "battle": "b03_gu_wai_elang" if bad else "be03_guwai_gulang",
+         "look": "wild_wolf", "facing": "down"},
+        # 巡逻路线往下两格，正好穿过面前那只宝箱：走不上去。
+        **({"patrol": "%d,%d" % (c[6][0], c[6][1] + 2)} if bad else {}))))
     if bad:
         # 明雷 foe_v_fatal 面朝下，面前那一格摆一只宝箱：既压着别的新对象，又走不上去。
         add_object(payload, make_object("chest_v_front", "chest", (c[6][0], c[6][1] + 1), {
@@ -3137,6 +3142,9 @@ V_EXPECTED = [
     ("32 elite 不是布尔", "elite='yes' 要是 bool"),
     ("32 明雷面前格压着别的新对象", "foe_v_fatal: 面前那一格"),
     ("32 明雷面前格走不上去", "走不上去（chest_v_front）"),
+    ("32 巡逻路线斜着走", "foe_v_elite: patrol="),
+    ("32 巡逻路线穿过宝箱", "走不上去（chest_v_front）：它会被挡在半路"),
+    ("32 patrol 写在明雷以外", "chest_v_c: patrol 只许写在 foe 上"),
     ("32 gate 写了 require_flag", "gate_v_flagged: gate 不认 require_flag"),
     ("32 trigger 的 mode 写成 auto", "trigger 的 mode=auto 不认"),
     ("35 会这手的伙伴进不了名册", "会 illusion 的伙伴（probe_unmet）的 met_flag 从开局都拿不到"),

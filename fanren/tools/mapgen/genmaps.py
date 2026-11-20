@@ -238,9 +238,11 @@ def gather(name, x, y, map_id, key, item, respawn_days, require_flag=None):
 
 
 def foe(name, x, y, map_id, key, battle, look, facing, respawn_days=None, elite=False,
-        require_flag=None, chance=None):
+        require_flag=None, chance=None, patrol=None):
     # 明雷只占一格，面朝 facing：它面前那一格踏进去就开打（契约 3.4）。
     # chance 同宝箱：只许在历练图上，进去时按「日历日 + 历练地」各抽一次（契约 3.12）。
+    # patrol：途经格 [(x, y), ...]，从 (x, y) 起依次走过去再原路走回来，每一段横平竖直；只给 [(x, y)] 自己那一格
+    # 是原地张望（map_spec 4.10、docs/ch07-playtest-foes.md）。不给就站着不动。
     kw = dict(id=_object_id(map_id, key), battle=battle, look=look, facing=facing)
     if respawn_days:
         kw["respawn_days"] = int(respawn_days)
@@ -250,6 +252,8 @@ def foe(name, x, y, map_id, key, battle, look, facing, respawn_days=None, elite=
         kw["require_flag"] = require_flag
     if chance is not None:
         kw["chance"] = int(chance)
+    if patrol:
+        kw["patrol"] = patrol if isinstance(patrol, str) else ";".join("%d,%d" % (px, py) for px, py in patrol)
     return obj(name, "foe", x, y, **kw)
 
 
