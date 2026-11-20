@@ -171,7 +171,7 @@
 
 ## 8. 交付
 
-- 分支 `claude/ch07-foundation-m-377c44`（工作树 `E:anren\.claude\worktrees\ch07-foundation-m-377c44`），未推送、未合并。
+- 分支 `claude/ch07-foundation-m-377c44`（工作树 `E:\fanren\.claude\worktrees\ch07-foundation-m-377c44`），未推送、未合并。
 - 全量 ctest（`build-m/test.bat`，`-j 4`）：**2338 / 2338 通过**，用时 480 秒。
   中途第二轮有一条 `SoftwareEngine.WithVSyncOffAFrameStillTakesAtLeastA240thOfASecond`（关垂直同步时一帧至少 1/240 秒）没过，
   单跑三次都过、第三轮全量也过：是机器负载下的计时抖动，与本路无关。
