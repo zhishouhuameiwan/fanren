@@ -78,6 +78,10 @@ constexpr Color kFireLight{255, 150, 70, 255};
 constexpr Color kCinnabarGlow{220, 70, 50, 255};
 constexpr Color kBrokenTint{196, 196, 214, 255};
 constexpr Color kDownTint{150, 150, 162, 255};
+// 同道录 2a·路 U：辅助法术的两种光（护持、剑幕是钢青；定身是金，与看破的金光同一系）。
+constexpr Color kWardTint{150, 205, 250, 255};
+constexpr Color kBulwarkTint{176, 206, 226, 255};
+constexpr Color kBindTint{255, 214, 120, 255};
 
 [[nodiscard]] Color alphaOf(Color c, float alpha) {
     // 透明度按 1/16 取整：逐帧变色的字每一档都要新建一张纹理（引擎契约 2.5），取整之后一条字最多十几张。
@@ -768,6 +772,113 @@ void BattleView::onStagger(int unit, int previousToughness) {
     eng_.playSfx("hit_weak");
 }
 
+// ---- 同道录 2a·路 U：四种辅助法术 ----
+
+void BattleView::onWard(int unit) {
+    if (!validUnit(unit)) return;
+    const StagePoint at = bodyCenter(unit);
+    addEffect(FxSheetId::Glow, at, 2.4f, kWardTint, false, 0.f, 0.5f);
+    addEffect(FxSheetId::Heal, at, 2.2f, kWardTint, false, 0.f, 0.5f);
+    burst(FxSheetId::Spark, at, 8, 40.f, 120.f, -240.f, 0.45f, 0.8f, 16.f, kWardTint);
+    flares_.push_back(Flare{at, 110.f, kWardTint, 0.f, 0.4f});
+    eng_.playSfx("boost_1");
+}
+
+void BattleView::onWardBlock(int unit) {
+    if (!validUnit(unit)) return;
+    Actor& a = actors_[static_cast<std::size_t>(unit)];
+    const StagePoint at = bodyCenter(unit);
+    // 光罩碎开：碎玉片往外崩、闪一下白。不往后仰（这一击没打进去）。
+    addEffect(FxSheetId::Shards, at, 3.f, kWardTint, false, 0.f, 0.45f);
+    addEffect(FxSheetId::Glow, at, 2.8f, kWardTint, false, 0.f, 0.3f);
+    burst(FxSheetId::Spark, at, 12, 160.f, 380.f, 420.f, 0.3f, 0.55f, 18.f, kWardTint);
+    a.flash = kHitFlash;
+    a.hurt = 0.f;
+    eng_.playSfx("hit_weak");
+}
+
+void BattleView::onBulwark(int caster) {
+    if (!validUnit(caster)) return;
+    const std::vector<core::battle::Unit>& units = battle_.units();
+    const bool side = units[static_cast<std::size_t>(caster)].ally;
+    for (std::size_t i = 0; i < units.size() && i < actors_.size(); ++i) {
+        if (units[i].ally != side || !units[i].alive()) continue;
+        const int unit = static_cast<int>(i);
+        const StagePoint at = bodyCenter(unit);
+        // 身前一道风旋（剑气），再一圈淡光。
+        addEffect(FxSheetId::Wind, StagePoint{at.x + (side ? -28.f : 28.f), at.y}, 3.f, kBulwarkTint, !side, 0.f, 0.6f);
+        addEffect(FxSheetId::Glow, at, 2.0f, kBulwarkTint, false, 0.f, 0.45f);
+    }
+    eng_.playSfx("metal_cast");
+}
+
+void BattleView::onBind(int unit) {
+    if (!validUnit(unit)) return;
+    Actor& a = actors_[static_cast<std::size_t>(unit)];
+    const StagePoint at = bodyCenter(unit);
+    addEffect(FxSheetId::Glow, at, 2.6f, kBindTint, false, 0.f, 0.55f);
+    // 金星往里收（负的速度往中心走不了，就用很小的速度、长一点的命，看着是悬在身上慢慢落）。
+    burst(FxSheetId::Spark, at, 10, 20.f, 70.f, 60.f, 0.6f, 0.9f, 16.f, kBindTint);
+    flares_.push_back(Flare{at, 100.f, kBindTint, 0.f, 0.45f});
+    a.hurt = kHurt * 0.5f;
+    eng_.playSfx("boost_2");
+}
+
+void BattleView::onBoundSkip(int unit) {
+    if (!validUnit(unit)) return;
+    Actor& a = actors_[static_cast<std::size_t>(unit)];
+    const StagePoint at = bodyCenter(unit);
+    a.hurt = kHurt;   // 一颤：想动没动成
+    burst(FxSheetId::Spark, at, 8, 80.f, 200.f, 200.f, 0.3f, 0.5f, 14.f, kBindTint);
+    addEffect(FxSheetId::Glow, at, 2.8f, kBindTint, false, 0.f, 0.35f);
+    eng_.playSfx("miss");
+}
+
+void BattleView::drawStatusMarks(engine::Engine& e, const Frame& frame, StagePoint shake) const {
+    if (frame.shown == nullptr) return;
+    const std::vector<ShownUnit>& shown = *frame.shown;
+    const engine::TextureId glow = fxTexture(FxSheetId::Glow);
+    const FxSheet& glowSheet = fxSheet(FxSheetId::Glow);
+    const engine::RectF glowSrc = fxFrameRect(glowSheet, 0, 0.f, false);
+    for (std::size_t i = 0; i < shown.size() && i < actors_.size(); ++i) {
+        const ShownUnit& s = shown[i];
+        if (!s.visible || s.hp <= 0) continue;
+        if (!s.warded && !s.bound && !s.bulwark) continue;
+        const int unit = static_cast<int>(i);
+        const StagePoint feet = anchors_[i];
+        const StagePoint off = unitOffset(unit, frame);
+        const float x = feet.x + off.x + shake.x;
+        const float footY = feet.y + off.y + shake.y;
+        const StagePoint body = bodyCenter(unit);
+        const float bodyY = body.y + shake.y;
+        const float pulse = 0.5f + 0.5f * std::sin(clock_ * 4.f + static_cast<float>(i));
+        // 护持 / 剑幕：脚下一圈压扁的光（护持亮、剑幕淡），再在胸前浮一颗小菱形。
+        if ((s.warded || s.bulwark) && glow != engine::kInvalidTexture) {
+            const Color tint = s.warded ? kWardTint : kBulwarkTint;
+            DrawOptions opt{};
+            opt.blend = BlendMode::Add;
+            opt.tint = alphaOf(tint, (s.warded ? 0.55f : 0.35f) + 0.25f * pulse);
+            e.drawTexture(glow, glowSrc, RectF{x - 70.f, footY - 22.f, 140.f, 40.f}, opt);
+        }
+        if (s.warded) {
+            const float bob = std::sin(clock_ * 3.f + static_cast<float>(i)) * 3.f;
+            ui::drawDiamond(e, x, headY(unit) - 18.f + bob + shake.y, 7.f, alphaOf(kWardTint, 0.9f));
+            ui::drawDiamond(e, x, headY(unit) - 18.f + bob + shake.y, 4.f, alphaOf(Color{255, 255, 255, 255}, 0.8f));
+        }
+        // 定身：三颗金菱绕着身子慢慢转（前半圈画亮、后半圈画暗，看得出是一圈）。
+        if (s.bound) {
+            for (int k = 0; k < 3; ++k) {
+                const float angle = clock_ * 1.6f + static_cast<float>(k) * 2.0944f;
+                const float dx = std::cos(angle) * 46.f;
+                const float dy = std::sin(angle) * 12.f;
+                const bool front = std::sin(angle) > 0.f;
+                ui::drawDiamond(e, x + dx, bodyY + dy, front ? 7.f : 5.f,
+                                alphaOf(kBindTint, front ? 0.95f : 0.5f));
+            }
+        }
+    }
+}
+
 // ---------------------------------------------------------------------------
 // 位置与外形
 // ---------------------------------------------------------------------------
@@ -1140,6 +1251,7 @@ void BattleView::renderStage(Application& app, const Frame& frame) {
 
     // 压在后处理之上：光环、刀光、闪白、碎片。
     drawActiveRing(e, frame, shake);
+    drawStatusMarks(e, frame, shake);   // 同道录 2a·路 U：护持、剑幕、定身的持续标记
     drawEffects(e, shake, false);
     for (const int unit : order_) drawUnit(e, unit, frame, shake, true);
     drawMotes(e, shake);

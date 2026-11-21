@@ -349,6 +349,8 @@ const std::set<std::string>& knownEvents() {
         "battle.command", "battle.round2", "battle.item_cast", "foe.near", "foe.alert",
         "loot.near",      "gate.near",     "world.idle",    "world.hurt",       "roster.joined", "bond.gained",
         "facility.field", "facility.meditate", "facility.alchemy",
+        // 第 7 章同道录 2a·路 U（docs/ch07-tongdaolu-u.md 第 8 节）：同道录页、相处、蒲团两项、切磋头一回下令。
+        "tongdao.open", "tongdao.together", "tongdao.tongxiu", "battle.spar",
     };
     return events;
 }

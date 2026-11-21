@@ -108,6 +108,17 @@ public:
     // 削架势（土牢符、定神符）：架势格被削——复用 onHit 里「架势减少」那一段（盾跳一下、旧数字往下掉），
     // previousToughness 是削之前显示的架势。
     void onStagger(int unit, int previousToughness);
+    // ---- 同道录 2a·路 U：四种辅助法术的演法（现成的特效贴图与粒子，不出新图）----
+    // 护持：一层淡青的光罩落到他身上、几点光往上飘。
+    void onWard(int unit);
+    // 护持挡下一击：光罩碎成碎片、闪一下，不出伤害数字（规则层记 0）。
+    void onWardBlock(int unit);
+    // 剑幕：施法者这一边每个站着的人身前一道钢青的风旋。
+    void onBulwark(int caster);
+    // 定身：金光压下来、几点金星往里收；被定住的人这一下僵住。
+    void onBind(int unit);
+    // 轮到它却动不了：身上一颤、金星散开。
+    void onBoundSkip(int unit);
     // 这一手演完了：冲出去的人退回原位、施法的收势、这一手的气焰散掉。
     void endAction();
     // 头顶飘一句（「蓄劲 ×2」「中毒」）。
@@ -166,6 +177,8 @@ private:
     void drawMotes(engine::Engine& e, StagePoint shake) const;
     void drawActiveRing(engine::Engine& e, const Frame& frame, StagePoint shake);
     void drawBreakText(engine::Engine& e) const;
+    // 同道录 2a·路 U：被定住的、身上有护持 / 剑幕的，台上一直带着的小标记（读 Frame::shown）。
+    void drawStatusMarks(engine::Engine& e, const Frame& frame, StagePoint shake) const;
     [[nodiscard]] StagePoint unitOffset(int unit, const Frame& frame) const;
     // 前冲时往下让的那一截（lungeReach）：是在地上走，影子与脚下光圈跟着它挪，不跟那一小跳。
     [[nodiscard]] float sidestep(int unit) const;

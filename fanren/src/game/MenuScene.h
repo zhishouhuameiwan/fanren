@@ -23,6 +23,8 @@
 //         这里改）或「赠与」（挑一件东西，rules::giveGift 记账：每人每天一次，今天送过的不扣东西、说一句）。
 //         不是伙伴的队员（傀儡、化身）显示「随行」，不能改、不能送。
 //   名册：已结识的伙伴与默契的档（rules::bondTier）。
+//         第 7 章同道录 2a·路 U 起这一页换成「同道录」（Page::Roster 这个值不变）：页面本身是 game/TongdaoPage.h，
+//         菜单只托管——左栏光标停在这里时右栏画卡片的预览，确认进去由 TongdaoPage 收按键。
 // 名册是空的（第 1–6 章、截图口的默认情形）时这两项不出现，菜单与改版前逐像素相同。
 // 小像的倍数读每张人物表自己的 scale（menuSpriteScale）：旧表 scale 3 → ×4，与改版前一样。
 #include <memory>
@@ -32,6 +34,7 @@
 #include "core/model/Types.h"
 #include "engine/PostFx.h"
 #include "game/ItemInfoView.h"
+#include "game/TongdaoPage.h"
 #include "game/Scene.h"
 #include "game/Wording.h"
 #include "ui/Widgets.h"
@@ -88,12 +91,22 @@ public:
     [[nodiscard]] static std::vector<ui::ListItem> itemRows(const core::GameData& data,
                                                             const core::GameState& state);
 
-    // 名册页的行：名册上每位伙伴（rules::roster 的次序），左边是她此刻那个角色的名字，右边是默契的档名。
+    // 名册页的行：名册上每位伙伴（rules::roster 的次序），左边是她此刻那个角色的名字，右边是默契的档名
+    //（同道录 2a 起按线取：rules::bondTierNameKey）。同道录页不再画这一列，测试与旧口径仍问它。
     [[nodiscard]] static std::vector<ui::ListItem> rosterRows(const core::GameData& data,
                                                               const core::GameState& state);
 
     // 左栏此刻有哪几项，按画面次序（测试读它：名册空着时就是改版前那八项）。
     [[nodiscard]] const std::vector<Page>& pages() const { return pages_; }
+
+    // 同道录页（第 7 章同道录 2a·路 U）。截图口与测试：打开菜单时直接停在某一位的详情 / 赠礼列表
+    //（initial 须是 Page::Roster；那一位没遇到时停在卡片层）。
+    void startTongdaoAt(std::string companionId, bool gift = false) {
+        tongdaoStartId_ = std::move(companionId);
+        tongdaoStartGift_ = gift;
+    }
+    [[nodiscard]] const TongdaoPage& tongdao() const { return tongdao_; }
+    [[nodiscard]] bool tongdaoFocused() const { return focus_ == Focus::Tongdao; }
 
     void onEnter(Application& app) override;
     bool update(Application& app, double deltaSeconds) override;
@@ -104,7 +117,7 @@ public:
     [[nodiscard]] std::string name() const override { return "Menu"; }
 
 private:
-    enum class Focus { Commands, Items, Magic, Home, Party, PartyActions, Gift, ItemTarget };
+    enum class Focus { Commands, Items, Magic, Home, Party, PartyActions, Gift, ItemTarget, Tongdao };
 
     // 一个在队的人：状态页一行。小像在打开菜单时就解析好（贴图句柄 + 取哪一帧），
     // 不在 render 里每帧去查索引、载图——缺图的那一行每帧都会打一次 WARNING。
@@ -197,7 +210,9 @@ private:
     ui::ListView partyActions_;           // 「上场 / 歇着」「赠与」
     ui::ListView gifts_;                  // 赠与：背包里送得出去的东西
     std::vector<GiftChoice> giftChoices_;
-    ui::ListView roster_;                 // 名册页
+    TongdaoPage tongdao_;                 // 同道录页（顶替名册页）
+    std::string tongdaoStartId_;
+    bool tongdaoStartGift_ = false;
     std::string saveNote_;                // 最近一次存盘的结果
     bool saveOk_ = false;
     std::unique_ptr<engine::PostFx> fx_;

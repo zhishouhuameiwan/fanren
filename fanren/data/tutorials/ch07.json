@@ -193,6 +193,54 @@
       "trigger": "world.hurt",
       "min_chapter": 7,
       "max_chapter": 7
+    },
+    {
+      "id": "tongdao",
+      "title_key": "tutorial.tongdao.title",
+      "body_keys": [
+        "tutorial.tongdao.l1",
+        "tutorial.tongdao.l2",
+        "tutorial.tongdao.l3"
+      ],
+      "trigger": "tongdao.open",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "tongdao_xiangchu",
+      "title_key": "tutorial.tongdao_xiangchu.title",
+      "body_keys": [
+        "tutorial.tongdao_xiangchu.l1",
+        "tutorial.tongdao_xiangchu.l2",
+        "tutorial.tongdao_xiangchu.l3"
+      ],
+      "trigger": "tongdao.together",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "tongdao_tongxiu",
+      "title_key": "tutorial.tongdao_tongxiu.title",
+      "body_keys": [
+        "tutorial.tongdao_tongxiu.l1",
+        "tutorial.tongdao_tongxiu.l2",
+        "tutorial.tongdao_tongxiu.l3"
+      ],
+      "trigger": "tongdao.tongxiu",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "tongdao_spar",
+      "title_key": "tutorial.tongdao_spar.title",
+      "body_keys": [
+        "tutorial.tongdao_spar.l1",
+        "tutorial.tongdao_spar.l2",
+        "tutorial.tongdao_spar.l3"
+      ],
+      "trigger": "battle.spar",
+      "min_chapter": 7,
+      "max_chapter": 7
     }
   ]
 }

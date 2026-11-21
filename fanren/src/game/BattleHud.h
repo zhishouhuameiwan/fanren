@@ -65,6 +65,10 @@ struct HudFrame {
     int boost = 0;
     int target = -1;            // 选目标时指着谁
     bool choosing = false;      // 我方正在选命令
+    // 同道录 2a·路 U：辅助法术的状态字（我方面板写「护持」「剑幕」，敌方脚下写「定身」）；空串不写。
+    std::string wardWord;
+    std::string bulwarkWord;
+    std::string boundWord;
 };
 
 void drawOrderStrip(engine::Engine& e, const HudFrame& f, const std::string& nowWord, const std::string& nextWord);

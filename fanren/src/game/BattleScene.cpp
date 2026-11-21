@@ -14,6 +14,7 @@
 #include "core/rules/Tongdao.h"
 #include "engine/TextLayout.h"
 #include "game/Application.h"
+#include "game/TongdaoPage.h"
 #include "game/BattleHud.h"
 #include "game/BattleView.h"
 #include "game/ItemInfoView.h"
@@ -924,6 +925,38 @@ void BattleScene::enterTarget(Application& app) {
     menuList_.reset();
     menuList_.setPageSize(listPageRows(app.theme()));
     menuList_.setItems(buildTargetItems(app.state(), battle_, shape_, menuTargets_));
+    // 同道录 2a·路 U：回血、护持先指着伤得最重的那一位（气血比例最低、还能选的），少按几下。
+    if (targetsAllies()) {
+        int best = -1;
+        float lowest = 2.f;
+        for (std::size_t row = 0; row < menuTargets_.size() && row < menuList_.items().size(); ++row) {
+            if (!menuList_.items()[row].enabled) continue;
+            const Unit& unit = battle_.units()[static_cast<std::size_t>(menuTargets_[row])];
+            const float ratio = static_cast<float>(unit.hp) / static_cast<float>(std::max(1, unit.maxHp));
+            if (ratio < lowest) {
+                lowest = ratio;
+                best = static_cast<int>(row);
+            }
+        }
+        for (int guard = 0; guard < best && menuList_.selection() < best; ++guard) menuList_.moveDown();
+    }
+}
+
+bool BattleScene::targetsAllies() const {
+    const core::Item* item = shape_.kind == ActionKind::Item ? battle_.findItem(shape_.magicId) : nullptr;
+    const core::Magic* magic = shape_.kind == ActionKind::Cast || shape_.kind == ActionKind::Duo
+                                   ? battle_.findMagic(shape_.magicId)
+                               : item != nullptr ? battle_.findMagic(item->castMagic) : nullptr;
+    return magic != nullptr && magicPicksAlly(*magic);
+}
+
+std::string BattleScene::allyStatusText(Application& app, const Unit& unit) const {
+    std::string text = "气血 " + std::to_string(std::max(0, unit.hp)) + "/" + std::to_string(unit.maxHp);
+    if (unit.warded(battle_.round())) text += "　" + app.text("ui.tongdao.battle.status.ward");
+    if (unit.status.bulwarkPercent > 0 && unit.status.bulwarkRound == battle_.round()) {
+        text += "　" + app.text("ui.tongdao.battle.status.bulwark");
+    }
+    return text;
 }
 
 void BattleScene::openMenu(Application& app) {
@@ -933,6 +966,8 @@ void BattleScene::openMenu(Application& app) {
     if (!battle_.units()[static_cast<std::size_t>(actor)].ally) return;
     setBoost(boost_);   // 换了人：夹回这一位的劲以内
     enterRoot(app);
+    // 同道录 2a·路 U：切磋的头一回下令先讲「切磋」那张卡（排在战斗规则那几张前面）。
+    if (battle_.spar()) app.tutorialEvent("battle.spar");
     // 教学卡（第一期地基包 2.3）：轮到我方下令时讲战斗规则，一回合讲一样（破绽 → 蓄劲 → 防御 → 道具施法）。
     app.tutorialEvent("battle.command");
     if (battle_.round() >= 2) app.tutorialEvent("battle.round2");
@@ -1304,6 +1339,12 @@ void BattleScene::syncShown() {
     for (std::size_t i = 0; i < units.size(); ++i) {
         shown_[i] = ShownUnit{units[i].hp, units[i].toughness, units[i].revealed, units[i].broken(),
                               units[i].alive()};
+        // 同道录 2a·路 U：辅助法术的持续标记照规则层此刻的状态对一遍。
+        const Unit::Status& status = units[i].status;
+        shown_[i].warded = units[i].warded(battle_.round());
+        shown_[i].wardUntil = status.wardUntilRound;
+        shown_[i].bound = status.bindSkips > 0;
+        shown_[i].bulwark = status.bulwarkPercent > 0 && status.bulwarkRound == battle_.round();
     }
 }
 
@@ -1328,6 +1369,11 @@ double BattleScene::playEvent(Application& app, const BattleEvent& e) {
             view.endAction();
             stageActor_ = -1;
             lastLog_ = "—— 第 " + std::to_string(e.value) + " 回合 ——";
+            // 同道录 2a·路 U：剑幕只管上一回合；护持过了它那一回合没用上就散（规则层不发事件，这里照回合号收）。
+            for (ShownUnit& s : shown_) {
+                s.bulwark = false;
+                if (s.warded && e.value > s.wardUntil) s.warded = false;
+            }
             return 0.2;
         case BattleEventKind::Act:
             lastLog_ = stageWords(wordingStage(app.state()), e.text);
@@ -1467,23 +1513,47 @@ double BattleScene::playEvent(Application& app, const BattleEvent& e) {
             view.onDuoJoin(e.target);
             view.say(e.target, "合招", app.theme().goldBright);
             return 0.3;
-        // ---- 同道录 2a 的辅助法术：先只飘一句字，演法归路 U（docs/ch07-tongdaolu-k.md 4.2）----
+        // ---- 同道录 2a 的辅助法术（docs/ch07-tongdaolu-k.md 4.2；演法：路 U，docs/ch07-tongdaolu-u.md 第 6 节）----
+        // 现成的特效贴图与粒子（BattleView::onWard 等），不出新图；身上挂着的由 ShownUnit 的几样记着，台上与面板一直画着。
         case BattleEventKind::Ward:
-            view.say(e.target, "护持", app.theme().floatGuard);
-            return 0.3;
+            if (ShownUnit* s = at(e.target)) {
+                s->warded = true;
+                if (validUnit(battle_, e.target)) s->wardUntil = units[static_cast<std::size_t>(e.target)].status.wardUntilRound;
+            }
+            view.onWard(e.target);
+            view.say(e.target, app.text("ui.tongdao.battle.ward"), app.theme().floatGuard);
+            lastLog_ = tongdaoFill(tongdaoFill(app.text("ui.tongdao.battle.log.ward"), "{actor}", nameOf(e.actor)),
+                                   "{target}", nameOf(e.target));
+            return 0.5;
         case BattleEventKind::WardBlock:
-            view.say(e.target, "挡下", app.theme().floatGuard);
-            return 0.25;
-        case BattleEventKind::Bulwark:
-            view.say(e.actor, "剑幕", app.theme().floatGuard);
-            return 0.3;
-        case BattleEventKind::Bind:
-            view.say(e.target, "定身", app.theme().goldBright);
-            return 0.3;
-        case BattleEventKind::BoundSkip:
-            lastLog_ = nameOf(e.target) + " 被定住，动弹不得";
-            view.say(e.target, "动弹不得", app.theme().goldBright);
+            if (ShownUnit* s = at(e.target)) s->warded = false;
+            view.onWardBlock(e.target);
+            view.say(e.target, app.text("ui.tongdao.battle.ward_block"), app.theme().floatGuard);
+            lastLog_ = tongdaoFill(app.text("ui.tongdao.battle.log.ward_block"), "{target}", nameOf(e.target));
             return 0.4;
+        case BattleEventKind::Bulwark: {
+            const bool side = validUnit(battle_, e.actor) && units[static_cast<std::size_t>(e.actor)].ally;
+            for (std::size_t i = 0; i < units.size() && i < shown_.size(); ++i) {
+                if (units[i].ally == side && shown_[i].visible && shown_[i].hp > 0) shown_[i].bulwark = true;
+            }
+            view.onBulwark(e.actor);
+            view.say(e.actor, app.text("ui.tongdao.battle.bulwark"), app.theme().floatGuard);
+            lastLog_ = tongdaoFill(tongdaoFill(app.text("ui.tongdao.battle.log.bulwark"), "{actor}", nameOf(e.actor)),
+                                   "{n}", std::to_string(e.value));
+            return 0.55;
+        }
+        case BattleEventKind::Bind:
+            if (ShownUnit* s = at(e.target)) s->bound = true;
+            view.onBind(e.target);
+            view.say(e.target, app.text("ui.tongdao.battle.bind"), app.theme().goldBright);
+            lastLog_ = tongdaoFill(app.text("ui.tongdao.battle.log.bind"), "{target}", nameOf(e.target));
+            return 0.5;
+        case BattleEventKind::BoundSkip:
+            if (ShownUnit* s = at(e.target)) s->bound = false;
+            view.onBoundSkip(e.target);
+            lastLog_ = tongdaoFill(app.text("ui.tongdao.battle.log.bound_skip"), "{target}", nameOf(e.target));
+            view.say(e.target, app.text("ui.tongdao.battle.bound_skip"), app.theme().goldBright);
+            return 0.5;
     }
     return 0.1;
 }
@@ -1638,6 +1708,12 @@ bool parseBattleShot(const std::string& spec, std::string& battleId, BattleShot&
     else if (moment == "target") shot = BattleShot::Target;
     else if (moment == "items") shot = BattleShot::Items;
     else if (moment == "magic") shot = BattleShot::Magic;
+    // 同道录 2a·路 U：五种辅助法术事件（我方有会这一门的人时替他放，见 rewindToSupport）。
+    else if (moment == "ward") shot = BattleShot::Ward;
+    else if (moment == "wardblock") shot = BattleShot::WardBlock;
+    else if (moment == "bulwark") shot = BattleShot::Bulwark;
+    else if (moment == "bind") shot = BattleShot::Bind;
+    else if (moment == "boundskip") shot = BattleShot::BoundSkip;
     else return false;
     return true;
 }
@@ -1696,6 +1772,11 @@ bool BattleScene::shotReached() const {
             return lastPlayed_ == BattleEventKind::ChargeDeclare;
         case BattleShot::Victory:
             return card_ != nullptr;
+        case BattleShot::Ward: return lastPlayed_ == BattleEventKind::Ward;
+        case BattleShot::WardBlock: return lastPlayed_ == BattleEventKind::WardBlock;
+        case BattleShot::Bulwark: return lastPlayed_ == BattleEventKind::Bulwark;
+        case BattleShot::Bind: return lastPlayed_ == BattleEventKind::Bind;
+        case BattleShot::BoundSkip: return lastPlayed_ == BattleEventKind::BoundSkip;
     }
     return false;
 }
@@ -1731,6 +1812,14 @@ void BattleScene::prepareShot(Application& app) {
             runToCompletion();
             eventCursor_ = battle_.events().size();
             syncShown();
+            break;
+        case BattleShot::Ward:
+        case BattleShot::WardBlock:
+        case BattleShot::Bulwark:
+        case BattleShot::Bind:
+        case BattleShot::BoundSkip:
+            shotFallback_ = !rewindToSupport(supportShotEvent(shot_));
+            hold = 0.35;
             break;
     }
     view_->skipIntro();
@@ -1769,6 +1858,8 @@ void BattleScene::renderMenu(Application& app) const {
                                static_cast<int>(kLogRect.y) - kMenuH - 2);
     const engine::Rect panel{kMenuX, top, kMenuW, kMenuH};
     std::string title = menuTitle(menu_, wordingStage(app.state()));
+    // 同道录 2a·路 U：回血、护持挑的是自己人，标题不叫「择敌」。
+    if (menu_ == BattleMenuMode::Target && targetsAllies()) title = app.text("ui.tongdao.battle.pick_ally");
     if (maxBoost() > 0 || boost_ > 0) {
         title += " · " + app.text("ui.battle.boost") + " " + std::to_string(boost_) + "/" + std::to_string(maxBoost());
     }
@@ -1786,6 +1877,8 @@ void BattleScene::renderMenu(Application& app) const {
                                                 static_cast<std::size_t>(pick) < menuTargets_.size()) {
         const Unit& target = battle_.units()[static_cast<std::size_t>(menuTargets_[static_cast<std::size_t>(pick)])];
         if (!target.ally) note = foeStatusText(target);
+        // 同道录 2a·路 U：挑自己人时写他的气血与身上挂着的护持 / 剑幕（行里只放得下气血）。
+        if (target.ally && targetsAllies()) note = allyStatusText(app, target);
     }
     // 法术、物品选单：说明区写光标那一门 / 那一件的效果行（docs/ch07-foundation.md 3.3）。说明区只有 72 高，
     // 按通用的文字块（内边距 24）只排得下一行：这里自己排，15 号字、内边距收窄，至多三行——上一句反馈在前，效果在后。
@@ -1843,7 +1936,10 @@ void BattleScene::render(Application& app) {
             static_cast<std::size_t>(menuList_.selection()) < menuTargets_.size()) {
             target = menuTargets_[static_cast<std::size_t>(menuList_.selection())];
         }
-        const HudFrame hud{battle_, shown_, *view_, app.theme(), icons_, frame.actor, boost_, target, choosing};
+        HudFrame hud{battle_, shown_, *view_, app.theme(), icons_, frame.actor, boost_, target, choosing};
+        hud.wardWord = app.text("ui.tongdao.battle.status.ward");
+        hud.bulwarkWord = app.text("ui.tongdao.battle.status.bulwark");
+        hud.boundWord = app.text("ui.tongdao.battle.status.bind");
         drawOrderStrip(eng, hud, app.text("ui.battle.order.now"), app.text("ui.battle.order.next"));
         drawRoundInfo(eng, hud, "第 " + std::to_string(battle_.round()) + " 回合", waveStatusText(battle_));
         drawEnemyPlates(eng, hud, app.text("ui.battle.charge"));
@@ -1861,6 +1957,90 @@ void BattleScene::render(Application& app) {
 int BattleScene::listPageRows(const ui::Theme& theme) {
     // 与 renderMenu() 的 listH 同一份高度：面板高 - 标题带 - 反馈带。
     return ui::listRowsThatFit(kMenuH - ui::panelTitleBandHeight(true, theme) - kMenuFeedbackH, theme);
+}
+
+}  // namespace fanren::game
+
+namespace fanren::game {
+// ---------------------------------------------------------------------------
+// 同道录 2a·路 U：五种辅助法术事件的截图口
+// ---------------------------------------------------------------------------
+
+BattleEventKind BattleScene::supportShotEvent(BattleShot shot) {
+    switch (shot) {
+        case BattleShot::Ward: return BattleEventKind::Ward;
+        case BattleShot::WardBlock: return BattleEventKind::WardBlock;
+        case BattleShot::Bulwark: return BattleEventKind::Bulwark;
+        case BattleShot::Bind: return BattleEventKind::Bind;
+        case BattleShot::BoundSkip: return BattleEventKind::BoundSkip;
+        case BattleShot::None:
+        case BattleShot::Opening:
+        case BattleShot::Intro:
+        case BattleShot::Mid:
+        case BattleShot::Charge:
+        case BattleShot::Victory:
+        case BattleShot::Target:
+        case BattleShot::Items:
+        case BattleShot::Magic:
+            break;
+    }
+    return BattleEventKind::End;
+}
+
+bool BattleScene::rewindToSupport(BattleEventKind kind) {
+    // 我方轮到一位会这一类法术的人时替他放（护持 / 挡下：护持；剑幕；定身 / 动弹不得：定身），其余照自动打法走，
+    // 直到这一步的事件里出现要拍的那一种。AI 不放辅助法术（路 K 4.1），不这样推永远等不到。
+    const core::MagicEffect want = kind == BattleEventKind::Ward || kind == BattleEventKind::WardBlock
+                                       ? core::MagicEffect::Ward
+                                   : kind == BattleEventKind::Bulwark ? core::MagicEffect::Bulwark
+                                                                      : core::MagicEffect::Bind;
+    for (int guard = 0; guard < 4096 && battle_.phase() == BattlePhase::Ongoing; ++guard) {
+        syncShown();
+        const std::size_t before = battle_.events().size();
+        const int actor = battle_.currentActor();
+        if (actor < 0) {
+            battle_.endTurn();
+        } else {
+            bool cast = false;
+            const Unit& unit = battle_.units()[static_cast<std::size_t>(actor)];
+            const std::vector<std::string> spells = unit.ally ? unit.magics : std::vector<std::string>{};
+            for (const std::string& id : spells) {
+                const core::Magic* magic = battle_.findMagic(id);
+                if (magic == nullptr || magic->effect != want || cast) continue;
+                for (std::size_t t = 0; t < battle_.units().size() && !cast; ++t) {
+                    const Unit& target = battle_.units()[t];
+                    if (!target.alive()) continue;
+                    const bool friendly = target.ally == unit.ally;
+                    if (want == core::MagicEffect::Bind ? friendly : !friendly) continue;
+                    Action action;
+                    action.kind = ActionKind::Cast;
+                    action.actorIndex = actor;
+                    action.targetIndex = want == core::MagicEffect::Bulwark ? -1 : static_cast<int>(t);
+                    action.magicId = id;
+                    if (auto result = battle_.apply(action); result.ok) {
+                        lastLog_ = result.value;
+                        cast = true;
+                    }
+                    if (want == core::MagicEffect::Bulwark) break;
+                }
+            }
+            if (cast) {
+                battle_.endTurn();
+            } else {
+                stepAi();
+            }
+        }
+        const std::vector<BattleEvent>& events = battle_.events();
+        if (std::any_of(events.begin() + static_cast<std::ptrdiff_t>(before), events.end(),
+                        [kind](const BattleEvent& ev) { return ev.kind == kind; })) {
+            eventCursor_ = before;
+            return true;
+        }
+    }
+    eventCursor_ = battle_.events().size();
+    syncShown();
+    std::fprintf(stderr, "[battle] 截图口：这一场里一直没等到要拍的辅助法术事件（我方没人会这一门？）\n");
+    return false;
 }
 
 }  // namespace fanren::game

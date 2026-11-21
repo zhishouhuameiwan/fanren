@@ -45,6 +45,17 @@ bool pushGuideShot(Application& app, const std::string& spec, int& warmup);
 //                               小地图开不开照设置（--settings 指一份关掉的就拍关着的）。
 bool pushSeamShot(Application& app, const std::string& spec, int& warmup);
 
+// 第 7 章同道录 2a·路 U 的截图口（kind == "tongdao"，docs/ch07-tongdaolu-u.md 第 7 节）：
+//   tongdao:cards[@记号…]            主菜单同道录页，卡片层
+//   tongdao:detail=<伙伴 id>[@记号…]  那一位的详情（没遇到的停在卡片层）
+//   tongdao:gift=<伙伴 id>[@记号…]    那一位的赠礼列表
+//   tongdao:cushion[.pick][@记号…]    蒲团的「打坐 / 同修」两项；.pick 停在选人那一层
+//   tongdao:tierup=<伙伴 id>[@记号…]  她的默契跨进下一档：照运行时比较的那条路推出「默契渐深」提示
+//   tongdao:joined=<伙伴 id>[@记号…]  她刚进同道录：「已记入同道录」提示
+//   tongdao:cg=<事件图 id>:<文案 key>[:<角色 id>[:<表情>]][@记号…]  事件图垫在对话框下（淡入走完）
+// 记号（先办）：met.<伙伴 id>（置她的 met_flag）、unmet.<伙伴 id>（清掉）、bond.<伙伴 id>=<n>、flag.<旗标>[=<n>]、item.<物品 id>=<n>。
+bool pushTongdaoShot(Application& app, const std::string& spec, int& warmup);
+
 // 截图模式下世界层的时钟步长（秒）。世界层被对白、菜单压着时不走自己的 update，画的时候按「这一帧过了多久」
 // 补一步；截图时那就是从引擎开机到拍照的真实时长，灯的明灭随它变——同一个程序拍几次，对白类截图差出几百到
 // 几千像素。截图时改用这个定数。

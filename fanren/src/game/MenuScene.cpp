@@ -10,6 +10,7 @@
 #include "core/rules/Objectives.h"
 #include "core/rules/Realm.h"
 #include "core/rules/Roster.h"
+#include "core/rules/Tongdao.h"
 #include "engine/TextLayout.h"
 #include "game/Application.h"
 #include "game/AreaMapScene.h"
@@ -89,7 +90,7 @@ constexpr const char* kSfxSaved = "save";
         case MenuScene::Page::Home: return "ui.menu.home";
         case MenuScene::Page::Back: return "ui.menu.back";
         case MenuScene::Page::Party: return "ui.menu.party";
-        case MenuScene::Page::Roster: return "ui.menu.roster";
+        case MenuScene::Page::Roster: return "ui.tongdao.title";   // 同道录 2a·路 U：名册页换成同道录
         case MenuScene::Page::Map: return "ui.menu.map";
     }
     return "";
@@ -147,6 +148,10 @@ std::vector<std::string> MenuScene::menuStrings(const core::GameData& data, Pane
         out.push_back(data.lookupText(key));
     }
     out.push_back(data.lookupText(magicEmptyKey(stage)));
+    // 同道录页（2a·路 U）的固有字一并扫：只在修仙阶段——同道录要有人遇到过才出现，最早是第 7 章，凡人阶段的菜单上没有这一页。
+    if (stage == PanelStage::Immortal) {
+        for (std::string& line : TongdaoPage::strings(data)) out.push_back(std::move(line));
+    }
     // 状态页借修炼面板的用词表说「气血 / 气力」「口诀 / 境界」，钱借 Wording 的说法：
     // 同一个词只有一个定义处，扫描也就扫到同一处。
     const CultivationLexicon& words = cultivationLexicon(stage);
@@ -248,6 +253,18 @@ void MenuScene::onEnter(Application& app) {
     }
     if (focusList_ && initial_ == Page::Home) focus_ = Focus::Home;
     if (focusList_ && initial_ == Page::Party && party_.hasSelectable()) focus_ = Focus::Party;
+    // 同道录（2a·路 U）：截图口 / 测试要直接停在卡片层、某一位的详情或赠礼列表。
+    if (focusList_ && initial_ == Page::Roster) {
+        tongdao_.enter(app);
+        focus_ = Focus::Tongdao;
+        if (!tongdaoStartId_.empty()) {
+            if (tongdaoStartGift_) {
+                (void)tongdao_.openGift(app, tongdaoStartId_);
+            } else {
+                (void)tongdao_.openDetail(app, tongdaoStartId_);
+            }
+        }
+    }
     // 截图口 menu:party#<n>：光标停在第 n 位（女角色立绘，拍队伍页选中有 / 没有立绘的人）。
     for (int i = 0; i < listRow_ && focus_ == Focus::Party; ++i) party_.moveDown();
     app.engine().playSfx(kSfxOpen);
@@ -307,9 +324,8 @@ void MenuScene::rebuildCompanionLists(Application& app) {
     gifts_.setPageSize(rows);
     gifts_.setItems(std::move(giftRows));
 
-    roster_.reset();
-    roster_.setPageSize(rows);
-    roster_.setItems(rosterRows(data, state));
+    // 同道录（2a·路 U）：送了礼、换了上场的人，卡片与详情跟着重算。
+    tongdao_.rebuild(app);
 }
 
 std::vector<ui::ListItem> MenuScene::rosterRows(const core::GameData& data, const core::GameState& state) {
@@ -320,7 +336,10 @@ std::vector<ui::ListItem> MenuScene::rosterRows(const core::GameData& data, cons
         const core::RoleTemplate* tmpl = role.empty() ? nullptr : data.findRole(role);
         ui::ListItem row;
         row.label = tmpl != nullptr ? tmpl->name : id;
-        row.detail = data.lookupText("ui.bond.tier" + std::to_string(rules::bondTier(state.bondOf(id))));
+        // 档名按线取（同道录 2a；通用线就是改版前的 ui.bond.tier<N>）。
+        const auto found = data.companions.find(id);
+        const core::BondLine line = found != data.companions.end() ? found->second.line : core::BondLine::General;
+        row.detail = data.lookupText(rules::bondTierNameKey(line, rules::bondTier(state.bondOf(id))));
         rows.push_back(std::move(row));
     }
     return rows;
@@ -530,8 +549,11 @@ bool MenuScene::activate(Application& app) {
             focus_ = Focus::Party;
             return true;
         case Page::Roster:
-            // 只读的一页，与「状态」一样：确认只响一声。
+            // 同道录（2a·路 U）：进到卡片层，按键交给 TongdaoPage。头一回进来弹「同道录」那张教学卡。
             e.playSfx(kSfxConfirm);
+            tongdao_.enter(app);
+            focus_ = Focus::Tongdao;
+            app.tongdaoTutorial("tongdao.open");
             return true;
         case Page::Map:
             // 区域地图（docs/ch07-foundation.md 3.2）：菜单合上、地图压在世界层上（帧末先出栈后入栈）。
@@ -800,6 +822,20 @@ bool MenuScene::update(Application& app, double) {
         return false;
     }
 
+    if (focus_ == Focus::Tongdao) {
+        switch (tongdao_.update(app)) {
+            case TongdaoPage::Outcome::Stay:
+                return true;
+            case TongdaoPage::Outcome::Back:
+                focus_ = Focus::Commands;
+                return true;
+            case TongdaoPage::Outcome::CloseMenu:
+                // 切磋、请教、叙话：菜单这一帧出栈，压上去的仗或事件接着来（帧末先出栈后入栈）。
+                return false;
+        }
+        return true;
+    }
+
     if (focus_ == Focus::Commands) {
         const int before = commands_.selection();
         const bool confirmed = commands_.update(e);
@@ -1014,7 +1050,7 @@ void MenuScene::drawPage(Application& app) const {
             break;
         }
         case Page::Roster:
-            drawListPage(app, area, roster_, false, app.text("ui.menu.roster.hint"));
+            tongdao_.render(app, area, focus_ == Focus::Tongdao);
             break;
         case Page::Map:
             drawMapPage(app, area);

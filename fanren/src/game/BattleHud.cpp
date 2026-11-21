@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <utility>
 
 #include "core/model/AttackCategory.h"
 #include "game/BattleView.h"
@@ -244,6 +245,11 @@ void drawEnemyPlates(engine::Engine& e, const HudFrame& f, const std::string& ch
         }
         if (const std::string poison = poisonStatusText(u); !poison.empty()) {
             drawTextCenter(e, poison, feet.x, below, 13, f.theme.poison, f.theme.bodyStyle);
+            below += 15.f;
+        }
+        // 同道录 2a·路 U：被定住、还没轮到的敌人脚下写一行「定身」（台上另有三颗金菱绕着）。
+        if (s.bound && !f.boundWord.empty()) {
+            drawTextCenter(e, f.boundWord, feet.x, below, 13, f.theme.goldBright, f.theme.bodyStyle);
         }
         if (u.charging && !s.broken) {
             engine::TextStyle tag{};
@@ -294,8 +300,16 @@ void drawPartyPanel(engine::Engine& e, const HudFrame& f) {
                    current ? f.theme.goldBright : s.hp <= 0 ? f.theme.paperDim : f.theme.paper, f.theme.bodyStyle);
         std::string status = poisonStatusText(u);
         if (u.guarding) status += status.empty() ? "守势" : " · 守势";
+        // 同道录 2a·路 U：身上挂着的护持、剑幕（显示副本 ShownUnit，事件播到哪一条就是哪一条）。
+        for (const auto& [on, word] : {std::pair<bool, const std::string*>{s.warded, &f.wardWord},
+                                       std::pair<bool, const std::string*>{s.bulwark, &f.bulwarkWord}}) {
+            if (on && !word->empty()) status += status.empty() ? *word : " · " + *word;
+        }
+        // 只有护持 / 剑幕（没有中毒、守势）时用守势那一种青色字；其余照旧。
+        const bool guardOnly = poisonStatusText(u).empty() && !u.guarding;
         if (!status.empty()) {
-            e.drawText(status, static_cast<int>(x) + 4, static_cast<int>(y) + 19, 11, f.theme.poisonDim,
+            e.drawText(status, static_cast<int>(x) + 4, static_cast<int>(y) + 19, 11,
+                       guardOnly ? f.theme.floatGuard : f.theme.poisonDim,
                        f.theme.bodyStyle);
         }
         // 气血条在上、法力条贴在它下面，数字在条的右边：劲珠要让出一截 ×2 的宽度。

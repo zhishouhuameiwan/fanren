@@ -8,6 +8,7 @@
 #include <memory>
 #include <sstream>
 
+#include "core/rules/Companions.h"
 #include "core/rules/Roster.h"
 #include "game/Application.h"
 #include "game/BoardScene.h"
@@ -18,6 +19,7 @@
 #include "game/MenuScene.h"
 #include "game/ShopScene.h"
 #include "game/WorldScene.h"
+#include "game/TongxiuScene.h"
 
 namespace fanren::game {
 namespace {
@@ -273,6 +275,7 @@ bool pushCompanionShot(Application& app, const std::string& kind, const std::str
     }
     if (kind == "guide" && !arg.empty()) return pushGuideShot(app, arg, warmup);
     if (kind == "seam" && !arg.empty()) return pushSeamShot(app, arg, warmup);
+    if (kind == "tongdao" && !arg.empty()) return pushTongdaoShot(app, arg, warmup);   // 同道录 2a·路 U
     if (kind == "dlg" && arg.rfind("say:", 0) == 0) return pushSayShot(app, arg.substr(4), warmup);
     if (kind == "dlg" && !arg.empty()) {
         // 气泡有 0.15 秒的淡入：照缺省的几帧拍，拍到的是半透明的那一下。多空转半秒。
@@ -362,6 +365,129 @@ bool pushGuideShot(Application& app, const std::string& spec, int& warmup) {
         return false;
     }
     std::fprintf(stderr, "guide: 认不出的一屏：%s\n", what.c_str());
+    return false;
+}
+
+}  // namespace fanren::game
+
+namespace fanren::game {
+// ---------------------------------------------------------------------------
+// 第 7 章同道录 2a·路 U 的截图口（ShotScenes.h 的 pushTongdaoShot）
+// ---------------------------------------------------------------------------
+
+namespace {
+
+// 记号：met.<伙伴 id>、bond.<伙伴 id>=<n>、flag.<旗标>[=<n>]、item.<物品 id>=<n>。
+bool applyTongdaoMarks(Application& app, const std::string& marks) {
+    std::stringstream list(marks);
+    for (std::string mark; std::getline(list, mark, ',');) {
+        if (mark.empty()) continue;
+        const std::size_t eq = mark.find('=');
+        const std::string name = mark.substr(0, eq);
+        const int value = eq == std::string::npos ? 1 : std::atoi(mark.c_str() + eq + 1);
+        if (name.rfind("unmet.", 0) == 0) {
+            const auto it = app.data().companions.find(name.substr(6));
+            if (it == app.data().companions.end()) {
+                std::fprintf(stderr, "tongdao: 没有这位伙伴：%s\n", name.c_str());
+                return false;
+            }
+            app.state().flags.erase(it->second.metFlag);
+        } else if (name.rfind("met.", 0) == 0) {
+            const auto it = app.data().companions.find(name.substr(4));
+            if (it == app.data().companions.end()) {
+                std::fprintf(stderr, "tongdao: 没有这位伙伴：%s\n", name.c_str());
+                return false;
+            }
+            app.state().setFlag(it->second.metFlag);
+        } else if (name.rfind("bond.", 0) == 0) {
+            const std::string id = name.substr(5);
+            if (app.data().companions.count(id) == 0) {
+                std::fprintf(stderr, "tongdao: 没有这位伙伴：%s\n", name.c_str());
+                return false;
+            }
+            app.state().bonds[id].value = value;
+        } else if (name.rfind("flag.", 0) == 0) {
+            app.state().setFlag(name.substr(5), value);
+        } else if (name.rfind("item.", 0) == 0) {
+            if (app.data().findItem(name.substr(5)) == nullptr) {
+                std::fprintf(stderr, "tongdao: 没有这件东西：%s\n", name.c_str());
+                return false;
+            }
+            app.state().addItem(name.substr(5), std::max(1, value));
+        } else {
+            std::fprintf(stderr, "tongdao: 认不出的记号：%s\n", mark.c_str());
+            return false;
+        }
+    }
+    return true;
+}
+
+}  // namespace
+
+bool pushTongdaoShot(Application& app, const std::string& spec, int& warmup) {
+    const std::size_t at = spec.find('@');
+    const std::string what = spec.substr(0, at);
+    if (at != std::string::npos && !applyTongdaoMarks(app, spec.substr(at + 1))) return false;
+    const auto value = [&what](const char* prefix) {
+        const std::string head = prefix;
+        return what.rfind(head, 0) == 0 ? what.substr(head.size()) : std::string{};
+    };
+    if (what == "cards" || what.rfind("detail=", 0) == 0 || what.rfind("gift=", 0) == 0) {
+        if (rules::roster(app.data().companions, app.state()).empty()) {
+            std::fprintf(stderr, "tongdao:%s：同道录里没人，主菜单没有这一页\n", what.c_str());
+            return false;
+        }
+        app.setFixedWorldClock(kShotMenuWorldClockSeconds);
+        auto menu = std::make_unique<MenuScene>(MenuScene::Page::Roster, true);
+        if (const std::string id = value("detail="); !id.empty()) menu->startTongdaoAt(id, false);
+        if (const std::string id = value("gift="); !id.empty()) menu->startTongdaoAt(id, true);
+        app.pushScene(std::move(menu));
+        return true;
+    }
+    if (what == "cushion" || what == "cushion.pick") {
+        if (TongxiuScene::partners(app).empty()) {
+            std::fprintf(stderr, "tongdao:cushion：同道录里没有人物，蒲团不出这两项\n");
+            return false;
+        }
+        app.pushScene(std::make_unique<TongxiuScene>(100, what == "cushion.pick"));
+        return true;
+    }
+    if (const std::string id = value("tierup="); !id.empty()) {
+        const auto it = app.data().companions.find(id);
+        if (it == app.data().companions.end()) return false;
+        app.state().setFlag(it->second.metFlag);
+        const int tier = rules::bondTier(app.state().bondOf(id));
+        if (tier >= 5) return false;
+        frame(app);   // 先记下「此刻在第几档」（运行时比较的基线）
+        app.state().bonds[id].value = rules::kBondTierThresholds[tier];
+        warmup = std::max(warmup, 40);   // 提示淡进来
+        return true;
+    }
+    if (const std::string id = value("joined="); !id.empty()) {
+        const auto it = app.data().companions.find(id);
+        if (it == app.data().companions.end()) return false;
+        app.state().flags.erase(it->second.metFlag);
+        frame(app);
+        app.state().setFlag(it->second.metFlag);
+        warmup = std::max(warmup, 40);
+        return true;
+    }
+    if (const std::string rest = value("cg="); !rest.empty()) {
+        std::vector<std::string> parts;
+        std::stringstream fields(rest);
+        for (std::string part; std::getline(fields, part, ':');) parts.push_back(part);
+        if (parts.size() < 2) {
+            std::fprintf(stderr, "tongdao:cg= 要写成 <事件图 id>:<文案 key>[:<角色 id>[:<表情>]]\n");
+            return false;
+        }
+        frame(app);
+        app.setCurrentCg(parts[0]);
+        app.sayAs(parts.size() > 2 ? parts[2] : std::string{}, parts[1],
+                  parts.size() > 3 ? parts[3] : std::string(script::kDefaultFace));
+        warmup = std::max(warmup, 60);   // 0.3 秒淡入、立绘淡入、字显示全
+        return true;
+    }
+    std::fprintf(stderr, "tongdao: 认不出的一屏：%s\n", what.c_str());
     return false;
 }
 

@@ -27,6 +27,7 @@
 #include "engine/Engine.h"
 #include "game/ChapterCardScene.h"
 #include "game/DialogueExtras.h"
+#include "game/EventCg.h"
 #include "game/ItemToasts.h"
 #include "game/LoreNotices.h"
 #include "game/Busts.h"
@@ -381,6 +382,30 @@ public:
     // 空串 = 没有在显示。不进存档；读档、新开局清掉。
     [[nodiscard]] const std::string& currentCg() const { return currentCg_; }
 
+    // ---- 同道录 2a·路 U：界面（docs/ch07-tongdaolu-u.md）----
+    // 事件图的画面：currentCg 每帧推进 cgStage（0.3 秒淡入淡出），drawScenes 把它垫在底下那一层之上、对话框之下。
+    // 表 data/visual/cg.json 与图 assets/art/cg/ 第一次真要画时才读（cgBook）；无头模式不读、不画。
+    [[nodiscard]] const CgStage& cgStage() const { return cgStage_; }
+    [[nodiscard]] CgBook& cgBook() { return cgBook_; }
+    // 教学卡（同道录、相处、同修）：按事件找一张这一章能弹、还没看过的卡，**当场**压上去——同道录页与蒲团的选项
+    // 都不是 flushTutorials 等的那种「平静」场景，排进队里要等菜单合上才弹，就不是「第一次用到时」了。
+    // 开关、看过的旗标、设置里关了只记不弹，都与 flushTutorials 同一个口径。
+    void tongdaoTutorial(const std::string& event);
+    // 百药园蒲团的「打坐 / 同修」两项（TongxiuScene）：与野外遭遇、教学卡同一个套路，**缺省关着**——
+    // 无头验收在百药园蒲团上直接找修炼面板；启动器（main.cpp）打开它，同道录自己的测试打开它。
+    void setCushionChoiceEnabled(bool enabled) { cushionChoiceEnabled_ = enabled; }
+    [[nodiscard]] bool cushionChoiceEnabled() const { return cushionChoiceEnabled_; }
+    // 升档 / 入册提示：每帧比一次「谁在同道录里、在第几档」的前后两份（不立旗标），多出来的推一条「见闻」样式的提示：
+    // 「默契渐深：某某 · 档名」「已记入同道录：某某」。只在第 7 章（rules::rosterEffectsActive）、只在有窗口时；
+    // 新开局、读档、回首页（resetGuideWatch）只记不报。
+    struct TongdaoMark {
+        bool met = false;
+        int tier = 1;
+    };
+    [[nodiscard]] const std::map<std::string, TongdaoMark>& tongdaoMarks() const { return tongdaoMarks_; }
+    // 截图口与测试用：直接换事件图（游戏里只由脚本 show_cg / hide_cg 改它）。
+    void setCurrentCg(std::string id) { currentCg_ = std::move(id); }
+
     // ---- 历练（伙伴改版，docs/interfaces-companions.md 3.12）----
     //
     // 进：把此刻的图、位置、朝向、队伍记在内存里，队伍换成 entry.party（满血），传到入口图。
@@ -704,6 +729,14 @@ private:
 
     // 路 M：物品来源的地图索引（itemSpots）。头一次要用时建。
     std::optional<rules::ItemSpots> itemSpots_;
+
+    // ---- 同道录 2a·路 U ----
+    CgStage cgStage_;
+    CgBook cgBook_;
+    bool cushionChoiceEnabled_ = false;
+    std::map<std::string, TongdaoMark> tongdaoMarks_;
+    bool tongdaoBaselined_ = false;
+    void watchTongdao();
 };
 
 }  // namespace fanren::game
