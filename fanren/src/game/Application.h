@@ -22,6 +22,7 @@
 #include "core/rules/ItemInfo.h"
 #include "core/rules/Objectives.h"
 #include "core/rules/PathActions.h"
+#include "core/rules/Tongdao.h"
 #include "core/rules/Tutorials.h"
 #include "engine/Engine.h"
 #include "game/ChapterCardScene.h"
@@ -365,6 +366,21 @@ public:
     // 最近一次开的那一仗的开战参数（脚本 battle() 开的也记）。战斗场景开场读它定先手。
     [[nodiscard]] const BattleStart& battleStart() const { return battleStart_; }
 
+    // ---- 同道录 2a：相处里要过日子、要开仗的两件（docs/ch07-tongdaolu-k.md 第 4 节）----
+    // 记账一律在 rules/Tongdao.h；这里只补规则层做不了的那一半（过一天、开一场仗、报物品）。
+    // 界面（路 U）与脚本命令（tongdao.tongxiu / tongdao.spar）调的是同一对函数。
+    //
+    // 同修：rules::tongxiu 记账（默契 +4、明天第一场多 1 点劲），成了就 advanceDays(1)。
+    rules::BondGain tongxiu(const std::string& companionId);
+    // 切磋：rules::canSpar 不成立时什么都不做、返回那一条；成立就开她那一场（编成 spar: true），
+    // 收场按战果 rules::recordSpar 记账、报首胜奖品，再调 onDone。onDone 可为空。
+    using SparDone = std::function<void(const rules::SparOutcome&, const script::CommandResult&)>;
+    rules::TongdaoCheck startSpar(const std::string& companionId, SparDone onDone);
+
+    // 事件图（施工图 3.5）：脚本 show_cg(id) / hide_cg() 只改这一个 id，画面归路 U（现在谁也不画）。
+    // 空串 = 没有在显示。不进存档；读档、新开局清掉。
+    [[nodiscard]] const std::string& currentCg() const { return currentCg_; }
+
     // ---- 历练（伙伴改版，docs/interfaces-companions.md 3.12）----
     //
     // 进：把此刻的图、位置、朝向、队伍记在内存里，队伍换成 entry.party（满血），传到入口图。
@@ -630,6 +646,7 @@ private:
     // 以回调开的那一仗的收场回调（startBattle）；空 = 此刻没有这样的仗。
     BattleOutcome battleOutcome_;
     BattleStart battleStart_;   // battleStart()
+    std::string currentCg_;     // currentCg()
     // 进行中的那一趟历练（enterLilian）；空 = 不在历练里。
     struct LilianTrip {
         std::string siteId;

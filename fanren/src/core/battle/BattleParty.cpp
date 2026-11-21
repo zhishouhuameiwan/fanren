@@ -80,7 +80,7 @@ std::string BattleState::duoMagicOf(int actorIndex, int partnerIndex) const {
 }
 
 bool BattleState::checkDuo(const Action& a, const Unit& u, std::string* why) const {
-    if (devour_) return deny(why, "这一场使不出合招");
+    if (devour_ || spar_) return deny(why, "这一场使不出合招");
     if (!validIndex(a.partnerIndex) || a.partnerIndex == a.actorIndex) return deny(why, "合招要两个人一起出");
     const Unit& partner = unitRef(a.partnerIndex);
     const int companionIndex = duoCompanionIndex(a.actorIndex, a.partnerIndex);
@@ -170,7 +170,8 @@ int BattleState::pickChaser(int actorIndex) const {
 }
 
 std::string BattleState::resolveChase(int actorIndex, std::size_t fromEvent) {
-    if (phase_ != BattlePhase::Ongoing || devour_ || !validIndex(actorIndex)) return {};
+    // 切磋（同道录 2a）不触发追击。
+    if (phase_ != BattlePhase::Ongoing || devour_ || spar_ || !validIndex(actorIndex)) return {};
     const Unit& actor = unitRef(actorIndex);
     if (!actor.ally || (!actor.hero && actor.companion.empty())) return {};
 
@@ -199,7 +200,9 @@ std::string BattleState::resolveChase(int actorIndex, std::size_t fromEvent) {
     chase.hits = 1;
     chase.text = head;
     emit(std::move(chase));
-    const int base = physicalDamage(c.attack, t.defence, c.realm, t.realm, c.element, t.element);
+    int base = physicalDamage(c.attack, t.defence, c.realm, t.realm, c.element, t.element);
+    // 伙伴被动 chase_power（同道录 2a）：她追击的伤害 +N%，加在公式算出来的基数上（四舍五入），再吃破势 ×2。
+    if (c.chasePowerPercent > 0) base = (base * (100 + c.chasePowerPercent) + 50) / 100;
     return head + "，" + strike(chaser, target, base, category, 1, 1);
 }
 

@@ -21,6 +21,13 @@ constexpr std::int64_t kOrderScale = 2520;
 void BattleState::setup(std::vector<Unit> units, std::uint32_t seed, SetupOptions options) {
     units_ = std::move(units);
     preemptive_ = options.preemptive;
+    spar_ = options.spar;
+    victoryHealPercent_ = std::max(0, options.victoryHealPercent);
+    talismanPowerPercent_ = std::max(0, options.talismanPowerPercent);
+    // 开场的劲（同道录 2a）：先手的 1 点、她的被动、同修都是「开场多几点」，不叠加取大；在册加成的偷袭劲
+    // 只在先手时、叠在上面。缺省全 0 时与改版前逐位相同。
+    const int openingBonus = std::max(preemptive_ ? kPreemptiveBonusBp : 0, std::max(0, options.openingBp)) +
+                             (preemptive_ ? std::max(0, options.ambushBp) : 0);
     magics_.clear();
     items_.clear();
     order_.clear();
@@ -60,7 +67,7 @@ void BattleState::setup(std::vector<Unit> units, std::uint32_t seed, SetupOption
         u.revealed &= u.weaknesses;
         u.tested |= u.revealed;
         u.breakRecoverRound = 0;
-        u.bp = u.ally ? kBpStart + (preemptive_ ? kPreemptiveBonusBp : 0) : 0;
+        u.bp = u.ally ? std::min(kBpMax, kBpStart + openingBonus) : 0;
         u.boosted = false;
         u.guarding = false;
         u.priority = false;
@@ -69,6 +76,7 @@ void BattleState::setup(std::vector<Unit> units, std::uint32_t seed, SetupOption
         u.roundsActed = 0;
         u.chasedRound = 0;
         u.duoSpentRound = 0;
+        u.status = Unit::Status{};
     }
 
     // 种子是本模块唯一的随机来源，存档回放靠它复现。
@@ -265,7 +273,17 @@ void BattleState::beginRound() {
 
 void BattleState::skipIneligibleActors() {
     while (orderPos_ < order_.size()) {
-        const Unit& u = unitRef(order_[orderPos_]);
+        Unit& u = unitRef(order_[orderPos_]);
+        // 定身（同道录 2a，Magic::effect Bind）：轮到它时失去这一次行动，定身随之解开。
+        if (u.alive() && !u.broken() && u.status.bindSkips > 0) {
+            --u.status.bindSkips;
+            // 随后两回合不再吃定身，免得被一张符锁死。
+            u.status.bindImmuneUntilRound = round_ + 2;
+            log_.push_back(u.name + " 被定住，动弹不得");
+            emit(BattleEvent{BattleEventKind::BoundSkip, -1, order_[orderPos_]});
+            ++orderPos_;
+            continue;
+        }
         if (u.alive() && !u.broken() && u.duoSpentRound != round_) break;
         // 这一回合里刚被打倒、刚被打破势的，排到它时一律跳过：破势的那一回合
         //「若还没出手就失去本回合」说的就是这里。被合招用掉了这一回合行动的那一位也跳过。
@@ -390,10 +408,35 @@ void BattleState::refreshPhase() {
 
     if (!foeAlive) {
         // 场上一个敌人都不剩：有人是逃走的（识海第二场），落点就是 EnemyFled，不是 Won。
+        if (!anyEnemyFled_) applyVictoryHeal();
         endBattle(anyEnemyFled_ ? BattlePhase::EnemyFled : BattlePhase::Won);
     } else if (!allyAlive) {
         endBattle(BattlePhase::Lost);
     }
+}
+
+void BattleState::applyVictoryHeal() {
+    // 伙伴被动 victory_heal（同道录 2a）：打赢那一刻，我方站着的人各回 maxHp 的几成（四舍五入，至少 1）。
+    // 倒下的不回：收场写回存档时照旧按「至少 1 点」放回。
+    if (victoryHealPercent_ <= 0) return;
+    for (std::size_t i = 0; i < units_.size(); ++i) {
+        Unit& u = units_[i];
+        if (!u.ally || !u.alive() || u.hp >= u.maxHp) continue;
+        const int want = std::max(1, (u.maxHp * victoryHealPercent_ + 50) / 100);
+        const int gain = std::min(want, u.maxHp - u.hp);
+        u.hp += gain;
+        log_.push_back(u.name + " 回复 " + std::to_string(gain) + " 点气血");
+        BattleEvent heal{BattleEventKind::Heal, -1, static_cast<int>(i), gain, 0};
+        heal.hp = u.hp;
+        heal.toughness = u.toughness;
+        emit(std::move(heal));
+    }
+}
+
+bool BattleState::bindImmune(int unitIndex) const {
+    if (!validIndex(unitIndex)) return true;
+    const Unit& u = unitRef(unitIndex);
+    return !canEscape_ || u.actions > 1 || u.chargeEvery > 0;
 }
 
 void BattleState::endBattle(BattlePhase outcome) {

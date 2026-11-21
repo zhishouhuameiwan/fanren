@@ -3,6 +3,7 @@
 // sol2 只出现在这里。ScriptHost.h 是 pimpl，外界永远看不到 sol 类型。
 #include <sol/sol.hpp>
 
+#include <algorithm>
 #include <cstdio>
 #include <cmath>
 #include <exception>
@@ -11,10 +12,13 @@
 #include <sstream>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "core/rules/Companions.h"
 #include "core/rules/Field.h"
 #include "core/rules/Realm.h"
+#include "core/rules/Roster.h"
+#include "core/rules/Tongdao.h"
 
 namespace fanren::script {
 namespace {
@@ -57,6 +61,14 @@ const std::unordered_map<std::string, CommandKind>& kindTable() {
         {"tutorial", CommandKind::Tutorial},
         {"bubble", CommandKind::Bubble},   // 地基包路 D：伙伴插话气泡
         {"intro_card", CommandKind::IntroCard},   // 女角色立绘：登场卡
+        // 同道录 2a（docs/ch07-tongdaolu-k.md 第 5 节）
+        {"tongdao_tongxiu", CommandKind::TongdaoTongxiu},
+        {"tongdao_spar", CommandKind::TongdaoSpar},
+        {"tongdao_qingjiao", CommandKind::TongdaoQingjiao},
+        {"tongdao_xuhua", CommandKind::TongdaoXuhua},
+        {"tongdao_bonus", CommandKind::TongdaoBonus},
+        {"show_cg", CommandKind::ShowCg},
+        {"hide_cg", CommandKind::HideCg},
     };
     return table;
 }
@@ -206,7 +218,15 @@ struct ScriptHost::Impl {
 
     std::string scriptRoot;
     core::GameState* state = nullptr;
+    const core::GameData* data = nullptr;   // setGameData；tongdao.* 的查询用
     bool initialised = false;
+
+    // 同道录查询：这位伙伴（没给 data、查不到时 nullptr）。
+    [[nodiscard]] const core::Companion* companion(const std::string& id) const {
+        if (data == nullptr) return nullptr;
+        const auto it = data->companions.find(id);
+        return it == data->companions.end() ? nullptr : &it->second;
+    }
 
     sol::thread thread;
     sol::coroutine co;
@@ -343,6 +363,74 @@ struct ScriptHost::Impl {
         });
         host.set_function("bond_tier", [self](const std::string& companionId) -> int {
             return fanren::rules::bondTier(self->state != nullptr ? self->state->bondOf(companionId) : 0);
+        });
+
+        // ---- 同道录 2a：只读查询（docs/ch07-tongdaolu-k.md 第 5 节）----
+        // 写走命令队列（tongdao_*），读走这里。认不出的伙伴一律答「没有」：空串 / 0 / false。
+        namespace R = fanren::rules;
+        host.set_function("tongdao_effects_active", [self]() -> bool {
+            return self->state != nullptr && R::rosterEffectsActive(*self->state);
+        });
+        host.set_function("tongdao_roster", [self]() {
+            std::vector<std::string> ids;
+            if (self->state != nullptr && self->data != nullptr) ids = R::roster(self->data->companions, *self->state);
+            return sol::as_table(std::move(ids));
+        });
+        host.set_function("tongdao_kind", [self](const std::string& id) -> std::string {
+            const core::Companion* c = self->companion(id);
+            if (c == nullptr) return {};
+            return c->kind == core::CompanionKind::Beast ? "beast" : "person";
+        });
+        host.set_function("tongdao_line", [self](const std::string& id) -> std::string {
+            const core::Companion* c = self->companion(id);
+            return c == nullptr ? std::string{} : std::string(R::bondLineName(c->line));
+        });
+        host.set_function("tongdao_tier_name", [self](const std::string& id, int tier) -> std::string {
+            const core::Companion* c = self->companion(id);
+            return R::bondTierNameKey(c == nullptr ? core::BondLine::General : c->line, tier);
+        });
+        host.set_function("tongdao_cap_tier", [self](const std::string& id) -> int {
+            const core::Companion* c = self->companion(id);
+            return c == nullptr || self->state == nullptr ? 0 : R::bondTierCap(*c, *self->state);
+        });
+        host.set_function("tongdao_in_roster", [self](const std::string& id) -> bool {
+            const core::Companion* c = self->companion(id);
+            return c != nullptr && self->state != nullptr && R::inRoster(*c, *self->state);
+        });
+        // 能不能做：action 是 tongxiu / spar / qingjiao；答机器码，空串 = 能。
+        host.set_function("tongdao_check", [self](const std::string& action, const std::string& id) -> std::string {
+            if (self->data == nullptr || self->state == nullptr) return R::tongdaoCheckCode(R::TongdaoCheck::NoCompanion);
+            const auto& companions = self->data->companions;
+            if (action == "tongxiu") return R::tongdaoCheckCode(R::canTongxiu(companions, id, *self->state));
+            if (action == "spar") return R::tongdaoCheckCode(R::canSpar(companions, id, *self->state));
+            if (action == "qingjiao") return R::tongdaoCheckCode(R::canQingjiao(companions, id, *self->state));
+            return "bad_action";
+        });
+        host.set_function("tongdao_qingjiao_done", [self](const std::string& id) -> bool {
+            return self->state != nullptr && self->state->flag(R::qingjiaoFlag(id)) != 0;
+        });
+        host.set_function("tongdao_xuhua_pending", [self](const std::string& id) -> int {
+            return self->data == nullptr || self->state == nullptr
+                       ? 0
+                       : R::xuhuaPending(self->data->companions, id, *self->state);
+        });
+        host.set_function("tongdao_xuhua_done", [self](const std::string& id) -> int {
+            return self->state != nullptr ? self->state->flag(R::xuhuaFlag(id)) : 0;
+        });
+        host.set_function("tongdao_bonus_unlocked", [self](const std::string& id) -> bool {
+            const core::Companion* c = self->companion(id);
+            return c != nullptr && self->state != nullptr && R::rosterBonusUnlocked(*c, *self->state);
+        });
+        host.set_function("tongdao_bonus_active", [self](const std::string& id) -> bool {
+            if (self->data == nullptr || self->state == nullptr) return false;
+            const std::vector<std::string> active = R::activeRosterBonuses(self->data->companions, *self->state);
+            return std::find(active.begin(), active.end(), id) != active.end();
+        });
+        host.set_function("tongdao_bonus_selected", [self](const std::string& id) -> bool {
+            return self->state != nullptr && self->state->flag(R::bonusOnFlag(id)) != 0;
+        });
+        host.set_function("tongdao_bonus_slots", [self]() -> int {
+            return self->state != nullptr ? R::rosterBonusSlots(self->state->realm) : 0;
         });
     }
 
@@ -612,6 +700,8 @@ void ScriptHost::abortEvent(const std::string& reason) {
 const std::string& ScriptHost::lastError() const {
     return impl_->lastError;
 }
+
+void ScriptHost::setGameData(const core::GameData* data) { impl_->data = data; }
 
 void ScriptHost::setLogSink(LogSink sink) {
     impl_->log = std::move(sink);

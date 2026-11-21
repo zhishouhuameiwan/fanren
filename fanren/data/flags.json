@@ -640,5 +640,22 @@
   "tutorial.seen.alchemy": "教学卡「炼丹成功率」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
   "tutorial.seen.companion": "教学卡「伙伴上场与默契」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
   "tutorial.seen.gift": "教学卡「赠礼」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
-  "tutorial.seen.field_item": "教学卡「战斗外用药」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）"
+  "tutorial.seen.field_item": "教学卡「战斗外用药」看过没有（第一期地基包 2.3；由引擎置，脚本不读不写）",
+  "tongdao.chen_qiaoqian.qingjiao": "同道录：请教过陈巧倩为 1（之后她的在册加成生效；rules::recordQingjiao 置，docs/ch07-tongdaolu-k.md）",
+  "tongdao.chen_qiaoqian.xuhua": "同道录：与陈巧倩叙话，升档事件已演到第几档（0 / 2–5；rules::recordXuhua 置）",
+  "tongdao.chen_qiaoqian.spar_day": "同道录：上一次与陈巧倩切磋的日子（每人每天一次；rules::recordSpar 置）",
+  "tongdao.chen_qiaoqian.spar_prize": "同道录：与陈巧倩切磋的首胜奖品已领到第几档（0 / 2–5；rules::recordSpar 置）",
+  "tongdao.chen_qiaoqian.bonus_on": "同道录：在册加成里勾上了陈巧倩那一条为 1（超过名额时先取勾上的；界面置）",
+  "tongdao.nangong_wan.qingjiao": "同道录：请教过南宫婉为 1（之后她的在册加成生效；rules::recordQingjiao 置，docs/ch07-tongdaolu-k.md）",
+  "tongdao.nangong_wan.xuhua": "同道录：与南宫婉叙话，升档事件已演到第几档（0 / 2–5；rules::recordXuhua 置）",
+  "tongdao.nangong_wan.spar_day": "同道录：上一次与南宫婉切磋的日子（每人每天一次；rules::recordSpar 置）",
+  "tongdao.nangong_wan.spar_prize": "同道录：与南宫婉切磋的首胜奖品已领到第几档（0 / 2–5；rules::recordSpar 置）",
+  "tongdao.nangong_wan.bonus_on": "同道录：在册加成里勾上了南宫婉那一条为 1（超过名额时先取勾上的；界面置）",
+  "tongdao.han_yunzhi.qingjiao": "同道录：请教过菡云芝（伙伴表归路 N）为 1（之后她的在册加成生效；rules::recordQingjiao 置，docs/ch07-tongdaolu-k.md）",
+  "tongdao.han_yunzhi.xuhua": "同道录：与菡云芝（伙伴表归路 N）叙话，升档事件已演到第几档（0 / 2–5；rules::recordXuhua 置）",
+  "tongdao.han_yunzhi.spar_day": "同道录：上一次与菡云芝（伙伴表归路 N）切磋的日子（每人每天一次；rules::recordSpar 置）",
+  "tongdao.han_yunzhi.spar_prize": "同道录：与菡云芝（伙伴表归路 N）切磋的首胜奖品已领到第几档（0 / 2–5；rules::recordSpar 置）",
+  "tongdao.han_yunzhi.bonus_on": "同道录：在册加成里勾上了菡云芝（伙伴表归路 N）那一条为 1（超过名额时先取勾上的；界面置）",
+  "tongdao.tongxiu_day": "同道录：上一次在百药园蒲团上同修的日子（每天一次；rules::tongxiu 置）",
+  "tongdao.tongxiu_bp_day": "同道录：同修给的「第二天第一场战斗全队开场多 1 点劲」落在哪一天；开了那一场就清 0（rules::tongxiu 置、BattleScene 清）"
 }

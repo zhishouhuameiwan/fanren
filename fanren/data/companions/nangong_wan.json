@@ -1,5 +1,7 @@
 {
   "id": "nangong_wan",
+  "kind": "person",
+  "line": "general",
   "roles": [
     {
       "role": "baiyi_shaonv",
@@ -14,6 +16,10 @@
     }
   ],
   "met_flag": "ch07.nangong",
+  "bond_cap": {
+    "until_flag": "ch07.done",
+    "max_tier": 4
+  },
   "field_skill": "break_seal",
   "chase": true,
   "duo": "magic_duo_huanhuo",

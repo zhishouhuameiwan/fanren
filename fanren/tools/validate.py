@@ -2938,9 +2938,10 @@ def check_battle_break_data(report) -> None:
         # 写了就得是 "reveal"（天眼术的看破）或 "stagger"（削架势），且不许与 power > 0 / poison > 0
         # 同写——一门法术要么伤人、要么看破或削架势。加载器（DataLoader.cpp）查同一条；power 缺省
         # 是 10，所以带效果的法术得明写 "power": 0。
+        # 同道录 2a 追加 heal / ward / bulwark / bind（Types.h 的 MagicEffect），同样不伤人。
         if "effect" in payload:
-            if payload["effect"] not in ("reveal", "stagger"):
-                report.error(where, f"effect 只许 \"reveal\" 或 \"stagger\"，实际是 {payload['effect']!r}")
+            if payload["effect"] not in ("reveal", "stagger", "heal", "ward", "bulwark", "bind"):
+                report.error(where, f"effect 只许 reveal / stagger / heal / ward / bulwark / bind，实际是 {payload['effect']!r}")
             else:
                 power = payload.get("power", 10)
                 poison = payload.get("poison", 0)
@@ -2954,6 +2955,18 @@ def check_battle_break_data(report) -> None:
                 report.error(where, "stagger 只许与 effect \"stagger\" 同写")
             elif not is_plain_int(payload["stagger"]) or not 1 <= payload["stagger"] <= 9:
                 report.error(where, f"stagger 必须是 1 到 9 的整数，实际是 {payload['stagger']!r}")
+        # 同道录 2a：hits（基础段数 1–5，只许伤人的法术）、amount（heal 1–999 / bulwark 1–90，必写且只许这两种）。
+        if "hits" in payload:
+            offensive = payload.get("power", 10) > 0 or payload.get("poison", 0) > 0
+            if not is_plain_int(payload["hits"]) or not 1 <= payload["hits"] <= 5 or "effect" in payload or not offensive:
+                report.error(where, f"hits 必须是 1 到 5 的整数、只许写在伤人的法术上，实际是 {payload['hits']!r}")
+        wants_amount = payload.get("effect") in ("heal", "bulwark")
+        if ("amount" in payload) != wants_amount:
+            report.error(where, "amount 只许、且必须与 effect heal / bulwark 同写")
+        elif wants_amount:
+            hi = 90 if payload["effect"] == "bulwark" else 999
+            if not is_plain_int(payload["amount"]) or not 1 <= payload["amount"] <= hi:
+                report.error(where, f"amount 必须是 1 到 {hi} 的整数，实际是 {payload['amount']!r}")
 
     for path in sorted((ROOT / "data" / "items").rglob("*.json")):
         payload = read_json(path, report)
@@ -2985,6 +2998,17 @@ def check_battle_break_data(report) -> None:
                 report.error(where, f"{field_name} 已作废：横版战斗没有格子，删掉这一项")
         if "backdrop" in battle and not isinstance(battle["backdrop"], str):
             report.error(where, "backdrop 必须是字符串")
+        # 切磋编成（同道录 2a，docs/ch07-tongdaolu.md 3.4）：与 C++ 的 BattleLoader 同一条——不致命、不能逃、
+        # 不许 hero_absent、不许 ally、rewards 全 0（奖品写在伙伴表的 spar.prizes）。
+        if "spar" in battle:
+            if not isinstance(battle["spar"], bool):
+                report.error(where, "spar 必须是 true / false")
+            elif battle["spar"]:
+                rewards = battle.get("rewards", {}) if isinstance(battle.get("rewards"), dict) else {}
+                if battle.get("defeat_is_fatal", True) or battle.get("can_escape", True) or                         battle.get("hero_absent") is True or                         any(isinstance(u, dict) and u.get("faction") == "ally" for u in battle.get("units", [])):
+                    report.error(where, "切磋（spar）：defeat_is_fatal、can_escape 都要写 false，不许 hero_absent、不许 ally")
+                if rewards.get("cultivation", 0) or rewards.get("spirit_stones", 0) or rewards.get("drops"):
+                    report.error(where, "切磋（spar）：rewards 要全 0（奖品写在伙伴表的 spar.prizes）")
         mind = battle.get("terrain") == MIND_TERRAIN
         chapter = battle.get("chapter")
         means = battle_means(battle, roles, magics)
@@ -3636,8 +3660,21 @@ ITEM_ENTRY_RE = re.compile(r"^([a-z0-9_]+)(?::([1-9][0-9]{0,5}))?$")
 FACING_NAMES = ("up", "down", "left", "right")
 POSITIVE_INT_RE = re.compile(r"^[1-9][0-9]{0,8}$")
 
-COMPANION_FIELDS = {"id", "roles", "met_flag", "field_skill", "chase", "duo", "gifts", "note"}
-COMPANION_ROLE_FIELDS = {"role", "until_flag"}
+COMPANION_FIELDS = {"id", "roles", "met_flag", "field_skill", "chase", "duo", "gifts", "note",
+                    # 同道录 2a（docs/ch07-tongdaolu-k.md 第 1 节）
+                    "kind", "line", "bond_cap", "roster_bonus", "spar"}
+COMPANION_ROLE_FIELDS = {"role", "until_flag", "magics", "passive", "duo"}
+# 被动与在册加成的种类表：与 src/core/rules/Tongdao.cpp 的 perkTable 同一张（名字 → 能放的格、取值范围、要不要 element）。
+COMPANION_PERKS = {
+    "chase_power": ("passive", 1, 30, False),
+    "opening_bp": ("passive", 1, 2, False),
+    "victory_heal": ("passive", 1, 50, False),
+    "ambush_bp": ("roster", 1, 2, False),
+    "element_stagger": ("roster", 1, 2, True),
+    "talisman_power": ("roster", 1, 50, False),
+}
+COMPANION_LINES = ("general", "hongyan", "moni", "beast")
+PERK_ELEMENTS = ("metal", "wood", "water", "fire", "earth")
 
 # 历练（契约 3.12）。定义文件的形状由 D 路定（它的 io/LilianLoader.h 开头）：id、name_key、unlock_flag、
 # entry {map, spawn}、maps（都以 lilian_ 开头、含 entry.map）、tiers（1–3 档，每档 {max_realm}）。
@@ -3975,6 +4012,7 @@ def check_companions(defined: dict, report: Report) -> dict[str, dict]:
         duo = payload.get("duo")
         if duo and magics_known and duo not in magics_known:
             report.error(where, f"duo（合招）指向的法术不存在：{duo}")
+        check_companion_tongdao(where, payload, roles, defined, report)
         gifts = payload.get("gifts", {})
         if isinstance(gifts, dict):
             for side in ("like", "dislike"):
@@ -3984,6 +4022,99 @@ def check_companions(defined: dict, report: Report) -> dict[str, dict]:
         elif gifts:
             report.error(where, "gifts 要是 {like: [...], dislike: [...]}")
     return companions
+
+
+def check_companion_perk(where: str, perk, slot: str, report: Report) -> None:
+    """同道录 2a：一条被动（slot passive，写 values）或在册加成（slot roster，写 value）。与 C++ 的 readPerk 同一套。"""
+    if not isinstance(perk, dict):
+        report.error(where, "要是对象")
+        return
+    allowed = {"kind", "values", "element"} if slot == "passive" else {"kind", "value", "element"}
+    extra = sorted(set(perk) - allowed)
+    if extra:
+        report.error(where, f"表外字段 {extra}")
+    info = COMPANION_PERKS.get(perk.get("kind"))
+    if info is None:
+        report.error(where, f"kind 不在种类表里：{perk.get('kind')!r}（只认 {sorted(COMPANION_PERKS)}）")
+        return
+    want_slot, lo, hi, needs_element = info
+    if want_slot != slot:
+        report.error(where, f"{perk['kind']} 不能放在{'伙伴被动' if slot == 'passive' else '在册加成'}里")
+    values = perk.get("values") if slot == "passive" else [perk.get("value")]
+    if not isinstance(values, list) or not 1 <= len(values) <= 2 or \
+            not all(is_plain_int(v) and lo <= v <= hi for v in values):
+        report.error(where, f"{'values' if slot == 'passive' else 'value'} 要是 [{lo}, {hi}] 里的整数"
+                            f"{'（一项或两项：三档起、五档起）' if slot == 'passive' else ''}")
+    elif len(values) == 2 and values[1] < values[0]:
+        report.error(where, "values 的五档那一项不能比三档小")
+    if needs_element and perk.get("element") not in PERK_ELEMENTS:
+        report.error(where, f"{perk['kind']} 要写 element（{'/'.join(PERK_ELEMENTS)}）")
+    if not needs_element and "element" in perk:
+        report.error(where, f"{perk['kind']} 不收 element")
+
+
+def check_companion_tongdao(where: str, payload: dict, roles: list, defined: dict, report: Report) -> None:
+    """规则 31 续（同道录 2a，docs/ch07-tongdaolu-k.md 第 1 节）：kind / line / bond_cap / roster_bonus / spar，
+    以及 roles[i] 下的 magics / passive / duo。形状与 C++ 的 io/CompanionLoader 同一张表；引用另查存在。"""
+    magics_known = defined.get("magic", set())
+    items_known = defined.get("item", set())
+    battles_known = defined.get("battle", set())
+    kind = payload.get("kind", "person")
+    if kind not in ("person", "beast"):
+        report.error(where, f"kind 只认 person / beast，实际是 {kind!r}")
+    line = payload.get("line", "beast" if kind == "beast" else "general")
+    if line not in COMPANION_LINES:
+        report.error(where, f"line 只认 {COMPANION_LINES}，实际是 {line!r}")
+    elif (kind == "beast") != (line == "beast"):
+        report.error(where, "line：灵兽走 beast 线，人物不走")
+    cap = payload.get("bond_cap")
+    if cap is not None:
+        if not isinstance(cap, dict) or set(cap) != {"until_flag", "max_tier"} or not cap.get("until_flag") or \
+                not is_plain_int(cap.get("max_tier")) or not 1 <= cap["max_tier"] <= 4:
+            report.error(where, "bond_cap 要是 {until_flag: 非空旗标, max_tier: 1–4}")
+    if "roster_bonus" in payload:
+        check_companion_perk(f"{where} 的 roster_bonus", payload["roster_bonus"], "roster", report)
+    spar = payload.get("spar")
+    if spar is not None:
+        if kind == "beast":
+            report.error(where, "spar：灵兽不切磋")
+        if not isinstance(spar, dict) or set(spar) - {"battle", "prizes"} or not spar.get("battle"):
+            report.error(where, "spar 要是 {battle: 编成 id, prizes?: [...]}")
+        else:
+            if battles_known and spar["battle"] not in battles_known:
+                report.error(where, f"spar.battle 指向的编成不存在：{spar['battle']}")
+            last = 1
+            for prize in spar.get("prizes", []) or []:
+                if not isinstance(prize, dict) or set(prize) != {"tier", "items"} or \
+                        not is_plain_int(prize.get("tier")) or not last < prize["tier"] <= 5:
+                    report.error(where, f"spar.prizes 里的一项写坏了（tier 2–5 升序、每档一条、要写 items）：{prize!r}")
+                    continue
+                last = prize["tier"]
+                items = prize.get("items")
+                if not isinstance(items, list) or not items:
+                    report.error(where, f"spar.prizes 第 {prize['tier']} 档的 items 要是非空数组")
+                    continue
+                for entry in items:
+                    if not isinstance(entry, dict) or set(entry) - {"item", "count"} or not entry.get("item"):
+                        report.error(where, f"spar.prizes 的物品写坏了：{entry!r}")
+                    elif items_known and entry["item"] not in items_known:
+                        report.error(where, f"spar.prizes 里的物品不存在：{entry['item']}")
+                    elif "count" in entry and (not is_plain_int(entry["count"]) or not 1 <= entry["count"] <= 99):
+                        report.error(where, f"spar.prizes 的 count 要是 1–99：{entry!r}")
+    for entry in roles:
+        if not isinstance(entry, dict):
+            continue
+        at = f"{where} 的 roles[{entry.get('role')}]"
+        for tm in entry.get("magics", []) or []:
+            if not isinstance(tm, dict) or set(tm) != {"tier", "magic"} or not is_plain_int(tm.get("tier")) or \
+                    not 2 <= tm["tier"] <= 5:
+                report.error(at, f"magics 里的一项写坏了（{{tier: 2–5, magic: id}}）：{tm!r}")
+            elif magics_known and tm["magic"] not in magics_known:
+                report.error(at, f"magics 里的法术不存在：{tm['magic']}")
+        if "passive" in entry:
+            check_companion_perk(f"{at} 的 passive", entry["passive"], "passive", report)
+        if entry.get("duo") and magics_known and entry["duo"] not in magics_known:
+            report.error(at, f"duo（这一段的合招）指向的法术不存在：{entry['duo']}")
 
 
 def load_lilian_sites(report: Report) -> dict[str, dict]:

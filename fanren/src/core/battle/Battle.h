@@ -183,6 +183,28 @@ struct Unit {
     // 合招的另一位没有出手，只是陪着出了这一招。
     int duoSpentRound = 0;
 
+    // ---- 同道录 2a（docs/ch07-tongdaolu.md 3.3、3.6；game 层建场时按伙伴表与在册加成填）----
+    // 缺省全是「没有」：第 7 章以外的仗、没写这些数据的伙伴一个事件也不会多。
+    int chasePowerPercent = 0;   // 伙伴被动 chase_power：她追击的伤害 +N%
+    struct ExtraStagger {
+        int categories = 0;   // 这几类的一击
+        int amount = 0;       // 打中破绽时在 1 点之外多削的
+    };
+    std::vector<ExtraStagger> extraStagger;   // 在册加成 element_stagger（只挂在主角身上，只认他施法的那一击）
+    // 辅助法术挂在身上的状态（同道录 2a 只做最小的三样）。**收成一个结构是给第三期留的口子**：
+    // 第三期的六种增益减益（灼烧、冰封、定身、破甲、护罩、敛息）都是「身上记几回合、几次」，
+    // 届时把这里扩成那张表——定身接 bindSkips / bindImmuneUntilRound，护罩接 ward*，不必另起一套。
+    struct Status {
+        int wardCharges = 0;          // 护持（Magic::effect Ward）：还能整个免掉几次伤害（现在至多 1）
+        int wardUntilRound = 0;       // 护持到这一回合结束为止（挂上那一回合 + 1：到下一回合结束没用上就散）
+        int bulwarkPercent = 0;       // 剑幕（Magic::effect Bulwark）：受伤减几成
+        int bulwarkRound = 0;         // 剑幕只管这一回合
+        int bindSkips = 0;            // 定身（Magic::effect Bind）：还要跳过几次行动（现在至多 1）
+        int bindImmuneUntilRound = 0; // 被定过一次之后，到这一回合结束都不再吃定身（跳过那一回合 + 2）
+    };
+    Status status;
+    [[nodiscard]] bool warded(int round) const { return status.wardCharges > 0 && round <= status.wardUntilRound; }
+
     // 「在场且还站得住」。**不在场的单位一律当作不在**：行动序、选中、可否被打、
     // 胜负判定全靠这一条，分成两个谓词就必然有哪一处只问了其中一个。
     [[nodiscard]] bool alive() const { return hp > 0 && !fled && onField; }
@@ -253,6 +275,13 @@ enum class BattleEventKind {
     Chase,
     // 合招：紧跟在那一手的 Act 之后。actor = 发起人，target = 另一位，value = 每人扣掉的劲。
     DuoJoin,
+    // ---- 同道录 2a 的四种辅助法术（Magic::effect，docs/ch07-tongdaolu.md 3.3），追加在末尾 ----
+    // 回血走现成的 Heal。下面几条都紧跟在那一手的 Act 之后，不是一击：没有 Hit。
+    Ward,        // actor 给 target 挂上护持
+    WardBlock,   // target 的护持挡下了 actor 的这一击（紧跟着那一击的 Hit，value = 0）
+    Bulwark,     // actor 张开剑幕：我方全员到本回合结束受伤减 value%
+    Bind,        // actor 定住 target：它下一次轮到时失去那次行动
+    BoundSkip,   // 轮到 target，它被定住、失去这次行动（不是一次行动：没有 Act）
 };
 
 struct BattleEvent {
@@ -278,6 +307,14 @@ struct SetupOptions {
     // 先手（偷袭明雷得手）：我方全员开场多 kPreemptiveBonusBp 点劲；第一回合我方全员排在所有敌人之前。
     // 是行动序里单独的一个键，与防御给的「下回合先手」（Unit::priority）不是一回事。
     bool preemptive = false;
+
+    // ---- 同道录 2a（rules::battleBonuses 算好，game 层照抄），缺省全 0 = 没套 ----
+    int openingBp = 0;             // 我方全员开场多几点劲；与先手的 kPreemptiveBonusBp 不叠加，取大
+    int ambushBp = 0;              // 先手时我方全员再多几点（与先手叠加）；不是先手不读
+    int victoryHealPercent = 0;    // 打赢（Won）时我方站着的人各回几成气血
+    int talismanPowerPercent = 0;  // 道具施法（符）的威力加几成
+    // 切磋（BattleSetup::spar）：不触发追击、不出合招。别的规矩（只有主角一人、不掉东西、打完回满）在 game 层。
+    bool spar = false;
 };
 
 class BattleState {
@@ -285,6 +322,11 @@ public:
     // 横版没有战场尺寸：只要单位与种子。
     void setup(std::vector<Unit> units, std::uint32_t seed, SetupOptions options = {});
     [[nodiscard]] bool preemptive() const { return preemptive_; }
+    [[nodiscard]] bool spar() const { return spar_; }
+    // 这个单位定不住（Magic::effect Bind 无效）：首领——一回合多动、会蓄势——以及不能逃的仗里的敌人
+    //（精英与剧情硬仗都写 can_escape: false；规则层不认识「精英」这个地图属性）。
+    // 刚被定过的（Status::bindImmuneUntilRound 之内）另由 checkMagicTarget 说「刚挣脱」。
+    [[nodiscard]] bool bindImmune(int unitIndex) const;
 
     // ---- 扩展接口：必须在 setup() 之后调用（setup 会清空这些登记）----
     void addMagic(const Magic& magic);
@@ -455,12 +497,21 @@ private:
                                                 bool allTargets = false) const;
     // 一击：先按此刻的状态算伤害落下去，再判破绽、揭开、削架势、破势。
     // 返回追加到日志里的半句（不带开头的「，」）。
+    // extraStagger：这一击打中破绽时在 1 点之外多削几点（在册加成 element_stagger），缺省 0。
     std::string strike(int attackerIndex, int targetIndex, int baseDamage, int category, int hit,
-                       int hits);
+                       int hits, int extraStagger = 0);
     // 不带伤害的一击（毒药撒过去）：只判破绽。返回追加的半句，可能为空。
     std::string probe(int attackerIndex, int targetIndex, int category);
     // 破绽判定：揭开（同 id 的单位一起揭开）、削一点架势、够了就破势。返回追加的半句。
-    std::string resolveWeakness(int targetIndex, int category, StrikeOutcome& out);
+    std::string resolveWeakness(int targetIndex, int category, StrikeOutcome& out, int extraStagger = 0);
+    // 同道录 2a 的四种辅助效果（Heal / Ward / Bulwark / Bind）：扣法力（道具不扣），不是一击。
+    std::string applySupport(const Action& a, const Magic& magic, const Item* viaItem, int duoPartner);
+    // 主角这门法术打中破绽时多削几点（Unit::extraStagger 里与 category 相交的那几条之和）。
+    [[nodiscard]] int extraStaggerOf(const Unit& caster, int category) const;
+    // 威力：蓄劲、合招、道具施法的加成之后的数（resolveMagic 与 estimateHitDamage 共用）。
+    [[nodiscard]] int castPower(const Action& a, const Magic& magic, const Item* viaItem, bool duo) const;
+    // 打赢时套 victoryHealPercent（refreshPhase 判 Won 的那一刻）。
+    void applyVictoryHeal();
     void breakUnit(int targetIndex, std::string& text, StrikeOutcome& out);
     void emitStrike(int attackerIndex, int targetIndex, int category, int hit, int hits,
                     const StrikeOutcome& out);
@@ -527,6 +578,9 @@ private:
     BattlePhase phase_ = BattlePhase::Ongoing;
     bool canEscape_ = true;
     bool preemptive_ = false;   // SetupOptions::preemptive
+    bool spar_ = false;         // SetupOptions::spar
+    int victoryHealPercent_ = 0;
+    int talismanPowerPercent_ = 0;
 
     // ---- 吞噬模式的记账 ----
     bool devour_ = false;

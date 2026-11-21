@@ -11,6 +11,7 @@
 
 #include "core/rules/Companions.h"
 #include "core/rules/Realm.h"
+#include "core/rules/Tongdao.h"
 #include "engine/TextLayout.h"
 #include "game/Application.h"
 #include "game/BattleHud.h"
@@ -132,9 +133,26 @@ constexpr int kMenuFeedbackH = 72;
 
 // 一门法术这一手打什么，写在菜单行尾（法术列表与物品列表的符箓共用）：削架势的写「削架势 N」
 //——它不判破绽，写五行只会让人以为打得中哪一样；别的写它的类别（五行，带毒加「毒」），没有就空着。
+// 同道录 2a 的辅助法术挑谁：回血、护持挑一名我方；剑幕与看破不挑（选中就出）；别的挑敌人。
+[[nodiscard]] bool magicPicksAlly(const core::Magic& magic) {
+    return magic.effect == core::MagicEffect::Heal || magic.effect == core::MagicEffect::Ward;
+}
+[[nodiscard]] bool magicPicksNobody(const core::Magic& magic) {
+    return magic.effect == core::MagicEffect::Reveal || magic.effect == core::MagicEffect::Bulwark;
+}
+
 [[nodiscard]] std::string spellEffectLabel(const core::Magic& magic) {
     if (magic.effect == core::MagicEffect::Stagger) return "削架势 " + std::to_string(magic.stagger);
+    // 同道录 2a 的四种辅助效果（现有法术一门都没有，行尾照旧）。
+    if (magic.effect == core::MagicEffect::Heal) return "回气血 " + std::to_string(magic.amount);
+    if (magic.effect == core::MagicEffect::Ward) return "挡一击";
+    if (magic.effect == core::MagicEffect::Bulwark) return "全队减伤 " + std::to_string(magic.amount) + "%";
+    if (magic.effect == core::MagicEffect::Bind) return "定身";
     std::string label = core::categoryNames(core::magicCategories(magic));
+    if (magic.hits > 1) {
+        if (!label.empty()) label += " · ";
+        label += std::to_string(magic.hits) + " 段";
+    }
     if (magic.target == core::MagicTarget::All) {
         if (!label.empty()) label += " · ";
         label += "敌方全体";
@@ -412,17 +430,31 @@ void BattleScene::buildFromSetup(Application& app, const core::BattleSetup& setu
     heroPresent_ = !setup.heroAbsent;
     if (heroPresent_) units.push_back(makeHero(app, mind));
 
+    const bool effects = rules::rosterEffectsActive(app.state());
     for (const core::BattleUnitSpec& spec : setup.units) {
         const core::RoleTemplate* role = app.data().findRole(spec.roleId);
         if (role == nullptr) continue;   // 内容门禁会拦下悬空引用，运行期跳过即可
         Unit unit = unitFromRole(app.state(), *role, spec.ally);
+        // 切磋（同道录 2a）：对面的她按此刻的默契带够档的法术（与她在我方时同一个 kit）；
+        // 编成里写死的别的单位不看伙伴数据（契约 3.1：只有队伍里带进来的才算伙伴）。
+        if (setup.spar && !spec.ally) {
+            if (const std::string id = rules::companionOfRole(app.data().companions, role->id); !id.empty()) {
+                const rules::CompanionKit kit = rules::companionKit(app.data().companions.at(id), role->id,
+                                                                    app.state().bondOf(id), effects);
+                for (const std::string& magic : kit.extraMagics) {
+                    if (std::find(unit.magics.begin(), unit.magics.end(), magic) == unit.magics.end()) {
+                        unit.magics.push_back(magic);
+                    }
+                }
+            }
+        }
         // 波次：缺省 0 = 开场就在场上。onField 由 BattleState::setup 按 wave 推出来。
         unit.wave = spec.wave;
         units.push_back(std::move(unit));
     }
 
-    // 同伴跟着他走：他不在场，他们也不在（契约 2.2）。
-    if (heroPresent_) addPartyUnits(app, units);
+    // 同伴跟着他走：他不在场，他们也不在（契约 2.2）。切磋是他一人对她一人（同道录 2a）：不带队伍。
+    if (heroPresent_ && !setup.spar) addPartyUnits(app, units);
 
     // 人数系数（伙伴改版 3.10）：编成写了 scale_by_party 才乘。人数是我方此刻上场的全部单位
     //（韩立、编成里写死的友军、队员），乘的只有敌方的气血，架势不乘。编成里 wave > 0、开场还没入场的
@@ -441,6 +473,32 @@ void BattleScene::buildFromSetup(Application& app, const core::BattleSetup& setu
     // 压进来的战斗场景、上一仗留下的参数都不算。
     core::battle::SetupOptions options;
     options.preemptive = app.battleStart().preemptive && app.battleStart().battleId == battleId_;
+
+    // 同道录 2a：伙伴被动、在册加成、同修的劲（rules::battleBonuses 一处算；第 7 章以外、切磋、识海、
+    // 韩立不在场时全 0，与改版前逐位相同）。
+    {
+        std::vector<core::CompanionPerk> passives;
+        for (const Unit& unit : units) {
+            if (!unit.ally || unit.companion.empty()) continue;
+            const auto it = app.data().companions.find(unit.companion);
+            if (it == app.data().companions.end()) continue;
+            passives.push_back(rules::companionKit(it->second, unit.id, unit.bond, effects).passive);
+        }
+        const rules::BattleBonuses bonuses = rules::battleBonuses(app.data().companions, app.state(), passives,
+                                                                  setup.spar, heroPresent_ && !mind);
+        options.openingBp = bonuses.openingBp;
+        options.ambushBp = bonuses.ambushBp;
+        options.victoryHealPercent = bonuses.victoryHealPercent;
+        options.talismanPowerPercent = bonuses.talismanPowerPercent;
+        options.spar = setup.spar;
+        if (heroPresent_ && !units.empty() && units[0].hero) {
+            for (const rules::StaggerBonus& bonus : bonuses.heroStagger) {
+                units[0].extraStagger.push_back(Unit::ExtraStagger{bonus.categories, bonus.amount});
+            }
+        }
+        // 同修的劲只给第二天的第一场：开了这一场就用掉。
+        if (bonuses.usesTongxiu) app.state().setFlag(rules::kTongxiuBonusDayFlag, 0);
+    }
     battle_.setup(std::move(units), seedFor(setup.id), options);
     battle_.setCanEscape(setup.canEscape);
     // 吞噬模式挂在地形上。梦里没有法术、没有物品、没有架势与劲、不能逃。
@@ -528,6 +586,16 @@ void BattleScene::addPartyUnits(Application& app, std::vector<Unit>& units) cons
             unit.bond = app.state().bondOf(id);
             unit.canChase = companion.chase;
             unit.duo = companion.duo;
+            // 同道录 2a：够档的法术、这一段的合招、追击加成（第 7 章以外 kit 只有顶层的 duo，与改版前相同）。
+            const rules::CompanionKit kit =
+                rules::companionKit(companion, roleId, unit.bond, rules::rosterEffectsActive(app.state()));
+            unit.duo = kit.duo;
+            for (const std::string& magic : kit.extraMagics) {
+                if (std::find(unit.magics.begin(), unit.magics.end(), magic) == unit.magics.end()) {
+                    unit.magics.push_back(magic);
+                }
+            }
+            if (kit.passive.kind == core::PerkKind::ChasePower) unit.chasePowerPercent = kit.passive.value;
         }
         // 从前（战棋）这里要从主角出生点向外找一格空地；横版里站位由界面按顺序排，
         // 「站不下就不上场」这一条随之消失。
@@ -720,7 +788,7 @@ std::vector<ui::ListItem> BattleScene::buildMagicItems(const core::GameData& dat
         if (magic->effect == core::MagicEffect::None) {
             detail += magic->boost == core::MagicBoost::Hits ? " · 蓄劲连发" : " · 蓄劲加威";
         }
-        items.push_back(row(magic->name, detail, refuseOnAnyone(state, battle, probe, /*wantAlly=*/false)));
+        items.push_back(row(magic->name, detail, refuseOnAnyone(state, battle, probe, magicPicksAlly(*magic))));
     }
     if (magicIds.empty()) items.push_back(row("（无）", {}, emptyMagicReason(wordingStage(state), battle, actorIndex)));
     items.push_back(backRow());
@@ -749,7 +817,8 @@ std::vector<ui::ListItem> BattleScene::buildItemItems(const core::GameData& data
         }
         // 毒药往对面使、丹药给自己人用，按**数据**分流（与 checkItem 同一条口径）；
         // 带 castMagic 的符箓照那门法术挑目标，打的是敌人。
-        const bool wantAlly = item->castMagic.empty() && item->poison <= 0;
+        const core::Magic* cast = item->castMagic.empty() ? nullptr : data.findMagic(item->castMagic);
+        const bool wantAlly = item->castMagic.empty() ? item->poison <= 0 : cast != nullptr && magicPicksAlly(*cast);
         items.push_back(row(item->name, detail, refuseOnAnyone(state, battle, probe, wantAlly)));
     }
     if (itemIds.empty()) items.push_back(row("（无）", {}, emptyItemReason(data, state)));
@@ -770,10 +839,13 @@ std::vector<ui::ListItem> BattleScene::buildTargetItems(const core::GameState& s
     const Unit& actor = units[static_cast<std::size_t>(shape.actorIndex)];
     // 带 castMagic 的符箓按那门法术挑目标（契约 docs/interfaces-p3-ch07.md 2.5）：同施法一样只列敌人。
     const core::Item* item = shape.kind == ActionKind::Item ? battle.findItem(shape.magicId) : nullptr;
-    const bool enemiesOnly = shape.kind != ActionKind::Item || (item != nullptr && !item->castMagic.empty());
     const core::Magic* magic = shape.kind == ActionKind::Cast || shape.kind == ActionKind::Duo
                                    ? battle.findMagic(shape.magicId)
                                 : item != nullptr ? battle.findMagic(item->castMagic) : nullptr;
+    // 回血、护持（同道录 2a）只列我方（含自己）。
+    const bool alliesOnly = magic != nullptr && magicPicksAlly(*magic);
+    const bool enemiesOnly =
+        !alliesOnly && (shape.kind != ActionKind::Item || (item != nullptr && !item->castMagic.empty()));
     const bool all = magic != nullptr && magic->target == core::MagicTarget::All;
     for (std::size_t i = 0; i < units.size(); ++i) {
         const Unit& unit = units[i];
@@ -781,6 +853,7 @@ std::vector<ui::ListItem> BattleScene::buildTargetItems(const core::GameState& s
         // 攻击与施法只列敌人；物品两边都列——往哪一边使是数据决定的，
         // 让玩家看见「毒药不能用在自己人身上」比从列表里删掉说得清楚。
         if (enemiesOnly && unit.ally == actor.ally) continue;
+        if (alliesOnly && unit.ally != actor.ally) continue;
         Action probe = shape;
         probe.targetIndex = static_cast<int>(i);
         targetIndices.push_back(static_cast<int>(i));
@@ -990,7 +1063,7 @@ bool BattleScene::menuChoose(Application& app, int index) {
             shape_.magicId = battle_.duoMagicOf(battle_.currentActor(), shape_.partnerIndex);
             // 看破一类的合招照的是整个场子：选中就出，与法术那一级同一个口径。合招不吃劲，按 0 发。
             const core::Magic* magic = app.data().findMagic(shape_.magicId);
-            if (magic != nullptr && magic->effect == core::MagicEffect::Reveal) {
+            if (magic != nullptr && magicPicksNobody(*magic)) {
                 shape_.actorIndex = battle_.currentActor();
                 shape_.targetIndex = -1;
                 shape_.boost = 0;
@@ -1026,7 +1099,8 @@ bool BattleScene::menuChoose(Application& app, int index) {
                                             : item != nullptr               ? item->castMagic
                                                                             : std::string{};
                 const core::Magic* magic = app.data().findMagic(spellId);
-                if (magic != nullptr && magic->effect == core::MagicEffect::Reveal) {
+                // 剑幕（同道录 2a）同理：护的是自己这一边全员，不挑目标。
+                if (magic != nullptr && magicPicksNobody(*magic)) {
                     shape_.actorIndex = battle_.currentActor();
                     shape_.targetIndex = -1;
                     shape_.boost = 0;
@@ -1133,6 +1207,16 @@ void BattleScene::settle(Application& app) {
     settled_ = true;
 
     const auto& units = battle_.units();
+    // 切磋（同道录 2a）：打完双方回满——他的气血、法力放回满的；不掉东西、不记并肩的默契、不记破绽。
+    // 输赢的账（默契、首胜奖品）由开这一场的那一方（Application::startSpar）按战果记。
+    if (battle_.spar()) {
+        if (heroPresent_) {
+            app.state().hp = std::max(1, app.state().maxHp);
+            app.state().mp = app.state().maxMp;
+        }
+        bondGained_.clear();
+        return;
+    }
     // 识海之战不写回气血：那一场打的是元神，肉身正躺在床上。
     // 韩立不在场的仗一个字节也不写：他在客栈睡觉，他的同伴也没上场。
     if (!battle_.devourMode() && heroPresent_) {
@@ -1166,7 +1250,9 @@ void BattleScene::settle(Application& app) {
         std::set<std::string> counted;
         for (const Unit& unit : units) {
             if (!unit.ally || unit.companion.empty() || !counted.insert(unit.companion).second) continue;
-            bondGained_[unit.companion] = rules::addBattleBond(app.state().bonds[unit.companion], app.state().day);
+            bondGained_[unit.companion] =
+                rules::addBattleBond(app.state().bonds[unit.companion], app.state().day,
+                                     rules::bondCapOf(app.data().companions, unit.companion, app.state()));
         }
     }
 }
@@ -1384,6 +1470,23 @@ double BattleScene::playEvent(Application& app, const BattleEvent& e) {
             view.onDuoJoin(e.target);
             view.say(e.target, "合招", app.theme().goldBright);
             return 0.3;
+        // ---- 同道录 2a 的辅助法术：先只飘一句字，演法归路 U（docs/ch07-tongdaolu-k.md 4.2）----
+        case BattleEventKind::Ward:
+            view.say(e.target, "护持", app.theme().floatGuard);
+            return 0.3;
+        case BattleEventKind::WardBlock:
+            view.say(e.target, "挡下", app.theme().floatGuard);
+            return 0.25;
+        case BattleEventKind::Bulwark:
+            view.say(e.actor, "剑幕", app.theme().floatGuard);
+            return 0.3;
+        case BattleEventKind::Bind:
+            view.say(e.target, "定身", app.theme().goldBright);
+            return 0.3;
+        case BattleEventKind::BoundSkip:
+            lastLog_ = nameOf(e.target) + " 被定住，动弹不得";
+            view.say(e.target, "动弹不得", app.theme().goldBright);
+            return 0.4;
     }
     return 0.1;
 }

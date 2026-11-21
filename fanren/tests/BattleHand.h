@@ -127,6 +127,28 @@ public:
         return false;
     }
 
+    // 同道录 2a：回血法术的那一手；用不上返回 actorIndex -1。
+    [[nodiscard]] Action healIfNeeded(const BattleState& b, int actor) const {
+        const Unit& me = unitAt(b, actor);
+        int worst = -1;
+        for (std::size_t i = 0; i < b.units().size(); ++i) {
+            const Unit& t = b.units()[i];
+            if (!t.alive() || t.ally != me.ally || t.hp * 10 >= t.maxHp * 4) continue;
+            if (worst < 0 || t.hp * unitAt(b, worst).maxHp < unitAt(b, worst).hp * t.maxHp) {
+                worst = static_cast<int>(i);
+            }
+        }
+        if (worst < 0) return Action{};
+        for (const std::string& id : me.magics) {
+            const core::Magic* m = b.findMagic(id);
+            if (m == nullptr || m->effect != core::MagicEffect::Heal) continue;
+            Action heal = make(ActionKind::Cast, actor, worst);
+            heal.magicId = id;
+            if (legal(b, heal)) return heal;
+        }
+        return Action{};
+    }
+
     // 不吃药时这一手打什么（第 2–4 条）。纯函数：只读局面。
     [[nodiscard]] Action decide(const BattleState& b, int actor) const {
         const Unit& me = unitAt(b, actor);
@@ -134,6 +156,9 @@ public:
         if (b.devourMode()) return b.decideAi(actor);
         const Action escape = make(ActionKind::Escape, actor);
         if (policy_.fleeWhenSpent && me.id == kHandHero && low(me) && legal(b, escape)) return escape;
+        // 同道录 2a：会回血法术（Magic::effect Heal）的，我方有人气血不到四成就先救他（与规则层 AI 同一条）。
+        // 没有这种法术的人一个字节也不多判，现有各章的打法不变。
+        if (const Action heal = healIfNeeded(b, actor); heal.actorIndex >= 0) return heal;
 
         std::vector<Scored> options = scoredOptions(b, actor);
         if (options.empty()) return make(ActionKind::Defend, actor);
@@ -226,7 +251,8 @@ public:
             case ActionKind::Cast:
                 scene.setBoost(a.boost);
                 ok = scene.menuChoose(app, game::kBattleMenuCast) && chooseListed(scene, a, true) &&
-                     chooseTarget(scene, a);
+                     ((picksNobody(scene.battle(), a) && scene.menuMode() == game::BattleMenuMode::Closed) ||
+                      chooseTarget(scene, a));
                 break;
             case ActionKind::Item:
                 ok = scene.menuChoose(app, game::kBattleMenuItem) && chooseListed(scene, a, false) &&
@@ -291,6 +317,12 @@ private:
     // 玩家那一侧的判据：背包闸在前、规则层 checkLegal 在后（与菜单置灰同一个函数）。
     [[nodiscard]] bool legal(const BattleState& b, const Action& a) const {
         return game::refusePlayerAction(app_->state(), b, a).empty();
+    }
+
+    // 剑幕（同道录 2a）不挑目标：菜单里选中就出。
+    [[nodiscard]] static bool picksNobody(const BattleState& battle, const Action& action) {
+        const core::Magic* magic = action.kind == ActionKind::Cast ? battle.findMagic(action.magicId) : nullptr;
+        return magic != nullptr && magic->effect == core::MagicEffect::Bulwark;
     }
 
     [[nodiscard]] static const core::Magic* allMagic(const BattleState& battle, const Action& action) {

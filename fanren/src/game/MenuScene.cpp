@@ -612,7 +612,8 @@ void MenuScene::giveSelected(Application& app) {
     }
     // 今天送过了就一样不动：账不记、东西不扣、说一句（契约 2.2「每人每天一次」，记账在 rules::giveGift）。
     const rules::GiftOutcome outcome =
-        rules::giveGift(state.bonds[companionId], found->second, choice.itemId, state.day);
+        rules::giveGift(state.bonds[companionId], found->second, choice.itemId, state.day,
+                        rules::bondCap(found->second, state));   // 同道录 2a 的封顶
     if (!outcome.given) {
         e.playSfx(kSfxError);
         app.showMessage("ui.menu.gift.already");
