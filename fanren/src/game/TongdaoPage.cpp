@@ -570,7 +570,11 @@ void TongdaoPage::rebuildGifts(Application& app) {
     const int keep = gifts_.selection();
     gifts_.reset();
     gifts_.setEmptyHint(app.text("ui.tongdao.why.no_gift"));
-    gifts_.setPageSize(std::max(1, ui::listRowsThatFit(giftListRect(engine::Rect{0, 0, 860, 584}).h, app.theme())));
+    int pageRows = std::max(1, ui::listRowsThatFit(giftListRect(engine::Rect{0, 0, 860, 584}).h, app.theme()));
+    // 集成（docs/ch07-tongdaolu-integration.md 4.2）：储物袋多过一页时，列表底下那个「1/25」刻度画在最后一行的
+    // 位置上、与那一行的数量叠字。照 BoardScene 的办法少排一行让给刻度。
+    if (static_cast<int>(rows.size()) > pageRows && pageRows > 1) --pageRows;
+    gifts_.setPageSize(pageRows);
     gifts_.setItems(std::move(rows));
     restoreSelection(gifts_, keep);
 }
@@ -1003,11 +1007,19 @@ void TongdaoPage::drawInfo(Application& app, const engine::Rect& info, const Ton
     const int textX = x + kLabelW;
     const int textW = info.w - kLabelW;
     int y = info.y + kBlocksY;
-    const auto block = [&](const std::string& label, const std::string& text, engine::Color color) {
+    // 集成（docs/ch07-tongdaolu-integration.md 4.1）：「已有」一块至多三行，多用的那一行把下面几块往下推
+    //（四块之下到动作列表之间本来空着百来像素）；别的块仍是两行。
+    const auto block = [&](const std::string& label, const std::string& text, engine::Color color, int maxLines = 2) {
         e.drawText(label, x, y, kInfoFont, theme.gold, theme.bodyStyle);
-        drawWrapped(e, theme, text, textX, y, textW, kInfoFont, kInfoLineH, color, 2);
-        y += kBlockH;
+        const int drawn = drawWrapped(e, theme, text, textX, y, textW, kInfoFont, kInfoLineH, color, maxLines);
+        y += kBlockH + std::max(0, drawn - 2) * kInfoLineH;
     };
+    const auto prefixOf = [&app](const char* key) {
+        const std::string text = app.text(key);
+        return text.substr(0, text.find("{desc}"));
+    };
+    const std::string passivePrefix = prefixOf("ui.tongdao.gain.passive");
+    const std::string passiveUpPrefix = prefixOf("ui.tongdao.gain.passive_up");
     std::vector<std::string> has;
     for (int tier = 1; tier <= entry.tier; ++tier) {
         for (const std::string& gain : tierGains(app, *companion, tier)) {
@@ -1017,10 +1029,20 @@ void TongdaoPage::drawInfo(Application& app, const engine::Rect& info, const Ton
                 gain == app.text("ui.tongdao.gain.xuhua")) {
                 continue;
             }
+            // 五档「被动加强」顶替三档那一条被动：「已有」写此刻的数，不把同一条被动写两遍。
+            if (!passiveUpPrefix.empty() && gain.rfind(passiveUpPrefix, 0) == 0) {
+                const auto old = std::find_if(has.begin(), has.end(), [&](const std::string& h) {
+                    return h.rfind(passivePrefix, 0) == 0 && h.rfind(passiveUpPrefix, 0) != 0;
+                });
+                if (old != has.end()) {
+                    *old = gain;
+                    continue;
+                }
+            }
             has.push_back(gain);
         }
     }
-    block(app.text("ui.tongdao.has"), has.empty() ? app.text("ui.tongdao.none") : joinList(has), theme.paper);
+    block(app.text("ui.tongdao.has"), has.empty() ? app.text("ui.tongdao.none") : joinList(has), theme.paper, 3);
     std::string next;
     if (entry.tier >= 5) {
         next = app.text("ui.tongdao.next.top");
