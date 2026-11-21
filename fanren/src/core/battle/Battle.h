@@ -197,8 +197,10 @@ struct Unit {
     struct Status {
         int wardCharges = 0;          // 护持（Magic::effect Ward）：还能整个免掉几次伤害（现在至多 1）
         int wardUntilRound = 0;       // 护持到这一回合结束为止（挂上那一回合 + 1：到下一回合结束没用上就散）
-        int bulwarkPercent = 0;       // 剑幕（Magic::effect Bulwark）：受伤减几成
-        int bulwarkRound = 0;         // 剑幕只管这一回合
+        int bulwarkPercent = 0;       // 剑幕（Magic::effect Bulwark）：受伤减几成；0 = 没有
+        // 剑幕是谁张的（单位下标）。返修（docs/ch07-tongdaolu-fix1.md 第 2 条）：剑幕从施放起管到**施术者下一次
+        // 轮到行动的那一刻**——轮到她时先散（被定身跳过、被合招用掉那一手也算轮到），她倒下时立刻散。
+        int bulwarkCaster = -1;
         int bindSkips = 0;            // 定身（Magic::effect Bind）：还要跳过几次行动（现在至多 1）
         int bindImmuneUntilRound = 0; // 被定过一次之后，到这一回合结束都不再吃定身（跳过那一回合 + 2）
     };
@@ -279,9 +281,12 @@ enum class BattleEventKind {
     // 回血走现成的 Heal。下面几条都紧跟在那一手的 Act 之后，不是一击：没有 Hit。
     Ward,        // actor 给 target 挂上护持
     WardBlock,   // target 的护持挡下了 actor 的这一击（紧跟着那一击的 Hit，value = 0）
-    Bulwark,     // actor 张开剑幕：我方全员到本回合结束受伤减 value%
+    Bulwark,     // actor 张开剑幕：我方全员到 actor 下一次轮到行动之前受伤减 value%
     Bind,        // actor 定住 target：它下一次轮到时失去那次行动
     BoundSkip,   // 轮到 target，它被定住、失去这次行动（不是一次行动：没有 Act）
+    // 返修（docs/ch07-tongdaolu-fix1.md 第 2 条），追加在末尾：actor 张的剑幕从 target 身上散去。
+    // 罩着几位就几条，一齐紧跟在散的那一刻：轮到 actor（在 GuardEnd / BoundSkip 之前）、actor 陪着出合招、actor 倒下（Fall 之后）。
+    BulwarkEnd,
 };
 
 struct BattleEvent {
@@ -540,6 +545,8 @@ private:
     // skipIneligibleActors()**：apply() 之后不会换人，只有 beginRound() 与 endTurn()
     // 里真的换了人才走这一步——放进去的话，刚摆开的守势会在同一次调用里被抹掉。
     void beginActorTurn();
+    // 剑幕（同道录 2a，返修第 2 条）：caster 张的剑幕从所有罩着的人身上散去，每人一条 BulwarkEnd。没有就什么都不做。
+    void dropBulwarkOf(int caster);
     // 按回合号 roundNumber 排出行动序。beginRound 与 nextRoundOrder 走的是同一个。
     [[nodiscard]] std::vector<int> computeOrder(int roundNumber) const;
     // 身法扰动（千分数，±kSpeedJitterPermille），由种子、回合、单位、第几次行动派生。
