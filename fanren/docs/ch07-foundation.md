@@ -59,7 +59,7 @@
 - 交付前：编译通过，全量 `ctest` 通过（`-j 4` 约 5.5 分钟）。
 - **不跑门禁**：`tools/validate.py`、`tools/validate_selftest.py`、`genmaps.py --check`、各种 `hd_* --check` 都不跑。这是用户定的规矩。新数据文件将来要补哪些门禁规则，写在施工记录里就行。
 - 本机环境：
-  - Python 用 `C:\Users\l'y'h\AppData\Local\Programs\Python\Python312\python.exe`；bash 里 PATH 上的 `python` 没有 Pillow。读工具输出时设 `PYTHONIOENCODING=utf-8`。
+  - Python 用 `%LOCALAPPDATA%\Programs\Python\Python312\python.exe`；bash 里 PATH 上的 `python` 没有 Pillow。读工具输出时设 `PYTHONIOENCODING=utf-8`。
   - PowerShell 工具在这台机器上不可靠，构建从 Bash 里用 `cmd.exe //c <bat>` 起。cmd 从 bash 调用可能误报成功，要看日志里的标记（`BUILD_DONE`、`CTEST_EXIT=0`）。
   - 用户目录带撇号（`l'y'h`），`.bat` 不要放在它下面。
   - 主检出的构建脚本可以照抄：`E:\fanren\fanren\build-s7\run.bat`、`test.bat`。照抄后把路径和构建目录改成自己工作树的。
