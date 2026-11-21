@@ -11,7 +11,7 @@
  *
  * 固定参数（见记忆 seedream-skill-setup）：--model doubao-seedream-5-5-261028 --offline-models
  * --optimize false（不让本地追加「电影质感」之类）--watermark false。
- * skill 位置：环境变量 SEEDREAM_SKILL_DIR，缺省 <仓库外层>/.agents/skills/byted-ark-seedream-skill。
+ * skill 位置：环境变量 SEEDREAM_SKILL_DIR，缺省全局 skill 目录 <CLAUDE_CONFIG_DIR 或 ~/.claude>/skills/byted-ark-seedream-skill。
  * stdout 照 generate.js 原样输出 JSON；给了 --out 时另把第一张图复制过去，并在最后一行打印 SEEDREAM_OUT <路径>。
  */
 'use strict';
@@ -50,8 +50,9 @@ function dataUri(file) {
 
 const opts = parse(process.argv.slice(2));
 if (opts.out) opts.out = path.resolve(opts.out);   // 下面会 chdir 到 skill 目录，先把相对路径钉死
-const skillDir = process.env.SEEDREAM_SKILL_DIR ||
-  path.resolve(__dirname, '..', '..', '..', '.agents', 'skills', 'byted-ark-seedream-skill');
+const skillDir = process.env.SEEDREAM_SKILL_DIR || path.join(
+  process.env.CLAUDE_CONFIG_DIR || path.join(require('os').homedir(), '.claude'),
+  'skills', 'byted-ark-seedream-skill');
 const generate = path.join(skillDir, 'scripts', 'generate.js');
 if (!fs.existsSync(generate)) throw new Error(`seedream_run: 找不到 ${generate}（设 SEEDREAM_SKILL_DIR）`);
 
