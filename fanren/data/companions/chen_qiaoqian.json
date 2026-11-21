@@ -4,7 +4,25 @@
   "line": "hongyan",
   "roles": [
     {
-      "role": "chen_shimei"
+      "role": "chen_shimei",
+      "magics": [
+        {
+          "tier": 3,
+          "magic": "magic_shuangjian"
+        },
+        {
+          "tier": 4,
+          "magic": "magic_jianmu"
+        }
+      ],
+      "passive": {
+        "kind": "chase_power",
+        "values": [
+          20,
+          30
+        ]
+      },
+      "duo": "magic_duo_jianren"
     }
   ],
   "met_flag": "ch07.fanhui",
@@ -20,5 +38,50 @@
       "material_yaoshou_cai"
     ]
   },
-  "note": "陈家家主的独生女，第 7 章起名签与旁白就叫陈巧倩（原著 ch157–171 只称陈师妹、名字到 ch273 才点出；用户 2026-11-19 定提前用原名，当作改编）。角色仍是 chen_shimei 一段，第 8 章的 chen_qiaoqian 与切换旗标那时再补。met_flag 借用现有的 ch07.fanhui：这面旗登记的意思是「送走陈巧倩、回园」（节点 17，fanhui.lua），这里当作「结识」用——韩立在禁地前夜救下她、送她回去，就是两人结识（ch165–171，暗场口径照第 7 章既定）。样板里她只在历练「禁地旧境」里能带（施工图第 7 节、拍板记录第 3 条）；主线同行在第 8 章。场地技 see_through_illusion（识破幻阵）与打法定位都是本作的设计：原著禁地里她被制住，没写她自己的手段（ch165–166）；后来以陈巧倩出场时「放出了法器」、驱使符宝（ch325、328–329），没有一处写她破阵。赠礼喜好是本作自拟。第 7 章试玩返修（docs/ch07-playtest-loot.md）添一样喜欢的禁地妖兽材料：彩蛾鳞粉（五色鳞粉，世家小姐会喜欢的东西），本作自拟。兽材照旧留在不喜里（旧存档里可能还有），明雷已不再掉它。"
+  "roster_bonus": {
+    "kind": "ambush_bp",
+    "value": 1
+  },
+  "spar": {
+    "battle": "spar_chen_qiaoqian",
+    "prizes": [
+      {
+        "tier": 2,
+        "items": [
+          {
+            "item": "pill_yangjing_dan",
+            "count": 2
+          }
+        ]
+      },
+      {
+        "tier": 3,
+        "items": [
+          {
+            "item": "pill_tiaoyuan_wan",
+            "count": 2
+          }
+        ]
+      },
+      {
+        "tier": 4,
+        "items": [
+          {
+            "item": "pill_huiqi_dan",
+            "count": 1
+          }
+        ]
+      },
+      {
+        "tier": 5,
+        "items": [
+          {
+            "item": "pill_bilin_dan",
+            "count": 2
+          }
+        ]
+      }
+    ]
+  },
+  "note": "陈家家主的独生女，第 7 章起名签与旁白就叫陈巧倩（原著 ch157–171 只称陈师妹、名字到 ch273 才点出；用户 2026-11-19 定提前用原名，当作改编）。角色仍是 chen_shimei 一段，第 8 章的 chen_qiaoqian 与切换旗标那时再补。met_flag 借用现有的 ch07.fanhui：这面旗登记的意思是「送走陈巧倩、回园」（节点 17，fanhui.lua），这里当作「结识」用——韩立在禁地前夜救下她、送她回去，就是两人结识（ch165–171，暗场口径照第 7 章既定）。样板里她只在历练「禁地旧境」里能带（施工图第 7 节、拍板记录第 3 条）；主线同行在第 8 章。场地技 see_through_illusion（识破幻阵）与打法定位都是本作的设计：原著禁地里她被制住，没写她自己的手段（ch165–166）；后来以陈巧倩出场时「放出了法器」、驱使符宝（ch325、328–329），没有一处写她破阵。赠礼喜好是本作自拟。第 7 章试玩返修（docs/ch07-playtest-loot.md）添一样喜欢的禁地妖兽材料：彩蛾鳞粉（五色鳞粉，世家小姐会喜欢的东西），本作自拟。兽材照旧留在不喜里（旧存档里可能还有），明雷已不再掉它。同道录 2a·路 N（2026-11-21，docs/ch07-tongdaolu-n.md）：roles[0] 下按档的双剑并出（三档）、剑幕（四档）、被动剑心 chase_power 20 / 30、合招剑刃交辉都只写在第 7 章这一段 chen_shimei 上，第 8 章起不生效；在册加成 ambush_bp 1；切磋首胜奖品是陈家小姐出手的丹药。"
 }

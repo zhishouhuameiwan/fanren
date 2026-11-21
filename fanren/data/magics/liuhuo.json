@@ -1,0 +1,13 @@
+{
+  "id": "magic_liuhuo",
+  "name": "流火",
+  "descKey": "magic.desc.magic_liuhuo",
+  "element": 8,
+  "needMp": 20,
+  "power": 13,
+  "target": "all",
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "本作自拟",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：南宫婉第 7 章三档的火属群攻。朱雀环一抖，环上的火甩成一圈流火，扫过对面所有人。原著里她禁地中只用朱雀环（ch205–206），这一招仍是朱雀环的用法，不是新法宝。火。单个目标 13，低于朱雀环的 24、也不高于韩立同阶最弱的伤人法术（火弹 12、流沙 14 这一档）。"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "magic_duo_lianzhu",
+  "name": "连珠火符",
+  "descKey": "magic.desc.magic_duo_lianzhu",
+  "element": 8,
+  "needMp": 0,
+  "power": 26,
+  "needRealm": "QiRefining1",
+  "origin": "本作自拟",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：韩立与菡云芝的合招（伙伴表 roles[0].duo，只在第 7 章、四档起）。她把一串符纸撒成一圈，他弹一点火进去，整圈一齐烧起来。火。威力 26，三门合招里最低：她是辅助。"
+}

@@ -1,0 +1,11 @@
+{
+  "_doc": "同道录事件图（第 7 章第二期 2a，施工图 docs/ch07-tongdaolu.md 3.5；路 N 施工记录 docs/ch07-tongdaolu-n.md 第 7 节）：事件图 id → 图（相对 assets/art/cg/，2560×1440，屏幕上 1280×720 线性缩放）；files 是每张图的 sha256。脚本 show_cg(id) / hide_cg() 铺、撤。原图、弃图、提示词在不入库的 docs/heroine-art/cg/。",
+  "cg": {
+    "chen_qiaoqian_hongyan": {
+      "file": "chen_qiaoqian_hongyan.png"
+    }
+  },
+  "files": {
+    "chen_qiaoqian_hongyan.png": "7b543c7b9dd6220c49be00270a135b39cf1a7d17beb9a780bdc04ac2a9672235"
+  }
+}

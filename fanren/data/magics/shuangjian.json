@@ -1,0 +1,13 @@
+{
+  "id": "magic_shuangjian",
+  "name": "双剑并出",
+  "descKey": "magic.desc.magic_shuangjian",
+  "element": 1,
+  "needMp": 14,
+  "power": 11,
+  "hits": 2,
+  "needRealm": "QiRefining1",
+  "boost": "hits",
+  "origin": "改编",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：陈巧倩三档。原著禁地里她「指挥着一蓝一黄两件飞剑法器」（ch199），数据化成两口剑先后各斩一下：每段单独算伤、单独判破绽，伤害合起来与飞剑术相当（11×2 对 20），胜在削架势多一下。金。蓄劲加段数（与飞剑术同一类），蓄满五段 55，仍低于飞剑术蓄满的 80。只在第 7 章、默契三档起带上（伙伴表 roles[0].magics）。"
+}

@@ -327,7 +327,8 @@ TEST(DialogueBudget, NoChapter7ScriptRunsMoreThanEightTalksBetweenTwoPlayerActio
         EXPECT_LE(run, 8) << entry.path().filename().string() << "：两次可操作之间连着 " << run
                           << " 句 talk（施工图 4.1：不超过 8 句）";
     }
-    EXPECT_EQ(scripts, 56) << "先验：第 7 章 56 个脚本都扫到了";
+    // 同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 8 节）改：原先 56 个，加了叙话 11 段、请教 3 段（tongdao_*.lua）后 70 个。
+    EXPECT_EQ(scripts, 70) << "先验：第 7 章 70 个脚本都扫到了（主线与支线 56 + 同道录 14）";
     EXPECT_GE(worst, 3) << "先验：量具真的数到了句子";
 }
 

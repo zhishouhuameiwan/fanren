@@ -1,0 +1,12 @@
+{
+  "id": "magic_fu_hanbing",
+  "name": "寒冰符",
+  "descKey": "magic.desc.magic_fu_hanbing",
+  "element": 4,
+  "needMp": 8,
+  "power": 12,
+  "needRealm": "QiRefining1",
+  "boost": "power",
+  "origin": "改编",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：菡云芝一档（写在角色表 magics 里）。卖符少女摊上本就挂着寒冰符（第 7 章路径行动·打探），她入了灵兽山，身上仍带着一叠：一拍出去，一团寒气砸在对手身上。水。威力 12，与韩立的冰冻术相同。符是她施展的法术，不是背包里的物品，不吃在册加成「灵符」（那一条只认带 castMagic 的物品）。"
+}

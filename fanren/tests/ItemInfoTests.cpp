@@ -417,6 +417,11 @@ TEST(ItemInfo, MagicLinesFollowTheBattleRules) {
             EXPECT_NE(all.find("不吃蓄劲"), std::string::npos) << id;
         } else if (magic.effect == fanren::core::MagicEffect::Reveal) {
             EXPECT_NE(all.find("揭开"), std::string::npos) << id;
+        } else if (magic.effect == fanren::core::MagicEffect::Heal || magic.effect == fanren::core::MagicEffect::Ward ||
+                   magic.effect == fanren::core::MagicEffect::Bulwark || magic.effect == fanren::core::MagicEffect::Bind) {
+            // 同道录 2a 的四种辅助效果（路 K 记录 4.1）：不吃蓄劲。路 N 加了第一批真数据（回春符、定身符、环护、剑幕）后补这一支
+            //（docs/ch07-tongdaolu-n.md 第 8 节）；原先真数据里没有这类法术，走不到这里。
+            EXPECT_NE(all.find("不吃蓄劲"), std::string::npos) << id << all;
         } else if (fanren::core::castableMagic(magic)) {
             // 蓄劲上限 kBoostMax = 3：威力至多 ×4，连发至多 4 发（docs/octopath-battle.md 2.3）。
             const std::string want = magic.boost == fanren::core::MagicBoost::Hits ? "至多 4 发" : "至多 ×4";
