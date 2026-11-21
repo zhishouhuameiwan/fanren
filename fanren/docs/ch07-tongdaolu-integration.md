@@ -97,7 +97,7 @@
 
 | 文件 | 用例 | 开关 | 做什么 |
 | --- | --- | --- | --- |
-| `tests/TongdaoPlaySaves.cpp` | `TongdaoPlaySaves.WriteTheThreePlaySaves` | `FANREN_TONGDAO_PLAYSAVES=<目录>` | 写第 7 节的三份试玩档（外加截图用的一份） |
+| `tests/TongdaoPlaySaves.cpp` | `TongdaoPlaySaves.WriteTheTier3AndTopGateSaves` | `FANREN_TONGDAO_PLAYSAVES=<目录>`（另设 `FANREN_TONGDAO_SHOTSAVE=<文件>` 多写一份截图用的） | 写第 7 节入库的乙、丙两份；核甲与检查点逐字节相同 |
 | `tests/TongdaoWalkShots.cpp` | `TongdaoWalk.TogetherInTheGardenAndTheSpar`、`TongdaoWalk.TheHongyanEventPictureAndAFightWithAllThree` | `FANREN_TONGDAO_WALK=<目录>` | 第 2 节的走查与拍图 |
 
 ## 4. 发现的问题与修法
@@ -130,24 +130,30 @@
 
 ## 6. 构建与测试
 
-- 构建：`build-i/run.bat`（配置 + 构建，`vendor` 是指向 `E:\fanren\fanren\vendor` 的目录联接）、`build-i/build-only.bat`、`build-i/test.bat`（全量 ctest，`-j 4`）。
+- 构建：这台电脑上用 `build-i/` 里的 `run.bat`（配置 + 构建）、`build-only.bat`、`test.bat`（全量 ctest，`-j 4`）；工作树里的 `vendor` 是指向主检出 `vendor` 的目录联接（`docs/ch07-foundation.md` 1.5）。换台电脑照那里的办法建自己的构建目录即可。
 - 合并后、修之前：2540 条全过。
 - 集成修正之后（提交前的最后一遍，`build-i`，`-j 4`）：**2543 条，全过**（`CTEST_EXIT=0`）——2540 条照旧全过，新加的 3 条辅助没设环境变量，记为 Skipped。
 - 门禁没跑（用户定的规矩）。
 
-## 7. 给用户试玩的东西（都在 `build-i/`，不入库）
+## 7. 给用户试玩的东西
 
-### 7.1 存档与启动
+### 7.1 存档与启动（入库，换台电脑照样能玩）
 
-| 存档（`build-i/saves/`） | 启动 | 是什么 |
-| --- | --- | --- |
-| — | `build-i/玩同道录2a-从第7章开头.bat` | 第 6 章章末交过来的存档（`saves/ch07-start.sav`），从第 7 章开头玩 |
-| `tongdao-a-chujindi.sav` | `build-i/玩同道录2a-甲-刚出禁地.bat` | 甲：检查点原样（真实进度）。默契照主线的账：南宫婉 37，陈巧倩、菡云芝 0。站在百药园，进茅屋时先演谢师礼 |
-| `tongdao-b-tier3-gate.sav` | `build-i/玩同道录2a-乙-三位都在三档门口.bat` | 乙（调试档）：演过谢师礼、站在茅屋蒲团前。三位默契各 42（合意赠礼 +5 或同修 +4 就到 45「三档」），二档叙话都还没演。背包加了三位喜欢的礼物各 3 份、养精丹 8、金疮药 6、回气丹 3 |
-| `tongdao-c-top-gate.sav` | `build-i/玩同道录2a-丙-最高档门口.bat` | 丙（调试档）：同乙的站位。陈巧倩 93、菡云芝 93（差一次合意赠礼到五档），南宫婉 67（差一次到四档，她第 7 章封在四档）；各人前面各档的叙话、请教都记过账、首胜奖品记到此刻的档，菡云芝二档的 3 张火球符照账发了；三条在册加成生效。礼物、丹药同乙 |
-| `tongdao-shot-party.sav` | — | 截图用：丙推到最高档、三位都在队里 |
+乙、丙两份入库在 `fanren/saves/`（2026-11-21 用户定：要换电脑接着做，试玩档必须入库）；甲与现成检查点逐字节相同，不另存。
+`saves/README.md` 的「检查点」表里各有一行（在哪、什么状态、进去先看什么），表后写了怎么重生成。
+启动一律在 `fanren/` 下，`<槽>` 是你自己的构建目录：
 
-存档由 `build-i/make-saves.bat`（`TongdaoPlaySaves` 辅助）重新生成；启动 bat 由 `build-i/make-bats.py` 写（GBK，控制台里中文说明才显示得对）。游戏里 F5 快速存档写到工作树的 `fanren/saves/quick.sav`，不会改这几份。
+| 试玩 | 存档 | 启动 | 是什么 |
+| --- | --- | --- | --- |
+| 从第 7 章开头 | `saves/ch07-start.sav`（现成） | `build-<槽>\fanren.exe --assets . --load saves\ch07-start.sav` | 第 6 章章末交过来的那一份 |
+| 甲「刚出禁地」 | `tests/fixtures/companions/ch07-chujindi-first.sav`（现成检查点，不另存） | `build-<槽>\fanren.exe --assets . --load tests\fixtures\companions\ch07-chujindi-first.sav` | 真实进度。默契照主线的账：南宫婉 37，陈巧倩、菡云芝 0。站在百药园，进茅屋时先演谢师礼 |
+| 乙「三位都在三档门口」 | `saves/ch07-tongdao-t3.sav` | `build-<槽>\fanren.exe --assets . --load saves\ch07-tongdao-t3.sav` | 调试档：演过谢师礼、站在茅屋蒲团前。三位默契各 42（合意赠礼 +5 或同修 +4 就到 45「三档」），二档叙话都还没演。背包加了三位喜欢的礼物各 3 份、养精丹 8、金疮药 6、回气丹 3 |
+| 丙「最高档门口」 | `saves/ch07-tongdao-top.sav` | `build-<槽>\fanren.exe --assets . --load saves\ch07-tongdao-top.sav` | 调试档：同乙的站位。陈巧倩 93、菡云芝 93（差一次合意赠礼到五档），南宫婉 67（差一次到四档，她第 7 章封在四档）；各人前面各档的叙话、请教都记过账、首胜奖品记到此刻的档，菡云芝二档的 3 张火球符照账发了；三条在册加成生效。礼物、丹药同乙 |
+
+两份都是存档版本 10。重生成：在 `fanren/` 下设 `FANREN_TONGDAO_PLAYSAVES=saves` 跑 `build-<槽>\fanren_tests.exe --gtest_filter=TongdaoPlaySaves.*`（`tests/TongdaoPlaySaves.cpp`；同一棵树上重跑逐字节相同，命令写在 `saves/README.md`）。
+游戏里 F5 快速存档写 `saves/quick.sav`（不入库），不会改这几份。
+
+本机（这台电脑）另有现成的双击入口，只是方便，不是必需：`build-i/` 里四个 `玩同道录2a-*.bat`（由 `build-i/make-bats.py` 写，GBK）读的就是上表这几份；截图用的那份（三位推到最高档、都在队里）在 `build-i/saves/tongdao-shot-party.sav`，由 `build-i/make-saves.bat` 加 `FANREN_TONGDAO_SHOTSAVE` 写，不入库。
 
 ### 7.2 试玩说明（十到十五分钟）
 
@@ -178,4 +184,5 @@
 | --- | --- |
 | `8eaff0c` | merge: 同道录 2a 路 N 并入路 U |
 | `65e10c5` 集成修正 | `src/game/TongdaoPage.cpp` 两处（第 4 节）；`tests/TongdaoPlaySaves.cpp`、`tests/TongdaoWalkShots.cpp`（第 3 节，环境变量开着才跑） |
-| 集成记录 | 本文 |
+| `7831fc9` 集成记录 | 本文初稿 |
+| 试玩档入库 | `saves/ch07-tongdao-t3.sav`、`saves/ch07-tongdao-top.sav`、`saves/README.md` 三行与重生成一段；`tests/TongdaoPlaySaves.cpp` 改成写这两个文件名、核甲；本文第 7 节改成通用启动写法 |

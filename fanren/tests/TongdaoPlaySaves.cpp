@@ -1,18 +1,21 @@
-// 第 7 章同道录 2a 集成：给用户试玩的三份存档（docs/ch07-tongdaolu-integration.md 第 7 节）。
+// 第 7 章同道录 2a 集成：给用户试玩的存档（docs/ch07-tongdaolu-integration.md 第 7 节，saves/README.md「检查点」表）。
 //
 // 这不是验收用例，是造试玩档的辅助：只有设了环境变量 FANREN_TONGDAO_PLAYSAVES=<目录> 才写，没设就跳过（全量 ctest 里它是 Skipped）。
-// 三份都从「刚出禁地」那份检查点（tests/fixtures/companions/ch07-chujindi-first.sav，第 7 章通关测试沿途比着的那一份）起，
-// 不改任何入库的交接档与检查点：
-//   tongdao-a-chujindi.sav  甲「刚出禁地」：检查点原样，默契照主线的账（只有南宫婉 37）。
-//   tongdao-b-tier3-gate.sav 乙「三位都在三档门口」：演过谢师礼、站在百药园茅屋里蒲团前，三位默契各 42（合意赠礼 +5 或同修 +4 就到 45「三档」），
-//                            二档的叙话都还没演；背包里各人喜欢的礼物、打切磋用的丹药。调试档。
-//   tongdao-c-top-gate.sav  丙「最高档门口」：陈巧倩 93、菡云芝 93（差一步到五档），南宫婉 67（差一步到四档，她第 7 章封在四档）；
-//                            前面各档的叙话、请教都记过账（菡云芝二档那 3 张火球符照账发了），三条在册加成已生效。调试档。
-//   tongdao-shot-party.sav  截图用：丙推到各人最高档（95 / 94 / 95）、三位都在队伍里。
+// 都从「刚出禁地」那份检查点（tests/fixtures/companions/ch07-chujindi-first.sav，第 7 章通关测试沿途比着的那一份）起，
+// 不改任何交接档与检查点：
+//   甲「刚出禁地」     不另存：就是那份检查点原样（默契照主线的账，只有南宫婉 37），这里只核一遍读写回来逐字节相同。
+//   ch07-tongdao-t3.sav  乙「三位都在三档门口」：演过谢师礼、站在百药园茅屋里蒲团前，三位默契各 42（合意赠礼 +5 或同修 +4 就到 45「三档」），
+//                        二档的叙话都还没演；背包里各人喜欢的礼物、打切磋用的丹药。调试档。
+//   ch07-tongdao-top.sav 丙「最高档门口」：陈巧倩 93、菡云芝 93（差一步到五档），南宫婉 67（差一步到四档，她第 7 章封在四档）；
+//                        前面各档的叙话、请教都记过账（菡云芝二档那 3 张火球符照账发了），三条在册加成已生效。调试档。
+// 另设 FANREN_TONGDAO_SHOTSAVE=<文件> 时多写一份截图用的（丙推到各人最高档 95 / 94 / 95、三位都在队伍里），不入库。
+// 重生成（入库的两份）：FANREN_TONGDAO_PLAYSAVES=saves，在 fanren/ 下跑 build-<槽>/fanren_tests.exe --gtest_filter=TongdaoPlaySaves.*（命令见 saves/README.md）
 #include <gtest/gtest.h>
 
 #include <cstdlib>
 #include <filesystem>
+#include <fstream>
+#include <sstream>
 #include <string>
 
 #include "ChapterFixture.h"
@@ -37,24 +40,31 @@ std::string assetRoot() {
     return ".";
 }
 
-std::string outputDir() {
+std::string envValue(const char* name) {
 #if defined(_MSC_VER)
     char* value = nullptr;
     std::size_t length = 0;
-    if (_dupenv_s(&value, &length, "FANREN_TONGDAO_PLAYSAVES") != 0 || value == nullptr) return {};
+    if (_dupenv_s(&value, &length, name) != 0 || value == nullptr) return {};
     std::string out = value;
     std::free(value);
     return out;
 #else
-    const char* value = std::getenv("FANREN_TONGDAO_PLAYSAVES");
+    const char* value = std::getenv(name);
     return value == nullptr ? std::string{} : std::string(value);
 #endif
+}
+
+std::string readBytes(const fs::path& path) {
+    std::ifstream in(path, std::ios::binary);
+    std::ostringstream out;
+    out << in.rdbuf();
+    return out.str();
 }
 
 class TongdaoPlaySaves : public ::testing::Test {
 protected:
     void SetUp() override {
-        dir_ = outputDir();
+        dir_ = envValue("FANREN_TONGDAO_PLAYSAVES");
         if (dir_.empty()) GTEST_SKIP() << "造试玩档的辅助：设 FANREN_TONGDAO_PLAYSAVES=<目录> 才写";
         auto ready = app_.init(assetRoot(), /*headless=*/true);
         ASSERT_TRUE(ready.ok) << ready.error;
@@ -124,10 +134,17 @@ protected:
     Application app_;
 };
 
-TEST_F(TongdaoPlaySaves, WriteTheThreePlaySaves) {
-    // 甲：检查点原样。
+TEST_F(TongdaoPlaySaves, WriteTheTier3AndTopGateSaves) {
+    // 甲：就是检查点原样，不另存——核一遍读进来再写出去逐字节相同（说明里直接指向那份检查点）。
     startFromChujindi();
-    write("tongdao-a-chujindi.sav");
+    {
+        const fs::path checkpoint = fanren::test::chapterFixturePath(assetRoot(), "companions/ch07-chujindi-first.sav");
+        const fs::path probe = fs::temp_directory_path() / "fanren_tongdao_jia_probe.sav";
+        ASSERT_TRUE(fanren::io::saveGame(state(), probe.string()).ok);
+        EXPECT_EQ(readBytes(probe), readBytes(checkpoint)) << "甲与检查点不同：要另存一份 ch07-tongdao-start.sav";
+        std::error_code ignored;
+        fs::remove(probe, ignored);
+    }
 
     // 乙：三位都在三档门口。
     startFromChujindi();
@@ -138,7 +155,7 @@ TEST_F(TongdaoPlaySaves, WriteTheThreePlaySaves) {
         state().bonds[id].value = 42;
     }
     giveLikesAndPills();
-    write("tongdao-b-tier3-gate.sav");
+    write("ch07-tongdao-t3.sav");
 
     // 丙：最高档门口。
     startFromChujindi();
@@ -159,14 +176,17 @@ TEST_F(TongdaoPlaySaves, WriteTheThreePlaySaves) {
     giveLikesAndPills();
     const auto active = rules::activeRosterBonuses(app_.data().companions, state());
     EXPECT_EQ(active.size(), 3u) << "三条在册加成都生效";
-    write("tongdao-c-top-gate.sav");
+    write("ch07-tongdao-top.sav");
 
-    // 截图用（不给用户）：丙再往上推到各人最高档、三位都在队伍里，截图口 battle:<编成> 拍按档的法术、合招与辅助法术的演法。
+    // 截图用（不入库）：丙再往上推到各人最高档、三位都在队伍里，截图口 battle:<编成> 拍按档的法术、合招与辅助法术的演法。
+    const std::string shotSave = envValue("FANREN_TONGDAO_SHOTSAVE");
+    if (shotSave.empty()) return;
     state().bonds["chen_qiaoqian"].value = 95;
     state().bonds["nangong_wan"].value = 94;
     state().bonds["han_yunzhi"].value = 95;
     for (const char* role : {"chen_shimei", "nangong_wan_ch07", "han_yunzhi"}) ASSERT_TRUE(state().partyAdd(role)) << role;
-    write("tongdao-shot-party.sav");
+    const auto wrote = fanren::io::saveGame(state(), shotSave);
+    ASSERT_TRUE(wrote.ok) << wrote.error;
 }
 
 }  // namespace
