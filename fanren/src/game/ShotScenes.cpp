@@ -102,6 +102,38 @@ bool walk(Application& app, const std::string& steps) {
 //   dlg:skipask:<文案 key>[:<说话人>]   整段跳过的确认框
 //   dlg:skipped:<句数>                  跳完之后那一条「已跳过 N 句 · 按 Tab 回看」
 //   dlg:bubble:<角色 id>:<文案 key>     插话气泡：这个角色若不在队里先让她入队（跟在主角身后），气泡浮在她头顶
+// 女角色立绘（docs/heroine-art-build.md 3.1）加的一个：
+//   dlg:say:<角色 id>:<表情>:<文案 key>[,<角色 id>:<表情>:<文案 key>…][@<帧数>]
+//       按次序说这几句（与脚本 talk 同一个入口 sayAs；角色 id 空是旁白）。前几句各停半秒（立绘早已淡入）再收起，
+//       末一句压上来之后空转 <帧数> 帧再拍（缺省 120 帧：淡入走完、字也显示全）；给小的帧数拍的是淡入 / 淡出的中途——
+//       例：dlg:say:chen_shimei:smile:<key>,hanli:normal:<key>@4 拍的是韩立开口、她淡出到一半的那一下。
+bool pushSayShot(Application& app, const std::string& spec, int& warmup) {
+    const std::size_t at = spec.find('@');
+    std::stringstream lines(spec.substr(0, at));
+    std::vector<std::vector<std::string>> said;
+    for (std::string line; std::getline(lines, line, ',');) {
+        std::vector<std::string> parts;
+        std::stringstream fields(line);
+        for (std::string part; std::getline(fields, part, ':');) parts.push_back(part);
+        if (parts.size() != 3 || parts[2].empty()) {
+            std::fprintf(stderr, "dlg:say: 每一句要写成 <角色 id>:<表情>:<文案 key>，这一句是「%s」\n", line.c_str());
+            return false;
+        }
+        said.push_back(std::move(parts));
+    }
+    if (said.empty()) return false;
+    for (std::size_t i = 0; i < said.size(); ++i) {
+        const std::vector<std::string>& line = said[i];
+        app.sayAs(line[0], line[2], line[1].empty() ? std::string(script::kDefaultFace) : line[1]);
+        if (i + 1 == said.size()) break;
+        for (int f = 0; f < 30; ++f) frame(app);   // 落栈、淡入走完
+        app.popScene();                             // 这一句收起（游戏里是按确认）
+        frame(app);                                 // 换句之间那一帧空档，与游戏里一样
+    }
+    warmup = at == std::string::npos ? 120 : std::max(0, std::atoi(spec.c_str() + at + 1));
+    return true;
+}
+
 bool pushDialogueShot(Application& app, const std::string& arg) {
     std::vector<std::string> parts;
     for (std::size_t from = 0;;) {
@@ -165,6 +197,24 @@ bool pushCompanionShot(Application& app, const std::string& kind, const std::str
         app.pushScene(std::make_unique<MenuScene>(arg == "party" ? MenuScene::Page::Party : MenuScene::Page::Roster));
         return true;
     }
+    // 女角色立绘（docs/heroine-art-build.md 3.2）：menu:party[#<n>]@<角色 id>,<角色 id>…——先让这几位入队，
+    // 再打开队伍页、光标停在第 n 位（0 起），拍右栏的大图（有立绘）与像素小人（没有）。
+    if (kind == "menu" && arg.rfind("party", 0) == 0 && arg.find('@') != std::string::npos) {
+        const std::size_t at = arg.find('@');
+        const std::size_t hash = arg.find('#');
+        const int row = hash != std::string::npos && hash < at ? std::atoi(arg.c_str() + hash + 1) : 0;
+        std::stringstream roles(arg.substr(at + 1));
+        for (std::string role; std::getline(roles, role, ',');) {
+            if (app.data().findRole(role) == nullptr) {
+                std::fprintf(stderr, "menu:party: 没有这个角色：%s\n", role.c_str());
+                return false;
+            }
+            if (!app.state().partyHas(role)) (void)app.state().partyAdd(role);
+        }
+        app.setFixedWorldClock(kShotMenuWorldClockSeconds);
+        app.pushScene(std::make_unique<MenuScene>(MenuScene::Page::Party, true, row));
+        return true;
+    }
     if (kind == "walk" && !arg.empty()) return walk(app, arg);
     // ---- 第 7 章改版·路 M（docs/ch07-foundation.md 1.6、第 3 节）----
     // menu:items:<n> / menu:magic:<n>：物品 / 法术页，光标停在第 n 行（0 起），看那一样的四行式说明。
@@ -217,6 +267,7 @@ bool pushCompanionShot(Application& app, const std::string& kind, const std::str
     }
     if (kind == "guide" && !arg.empty()) return pushGuideShot(app, arg, warmup);
     if (kind == "seam" && !arg.empty()) return pushSeamShot(app, arg, warmup);
+    if (kind == "dlg" && arg.rfind("say:", 0) == 0) return pushSayShot(app, arg.substr(4), warmup);
     if (kind == "dlg" && !arg.empty()) {
         // 气泡有 0.15 秒的淡入：照缺省的几帧拍，拍到的是半透明的那一下。多空转半秒。
         if (arg.rfind("bubble:", 0) == 0) warmup = std::max(warmup, 30);

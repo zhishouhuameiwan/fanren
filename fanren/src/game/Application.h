@@ -4,6 +4,7 @@
 // 脚本在 Lua 侧 yield 出命令对象，这里每帧取出、交给对应场景执行，
 // 场景完成后把结果回填并 resume 协程。script 层因此不必知道 engine / game 的存在
 // （方案 3.2 的依赖方向）。
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <memory>
@@ -27,6 +28,7 @@
 #include "game/DialogueExtras.h"
 #include "game/ItemToasts.h"
 #include "game/LoreNotices.h"
+#include "game/Busts.h"
 #include "game/Portraits.h"
 #include "game/WorldHud.h"
 #include "game/Scene.h"
@@ -188,6 +190,12 @@ public:
 
     // 对白头像（伙伴改版 3.9）：表与图都从 init 收的游戏根取（game/Portraits.h 的 PortraitBook）。
     [[nodiscard]] PortraitBook& portraits() { return portraits_; }
+    // 女角色的高清立绘（docs/heroine-art-build.md 第 3 节）：表 data/visual/busts.json、图 assets/art/busts/，
+    // 同样从游戏根取。bustStage 记着一段对白里立绘的淡入淡出（跨句，见 game/Busts.h）。
+    [[nodiscard]] PortraitBook& busts() { return busts_; }
+    [[nodiscard]] BustStage& bustStage() { return bustStage_; }
+    // 此刻画立绘的那一层对话框的序号（DialogueScene::serial；栈里没有对话框为 0）：每帧改栈之后认一次。
+    [[nodiscard]] std::uint64_t bustOwner() const { return bustOwner_; }
 
     // 角色 id 到显示名。查不到就回显 id，画面上一眼看出谁没进 data。
     [[nodiscard]] std::string speakerName(const std::string& roleId) const;
@@ -442,8 +450,9 @@ public:
     // 以某个角色的口吻说一句：记进 spokenKeys 与对话回看，压对话框。脚本的 talk(role, key)
     // 也走这里——路径行动的话与剧情的话必须是同一个口径（契约 5.4）。roleId 为空是旁白。
     // face 是表情（normal / smile / angry / hurt，伙伴改版 3.9），原样送到对话框（DialogueScene::setPortrait）。
+    // bust = false：这一句不出高清立绘（伙伴插话气泡退回成的对白，docs/heroine-art-build.md 3.1），小头像照旧。
     void sayAs(const std::string& roleId, const std::string& textKey,
-               const std::string& face = script::kDefaultFace);
+               const std::string& face = script::kDefaultFace, bool bust = true);
 
     // ---- 脚本 ----
     core::Result<bool> startEvent(const std::string& scriptPath);
@@ -636,6 +645,9 @@ private:
     std::string bgmOverride_;
 
     PortraitBook portraits_;   // portraits()
+    PortraitBook busts_{kBustSheets};   // busts()
+    BustStage bustStage_;               // bustStage()
+    std::uint64_t bustOwner_ = 0;       // bustOwner()
     double fixedWorldClock_ = 0.0;   // fixedWorldClock()
 
     // 得物卡片（itemToasts）与集齐奖励表（explorationReward）。图标图集画的时候才载，无头从不碰。

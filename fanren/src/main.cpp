@@ -334,6 +334,10 @@ int main(int argc, char** argv) {
             app.shutdown();
             return 1;
         }
+        // --window-scale <n>：窗口放大到 n 倍再拍（女角色立绘：看两倍窗口里立绘清不清楚，docs/heroine-art-build.md）。
+        if (const std::string scale = optionValue(argc, argv, "--window-scale"); !scale.empty()) {
+            app.engine().setWindowScale(std::atoi(scale.c_str()));
+        }
         // --scene battle:<编成 id> / board / talk:<文案 key> / fxdemo[:night|day|rain|snow]
         //
         // 一个口子而不是三个开关：面板种类只会越来越多，每种加一个 --xxx

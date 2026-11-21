@@ -2,10 +2,12 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <numbers>
 #include <utility>
 
 #include "game/Application.h"
+#include "game/Busts.h"
 #include "game/DialogueExtras.h"
 #include "game/Portraits.h"
 
@@ -60,7 +62,10 @@ constexpr float kPortraitFrameOut = 3.f;
 }  // namespace
 
 DialogueScene::DialogueScene(std::string speaker, std::string body)
-    : speaker_(std::move(speaker)), body_(std::move(body)) {}
+    : speaker_(std::move(speaker)), body_(std::move(body)) {
+    static std::uint64_t next = 0;
+    serial_ = ++next;
+}
 
 void DialogueScene::setChoices(std::vector<std::string> options) {
     std::vector<ui::ListItem> items;
@@ -91,6 +96,21 @@ void DialogueScene::onEnter(Application& app) {
     // 无头模式没人看动画，直接全显，免得 bot 要空跑几十帧等文字。
     // 文字速度选了瞬显的，第一帧就是整句（不等第一次 update）。
     if (app.headless() || revealAtOnce_ || !revealRate(app)) revealAll();
+}
+
+void DialogueScene::enterBust(Application& app) {
+    // 立绘（3.1）：这一句说话人的那一格交给跨句的 bustStage——同一个人接着说不重新淡入，换人淡出。
+    // 无头模式 frameFor 不读表、不警告，一律没有。
+    std::optional<BustShot> bust;
+    if (bustAllowed_ && !speakerRole_.empty()) {
+        const ChapterDone chapterDone = [&app](int n) { return app.chapterTable().chapterDone(app.state(), n); };
+        if (const std::optional<PortraitFrame> frame =
+                app.busts().frameFor(app.engine(), app.headless(), speakerRole_, face_, chapterDone)) {
+            bust = BustShot{speakerRole_, frame->texture, frame->src};
+        }
+    }
+    hasBust_ = bust.has_value();
+    app.bustStage().speak(bust);
 }
 
 std::optional<double> DialogueScene::graphemesPerSecond(io::TextSpeed speed) {
@@ -335,6 +355,9 @@ void DialogueScene::render(Application& app) {
 
     // 镜头贴着地图下沿时，贴底的框会盖住说话的两个人（终审 LOW-6）：那时整个框上移让开，名签、键位牌跟着框走。
     const engine::Rect box = keepHeroInSight(boxArea(theme), app.heroScreenRect(), kBoxMargin);
+    // 立绘在框下面一层（3.1）：先画，框、名签、键位牌、「自动」小标、跳过确认框都压在它上面。
+    // 栈里叠着几层对话框时（路径行动一次压好几句）只有最上面那一层画。
+    if (app.bustOwner() == serial_) renderBusts(app, box);
     // 说话人不再当面板标题，改成框上沿左侧一块独立的名签（旁白不画）：
     // 框里整块都留给正文，名字也不必与正文挤在同一个平面上。
     ui::drawPanel(eng, box, std::string{}, theme);
@@ -355,8 +378,9 @@ void DialogueScene::render(Application& app) {
     // 说话人在头像表里有头像就画在正文左侧、正文让开（伙伴改版 3.9）；没登记的角色与旁白一笔不多画。
     // 头像按章生效（韩立的青年头像只在第 7 章）：「演完没有」与取外观同一个判据，问章节表的 done_flag。
     const ChapterDone chapterDone = [&app](int n) { return app.chapterTable().chapterDone(app.state(), n); };
+    // 这一句有立绘就不画小头像（3.1），正文也不让位。
     if (const std::optional<PortraitFrame> portrait =
-            app.portraits().frameFor(eng, app.headless(), speakerRole_, face_, chapterDone)) {
+            hasBust_ ? std::nullopt : app.portraits().frameFor(eng, app.headless(), speakerRole_, face_, chapterDone)) {
         const PortraitLayout layout = portraitLayout(textArea, theme.padding, static_cast<int>(portrait->src.w),
                                                      static_cast<int>(portrait->src.h));
         renderPortrait(app, *portrait, layout.portrait);
@@ -388,6 +412,29 @@ void DialogueScene::renderNameTag(Application& app, const engine::Rect& box) con
     ui::drawPlate(eng, tag, theme);
     eng.drawText(speaker_, tag.x + kTagPadX, tag.y + (tag.h - kTagFontSize) / 2 - 1, kTagFontSize,
                  theme.goldBright, theme.bodyStyle);
+}
+
+void DialogueScene::renderBusts(Application& app, const engine::Rect& box) const {
+    const std::vector<BustStage::Layer> layers = app.bustStage().layers();
+    if (layers.empty()) return;
+    engine::Engine& eng = app.engine();
+    const ui::Theme& theme = app.theme();
+    const engine::Rect bottomBox = boxArea(theme);
+    const engine::Rect area = bustDialogueArea(box, bottomBox, boxAreaFor(0, theme).y);
+    // 框是半透明的：压在框后面的那一截会隐约透出来，读字时像底下糊着一块。只画到框顶那道金线为止（bustVisibleRows），
+    // 切口正好叫金线压住——看上去就是人站在框后面。
+    const int rows = bustVisibleRows(area, box, box.y != bottomBox.y);
+    if (rows <= 0) return;
+    const engine::RectF dst{static_cast<float>(area.x), static_cast<float>(area.y), static_cast<float>(area.w),
+                            static_cast<float>(rows)};
+    const float keep = static_cast<float>(rows) / static_cast<float>(area.h);
+    for (const BustStage::Layer& layer : layers) {
+        engine::DrawOptions options;
+        options.tint.a = static_cast<std::uint8_t>(std::lround(std::clamp(layer.alpha, 0.f, 1.f) * 255.f));
+        engine::RectF src = layer.shot.src;
+        src.h *= keep;
+        eng.drawTexture(layer.shot.texture, src, dst, options);
+    }
 }
 
 void DialogueScene::renderPortrait(Application& app, const PortraitFrame& portrait, const engine::Rect& area) const {

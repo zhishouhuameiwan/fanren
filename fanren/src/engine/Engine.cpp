@@ -2080,6 +2080,15 @@ float Engine::sfxVolume() const {
     return impl_->sfxGain;
 }
 
+void Engine::setWindowScale(int n) {
+    if (impl_->window == nullptr || n < 1) return;
+    if (!SDL_SetWindowSize(impl_->window, kLogicalWidth * n, kLogicalHeight * n)) {
+        SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION, "改窗口大小失败：%s", sdlError().c_str());
+        return;
+    }
+    SDL_SyncWindow(impl_->window);
+}
+
 void Engine::setFullscreen(bool on) {
     impl_->fullscreen = on;
     if (impl_->window == nullptr || fullscreen() == on) {

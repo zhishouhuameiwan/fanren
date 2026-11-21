@@ -1,0 +1,11 @@
+{
+  "_doc": "女角色高清立绘的打包清单（tools/artgen/busts.py 读，docs/heroine-art-build.md 第 2 节）。每条一张立绘表：file 是 assets/art/busts/ 下的产物名；roles 是共用这张表的角色 id；faces 是表情 → 原图（相对原图目录 docs/heroine-art/final/，不入库），至少有 normal，没画的表情不写（表里指回 normal）；head_adjust / x_adjust 是头顶线、水平位置的微调（格子像素，正数往下 / 往右）；min_chapter / max_chapter 照 portraits.json。",
+  "busts": [
+    {
+      "_note": "试跑：先拿样张 P3 走通全流程，四个表情都指 normal；路 P 的正式图到了换成 chen_shimei/ 下的四张。",
+      "file": "chen_shimei.png",
+      "roles": ["chen_shimei"],
+      "faces": {"normal": "chen_shimei/chen_P3.png"}
+    }
+  ]
+}

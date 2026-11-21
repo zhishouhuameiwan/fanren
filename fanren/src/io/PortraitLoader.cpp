@@ -16,8 +16,28 @@ namespace {
 using nlohmann::json;
 using Out = core::Result<core::PortraitTable>;
 
-Out fail(const std::string& where, const std::string& what) {
-    return Out::failure("portraits.json 的 " + where + "：" + what);
+// 两份表同一个形状：对白头像 portraits.json（顶层键 portraits）、高清立绘 busts.json（顶层键 busts，
+// 另可带 files：文件名 → sha256，由 tools/artgen/busts.py 写）。报错都以各自的文件名起头。
+struct Shape {
+    const char* label;    // "portraits.json" / "busts.json"
+    const char* topKey;   // "portraits" / "busts"
+    bool files;           // 认不认顶层的 files
+};
+constexpr Shape kPortraitShape{"portraits.json", "portraits", false};
+constexpr Shape kBustShape{"busts.json", "busts", true};
+
+Out fail(const Shape& shape, const std::string& where, const std::string& what) {
+    return Out::failure(std::string(shape.label) + " 的 " + where + "：" + what);
+}
+
+bool isSha256(const json& v) {
+    if (!v.is_string()) return false;
+    const std::string& s = v.get_ref<const std::string&>();
+    if (s.size() != 64) return false;
+    for (const char c : s) {
+        if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) return false;
+    }
+    return true;
 }
 
 // 正整数（minimum = 1）或非负整数（minimum = 0）。
@@ -36,9 +56,9 @@ int faceSlot(const std::string& name) {
 }
 
 // 一条头像。错了返回报错（where 起头），对了把 out 填满、返回空串。
-std::string readSheet(const json& entry, const std::string& where, core::PortraitSheet& out) {
-    const auto bad = [&where](const std::string& field, const std::string& what) {
-        return "portraits.json 的 " + where + (field.empty() ? "" : "." + field) + "：" + what;
+std::string readSheet(const Shape& shape, const json& entry, const std::string& where, core::PortraitSheet& out) {
+    const auto bad = [&shape, &where](const std::string& field, const std::string& what) {
+        return std::string(shape.label) + " 的 " + where + (field.empty() ? "" : "." + field) + "：" + what;
     };
     if (!entry.is_object()) return bad("", "应当是对象");
     bool hasFile = false, hasW = false, hasH = false, hasCols = false, hasFaces = false;
@@ -91,13 +111,14 @@ std::string readSheet(const json& entry, const std::string& where, core::Portrai
 }
 
 // 一个角色的头像列表：非空数组，每一条是一张头像（带可选的 min_chapter / max_chapter）。
-std::string readList(const json& list, const std::string& where, std::vector<core::PortraitSheet>& out) {
+std::string readList(const Shape& shape, const json& list, const std::string& where,
+                     std::vector<core::PortraitSheet>& out) {
     if (!list.is_array() || list.empty()) {
-        return "portraits.json 的 " + where + "：应当是非空数组（每一条一张头像，可带 min_chapter / max_chapter）";
+        return std::string(shape.label) + " 的 " + where + "：应当是非空数组（每一条一张头像，可带 min_chapter / max_chapter）";
     }
     for (std::size_t i = 0; i < list.size(); ++i) {
         core::PortraitSheet sheet;
-        if (std::string error = readSheet(list[i], where + "[" + std::to_string(i) + "]", sheet); !error.empty()) {
+        if (std::string error = readSheet(shape, list[i], where + "[" + std::to_string(i) + "]", sheet); !error.empty()) {
             return error;
         }
         out.push_back(std::move(sheet));
@@ -106,38 +127,43 @@ std::string readList(const json& list, const std::string& where, std::vector<cor
     // 那多半是次序写反了（该把限章的写在前面），与读取器一贯的口径一样，整份报错。
     for (std::size_t i = 0; i + 1 < out.size(); ++i) {
         if (out[i].minChapter <= 1 && out[i].maxChapter <= 0) {
-            return "portraits.json 的 " + where + "[" + std::to_string(i) + "]：这一条不限章，后面的 " +
+            return std::string(shape.label) + " 的 " + where + "[" + std::to_string(i) + "]：这一条不限章，后面的 " +
                    std::to_string(out.size() - i - 1) + " 条永远取不到（限章的写在前面，不限章的放最后）";
         }
     }
     return {};
 }
 
-}  // namespace
-
-core::Result<core::PortraitTable> parsePortraits(std::string_view text) {
+Out parseTable(const Shape& shape, std::string_view text) {
+    const std::string label = shape.label;
     auto parsed = detail::parseStrictJson(text);
-    if (!parsed) return Out::failure("portraits.json " + parsed.error);
+    if (!parsed) return Out::failure(label + " " + parsed.error);
     const json& root = parsed.value;
-    if (!root.is_object()) return Out::failure("portraits.json：顶层应当是对象");
+    if (!root.is_object()) return Out::failure(label + "：顶层应当是对象");
 
-    const json* portraits = nullptr;
+    const json* entries = nullptr;
     for (const auto& [key, value] : root.items()) {
         if (key == "_doc") {
-            if (!value.is_string()) return fail(key, "应当是字符串");
-        } else if (key == "portraits") {
-            if (!value.is_object()) return fail(key, "应当是对象（角色 id → 头像）");
-            portraits = &value;
+            if (!value.is_string()) return fail(shape, key, "应当是字符串");
+        } else if (key == shape.topKey) {
+            if (!value.is_object()) return fail(shape, key, "应当是对象（角色 id → 头像）");
+            entries = &value;
+        } else if (shape.files && key == "files") {
+            if (!value.is_object()) return fail(shape, key, "应当是对象（文件名 → sha256）");
+            for (const auto& [name, digest] : value.items()) {
+                if (!isSha256(digest)) return fail(shape, key + "." + name, "应当是 64 位小写十六进制的 sha256");
+            }
         } else {
-            return fail(key, "认不出的字段");
+            return fail(shape, key, "认不出的字段");
         }
     }
-    if (portraits == nullptr) return fail("portraits", "缺少");
+    if (entries == nullptr) return fail(shape, shape.topKey, "缺少");
 
     core::PortraitTable table;
-    for (const auto& [roleId, entry] : portraits->items()) {
+    for (const auto& [roleId, entry] : entries->items()) {
         std::vector<core::PortraitSheet> sheets;
-        if (std::string error = readList(entry, "portraits." + roleId, sheets); !error.empty()) {
+        if (std::string error = readList(shape, entry, std::string(shape.topKey) + "." + roleId, sheets);
+            !error.empty()) {
             return Out::failure(std::move(error));
         }
         table.emplace(roleId, std::move(sheets));
@@ -145,12 +171,22 @@ core::Result<core::PortraitTable> parsePortraits(std::string_view text) {
     return Out::success(std::move(table));
 }
 
-core::Result<core::PortraitTable> loadPortraits(const std::string& path) {
+Out loadTable(const Shape& shape, const std::string& path) {
     auto text = detail::readTextFile(path);
     if (!text) return Out::failure(text.error);
-    auto table = parsePortraits(text.value);
+    auto table = parseTable(shape, text.value);
     if (!table) return Out::failure(path + "：" + table.error);
     return table;
 }
+
+}  // namespace
+
+core::Result<core::PortraitTable> parsePortraits(std::string_view text) { return parseTable(kPortraitShape, text); }
+
+core::Result<core::PortraitTable> loadPortraits(const std::string& path) { return loadTable(kPortraitShape, path); }
+
+core::Result<core::PortraitTable> parseBusts(std::string_view text) { return parseTable(kBustShape, text); }
+
+core::Result<core::PortraitTable> loadBusts(const std::string& path) { return loadTable(kBustShape, path); }
 
 }  // namespace fanren::io

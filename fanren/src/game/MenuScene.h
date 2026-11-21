@@ -163,6 +163,17 @@ private:
     void drawHome(Application& app, const engine::Rect& area) const;
     void drawMapPage(Application& app, const engine::Rect& area) const;
     void drawParty(Application& app, const engine::Rect& area) const;
+    // 女角色立绘（docs/heroine-art-build.md 3.2）：队里有人有立绘时，在页面右边那一栏（partyArtColumn）画选中那位的
+    // 大图（没有立绘的画像素小人），返回留给名单、说明、动作的左边那一块；谁都没有立绘时什么也不画、原样返回 area。
+    [[nodiscard]] engine::Rect drawPartyArt(Application& app, const engine::Rect& area) const;
+public:
+    static constexpr int kPartyArtW = 380;          // 右栏宽：高 560 的立绘取中间那块（600:924）宽 364
+    static constexpr int kPartyArtBottom = 6;       // 立绘底边离面板框线
+    static constexpr int kPartyFigureW = 200;       // 没有立绘的人：像素小人那一框
+    static constexpr int kPartyFigureH = 280;
+    static constexpr int kPartyFigureBottom = 40;
+    [[nodiscard]] static engine::Rect partyArtColumn(const engine::Rect& area);
+private:
 
     Page initial_;
     bool focusList_;
@@ -179,6 +190,7 @@ private:
     std::string usingItemId_;             // 正在选「给谁用」的那件东西
     int usingItemAge_ = 0;
     std::vector<Member> members_;
+    std::vector<Member> partyFigures_;   // 队伍页右栏的像素小人：GameState::party 的每一位，同次序
     std::vector<Page> pages_;             // 左栏此刻有哪几项，按画面次序
     ui::ListView party_;                  // 队伍页：队里每个人
     std::vector<std::size_t> partyIndex_; // party_ 的第 i 行是 GameState::party 的第几位

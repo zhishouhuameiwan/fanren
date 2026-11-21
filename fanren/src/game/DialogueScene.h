@@ -3,6 +3,7 @@
 //
 // 面板、选项列表、断行都交给 ui 层：P1 时这里手写了一份，结果是同一套东西
 // 在对话框和将来的商店、背包里各走一样。控件只回报选择，状态变更在 Application。
+#include <cstdint>
 #include <optional>
 #include <string>
 #include <utility>
@@ -39,6 +40,19 @@ public:
     }
     [[nodiscard]] const std::string& speakerRole() const { return speakerRole_; }
     [[nodiscard]] const std::string& face() const { return face_; }
+
+    // ---- 女角色的高清立绘（docs/heroine-art-build.md 3.1）----
+    // 说话人在立绘表（data/visual/busts.json）里有这一章生效、载得进来的立绘：这一层成了栈里最上面的对话框时，
+    // Application 调 enterBust 交给 bustStage 淡入；render 把它画在框下面一层的右侧，框里的像素小头像不画（正文不让位）。
+    // 没有立绘的人一切照旧。不在 onEnter 里交：路径行动一次压好几句，onEnter 全在同一帧、次序与上屏的次序相反。
+    void enterBust(Application& app);
+    // 每个对话框一个序号（构造时取），Application 拿它认「最上面那一层换没换」——不拿指针认：
+    // 上一句刚释放的内存可能正好给了下一句。
+    [[nodiscard]] std::uint64_t serial() const { return serial_; }
+    // 伙伴插话气泡退回成的对白不带立绘（照旧画小头像）：Application 对它调 suppressBust。
+    void suppressBust() { bustAllowed_ = false; }
+    // 这一句有没有立绘（enterBust 之后才作数；无头模式永远没有）。
+    [[nodiscard]] bool showsBust() const { return hasBust_; }
 
     // 名签的矩形：压在对话框上沿、靠左，一半在框外。宽度随名字长短（textWidth 是名字的
     // 像素宽）。公开是为了让测试断言「选项再多、框长到最高，名签也还在屏幕里」。
@@ -111,6 +125,8 @@ private:
     void renderNameTag(Application& app, const engine::Rect& box) const;
     // 返回这块键位牌的左边沿：地基包路 D 的两块小牌依次往左排。
     [[nodiscard]] int renderKeyHint(Application& app, const engine::Rect& box) const;
+    // 立绘：bustStage 里的几层，画在框下面（框压住它的下缘）。
+    void renderBusts(Application& app, const engine::Rect& box) const;
     // 头像：area 由 game/Portraits.h 的 portraitLayout 给。
     void renderPortrait(Application& app, const PortraitFrame& portrait, const engine::Rect& area) const;
     // 正文读完、等着按确认时右下角那个缓慢起伏的「▼」。
@@ -144,6 +160,9 @@ private:
 
     std::string speakerRole_;   // setPortrait
     std::string face_;
+    bool bustAllowed_ = true;   // suppressBust
+    bool hasBust_ = false;      // showsBust
+    std::uint64_t serial_ = 0;  // serial
 
     // 自动播放：这一句全显之后过了多久（4.2）。
     double autoSeconds_ = 0.0;

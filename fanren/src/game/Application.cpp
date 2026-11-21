@@ -194,6 +194,9 @@ Application::~Application() = default;
 core::Result<bool> Application::init(const std::string& assetRoot, bool headless) {
     assetRoot_ = assetRoot;
     portraits_.setRoot(assetRoot_);
+    busts_.setRoot(assetRoot_);
+    bustStage_.clear();
+    bustOwner_ = 0;
     headless_ = headless;
 
     engine_ = std::make_unique<engine::Engine>();
@@ -993,13 +996,14 @@ void Application::recordSpoken(const std::string& roleId, const std::string& tex
     pushDialogueLine(speaker, text(textKey), roleId, face);
 }
 
-void Application::sayAs(const std::string& roleId, const std::string& textKey, const std::string& face) {
+void Application::sayAs(const std::string& roleId, const std::string& textKey, const std::string& face, bool bust) {
     recordSpoken(roleId, textKey, face);
     const std::string speaker = roleId.empty() ? std::string{} : speakerName(roleId);
     const std::string body = text(textKey);
     auto scene = std::make_unique<DialogueScene>(speaker, body);
     // 头像要的是角色 id 与表情，不是名字（伙伴改版 3.9）；画不画由对话框自己定。
     scene->setPortrait(roleId, face);
+    if (!bust) scene->suppressBust();
     pushScene(std::move(scene));
 }
 
@@ -1228,7 +1232,8 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
             }
             const std::optional<Vec2f> cell = bubbleCell(command.b);
             if (!cell) {
-                sayAs(command.b, command.a);
+                // 退回的对白不带立绘（docs/heroine-art-build.md 3.1：插话不出大图），小头像照旧。
+                sayAs(command.b, command.a, std::string(script::kDefaultFace), /*bust=*/false);
                 return false;
             }
             recordSpoken(command.b, command.a, std::string(script::kDefaultFace));
@@ -1804,6 +1809,19 @@ void Application::tick(double deltaSeconds) {
         scenes_.push_back(std::move(scene));
     }
     pendingPush_.clear();
+
+    // 对白立绘（docs/heroine-art-build.md 3.1）：栈里最上面那一层对话框换了，就把它的说话人交给 bustStage
+    // （跨句的淡入淡出记在那里）；栈里没有对话框一阵子就清空。
+    DialogueScene* topDialogue = nullptr;
+    for (auto it = scenes_.rbegin(); it != scenes_.rend() && topDialogue == nullptr; ++it) {
+        topDialogue = dynamic_cast<DialogueScene*>(it->get());
+    }
+    const std::uint64_t owner = topDialogue == nullptr ? 0 : topDialogue->serial();
+    if (owner != bustOwner_) {
+        bustOwner_ = owner;
+        if (topDialogue != nullptr) topDialogue->enterBust(*this);
+    }
+    bustStage_.advance(deltaSeconds, topDialogue != nullptr);
 
     // 这一帧发过东西：一声就够。一段脚本连给三样、一条路径行动给两样，都是同一次发放。
     if (itemsGiven_) {

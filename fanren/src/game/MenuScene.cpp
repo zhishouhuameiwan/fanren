@@ -14,6 +14,7 @@
 #include "game/Application.h"
 #include "game/AreaMapScene.h"
 #include "game/BoardScene.h"
+#include "game/Busts.h"
 #include "game/CultivationScene.h"
 #include "game/DialogueScene.h"
 #include "game/ItemInfoView.h"
@@ -247,6 +248,8 @@ void MenuScene::onEnter(Application& app) {
     }
     if (focusList_ && initial_ == Page::Home) focus_ = Focus::Home;
     if (focusList_ && initial_ == Page::Party && party_.hasSelectable()) focus_ = Focus::Party;
+    // 截图口 menu:party#<n>：光标停在第 n 位（女角色立绘，拍队伍页选中有 / 没有立绘的人）。
+    for (int i = 0; i < listRow_ && focus_ == Focus::Party; ++i) party_.moveDown();
     app.engine().playSfx(kSfxOpen);
 }
 
@@ -423,6 +426,16 @@ void MenuScene::loadMembers(Application& app) {
     hero.hero = true;
     portraitOf(hero);
     members_.push_back(std::move(hero));
+
+    // 队伍页右栏的像素小人（女角色立绘，docs/heroine-art-build.md 3.2）：队里每一位（歇着的也算），按 GameState::party 的次序。
+    partyFigures_.clear();
+    for (const core::PartyMember& member : state.party) {
+        Member figure;
+        figure.roleId = member.roleId;
+        if (const core::RoleTemplate* role = data.findRole(member.roleId)) figure.name = role->name;
+        portraitOf(figure);
+        partyFigures_.push_back(std::move(figure));
+    }
 
     for (const core::PartyMember& member : state.party) {
         const core::RoleTemplate* role = data.findRole(member.roleId);
@@ -989,13 +1002,16 @@ void MenuScene::drawPage(Application& app) const {
             break;
         case Page::Back:
             break;
-        case Page::Party:
+        case Page::Party: {
+            // 女角色立绘（3.2）：队里有人有立绘时右边留一栏放大图，名单、说明、动作、赠与列表照旧排在左边那一块。
+            const engine::Rect side = drawPartyArt(app, area);
             if (focus_ == Focus::Gift) {
-                drawListPage(app, area, gifts_, true, app.text("ui.menu.party.gift.hint"));
+                drawListPage(app, side, gifts_, true, app.text("ui.menu.party.gift.hint"));
             } else {
-                drawParty(app, area);
+                drawParty(app, side);
             }
             break;
+        }
         case Page::Roster:
             drawListPage(app, area, roster_, false, app.text("ui.menu.roster.hint"));
             break;
@@ -1019,6 +1035,47 @@ void MenuScene::drawParty(Application& app, const engine::Rect& area) const {
     ui::drawRuleH(e, static_cast<float>(area.x + theme.padding), static_cast<float>(ruleY),
                   static_cast<float>(area.w - theme.padding * 2), theme);
     partyActions_.render(e, engine::Rect{area.x, ruleY + 4, area.w, ui::listAreaHeight(2, theme)}, theme);
+}
+
+engine::Rect MenuScene::partyArtColumn(const engine::Rect& area) {
+    return engine::Rect{area.x + area.w - kPartyArtW, area.y, kPartyArtW, area.h};
+}
+
+engine::Rect MenuScene::drawPartyArt(Application& app, const engine::Rect& area) const {
+    engine::Engine& e = app.engine();
+    const ui::Theme& theme = app.theme();
+    const core::GameState& state = app.state();
+    // 立绘与对白同一个判据：这一章生效、图载得进来（无头模式一律没有，也不读表）。
+    const ChapterDone chapterDone = [&app](int n) { return app.chapterTable().chapterDone(app.state(), n); };
+    const auto bustOf = [&](const std::string& roleId) {
+        return app.busts().frameFor(e, app.headless(), roleId, "normal", chapterDone);
+    };
+    bool any = false;
+    for (const core::PartyMember& member : state.party) any = any || bustOf(member.roleId).has_value();
+    if (!any) return area;   // 谁都没有立绘：版面与改版前一模一样
+
+    const engine::Rect column = partyArtColumn(area);
+    ui::drawRuleV(e, static_cast<float>(column.x), static_cast<float>(area.y + theme.padding / 2),
+                  static_cast<float>(area.h - theme.padding), theme);
+    const core::PartyMember* selected = selectedMember(app);
+    if (selected != nullptr) {
+        const std::size_t at = static_cast<std::size_t>(selected - state.party.data());
+        if (const std::optional<PortraitFrame> bust = bustOf(selected->roleId)) {
+            const engine::RectF src = bustRosterSource(bust->src);
+            const engine::Rect room{column.x, column.y, column.w, std::max(0, column.h - kPartyArtBottom)};
+            const engine::RectF dst = bustRosterArea(room, src);
+            if (dst.w > 0.f) e.drawTexture(bust->texture, src, dst, engine::DrawOptions{});
+        } else if (at < partyFigures_.size()) {
+            // 没有立绘：照旧只是像素小人（与状态页同一种画法，放大一倍），立在这一栏下半。
+            Member figure = partyFigures_[at];
+            figure.portraitScale *= 2;
+            const engine::Rect box{column.x + (column.w - kPartyFigureW) / 2,
+                                   column.y + column.h - kPartyFigureH - kPartyFigureBottom, kPartyFigureW,
+                                   kPartyFigureH};
+            drawPortrait(app, figure, box);
+        }
+    }
+    return engine::Rect{area.x, area.y, std::max(0, area.w - kPartyArtW), area.h};
 }
 
 void MenuScene::drawStatus(Application& app, const engine::Rect& area) const {

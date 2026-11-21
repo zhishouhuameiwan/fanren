@@ -1,0 +1,22 @@
+{
+  "_doc": "女角色高清立绘（由 tools/artgen/busts.py 按 tools/artgen/busts_manifest.json 生成，docs/heroine-art-build.md 第 2 节）：角色 id → 立绘列表，形状照 portraits.json（每条可带 min_chapter / max_chapter，取第一条成立的）。图相对 assets/art/busts/，每格 840×1260、屏幕上画成 420×630；没画的表情指回 normal 那一格。files 是每张图的 sha256（busts.py --check 核）。没登记的角色对白照旧画像素小头像。",
+  "busts": {
+    "chen_shimei": [
+      {
+        "cols": 1,
+        "faces": {
+          "angry": 0,
+          "hurt": 0,
+          "normal": 0,
+          "smile": 0
+        },
+        "file": "chen_shimei.png",
+        "frame_h": 1260,
+        "frame_w": 840
+      }
+    ]
+  },
+  "files": {
+    "chen_shimei.png": "433e5771d01339382a4288138db22c5526a079fb40f63aec93cb5670d8788460"
+  }
+}

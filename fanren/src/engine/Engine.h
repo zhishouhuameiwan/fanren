@@ -364,6 +364,9 @@ public:
     // 无头读存的值。Alt+Enter 由 pollEvents 自己切（见那里），Application 每帧对一次账。
     void setFullscreen(bool on);
     [[nodiscard]] bool fullscreen() const;
+    // 窗口改成 1280×720 的 n 倍（截图口 --window-scale 用：看高清立绘在放大的窗口里清不清楚）。
+    // 回读后缓冲（captureFrame）拿到的就是这个尺寸。无头、n < 1 时什么也不做。
+    void setWindowScale(int n);
 
     // 画面缩放：整数倍（缺省）/ 铺满（保持 16:9、不够的那一边留黑边）。
     // 铺满时回读后缓冲（snapshotBackbuffer）拿到的内容区不再是 1280×720 的整数倍，按呈现矩形裁。
