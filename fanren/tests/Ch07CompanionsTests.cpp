@@ -92,7 +92,8 @@ TEST_F(Ch07CompanionsData, NangongWanIsTheGirlInWhiteThenTheChapterSevenNangongT
     const auto& companions = app_.data().companions;
     ASSERT_EQ(companions.count(kNangong), 1u) << "样板施工图第 9 节：data/companions/nangong_wan.json";
     ASSERT_EQ(companions.count(kChen), 1u) << "样板施工图第 9 节：data/companions/chen_qiaoqian.json";
-    EXPECT_EQ(companions.size(), 2u) << "样板段只有这两位伙伴";
+    // 同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 8 节）改：原先 2 位（样板段只有这两位），菡云芝入册后 3 位。
+    EXPECT_EQ(companions.size(), 3u) << "样板段两位，同道录 2a 加菡云芝";
 
     GameState& s = app_.state();
     EXPECT_EQ(current(kNangong), "baiyi_shaonv") << "问名之前（ch07.nangong 没置）";

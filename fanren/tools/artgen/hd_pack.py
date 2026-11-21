@@ -126,6 +126,9 @@ ROLES = {
     "nangong_wan_ch07": "nangong_wan_ch07_hd",
     "chen_shimei": "chen_shimei_hd",
     "lingshoushan_dizi": "lingshoushan_dizi_hd",   # 只在第 7 章禁地外出场
+    # 同道录 2a·路 N（docs/ch07-tongdaolu.md 第 4 节）：菡云芝入册、能带进历练与切磋，战斗小人用这张手绘表的八个姿势，
+    # 不看章节直接接管（与陈巧倩一样）；role_variants 里第 7 章那一条照旧留着，指的是同一张表。
+    "han_yunzhi": "han_yunzhi_hd",
 }
 # 韩立每一章都在，只在第 7 章换手绘：第 1–2 章仍是生成的少年相，其余章节落回生成索引的 roles（hanli）。
 ROLE_VARIANTS = {

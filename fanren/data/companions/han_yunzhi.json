@@ -1,0 +1,86 @@
+{
+  "id": "han_yunzhi",
+  "kind": "person",
+  "line": "moni",
+  "roles": [
+    {
+      "role": "han_yunzhi",
+      "magics": [
+        {
+          "tier": 3,
+          "magic": "magic_fu_huichun"
+        },
+        {
+          "tier": 4,
+          "magic": "magic_fu_dingshen"
+        }
+      ],
+      "passive": {
+        "kind": "victory_heal",
+        "values": [
+          10,
+          15
+        ]
+      },
+      "duo": "magic_duo_lianzhu"
+    }
+  ],
+  "met_flag": "ch07.wuyou",
+  "chase": true,
+  "gifts": {
+    "like": [
+      "material_dansha",
+      "material_fuzhi",
+      "material_hanchan_su"
+    ],
+    "dislike": [
+      "material_yaoshou_cai"
+    ]
+  },
+  "roster_bonus": {
+    "kind": "talisman_power",
+    "value": 20
+  },
+  "spar": {
+    "battle": "spar_han_yunzhi",
+    "prizes": [
+      {
+        "tier": 2,
+        "items": [
+          {
+            "item": "talisman_dingshen_fu",
+            "count": 3
+          }
+        ]
+      },
+      {
+        "tier": 3,
+        "items": [
+          {
+            "item": "talisman_huoqiu_fu",
+            "count": 2
+          }
+        ]
+      },
+      {
+        "tier": 4,
+        "items": [
+          {
+            "item": "pill_hanchan_dan",
+            "count": 2
+          }
+        ]
+      },
+      {
+        "tier": 5,
+        "items": [
+          {
+            "item": "talisman_huoqiu_fu",
+            "count": 3
+          }
+        ]
+      }
+    ]
+  },
+  "note": "卖符少女入了灵兽山（ch179），ch203 自报姓名菡云芝（同道录 2a，施工图 docs/ch07-tongdaolu.md 3.1；路 N 施工记录 docs/ch07-tongdaolu-n.md）。人物、莫逆线（moni，最高一档「莫逆」，只写朋友之谊，不进红颜线）。met_flag 借 ch07.wuyou：小石殿（节点 28，xiaoshidian.lua）战后二选一之后置，值 1 或 2（取消按 1），战斗④ 不可逃、致命，是必经的一步，所以每条走完这一步的路线上它都非零；她报名那一拍（after_name、登场卡）就在这一段里。没有为入册新置旗标。主线不同行：她只在历练「禁地旧境」里能带，相处在百药园（外传）。角色只有 han_yunzhi 一段（全作只在第 7 章出场），一档寒冰符写在角色表里；三档回春符、四档定身符、被动灵符 victory_heal 10 / 15、合招连珠火符都挂在 roles[0]，只在第 7 章生效。没有场地技（2a 不需要）。喜好是本作自拟：丹砂、符纸——家里画符没天分，好纸好砂她却舍不得丢（ch136–137 兄妹拿金竺笔换丹药那一段的余味）；寒蟾酥——灵兽山拿它调灵兽的伤药。不喜兽材：她养灵兽，看不得剥下来的皮甲牙爪。在册加成 talisman_power 20；切磋首胜奖品是现成的符与寒蟾丹。"
+}

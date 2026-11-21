@@ -1,0 +1,12 @@
+{
+  "id": "magic_fu_dingshen",
+  "name": "定身符",
+  "descKey": "magic.desc.magic_fu_dingshen",
+  "element": 0,
+  "needMp": 20,
+  "power": 0,
+  "effect": "bind",
+  "needRealm": "QiRefining1",
+  "origin": "本作自拟",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：菡云芝四档。令一名敌人跳过它的下一次行动；首领与不能逃的仗里的敌人定不住（规则层，路 K 记录 4.1）。注意与物品「定神符」（talisman_dingshen_fu，削架势的符术）不是一样东西。"
+}

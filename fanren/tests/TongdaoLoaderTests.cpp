@@ -8,6 +8,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -181,7 +182,10 @@ TEST(TongdaoCompanionLoader, RejectsBadShapesAndPerksOutsideTheTable) {
     }
 }
 
-TEST(TongdaoRepoData, TheTwoCompanionsMigratedWithoutNewSpellsOrPassives) {
+// 路 N（docs/ch07-tongdaolu-n.md 第 8 节）照路 K 记录 9.2 改了这一条：原先钉的是「两份表迁过来、一门法术一条被动都没加」，
+// 路 N 填数之后改钉「新东西只写在第 7 章的那一段上」——第 8 章起的角色、南宫婉问名之前那一段一个字都没加。
+// 逐项的数值在 tests/TongdaoContentTests.cpp。
+TEST(TongdaoRepoData, TheTwoCompanionsCarryTheirKitsOnlyOnTheChapterSevenRoles) {
     const auto loaded = fanren::io::loadCompanions((repoRoot() / "data" / "companions").string());
     ASSERT_TRUE(loaded.ok) << loaded.error;
     const auto& companions = loaded.value;
@@ -195,16 +199,21 @@ TEST(TongdaoRepoData, TheTwoCompanionsMigratedWithoutNewSpellsOrPassives) {
     EXPECT_EQ(wan.capFlag, "ch07.done");
     EXPECT_EQ(wan.capTier, 4) << "用户 2026-11-21 定：封在四档";
     EXPECT_EQ(wan.duo, "magic_duo_huanhuo") << "合招照旧挂在顶层：第 8 章起也一样";
-    // 路 N 填数之前：不加法术、不加被动、没有在册加成与切磋——战斗行为不变。路 N 填了之后这一条要跟着改。
+    // 按档的法术、被动、这一段的合招只写在第 7 章的角色上（chen_shimei、nangong_wan_ch07）；
+    // 南宫婉问名之前那一段（baiyi_shaonv，主线墨蛟那一仗）与第 8 章起的 nangong_wan 一个字都没加。
+    const std::set<std::string> kitted{"chen_shimei", "nangong_wan_ch07"};
     for (const auto* c : {&chen, &wan}) {
         for (const auto& role : c->roles) {
-            EXPECT_TRUE(role.tierMagics.empty()) << c->id << " / " << role.roleId;
-            EXPECT_EQ(role.passive.kind, PerkKind::None) << c->id << " / " << role.roleId;
-            EXPECT_TRUE(role.duo.empty()) << c->id << " / " << role.roleId;
+            const bool want = kitted.count(role.roleId) != 0;
+            EXPECT_EQ(role.tierMagics.size(), want ? 2u : 0u) << c->id << " / " << role.roleId;
+            EXPECT_EQ(role.passive.kind != PerkKind::None, want) << c->id << " / " << role.roleId;
         }
-        EXPECT_EQ(c->rosterBonus.kind, PerkKind::None) << c->id;
-        EXPECT_TRUE(c->sparBattle.empty()) << c->id;
+        EXPECT_NE(c->rosterBonus.kind, PerkKind::None) << c->id;
+        EXPECT_EQ(c->sparBattle, "spar_" + c->id) << c->id;
     }
+    EXPECT_EQ(chen.roles.front().duo, "magic_duo_jianren") << "陈巧倩的合招只挂在第 7 章那一段";
+    EXPECT_TRUE(chen.duo.empty()) << "顶层不写：chen_shimei 第 8 章还在用，不能带过去";
+    for (const auto& role : wan.roles) EXPECT_TRUE(role.duo.empty()) << role.roleId;
 }
 
 TEST(TongdaoRepoData, EveryTongdaoFlagForTheThreePeopleIsRegistered) {
@@ -309,10 +318,16 @@ TEST(TongdaoBattleLoader, SparDefaultsOffAndWhenOnItMustBeSafe) {
     EXPECT_FALSE(loadBattleText(R"(, "spar": true, "hero_absent": true)").ok);
 }
 
-TEST(TongdaoBattleLoader, NoExistingFormationIsASpar) {
+// 路 N（docs/ch07-tongdaolu-n.md 第 8 节）改：原先钉「现有编成一份都不是切磋」（切磋编成归路 N），
+// 路 N 加了三份之后改钉「是切磋的恰是那三份 spar_<伙伴 id>」——别的编成一份都没变成切磋。
+TEST(TongdaoBattleLoader, OnlyTheThreeSparFormationsAreSpars) {
     const auto loaded = fanren::io::loadBattles((repoRoot() / "data" / "battles").string());
     ASSERT_TRUE(loaded.ok) << loaded.error;
-    for (const auto& [id, setup] : loaded.value) EXPECT_FALSE(setup.spar) << id << "（切磋编成归路 N）";
+    std::set<std::string> spars;
+    for (const auto& [id, setup] : loaded.value) {
+        if (setup.spar) spars.insert(id);
+    }
+    EXPECT_EQ(spars, (std::set<std::string>{"spar_chen_qiaoqian", "spar_han_yunzhi", "spar_nangong_wan"}));
 }
 
 }  // namespace
