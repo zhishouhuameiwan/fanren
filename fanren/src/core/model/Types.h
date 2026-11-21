@@ -111,7 +111,12 @@ enum class MagicBoost { Power, Hits };
 //   Reveal ：天眼术「看破」——施展一次，本场所有敌人的破绽全部揭开。不伤人、不削架势、不吃蓄劲。
 //   Stagger：削架势——一个敌人的架势减 Magic::stagger 点，削到 0 就破势。不判破绽、不伤人、不吃蓄劲。
 // 与 power > 0 / poison > 0 互斥（加载器报错）：一门法术要么伤人，要么看破或削架势。追加在末尾。
-enum class MagicEffect { None, Reveal, Stagger };
+// 同道录 2a（docs/ch07-tongdaolu.md 3.3）追加四种辅助效果，都不伤人（power 必须为 0），量写在 Magic::amount：
+//   Heal   ：给一名我方回 amount 点气血（倒下的不行）；
+//   Ward   ：给一名我方挂一层护持，挡下他受到的下一击（那一击伤害记 0）；
+//   Bulwark：我方全员到本回合结束受伤减 amount%（1–90）；不挑目标；
+//   Bind   ：令一名敌人失去它的下一次行动（定身）；首领（一回合多动或会蓄势）与不能逃的仗里的敌人无效。
+enum class MagicEffect { None, Reveal, Stagger, Heal, Ward, Bulwark, Bind };
 
 // Ordinary damage spell scope (Chapter 10 contract E3); independent of charged attacks.
 enum class MagicTarget { Single, All };
@@ -142,6 +147,13 @@ struct Magic {
 
     // Optional JSON "target": "single" | "all". Append to preserve old aggregate initializers.
     MagicTarget target = MagicTarget::Single;
+
+    // ---- 同道录 2a（docs/ch07-tongdaolu.md 3.3），追加在末尾 ----
+    // 基础段数（数据字段 "hits"，1–5，缺省 1）：一次施展打几段，每段单独算伤害、单独判破绽（「双剑并出」）。
+    // 连发型蓄劲在它上面再加段数。只对伤人的法术有意义。
+    int hits = 1;
+    // 辅助效果的量（数据字段 "amount"）：Heal 回多少气血、Bulwark 减伤百分之几；别的效果不读。
+    int amount = 0;
 };
 
 // 法术这一击是什么类别：它的五行；带毒的再加一个「毒」（docs/octopath-battle.md 2.2）。
@@ -356,9 +368,58 @@ struct PathAction;
 // 伙伴是「人」，角色（data/roles）是「她那时候的样子」：同一位伙伴按剧情先后用过几个角色 id。
 // **队伍里存的仍然是角色 id**（GameState::party），伙伴数据只回答两件事，各收在一个函数里：
 // 这个角色属于哪位伙伴、这位伙伴此刻该用哪个角色（core/rules/Companions.h）。
+// ---- 同道录（第 7 章第二期 2a，docs/ch07-tongdaolu.md 第 3 节；接口文档 docs/ch07-tongdaolu-k.md）----
+//
+// 伙伴表第二版多出来的东西。缺省值就是改版前的行为：旧表一个字不写，读进来一切照旧。
+// 这些东西**只在第 7 章的战斗与历练里生效**，判据收在 rules::rosterEffectsActive 一处。
+
+// 同道录里的哪一类：人物（南宫婉、陈巧倩、菡云芝）还是灵兽（2b）。数据字段 "kind": "person" | "beast"。
+enum class CompanionKind { Person, Beast };
+
+// 默契五档的档名走哪条「线」（施工图 3.2 的表）。数据字段 "line"。门槛五条线都一样，只是档名不同。
+enum class BondLine { General, Hongyan, Moni, Beast };
+
+// 被动与在册加成的种类：规则层一张**有限的表**（rules/Tongdao.h 的 perkInfo），数据里只许写表里的。
+// 追加在末尾；None 只表示「没写」。
+enum class PerkKind {
+    None,
+    ChasePower,      // 伙伴被动：她追击的伤害 +N%
+    OpeningBp,       // 伙伴被动：她在场时我方全员开场多 N 点劲（与先手、同修不叠加，取大）
+    VictoryHeal,     // 伙伴被动：打赢之后我方站着的人各回 N% 气血
+    AmbushBp,        // 在册加成：偷袭明雷得手时，我方全员开场再多 N 点劲（与先手叠加）
+    ElementStagger,  // 在册加成：主角某一属的法术打中破绽时多削 N 点架势
+    TalismanPower,   // 在册加成：用符（带 castMagic 的物品）施展的威力 +N%
+};
+
+// 一条被动 / 在册加成。value 是三档起（在册加成：生效起）的数；value5 只给伙伴被动用——五档「加强一级」之后的数。
+// element 只给 ElementStagger 用（Element 位）。
+struct CompanionPerk {
+    PerkKind kind = PerkKind::None;
+    int value = 0;
+    int value5 = 0;
+    int element = 0;
+};
+
+// 按档解锁的一门法术（挂在 roles[i] 下）：默契到 tier 档才进她的菜单。
+struct TierMagic {
+    int tier = 3;
+    std::string magicId;
+};
+
+// 切磋某一档第一次打赢给的东西。
+struct SparPrize {
+    int tier = 2;
+    std::vector<BagEntry> items;
+};
+
 struct CompanionRole {
     std::string roleId;
     std::string untilFlag;   // 置了这一段就过去了；空 = 一直有效
+
+    // ---- 同道录（2a）：只写给第 7 章的角色；第 8 章起的角色不写，行为不变 ----
+    std::vector<TierMagic> tierMagics;   // 按档解锁的法术（她角色表里的 magics 是一档就会的）
+    CompanionPerk passive;               // 三档起的被动，五档加强一级（value5）；kind None = 没有
+    std::string duo;                     // 这一段的合招；空 = 照用伙伴顶层的 duo
 };
 
 struct Companion {
@@ -370,6 +431,17 @@ struct Companion {
     std::string duo;                    // 合招（data/magics 的一条）；空 = 没有
     std::vector<std::string> giftsLike;     // 物品 id
     std::vector<std::string> giftsDislike;  // 物品 id；两张表都没列的算寻常
+
+    // ---- 同道录（2a），一律追加在末尾 ----
+    CompanionKind kind = CompanionKind::Person;
+    BondLine line = BondLine::General;
+    // 封顶：capFlag 置位之前，默契最高到第 capTier 档（数值到那一档的上一档门槛减一为止，四档 = 94）。
+    // capTier 0 = 不封顶。
+    std::string capFlag;
+    int capTier = 0;
+    CompanionPerk rosterBonus;          // 在册加成；kind None = 没有
+    std::string sparBattle;             // 切磋的编成 id（spar: true）；空 = 不能切磋
+    std::vector<SparPrize> sparPrizes;  // 按 tier 升序，每档至多一条
 };
 
 // 韩立与一位伙伴之间的默契账（docs/interfaces-companions.md 2.2、2.3）。
@@ -709,6 +781,12 @@ struct BattleSetup {
     // 缺省 false：现有编成都没写这个字段，一场都不受影响。为真时敌方气血按我方上场人数乘系数
     //（core::battle::partyHpPercent），架势不乘。只有新写的明雷与历练编成会开它。
     bool scaleByParty = false;
+
+    // ---- 切磋编成（同道录 2a，docs/ch07-tongdaolu.md 3.4）----
+    // 缺省 false。为真时：只有主角一人上场（不带队伍）；气血见底就停、不算败北；不掉东西、不发修为；
+    // 不记「并肩打赢」的默契；不触发追击与合招；不套在册加成、伙伴被动、同修的劲；打完主角气血、法力放回开打前的数。
+    // 加载器要求 defeat_is_fatal 为假、can_escape 为假、rewards 全 0。
+    bool spar = false;
 };
 
 // ---- Tiled 地图 ----

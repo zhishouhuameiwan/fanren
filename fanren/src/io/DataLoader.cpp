@@ -375,8 +375,17 @@ core::Result<bool> loadOneMagic(const fs::path& path, std::map<std::string, Magi
             magic.effect = core::MagicEffect::Reveal;
         } else if (effect == "stagger") {
             magic.effect = core::MagicEffect::Stagger;
+        } else if (effect == "heal") {   // 同道录 2a 的四种辅助效果（Types.h 的 MagicEffect）
+            magic.effect = core::MagicEffect::Heal;
+        } else if (effect == "ward") {
+            magic.effect = core::MagicEffect::Ward;
+        } else if (effect == "bulwark") {
+            magic.effect = core::MagicEffect::Bulwark;
+        } else if (effect == "bind") {
+            magic.effect = core::MagicEffect::Bind;
         } else {
-            return core::Result<bool>::failure("法术 \"" + id + "\" 的 effect 只许 \"reveal\" 或 \"stagger\": " +
+            return core::Result<bool>::failure("法术 \"" + id +
+                                                "\" 的 effect 只许 reveal / stagger / heal / ward / bulwark / bind: " +
                                                 path.string());
         }
         if (magic.power > 0 || magic.poison > 0) {
@@ -398,6 +407,34 @@ core::Result<bool> loadOneMagic(const fs::path& path, std::map<std::string, Magi
                                                 path.string());
         }
         magic.stagger = value;
+    }
+
+    // ---- 同道录 2a（docs/ch07-tongdaolu.md 3.3）：基础段数与辅助效果的量 ----
+    // hits：1–5 的整数，只许写在伤人的法术上（辅助法术没有「段」）。
+    if (j.contains("hits")) {
+        const int value = j["hits"].is_number_integer() ? j["hits"].get<int>() : 0;
+        if (value < 1 || value > 5 || magic.effect != core::MagicEffect::None || !core::offensiveMagic(magic)) {
+            return core::Result<bool>::failure("法术 \"" + id + "\" 的 hits 必须是 1 到 5 的整数、只许写在伤人的法术上: " +
+                                                path.string());
+        }
+        magic.hits = value;
+    }
+    // amount：heal 回多少气血（1–999）、bulwark 减伤百分之几（1–90），这两种必须写；别的法术不许写。
+    {
+        const bool wants = magic.effect == core::MagicEffect::Heal || magic.effect == core::MagicEffect::Bulwark;
+        const int hi = magic.effect == core::MagicEffect::Bulwark ? 90 : 999;
+        if (j.contains("amount") != wants) {
+            return core::Result<bool>::failure("法术 \"" + id + "\" 的 amount 只许、且必须与 effect heal / bulwark 同写: " +
+                                                path.string());
+        }
+        if (wants) {
+            const int value = j["amount"].is_number_integer() ? j["amount"].get<int>() : 0;
+            if (value < 1 || value > hi) {
+                return core::Result<bool>::failure("法术 \"" + id + "\" 的 amount 必须是 1 到 " + std::to_string(hi) +
+                                                    " 的整数: " + path.string());
+            }
+            magic.amount = value;
+        }
     }
 
     if (j.contains("target")) {

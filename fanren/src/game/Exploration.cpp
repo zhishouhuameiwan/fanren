@@ -92,7 +92,7 @@ bool settle(Application& app) {
         for (const std::string& role : worldobj::fieldedCompanionRoles(state, companions)) {
             const std::string who = rules::companionOfRole(companions, role);
             if (who.empty()) continue;
-            rules::addBond(state.bonds[who], reward->bond);
+            rules::addBond(state.bonds[who], reward->bond, rules::bondCapOf(companions, who, state));
             if (!names.empty()) names += "、";
             names += app.speakerName(role);
         }

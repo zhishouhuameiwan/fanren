@@ -49,6 +49,9 @@ enum class CommandKind {
     Bubble,
     // 女角色立绘（docs/heroine-art-build.md 3.5.3）：登场卡。同样追加在末尾。
     IntroCard,
+    // 同道录 2a（docs/ch07-tongdaolu-k.md 第 5 节）：相处的四个动作、在册加成的勾选、事件图。同样追加在末尾。
+    // 读（tongdao.tier / cap / check / xuhua_pending …）走 __host，不占命令位。
+    TongdaoTongxiu, TongdaoSpar, TongdaoQingjiao, TongdaoXuhua, TongdaoBonus, ShowCg, HideCg,
 };
 
 // talk() 不给表情时的那一个（docs/interfaces-companions.md 3.9）。
@@ -96,6 +99,13 @@ inline constexpr const char* kMapBgm = "map";
 //   Tutorial    教学卡 id    -            -            -      -
 //   Bubble      文案 key     说话人 id     停留毫秒     -      -
 //   IntroCard   角色 id      -            -            -      -
+//   TongdaoTongxiu  伙伴 id  -            -            -      -        （回填 value = 默契实际加了多少）
+//   TongdaoSpar     伙伴 id  -            -            -      -        （回填同 Battle；value = 默契加了多少）
+//   TongdaoQingjiao 伙伴 id  -            -            -      -
+//   TongdaoXuhua    伙伴 id  -            演过的那一档  -      -
+//   TongdaoBonus    伙伴 id  -            1 勾上 / 0 取消 -    -
+//   ShowCg      事件图 id    -            -            -      -
+//   HideCg      -            -            -            -      -
 //
 // 注：Talk 的 a 放文案 key 而不是说话人，与契约里「a 是主参数：文案 key /
 // 地图 id / 物品 id」的排列一致 —— 各命令的 a 一律是那条命令的主体。

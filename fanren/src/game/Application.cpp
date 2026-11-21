@@ -17,6 +17,7 @@
 #include "core/rules/Bottle.h"
 #include "core/rules/Calendar.h"
 #include "core/rules/Companions.h"
+#include "core/rules/Tongdao.h"
 #include "core/rules/Field.h"
 #include "core/rules/Lilian.h"
 #include "core/rules/Lore.h"
@@ -38,6 +39,8 @@
 #include "game/ShopScene.h"
 #include "game/TitleScene.h"
 #include "game/TutorialScene.h"
+#include "game/TongdaoPage.h"
+#include "game/TongxiuScene.h"
 #include "game/WorldScene.h"
 #include "io/BattleLoader.h"
 #include "io/DataLoader.h"
@@ -196,6 +199,7 @@ core::Result<bool> Application::init(const std::string& assetRoot, bool headless
     assetRoot_ = assetRoot;
     portraits_.setRoot(assetRoot_);
     busts_.setRoot(assetRoot_);
+    cgBook_.setRoot(assetRoot_);   // 同道录 2a·路 U：事件图表与图同样从游戏根取
     bustStage_.clear();
     bustOwner_ = 0;
     headless_ = headless;
@@ -281,6 +285,7 @@ core::Result<bool> Application::init(const std::string& assetRoot, bool headless
     });
     auto scriptsReady = scripts_->init(assetRoot_ + "/scripts", &state_);
     if (!scriptsReady) return core::Result<bool>::failure(scriptsReady.error);
+    scripts_->setGameData(&data_);   // 同道录 2a：tongdao.* 的查询要读伙伴表
 
     // 路径行动的数据（data_.pathActions）此刻已在：接上世界层的气泡与 E 键。
     WorldScene::setPathActionHooks(&pathBubbleHook, &pathActionHook);
@@ -589,6 +594,7 @@ void Application::returnToTitle() {
     // 历练里返回首页：那一趟就此作罢（与读档、新开局同一个口径），不然 inLilian() 还为真，
     // 回到首页再「继续旅程」之前，存档闸、worldObjects() 都还指着那一趟。
     lilian_.reset();
+    currentCg_.clear();
     replaceScene(std::make_unique<TitleScene>());
 }
 
@@ -597,6 +603,7 @@ core::Result<bool> Application::startNewJourney() {
     // 回看面板里不该翻出上一局的话。
     state_ = core::GameState{};
     lilian_.reset();
+    currentCg_.clear();
     dialogueLog_.clear();
     spokenKeys_.clear();
     pendingCards_.clear();
@@ -617,6 +624,7 @@ core::Result<bool> Application::continueJourney(const std::string& savePath) {
     if (!save) return core::Result<bool>::failure(save.error);
     state_ = std::move(save.value);
     lilian_.reset();   // 档里没有历练状态：读档就是回到进去之前那一份
+    currentCg_.clear();
     // 存档里带着地图 id 与坐标：载图会把人摆到出生点，所以坐标要在载完之后放回去。
     // 载图失败时不压任何场景：标题画面还开着，把错说出来，玩家可以改选「新的旅程」
     // （那一条会把状态整个换掉，这里读进来的半截不会带过去）。
@@ -761,6 +769,11 @@ void Application::openFacility(const core::MapObject& facility) {
         // 此地的打坐效率（map_spec 4.6 的 effectiveness，百分比；契约 docs/interfaces-p3-ch08.md 1.4）：
         // 灵眼之泉这类洞府灵脉写它，没写就是普通蒲团。非正数当缺省——门禁只放 100–300，这里只是不崩。
         const int sitePercent = propertyInt(facility.property("effectiveness"), kDefaultSitePercent);
+        // 同道录 2a·路 U：百药园的蒲团、同道录里有人物时先出「打坐」「同修」两项（开关缺省关着，见 Application.h）。
+        if (cushionChoiceEnabled_ && state_.mapId == kTongdaoMap && !TongxiuScene::partners(*this).empty()) {
+            pushScene(std::make_unique<TongxiuScene>(sitePercent > 0 ? sitePercent : kDefaultSitePercent));
+            return;
+        }
         pushScene(std::make_unique<CultivationScene>(sitePercent > 0 ? sitePercent : kDefaultSitePercent));
         return;
     }
@@ -1012,6 +1025,26 @@ core::Result<bool> Application::startEvent(const std::string& scriptPath) {
     if (scriptPath.empty()) return core::Result<bool>::failure("脚本路径为空");
     if (scripts_ == nullptr) return core::Result<bool>::failure("脚本宿主未初始化");
     return scripts_->startEvent(scriptPath);
+}
+
+rules::BondGain Application::tongxiu(const std::string& companionId) {
+    rules::BondGain gain = rules::tongxiu(data_.companions, companionId, state_);
+    // 「过一天」走平常过一天的那条路：歇息回血、药园长一天照常发生（与历练出来同一个做法）。
+    if (gain.check == rules::TongdaoCheck::Ok) advanceDays(1);
+    return gain;
+}
+
+rules::TongdaoCheck Application::startSpar(const std::string& companionId, SparDone onDone) {
+    const rules::TongdaoCheck check = rules::canSpar(data_.companions, companionId, state_);
+    if (check != rules::TongdaoCheck::Ok) return check;
+    const std::string battle = data_.companions.at(companionId).sparBattle;
+    startBattle(BattleStart{battle}, [this, companionId, onDone](const script::CommandResult& result) {
+        // 账按战果记：赢 +4、输 +2，开打时那一档的首胜奖品（rules::recordSpar）。逃不了，打成平手也只有输赢两种。
+        const rules::SparOutcome outcome = rules::recordSpar(data_.companions, companionId, state_, result.battleWon);
+        for (const core::BagEntry& entry : outcome.prize) announceItem(entry.itemId, entry.count);
+        if (onDone) onDone(outcome, result);
+    });
+    return check;
 }
 
 void Application::startBattle(const std::string& battleId, BattleOutcome onFinish) {
@@ -1643,6 +1676,60 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
             return true;
         }
 
+        // ---- 同道录 2a（docs/ch07-tongdaolu-k.md 第 5 节）----
+        case CommandKind::TongdaoTongxiu: {
+            const rules::BondGain gain = tongxiu(command.a);
+            outcome.ok = gain.check == rules::TongdaoCheck::Ok;
+            outcome.code = rules::tongdaoCheckCode(gain.check);
+            outcome.value = gain.gained;
+            return true;
+        }
+        case CommandKind::TongdaoSpar: {
+            // 开得成就等这一场打完（收场回调里再回填脚本：completeCommand 第二次进来时回调已用掉，走脚本那一路）。
+            const rules::TongdaoCheck check =
+                startSpar(command.a, [this](const rules::SparOutcome& spar, const script::CommandResult& result) {
+                    script::CommandResult out = result;
+                    out.value = spar.gained;
+                    completeCommand(out);
+                });
+            if (check == rules::TongdaoCheck::Ok) return false;
+            outcome.ok = false;
+            outcome.code = rules::tongdaoCheckCode(check);
+            return true;
+        }
+        case CommandKind::TongdaoQingjiao: {
+            const rules::TongdaoCheck check = rules::recordQingjiao(data_.companions, command.a, state_);
+            outcome.ok = check == rules::TongdaoCheck::Ok;
+            outcome.code = rules::tongdaoCheckCode(check);
+            return true;
+        }
+        case CommandKind::TongdaoXuhua: {
+            const rules::TongdaoCheck check = rules::recordXuhua(data_.companions, command.a, state_, command.x);
+            outcome.ok = check == rules::TongdaoCheck::Ok;
+            outcome.code = rules::tongdaoCheckCode(check);
+            return true;
+        }
+        case CommandKind::TongdaoBonus: {
+            // 勾选只是一面旗：取消就清成 0，不留「勾过」的残影。查不到这位不写。
+            if (data_.companions.count(command.a) == 0) {
+                outcome.ok = false;
+                outcome.code = rules::tongdaoCheckCode(rules::TongdaoCheck::NoCompanion);
+                return true;
+            }
+            state_.setFlag(rules::bonusOnFlag(command.a), command.x != 0 ? 1 : 0);
+            outcome.ok = true;
+            return true;
+        }
+        case CommandKind::ShowCg:
+            // 画面归路 U：这里只记下 id（currentCg），就地完成。
+            currentCg_ = command.a;
+            outcome.ok = true;
+            return true;
+        case CommandKind::HideCg:
+            currentCg_.clear();
+            outcome.ok = true;
+            return true;
+
         // ---- 伙伴改版：默契加分（docs/interfaces-companions.md 2.2、3.8）----
         case CommandKind::BondAdd: {
             // 伙伴 id 必须在 data/companions 里查得到：拼错的 id 记下一笔谁也读不到的账，
@@ -1659,7 +1746,8 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
                 return true;
             }
             // 脚本自己保证只演一次，这里不设每天的上限。
-            outcome.ok = rules::addBond(state_.bonds[command.a], command.x);
+            outcome.ok = rules::addBond(state_.bonds[command.a], command.x,
+                                        rules::bondCapOf(data_.companions, command.a, state_));   // 同道录 2a 的封顶
             return true;
         }
 
@@ -1822,6 +1910,8 @@ void Application::tick(double deltaSeconds) {
     flushChapterCards();
     // 教学卡与见闻提示（第一期地基包）：同样排在改栈之前。
     watchGuide();
+    watchTongdao();   // 同道录 2a·路 U：升档 / 入册提示
+    cgStage_.advance(currentCg_, deltaSeconds);
     flushTutorials();
 
     // 帧末统一改栈，避免在 update 中途让容器失效。
@@ -1883,7 +1973,13 @@ void Application::drawScenes() {
     }
     // 第一期地基包集成：这一帧画出来的世界层（没画就是空）。得物卡片、「已跳过 N 句」照它的 HUD 让位。
     const WorldScene* drawnWorld = nullptr;
+    // 同道录 2a·路 U：事件图画在最底下那一层之上、对话框之下；最底下就是对话框（没有世界层）时画在它前面。
+    bool cgDrawn = cgStage_.empty();
     for (std::size_t i = first; i < scenes_.size(); ++i) {
+        if (!cgDrawn && dynamic_cast<DialogueScene*>(scenes_[i].get()) != nullptr) {
+            drawCgStage(*engine_, cgBook_, headless_, cgStage_);
+            cgDrawn = true;
+        }
         scenes_[i]->render(*this);
         if (const auto* world = dynamic_cast<const WorldScene*>(scenes_[i].get())) drawnWorld = world;
         // 脚本 fade.out 的黑幕：紧贴着世界层画，压住地图、人物、HUD，却压不住它上面的
@@ -1916,6 +2012,10 @@ void Application::drawScenes() {
         // 地基包路 D：插话气泡紧贴世界层画，对话框压在它上面。
         if (speechBubbles_.active() && dynamic_cast<WorldScene*>(scenes_[i].get()) != nullptr) {
             drawSpeechBubbles();
+        }
+        if (i == first && !cgDrawn) {
+            drawCgStage(*engine_, cgBook_, headless_, cgStage_);
+            cgDrawn = true;
         }
     }
     // 地基包路 D：「已跳过 N 句」画在最上面——跳到选择时它要压在选择框之上才看得见。
@@ -2021,6 +2121,9 @@ void Application::flushTutorials() {
 }
 
 void Application::resetGuideWatch() {
+    tongdaoBaselined_ = false;   // 同道录 2a·路 U：升档 / 入册提示重记一遍
+    tongdaoMarks_.clear();
+    cgStage_.clear();
     guideBaselined_ = false;
     loreKnown_.clear();
     guideObjective_.clear();
@@ -2205,6 +2308,56 @@ WorldScene* Application::worldScene() {
         if (auto* world = dynamic_cast<WorldScene*>(it->get())) return world;
     }
     return nullptr;
+}
+
+}  // namespace fanren::game
+
+namespace fanren::game {
+// ---------------------------------------------------------------------------
+// 同道录 2a·路 U：界面（docs/ch07-tongdaolu-u.md）
+// ---------------------------------------------------------------------------
+
+void Application::tongdaoTutorial(const std::string& event) {
+    if (!tutorialsEnabled_ || event.empty()) return;
+    const core::TutorialCard* card = rules::tutorialForEvent(data_.tutorials, event, state_, chapterDoneFn());
+    if (card == nullptr || rules::tutorialSeen(*card, state_)) return;
+    // 排在队里的同一张不再另弹。
+    pendingTutorials_.erase(std::remove(pendingTutorials_.begin(), pendingTutorials_.end(), card->id),
+                            pendingTutorials_.end());
+    state_.flags[rules::tutorialSeenFlag(card->id)] = 1;
+    tutorialLog_.push_back(card->id);
+    if (settings_.tutorialCards) pushScene(std::make_unique<TutorialScene>(card->id));
+}
+
+void Application::watchTongdao() {
+    // 只在有窗口、第 7 章里报；无头一样不记（不改任何状态，也不留基线：开窗口那一局从头记起）。
+    if (headless_) return;
+    std::map<std::string, TongdaoMark> now;
+    for (const auto& [id, companion] : data_.companions) {
+        TongdaoMark mark;
+        mark.met = rules::inRoster(companion, state_);
+        mark.tier = rules::bondTier(state_.bondOf(id));
+        now.emplace(id, mark);
+    }
+    if (tongdaoBaselined_ && rules::rosterEffectsActive(state_)) {
+        for (const auto& [id, mark] : now) {
+            const auto before = tongdaoMarks_.find(id);
+            if (!mark.met) continue;
+            const core::Companion& companion = data_.companions.at(id);
+            const std::string role = rules::currentRole(data_.companions, id, state_);
+            const core::RoleTemplate* tmpl = role.empty() ? nullptr : data_.findRole(role);
+            const std::string name = tmpl != nullptr ? tmpl->name : id;
+            if (before == tongdaoMarks_.end() || !before->second.met) {
+                loreNotices_.push(tongdaoFill(data_.lookupText("ui.tongdao.joined"), "{name}", name));
+            } else if (mark.tier > before->second.tier) {
+                std::string line = tongdaoFill(data_.lookupText("ui.tongdao.tierup"), "{name}", name);
+                line = tongdaoFill(line, "{tier}", data_.lookupText(rules::bondTierNameKey(companion.line, mark.tier)));
+                loreNotices_.push(std::move(line));
+            }
+        }
+    }
+    tongdaoMarks_ = std::move(now);
+    tongdaoBaselined_ = true;
 }
 
 }  // namespace fanren::game

@@ -153,8 +153,23 @@ bool BattleState::checkMagicTarget(const Action& a, const Magic& magic, const Un
         (magic.effect != MagicEffect::None || !offensiveMagic(magic))) {
         return deny(why, "全体只许用于伤人的法术");
     }
-    // 看破照的是整个场子，不挑目标：targetIndex 不看。
-    if (magic.effect == MagicEffect::Reveal) return true;
+    // 看破照的是整个场子，不挑目标：targetIndex 不看。剑幕（同道录 2a）护的是自己这一边的全员，同样不挑。
+    if (magic.effect == MagicEffect::Reveal || magic.effect == MagicEffect::Bulwark) return true;
+    // 回血、护持（同道录 2a）是给自己人的：目标是站着的同伴（自己也行）。
+    if (magic.effect == MagicEffect::Heal || magic.effect == MagicEffect::Ward) {
+        if (!validIndex(a.targetIndex)) return deny(why, "目标不存在");
+        const Unit& target = unitRef(a.targetIndex);
+        if (!target.alive()) return deny(why, target.name + " " + absenceReason(target));
+        if (target.ally != u.ally) return deny(why, "【" + magic.name + "】只能用在自己人身上");
+        // 满血的人回不了血、已经有护持的再挂一层也只是一层：拦在前头，法力与物品都不扣（与解毒药同一个口径）。
+        if (magic.effect == MagicEffect::Heal && target.hp >= target.maxHp) {
+            return deny(why, target.name + " 气血是满的，用不上【" + magic.name + "】");
+        }
+        if (magic.effect == MagicEffect::Ward && target.warded(round_)) {
+            return deny(why, target.name + " 已经有护持了");
+        }
+        return true;
+    }
     if (!checkEnemyTarget(a.targetIndex, u, why)) return false;
     if (magic.effect == MagicEffect::Stagger) {
         // 没有架势可削、已经破势：拦在前头并说清楚，法力与物品都不扣——与「解毒药用在
@@ -162,6 +177,12 @@ bool BattleState::checkMagicTarget(const Action& a, const Magic& magic, const Un
         const Unit& target = unitRef(a.targetIndex);
         if (target.maxToughness <= 0) return deny(why, target.name + " 没有架势可削");
         if (target.broken()) return deny(why, target.name + " 已经破势");
+    }
+    if (magic.effect == MagicEffect::Bind) {
+        const Unit& target = unitRef(a.targetIndex);
+        if (bindImmune(a.targetIndex)) return deny(why, target.name + " 定不住");
+        if (target.status.bindSkips > 0) return deny(why, target.name + " 已经被定住了");
+        if (round_ <= target.status.bindImmuneUntilRound) return deny(why, target.name + " 刚挣脱定身，一时定不住");
     }
     return true;
 }
@@ -303,12 +324,21 @@ int BattleState::hitCount(const Action& action) const {
         case ActionKind::Attack:
             return 1 + boost;
         case ActionKind::Cast: {
+            // 基础段数（Magic::hits，同道录 2a 的「双剑并出」；缺省 1）上再加连发型蓄劲的段数。
             const Magic* magic = findMagic(action.magicId);
-            return magic != nullptr && magic->boost == MagicBoost::Hits ? 1 + boost : 1;
+            if (magic == nullptr) return 1;
+            const int base = std::max(1, magic->hits);
+            return magic->boost == MagicBoost::Hits ? base + boost : base;
         }
-        // 道具施法恒一击：连发型的法术装进符里也只打一发——不吃劲（契约 2.3）。合招同样不吃劲（3.3）。
-        case ActionKind::Item:
-        case ActionKind::Duo:
+        // 道具施法与合招不吃劲（契约 2.3、3.3）：连发型的法术装进符里也只打它的基础段数。
+        case ActionKind::Item: {
+            const Magic* magic = castMagicOf(action);
+            return magic == nullptr ? 1 : std::max(1, magic->hits);
+        }
+        case ActionKind::Duo: {
+            const Magic* magic = findMagic(action.magicId);
+            return magic == nullptr ? 1 : std::max(1, magic->hits);
+        }
         case ActionKind::Defend:
         case ActionKind::Escape:
         case ActionKind::Charge:
@@ -324,6 +354,10 @@ int BattleState::finalDamage(int baseDamage, const Unit& attacker, const Unit& t
     double damage = baseDamage;
     if (target.broken()) damage = damage * kBrokenDamagePercent / 100.0;
     if (target.guarding) damage = damage * kGuardDamagePercent / 100.0;
+    // 剑幕（同道录 2a）：张开的那一回合里受伤减几成。
+    if (target.status.bulwarkPercent > 0 && target.status.bulwarkRound == round_) {
+        damage = damage * (100 - target.status.bulwarkPercent) / 100.0;
+    }
     if (attacker.charging) damage *= attacker.chargeMult;
     const auto rounded = static_cast<int>(std::lround(damage));
     return rounded < 1 ? 1 : rounded;
@@ -342,23 +376,20 @@ int BattleState::estimateHitDamage(const Action& action, int targetIndex) const 
         }
         case ActionKind::Cast: {
             const Magic* magic = findMagic(action.magicId);
-            if (magic == nullptr) return 0;
-            const int power = magic->boost == MagicBoost::Power
-                                  ? magic->power * (1 + std::max(0, action.boost))
-                                  : magic->power;
-            const int base = magicDamage(power, target.defence, attacker.realm, target.realm,
-                                         magic->element, target.element);
+            if (magic == nullptr || !offensiveMagic(*magic)) return 0;
+            const int base = magicDamage(castPower(action, *magic, nullptr, false), target.defence, attacker.realm,
+                                         target.realm, magic->element, target.element);
             return finalDamage(base, attacker, target);
         }
         case ActionKind::Item: {
-            // 道具施法按那门法术、劲 0 估（契约 docs/interfaces-p3-ch07.md 2.3）；别的物品不是打人的。
+            // 道具施法按那门法术、劲 0 估（契约 docs/interfaces-p3-ch07.md 2.3），符的威力加成照算；
+            // 别的物品不是打人的。
             const Magic* magic = castMagicOf(action);
-            if (magic == nullptr) return 0;
-            Action asCast = action;
-            asCast.kind = ActionKind::Cast;
-            asCast.magicId = magic->id;
-            asCast.boost = 0;
-            return estimateHitDamage(asCast, targetIndex);
+            if (magic == nullptr || !offensiveMagic(*magic)) return 0;
+            const Item* item = findItem(action.magicId);
+            const int base = magicDamage(castPower(action, *magic, item, false), target.defence, attacker.realm,
+                                         target.realm, magic->element, target.element);
+            return finalDamage(base, attacker, target);
         }
         case ActionKind::Duo: {
             // 合招：那门法术、劲 0、威力 ×kDuoPowerPercent，境界压制按发起人算。
@@ -448,9 +479,27 @@ std::string BattleState::applyCast(const Action& a) {
     return resolveMagic(a, magic, nullptr);
 }
 
+int BattleState::castPower(const Action& a, const Magic& magic, const Item* viaItem, bool duo) const {
+    if (duo) return duoPower(magic.power);
+    if (viaItem != nullptr) {
+        // 在册加成 talisman_power（同道录 2a）：符施展的威力加几成，四舍五入。缺省 0 = 原样。
+        return talismanPowerPercent_ <= 0 ? magic.power : (magic.power * (100 + talismanPowerPercent_) + 50) / 100;
+    }
+    return magic.boost == MagicBoost::Power ? magic.power * (1 + std::max(0, a.boost)) : magic.power;
+}
+
+int BattleState::extraStaggerOf(const Unit& caster, int category) const {
+    int extra = 0;
+    for (const Unit::ExtraStagger& bonus : caster.extraStagger) {
+        if ((bonus.categories & category) != 0) extra += std::max(0, bonus.amount);
+    }
+    return extra;
+}
+
 std::string BattleState::resolveMagic(const Action& a, const Magic& magic, const Item* viaItem, int duoPartner) {
     if (magic.effect == MagicEffect::Reveal) return applyReveal(a, magic, viaItem, duoPartner);
     if (magic.effect == MagicEffect::Stagger) return applyStagger(a, magic, viaItem, duoPartner);
+    if (magic.effect != MagicEffect::None) return applySupport(a, magic, viaItem, duoPartner);
     Unit& caster = unitRef(a.actorIndex);
     const bool duo = duoPartner >= 0;
     // 道具施法与施法只差三处（契约 docs/interfaces-p3-ch07.md 2.3）：① 不扣法力；② 不吃蓄劲
@@ -464,9 +513,9 @@ std::string BattleState::resolveMagic(const Action& a, const Magic& magic, const
     const int category = magicCategories(magic);
     const int hits = hitCount(a);
     // 威力型蓄劲：威力 ×(1+N) 喂进同一条公式，仍是一击。
-    const int power = duo ? duoPower(magic.power)
-                      : magic.boost == MagicBoost::Power ? magic.power * (1 + std::max(0, a.boost))
-                                                         : magic.power;
+    const int power = castPower(a, magic, viaItem, duo);
+    // 在册加成 element_stagger：主角自己施法（含合招）的这一类打中破绽时多削几点。符不算。
+    const int extraStagger = viaItem == nullptr ? extraStaggerOf(caster, category) : 0;
     const bool heavy = caster.charging;
     const bool all = magic.target == MagicTarget::All || (heavy && caster.chargeAll);
 
@@ -490,7 +539,7 @@ std::string BattleState::resolveMagic(const Action& a, const Magic& magic, const
             if (!first) text += "；";
             first = false;
             if (all) text += "波及 " + t.name + "，";
-            text += strike(a.actorIndex, target, base, category, hit, hits);
+            text += strike(a.actorIndex, target, base, category, hit, hits, extraStagger);
         }
         // 法术是毒的第二条来源（契约第 2.3 节）。下毒在伤害之后：目标已经倒下时
         // 再挂一层毒只会在日志上留下一句看不懂的话。一发法术只下一次毒，不按连发数叠。
@@ -568,18 +617,79 @@ std::string BattleState::applyStagger(const Action& a, const Magic& magic, const
     return text;
 }
 
+std::string BattleState::applySupport(const Action& a, const Magic& magic, const Item* viaItem, int duoPartner) {
+    // 同道录 2a（docs/ch07-tongdaolu.md 3.3）的四种辅助效果。扣法力（道具不扣）；不吃蓄劲（checkBoost 放行、
+    // 这里不扣）；不是一击：不判破绽、不伤人。合法性（目标、满血、已有护持、定不住）已在 checkMagicTarget 判过。
+    Unit& caster = unitRef(a.actorIndex);
+    if (viaItem == nullptr && duoPartner < 0) caster.mp -= magic.needMp;
+    const std::string head =
+        castOpener(caster, magic, viaItem, duoPartner >= 0 ? &unitRef(duoPartner) : nullptr);
+    const std::string lead = viaItem != nullptr ? "" : "，";
+    const int target = magic.effect == MagicEffect::Bulwark ? -1 : a.targetIndex;
+    emitCastAct(a, target, magicCategories(magic), viaItem, duoPartner, 1, head);
+    switch (magic.effect) {
+        case MagicEffect::Heal: {
+            Unit& t = unitRef(a.targetIndex);
+            const int gain = std::max(0, std::min(magic.amount, t.maxHp - t.hp));
+            t.hp += gain;
+            BattleEvent heal{BattleEventKind::Heal, a.actorIndex, a.targetIndex, gain, 0};
+            heal.hp = t.hp;
+            heal.toughness = t.toughness;
+            emit(std::move(heal));
+            return head + lead + t.name + " 回复 " + std::to_string(gain) + " 点气血";
+        }
+        case MagicEffect::Ward: {
+            Unit& t = unitRef(a.targetIndex);
+            t.status.wardCharges = 1;
+            t.status.wardUntilRound = round_ + 1;
+            emit(BattleEvent{BattleEventKind::Ward, a.actorIndex, a.targetIndex});
+            return head + lead + t.name + " 身前多了一层护持，可挡下一击";
+        }
+        case MagicEffect::Bulwark: {
+            for (Unit& u : units_) {
+                if (u.ally != caster.ally || !u.alive()) continue;
+                u.status.bulwarkPercent = magic.amount;
+                u.status.bulwarkRound = round_;
+            }
+            emit(BattleEvent{BattleEventKind::Bulwark, a.actorIndex, -1, magic.amount});
+            return head + lead + "本回合众人受伤减 " + std::to_string(magic.amount) + "%";
+        }
+        case MagicEffect::Bind: {
+            Unit& t = unitRef(a.targetIndex);
+            t.status.bindSkips = 1;
+            emit(BattleEvent{BattleEventKind::Bind, a.actorIndex, a.targetIndex});
+            return head + lead + t.name + " 被定住，下一次轮到它时动弹不得";
+        }
+        case MagicEffect::None:
+        case MagicEffect::Reveal:
+        case MagicEffect::Stagger:
+            break;
+    }
+    return head;
+}
+
 std::string BattleState::strike(int attackerIndex, int targetIndex, int baseDamage, int category,
-                                int hit, int hits) {
+                                int hit, int hits, int extraStagger) {
     // 伤害先按**这一击出手那一刻**的状态落下去，再判破绽：把它打到破势的这一击本身
     // 不吃 ×2，同一手里之后的几击才吃——八方旅人也是这么算的，而且只有这样，
     // 「蓄满劲先破势」与「破势之后再蓄满劲」才是两种不同的打法。
     const Unit& attacker = unitRef(attackerIndex);
     StrikeOutcome out;
+    // 护持（同道录 2a）：这一击整个挡下——不伤人；破绽照判（挡的是伤，不是招式）。挡过就没了。
+    if (!devour_ && unitRef(targetIndex).warded(round_)) {
+        Unit& target = unitRef(targetIndex);
+        --target.status.wardCharges;
+        std::string text = target.name + " 的护持挡下了这一击";
+        text += resolveWeakness(targetIndex, category, out, extraStagger);
+        emitStrike(attackerIndex, targetIndex, category, hit, hits, out);
+        emit(BattleEvent{BattleEventKind::WardBlock, attackerIndex, targetIndex});
+        return text;
+    }
     out.damage = devour_ ? baseDamage : finalDamage(baseDamage, attacker, unitRef(targetIndex));
     const int killableBy = unitRef(targetIndex).killableBy;
     const bool lethal = killableBy == 0 || (category & killableBy) != 0;
     std::string text = inflict(targetIndex, out.damage, attackerIndex, out, lethal);
-    text += resolveWeakness(targetIndex, category, out);
+    text += resolveWeakness(targetIndex, category, out, extraStagger);
     emitStrike(attackerIndex, targetIndex, category, hit, hits, out);
     return text;
 }
@@ -620,7 +730,7 @@ void BattleState::emitBreak(int attackerIndex, int targetIndex, const StrikeOutc
     if (out.interrupted) emit(BattleEvent{BattleEventKind::ChargeInterrupt, attackerIndex, targetIndex});
 }
 
-std::string BattleState::resolveWeakness(int targetIndex, int category, StrikeOutcome& out) {
+std::string BattleState::resolveWeakness(int targetIndex, int category, StrikeOutcome& out, int extraStagger) {
     Unit& target = unitRef(targetIndex);
     if (devour_ || category == kCategoryNone) return {};
 
@@ -642,7 +752,7 @@ std::string BattleState::resolveWeakness(int targetIndex, int category, StrikeOu
     std::string text = "，破绽「" + categoryNames(hitWeak) + "」";
     // 已经破势的不再削：架势就是 0，再削也还是 0。这一击已经把它打倒的也不必削。
     if (target.broken() || !target.alive()) return text;
-    target.toughness = std::max(0, target.toughness - 1);
+    target.toughness = std::max(0, target.toughness - 1 - std::max(0, extraStagger));
     if (target.toughness == 0) breakUnit(targetIndex, text, out);
     return text;
 }

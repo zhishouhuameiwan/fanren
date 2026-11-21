@@ -453,3 +453,100 @@ function intro_card(role_id)
     assert(type(role_id) == "string" and role_id ~= "", "intro_card() 需要角色 id")
     emit{ kind = "intro_card", a = role_id }
 end
+
+-- ---------------------------------------------------------------------------
+-- 同道录（第 7 章第二期 2a，docs/ch07-tongdaolu.md 第 3 节；接口清单 docs/ch07-tongdaolu-k.md 第 5 节）
+--
+-- 同一条分界：写走命令队列，读走 __host。参数是**伙伴 id**（data/companions/）。
+-- 记账全在规则层（core/rules/Tongdao.h）：这里每个动作都先判能不能做，不能做就什么都不写，
+-- 返回 ok, code；code 为 ASCII 机器码，成功时是空串：
+--   "no_companion" 没有这位        "not_met"   还没进同道录      "not_person" 灵兽不做这件事
+--   "tier_low"     默契不够档      "done_today" 今天做过了       "already"    只做一次的做过了 / 没有待演的
+--   "no_spar"      她的表里没写切磋编成
+-- 地点（只在百药园）由界面判，这里不判。
+-- ---------------------------------------------------------------------------
+
+tongdao = {
+    -- ---- 只读 ----
+    -- 第 7 章的新战斗效果此刻生不生效（rules::rosterEffectsActive）。
+    effects_active = function() return __host.tongdao_effects_active() end,
+    -- 同道录上的伙伴 id（按 id 排）。
+    roster = function() return __host.tongdao_roster() end,
+    in_roster = function(id) return __host.tongdao_in_roster(id or "") end,
+    -- "person" / "beast"；没有这位是空串。
+    kind = function(id) return __host.tongdao_kind(id or "") end,
+    -- "general" / "hongyan" / "moni" / "beast"；没有这位是空串。
+    line = function(id) return __host.tongdao_line(id or "") end,
+    -- 第几档（1–5），与 bond.tier 同一个数。
+    tier = function(id) return __host.bond_tier(id or "") end,
+    -- 这一档的档名文案 key（按她的线）；tier 省略取她此刻的档。
+    tier_name = function(id, tier)
+        return __host.tongdao_tier_name(id or "", tier or __host.bond_tier(id or ""))
+    end,
+    -- 此刻最高到第几档（封顶没解开时是封顶那一档，否则 5）；没有这位答 0。
+    cap_tier = function(id) return __host.tongdao_cap_tier(id or "") end,
+    -- 能不能做：action 是 "tongxiu" / "spar" / "qingjiao"；返回 ok, code。
+    can = function(action, id)
+        local code = __host.tongdao_check(action or "", id or "")
+        return code == "", code
+    end,
+    qingjiao_done = function(id) return __host.tongdao_qingjiao_done(id or "") end,
+    -- 下一段该演第几档的叙话事件（2–5）；没有待演的是 0。
+    xuhua_pending = function(id) return __host.tongdao_xuhua_pending(id or "") end,
+    -- 已演到第几档（0 = 一段没演）。
+    xuhua_done = function(id) return __host.tongdao_xuhua_done(id or "") end,
+    -- 在册加成：解锁了没有、此刻生不生效、勾没勾、名额几条。
+    bonus_unlocked = function(id) return __host.tongdao_bonus_unlocked(id or "") end,
+    bonus_active = function(id) return __host.tongdao_bonus_active(id or "") end,
+    bonus_selected = function(id) return __host.tongdao_bonus_selected(id or "") end,
+    bonus_slots = function() return __host.tongdao_bonus_slots() end,
+
+    -- ---- 动作 ----
+    -- 同修：默契 +4，过一天，第二天第一场战斗全队开场多 1 点劲。返回 ok, code, 实际加了多少。
+    tongxiu = function(id)
+        assert(type(id) == "string" and id ~= "", "tongdao.tongxiu() 需要伙伴 id")
+        local result = emit{ kind = "tongdao_tongxiu", a = id }
+        return result.ok == true, result.code or "", result.value or 0
+    end,
+    -- 切磋：开她那一场（编成 spar: true），等打完。返回 won, code, 默契加了多少。
+    -- 开不成时 won 为 false、code 是上面那几种之一；打完时 code 与 battle() 相同（"" 赢 / "lost" 输）。
+    spar = function(id)
+        assert(type(id) == "string" and id ~= "", "tongdao.spar() 需要伙伴 id")
+        local result = emit{ kind = "tongdao_spar", a = id }
+        return result.won == true, result.code or "", result.value or 0
+    end,
+    -- 请教：记下之后她的在册加成生效。对白由事件脚本自己演，演完调这一句。返回 ok, code。
+    qingjiao = function(id)
+        assert(type(id) == "string" and id ~= "", "tongdao.qingjiao() 需要伙伴 id")
+        local result = emit{ kind = "tongdao_qingjiao", a = id }
+        return result.ok == true, result.code or ""
+    end,
+    -- 叙话：第 tier 档那段事件演过了（只升不降）。事件脚本演完调这一句。返回 ok, code。
+    xuhua_mark = function(id, tier)
+        assert(type(id) == "string" and id ~= "", "tongdao.xuhua_mark() 需要伙伴 id")
+        assert(type(tier) == "number", "tongdao.xuhua_mark() 需要档位")
+        local result = emit{ kind = "tongdao_xuhua", a = id, x = tier }
+        return result.ok == true, result.code or ""
+    end,
+    -- 在册加成的勾选：on 为真勾上，假取消。返回 ok, code。
+    bonus_select = function(id, on)
+        assert(type(id) == "string" and id ~= "", "tongdao.bonus_select() 需要伙伴 id")
+        local result = emit{ kind = "tongdao_bonus", a = id, x = on and 1 or 0 }
+        return result.ok == true, result.code or ""
+    end,
+}
+
+-- ---------------------------------------------------------------------------
+-- 事件图（同道录 2a，施工图 3.5）
+--
+-- show_cg("id") 整屏铺一幅事件图（assets/art/cg/<id>.png，表 data/visual/cg.json），之后的 talk 叠在图上；
+-- hide_cg() 撤掉。都不等、就地完成。眼下画面还没做（归路 U）：命令走通、记下 id，屏幕上什么都不变。
+-- ---------------------------------------------------------------------------
+function show_cg(cg_id)
+    assert(type(cg_id) == "string" and cg_id ~= "", "show_cg() 需要事件图 id")
+    emit{ kind = "show_cg", a = cg_id }
+end
+
+function hide_cg()
+    emit{ kind = "hide_cg" }
+end

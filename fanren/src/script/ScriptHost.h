@@ -58,6 +58,10 @@ public:
 
     void setLogSink(LogSink sink);
 
+    // 同道录 2a（docs/ch07-tongdaolu-k.md 第 5 节）：tongdao.* 的只读查询要读伙伴表。init 之后由 game 层给一次；
+    // 不给（测试只给 state 的那些）时这些查询一律答「没有这位」。指针不归 ScriptHost 管。
+    void setGameData(const core::GameData* data);
+
 private:
     struct Impl;
     std::unique_ptr<Impl> impl_;

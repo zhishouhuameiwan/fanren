@@ -238,6 +238,8 @@ int main(int argc, char** argv) {
     app.setEncountersEnabled(true);
     // 教学卡（第一期地基包 2.3）：同一个套路，缺省关着；正常游玩打开，截图与无头不弹。
     app.setTutorialsEnabled(interactive);
+    // 同道录 2a·路 U：百药园蒲团的「打坐 / 同修」两项，同一个套路（缺省关着）；游玩与截图都打开。
+    app.setCushionChoiceEnabled(true);
 
     // ---- 系统设置（docs/settings.md 第 2 节「谁读、谁写」）----
     //

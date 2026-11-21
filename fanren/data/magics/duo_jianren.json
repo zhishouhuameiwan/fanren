@@ -1,0 +1,11 @@
+{
+  "id": "magic_duo_jianren",
+  "name": "剑刃交辉",
+  "descKey": "magic.desc.magic_duo_jianren",
+  "element": 1,
+  "needMp": 0,
+  "power": 28,
+  "needRealm": "QiRefining1",
+  "origin": "本作自拟",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：韩立与陈巧倩的合招（伙伴表 roles[0].duo，只在第 7 章、四档起）。她两口剑一左一右撕开破绽，他的金刃顺着那道口子补进去。金。威力 28，低于环火合击的 32：她是补刀的，不是主攻。合招另乘 1.6、两人各 2 点劲（契约 3.3）。"
+}

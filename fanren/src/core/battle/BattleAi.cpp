@@ -139,6 +139,26 @@ int BattleState::enemyTarget(int actorIndex, const std::vector<Action>& perTarge
 Action BattleState::allyDecision(int actorIndex) const {
     const Unit& u = unitRef(actorIndex);
 
+    // 同道录 2a：会回血法术（Magic::effect Heal）的，场上有我方气血不到四成就先救最危的那一位。
+    // 别的辅助法术（护持、剑幕、定身）AI 不用。没有这种法术的单位一个字节也不多判，改版前的打法不变。
+    {
+        int worst = -1;
+        for (std::size_t i = 0; i < units_.size(); ++i) {
+            const Unit& t = units_[i];
+            if (!t.alive() || t.ally != u.ally || t.hp * 10 >= t.maxHp * 4) continue;
+            if (worst < 0 || t.hp * unitRef(worst).maxHp < unitRef(worst).hp * t.maxHp) worst = static_cast<int>(i);
+        }
+        if (worst >= 0) {
+            for (const std::string& id : u.magics) {
+                const Magic* magic = findMagic(id);
+                if (magic == nullptr || magic->effect != MagicEffect::Heal) continue;
+                Action heal = makeAction(ActionKind::Cast, actorIndex, worst);
+                heal.magicId = id;
+                if (isLegal(heal)) return heal;
+            }
+        }
+    }
+
     // 候选：对每个站着的敌人，每一样兵刃一手普攻、每一门会的法术一手。先不蓄劲。
     std::vector<Action> options;
     for (std::size_t i = 0; i < units_.size(); ++i) {

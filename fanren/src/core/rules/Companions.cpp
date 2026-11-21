@@ -33,13 +33,27 @@ int bondTier(int value) {
     return std::max(tier, 1);
 }
 
-bool addBond(core::BondRecord& record, int amount) {
+int bondCap(const core::Companion& companion, const core::GameState& state) {
+    if (companion.capTier <= 0 || companion.capTier >= 5) return kBondMax;
+    if (!companion.capFlag.empty() && state.flag(companion.capFlag) != 0) return kBondMax;
+    return kBondTierThresholds[companion.capTier] - 1;
+}
+
+int bondCapOf(const std::map<std::string, core::Companion>& companions, const std::string& companionId,
+              const core::GameState& state) {
+    const auto it = companions.find(companionId);
+    return it == companions.end() ? kBondMax : bondCap(it->second, state);
+}
+
+bool addBond(core::BondRecord& record, int amount, int cap) {
     if (amount < 0) return false;
-    record.value = std::min(kBondMax, record.value + std::min(amount, kBondMax));
+    const int ceiling = std::clamp(cap, 0, kBondMax);
+    if (record.value >= ceiling) return true;   // 旧档里已经高过封顶的不往下压
+    record.value = std::min(ceiling, record.value + std::min(amount, kBondMax));
     return true;
 }
 
-int addBattleBond(core::BondRecord& record, int today) {
+int addBattleBond(core::BondRecord& record, int today, int cap) {
     if (record.battleDay != today) {
         record.battleDay = today;
         record.battleGainedThatDay = 0;
@@ -48,7 +62,7 @@ int addBattleBond(core::BondRecord& record, int today) {
     const int step = std::min(kBondPerBattleWin, room);
     record.battleGainedThatDay += step;
     const int before = record.value;
-    addBond(record, step);
+    addBond(record, step, cap);
     return record.value - before;
 }
 
@@ -62,7 +76,7 @@ GiftTaste giftTaste(const core::Companion& companion, const std::string& itemId)
 }
 
 GiftOutcome giveGift(core::BondRecord& record, const core::Companion& companion, const std::string& itemId,
-                     int today) {
+                     int today, int cap) {
     GiftOutcome outcome;
     outcome.taste = giftTaste(companion, itemId);
     if (record.giftDay == today) return outcome;
@@ -72,7 +86,7 @@ GiftOutcome giveGift(core::BondRecord& record, const core::Companion& companion,
                        : outcome.taste == GiftTaste::Plain ? kBondGiftPlain
                                                            : kBondGiftDisliked;
     const int before = record.value;
-    addBond(record, amount);
+    addBond(record, amount, cap);
     outcome.gained = record.value - before;
     return outcome;
 }

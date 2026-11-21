@@ -102,7 +102,8 @@ void DialogueScene::enterBust(Application& app) {
     // 立绘（3.1）：这一句说话人的那一格交给跨句的 bustStage——同一个人接着说不重新淡入，换人淡出。
     // 无头模式 frameFor 不读表、不警告，一律没有。
     std::optional<BustShot> bust;
-    if (bustAllowed_ && !speakerRole_.empty()) {
+    // 同道录 2a·路 U：事件图铺着时不交立绘（图上已经画着她）；名牌、对话框、小头像照常。
+    if (bustAllowed_ && !speakerRole_.empty() && app.currentCg().empty()) {
         const ChapterDone chapterDone = [&app](int n) { return app.chapterTable().chapterDone(app.state(), n); };
         if (const std::optional<PortraitFrame> frame =
                 app.busts().frameFor(app.engine(), app.headless(), speakerRole_, face_, chapterDone)) {

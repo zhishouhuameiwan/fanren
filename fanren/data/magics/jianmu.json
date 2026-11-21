@@ -1,0 +1,13 @@
+{
+  "id": "magic_jianmu",
+  "name": "剑幕",
+  "descKey": "magic.desc.magic_jianmu",
+  "element": 0,
+  "needMp": 18,
+  "power": 0,
+  "amount": 30,
+  "effect": "bulwark",
+  "needRealm": "QiRefining1",
+  "origin": "本作自拟",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：陈巧倩四档。两口飞剑在众人身前来回绞成一道光幕，这一回合我方全员受伤减三成。原著没写她有这一手，是从「两件飞剑」推出来的守势用法，不是新法宝。不吃蓄劲。"
+}

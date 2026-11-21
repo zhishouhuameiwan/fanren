@@ -203,6 +203,30 @@ core::Result<core::BattleSetup> loadBattle(const std::string& path) {
         }
     }
 
+    // ---- 切磋编成（同道录 2a，docs/ch07-tongdaolu.md 3.4）----
+    // 缺字段按 false 收；写了却不是布尔当场报错，与 hero_absent 同一个理由。开了的编成要把「不致命、
+    // 不能逃、不掉东西」写在数据上（引擎另有一道照样不发），让读编成的人一眼看出这一场的规矩；
+    // 还不许开 hero_absent——切磋是主角一人对她一人；我方写死的友军也不许有。
+    if (parsed.contains("spar")) {
+        if (!parsed["spar"].is_boolean()) {
+            return Out::failure("战斗 " + setup.id + " 的 spar 必须是 true / false：" + path);
+        }
+        setup.spar = parsed["spar"].get<bool>();
+    }
+    if (setup.spar) {
+        const bool anyAlly = std::any_of(setup.units.begin(), setup.units.end(),
+                                         [](const core::BattleUnitSpec& unit) { return unit.ally; });
+        if (setup.defeatIsFatal || setup.canEscape || setup.heroAbsent || anyAlly) {
+            return Out::failure("战斗 " + setup.id +
+                                " 是切磋（spar）：defeat_is_fatal、can_escape 都要写 false，不许 hero_absent、"
+                                "不许有 ally：" + path);
+        }
+        if (setup.reward.cultivation != 0 || setup.reward.spiritStones != 0 || !setup.reward.drops.empty()) {
+            return Out::failure("战斗 " + setup.id + " 是切磋（spar）：rewards 要全 0（奖品写在伙伴表的 spar.prizes）：" +
+                                path);
+        }
+    }
+
     return Out::success(std::move(setup));
 }
 

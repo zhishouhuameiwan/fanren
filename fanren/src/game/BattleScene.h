@@ -36,6 +36,13 @@ enum class BattleShot {
     // 第 7 章改版·路 M（docs/ch07-foundation.md 3.3）：开局那一手打开物品 / 法术选单，看说明栏的效果行。
     Items,
     Magic,
+    // 同道录 2a·路 U：五种辅助法术事件（battle:<编成>:ward|wardblock|bulwark|bind|boundskip）。我方有人会那一门时，
+    // 轮到他就替他放，推到那一条事件的那一刻定格（BattleScene::rewindToSupport）。
+    Ward,
+    WardBlock,
+    Bulwark,
+    Bind,
+    BoundSkip,
 };
 
 // 「b03_gu_wai_elang」→ Opening；「b03_gu_wai_elang:mid」→ Mid。认不出的时刻返回 false。
@@ -172,6 +179,9 @@ public:
 
     // **只读**：拿得到可改的 BattleState，就等于多了一条绕开 issuePlayerAction 的路。
     [[nodiscard]] const core::battle::BattleState& battle() const { return battle_; }
+    // 同道录 2a·路 U：画面上那一份局面与最后演到的一条事件（测试读：护持、定身的持续标记跟着事件走）。
+    [[nodiscard]] const std::vector<ShownUnit>& shown() const { return shown_; }
+    [[nodiscard]] std::optional<core::battle::BattleEventKind> lastPlayed() const { return lastPlayed_; }
 
     // 这一场收场时真的发下去的东西；还没收场、或者这一场什么也不发时为空。
     [[nodiscard]] const GrantedReward& grantedReward() const { return granted_; }
@@ -301,6 +311,12 @@ private:
     // 事件游标指回那一手的开头，好让它在画面上重演一遍。找不到返回 false（局面照样推过去了）。
     // 一次都没有 kind 时退而求其次，停在最后一手有 fallback 的那一手之前。
     bool rewindToAction(core::battle::BattleEventKind kind, core::battle::BattleEventKind fallback);
+    // 同道录 2a·路 U：辅助法术事件的截图口（见 BattleShot）。
+    [[nodiscard]] static core::battle::BattleEventKind supportShotEvent(BattleShot shot);
+    bool rewindToSupport(core::battle::BattleEventKind kind);
+    // 择目标那一级挑的是不是自己人（回血、护持）；挑自己人时说明区写他的气血与护持 / 剑幕。
+    [[nodiscard]] bool targetsAllies() const;
+    [[nodiscard]] std::string allyStatusText(Application& app, const core::battle::Unit& unit) const;
     // 把戏推到 shot_ 要拍的那一刻，然后定格。
     void prepareShot(Application& app);
     [[nodiscard]] bool shotReached() const;

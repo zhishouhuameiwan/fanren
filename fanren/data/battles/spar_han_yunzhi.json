@@ -1,0 +1,22 @@
+{
+  "id": "spar_han_yunzhi",
+  "name": "切磋·菡云芝",
+  "chapter": 7,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": false,
+  "spar": true,
+  "units": [
+    {
+      "role_id": "han_yunzhi",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "origin": "本作自拟",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：切磋编成（路 K 记录 1.4）。菡云芝在百药园里与他过招（外传）。一档只有寒冰符；回春符、定身符不是伤人的法术，敌方 AI 不放。破绽木、土，架势 3（角色表 han_yunzhi）。不能逃、不致命、奖励全 0（首胜奖品写在伙伴表 spar.prizes）。打完主角的气血法力放回开打前的数。"
+}

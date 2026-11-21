@@ -1,0 +1,13 @@
+{
+  "id": "magic_fu_huichun",
+  "name": "回春符",
+  "descKey": "magic.desc.magic_fu_huichun",
+  "element": 0,
+  "needMp": 18,
+  "power": 0,
+  "amount": 36,
+  "effect": "heal",
+  "needRealm": "QiRefining1",
+  "origin": "改编",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：菡云芝三档。同样是她摊上卖过的符（路径行动·打探）：贴在伤处，回 36 点气血。一场至多施展 5 次（法力 100 ÷ 18），整场回血上限 180，验算见施工记录 2.4。"
+}

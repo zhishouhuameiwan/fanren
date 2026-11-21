@@ -1,0 +1,12 @@
+{
+  "id": "magic_huanhu",
+  "name": "环护",
+  "descKey": "magic.desc.magic_huanhu",
+  "element": 0,
+  "needMp": 14,
+  "power": 0,
+  "effect": "ward",
+  "needRealm": "QiRefining1",
+  "origin": "本作自拟",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：南宫婉第 7 章四档。朱雀环脱手，绕着一名队友转，替他挡下下一击（护持，到下一回合结束不用就散）。原著里朱雀环被她当护身法宝用过（ch206 通道里），只把对象换成同伴。"
+}

@@ -352,10 +352,23 @@ MagicInfo describeMagic(const GameData& data, const core::Magic& magic, const In
     } else if (magic.effect == core::MagicEffect::Stagger) {
         info.lines.push_back(fillTemplate(word(data, "magic.stagger_full"), {{"n", num(magic.stagger)}}));
     }
+    // 同道录 2a 的四种辅助效果与多段（数取法术表；字在 data/text/ui_tongdao.json，路 U 补）。
+    if (magic.effect == core::MagicEffect::Heal) {
+        info.lines.push_back(fillTemplate(data.lookupText("ui.tongdao.magic.heal"), {{"n", num(magic.amount)}}));
+    } else if (magic.effect == core::MagicEffect::Ward) {
+        info.lines.push_back(data.lookupText("ui.tongdao.magic.ward"));
+    } else if (magic.effect == core::MagicEffect::Bulwark) {
+        info.lines.push_back(fillTemplate(data.lookupText("ui.tongdao.magic.bulwark"), {{"n", num(magic.amount)}}));
+    } else if (magic.effect == core::MagicEffect::Bind) {
+        info.lines.push_back(data.lookupText("ui.tongdao.magic.bind"));
+    }
     if (magic.power > 0) {
         std::string line = fillTemplate(word(data, "magic.power"), {{"n", num(magic.power)}});
         line += word(data, "dot") + word(data, magic.target == core::MagicTarget::All ? "magic.all" : "magic.single");
         info.lines.push_back(std::move(line));
+    }
+    if (magic.hits >= 2) {
+        info.lines.push_back(fillTemplate(data.lookupText("ui.tongdao.magic.hits"), {{"n", num(magic.hits)}}));
     }
     if (magic.poison > 0) {
         info.lines.push_back(fillTemplate(word(data, "effect.poison"),

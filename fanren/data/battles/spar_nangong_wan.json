@@ -1,0 +1,22 @@
+{
+  "id": "spar_nangong_wan",
+  "name": "切磋·南宫婉",
+  "chapter": 7,
+  "terrain": "field",
+  "can_escape": false,
+  "defeat_is_fatal": false,
+  "spar": true,
+  "units": [
+    {
+      "role_id": "nangong_wan_ch07",
+      "faction": "enemy"
+    }
+  ],
+  "rewards": {
+    "cultivation": 0,
+    "spirit_stones": 0,
+    "drops": []
+  },
+  "origin": "本作自拟",
+  "note": "同道录 2a·路 N（docs/ch07-tongdaolu-n.md 第 2 节）：切磋编成（路 K 记录 1.4）。南宫婉在百药园里与他过招（外传，第 7 章的她）。三档起多流火（群攻打的也只有他一个）。破绽刀、水，架势 1（角色表 nangong_wan_ch07）。不能逃、不致命、奖励全 0（首胜奖品写在伙伴表 spar.prizes）。打完主角的气血法力放回开打前的数。"
+}
