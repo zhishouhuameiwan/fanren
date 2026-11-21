@@ -540,10 +540,12 @@ TEST_F(TongdaoContent, ElevenTalksAndThreeLessonsRunHeadlessAndKeepTheirBooks) {
             EXPECT_TRUE(everyKey.count(key)) << "没有脚本说这一句：" << key;
         }
     }
-    // 路 U 的页面用的两类文字：三位都有。
+    // 路 U 的页面用的三类文字：三位都有。
     for (const char* id : kThree) {
         EXPECT_TRUE(texts.contains(std::string("tongdao.") + id + ".hint")) << id;
         EXPECT_TRUE(texts.contains(std::string("tongdao.") + id + ".intro")) << id;
+        // 返修第一批第 6 条：卡片上那一行的短句（详情页仍用 intro）。
+        EXPECT_TRUE(texts.contains(std::string("tongdao.") + id + ".brief")) << id;
     }
     // 剪影下的提示不点名字。
     EXPECT_EQ(texts["tongdao.chen_qiaoqian.hint"].get<std::string>().find("陈"), std::string::npos);

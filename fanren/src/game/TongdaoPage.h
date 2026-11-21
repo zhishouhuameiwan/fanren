@@ -55,6 +55,9 @@ struct TongdaoEntry {
     std::string name;       // 没遇到的是「？？？」
     std::string intro;      // 卡片上那一行：遇到过的写 tongdao.<id>.intro（缺了写默契），没遇到的写提示
     bool introIsBond = false;   // intro 是退回的「默契 N」（详情页进度那一行已经写了，不重复）
+    // 返修第 6 条：卡片上那一行。遇到过的优先写短句 tongdao.<id>.brief（卡片上整句放得下），没有才退回 intro
+    //（画的时候放不下截断加「…」）；没遇到的同 intro（提示）。详情页仍写 intro。
+    std::string brief;
     int bond = 0;
     int tier = 1;
     int capTier = 5;        // rules::bondTierCap
@@ -67,6 +70,10 @@ struct TongdaoEntry {
 enum class TongdaoAction { Gift, Spar, Qingjiao, Xuhua, Bonus };
 inline constexpr int kTongdaoActionCount = 5;
 [[nodiscard]] std::vector<ui::ListItem> tongdaoActionRows(Application& app, const std::string& companionId);
+
+// 返修第 1 条：同道录里此刻已解锁的在册加成有几条（rules::rosterBonusUnlocked 为真的那几位）。
+// 不超过名额（rules::rosterBonusSlots）时全都自动生效，「带上在册加成」那一行就灰着写「名额未满，自动生效」。
+[[nodiscard]] int tongdaoUnlockedBonusCount(Application& app);
 
 class TongdaoPage {
 public:
