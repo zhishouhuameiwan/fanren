@@ -114,7 +114,7 @@ enum class MagicBoost { Power, Hits };
 // 同道录 2a（docs/ch07-tongdaolu.md 3.3）追加四种辅助效果，都不伤人（power 必须为 0），量写在 Magic::amount：
 //   Heal   ：给一名我方回 amount 点气血（倒下的不行）；
 //   Ward   ：给一名我方挂一层护持，挡下他受到的下一击（那一击伤害记 0）；
-//   Bulwark：我方全员到本回合结束受伤减 amount%（1–90）；不挑目标；
+//   Bulwark：我方全员受伤减 amount%（1–90），到施术者下一次轮到行动（或倒下）为止；不挑目标；
 //   Bind   ：令一名敌人失去它的下一次行动（定身）；首领（一回合多动或会蓄势）与不能逃的仗里的敌人无效。
 enum class MagicEffect { None, Reveal, Stagger, Heal, Ward, Bulwark, Bind };
 

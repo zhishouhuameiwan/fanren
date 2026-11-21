@@ -275,11 +275,14 @@ std::vector<TongdaoEntry> tongdaoEntries(Application& app) {
             entry.intro = !entry.introIsBond
                               ? app.text(intro)
                               : tongdaoFill(app.text("ui.tongdao.bond"), "{value}", std::to_string(entry.bond));
+            entry.brief = textOr(app, "tongdao." + id + ".brief", "");
+            if (entry.brief.empty()) entry.brief = entry.intro;
             const int pending = entry.person ? rules::xuhuaPending(app.data().companions, id, state) : 0;
             entry.xuhuaReady = pending > 0 && tongdaoScriptExists(app, tongdaoXuhuaScript(id, pending));
         } else {
             entry.name = app.text("ui.tongdao.unknown");
             entry.intro = textOr(app, "tongdao." + id + ".hint", "ui.tongdao.hint.default");
+            entry.brief = entry.intro;
         }
         out.push_back(std::move(entry));
     }
@@ -378,14 +381,27 @@ std::vector<ui::ListItem> tongdaoActionRows(Application& app, const std::string&
         refuse(rows[3], app.text("ui.tongdao.why.no_content"));
     }
     // 带上在册加成：哪里都能勾（不是相处，是排兵），解锁了才能勾。
+    // 返修第 1 条：已解锁的总数不超过名额时全都自动生效（路 K 8.8：先取勾上的，名额没满按 id 补满），勾不勾没区别——
+    // 这一行灰着写「名额未满，自动生效」，按确认不切换；超过名额才照旧能勾、行尾写「已带上 / 未带上」。
+    // 没有加成、还没解锁两种拒绝照旧且在前。
     rows[4].detail = app.text(state.flag(rules::bonusOnFlag(companionId)) != 0 ? "ui.tongdao.act.bonus.on"
                                                                                 : "ui.tongdao.act.bonus.off");
     if (companion->rosterBonus.kind == core::PerkKind::None) {
         refuse(rows[4], app.text("ui.tongdao.why.no_bonus"));
     } else if (!rules::rosterBonusUnlocked(*companion, state)) {
         refuse(rows[4], app.text("ui.tongdao.why.bonus_locked"));
+    } else if (tongdaoUnlockedBonusCount(app) <= rules::rosterBonusSlots(state.realm)) {
+        refuse(rows[4], app.text("ui.tongdao.act.bonus.auto"));
     }
     return rows;
+}
+
+int tongdaoUnlockedBonusCount(Application& app) {
+    int count = 0;
+    for (const auto& [id, companion] : app.data().companions) {
+        if (rules::rosterBonusUnlocked(companion, app.state())) ++count;
+    }
+    return count;
 }
 
 // ---------------------------------------------------------------------------
@@ -548,8 +564,13 @@ void TongdaoPage::rebuildGifts(Application& app) {
     const core::Companion* companion = findCompanion(app, selectedId());
     // 二档起行尾直接标合意 / 不喜（施工图 3.4）；一档只写数量。
     const bool showTaste = companion != nullptr && rules::bondTier(state.bondOf(companion->id)) >= 2;
-    std::vector<ui::ListItem> rows;
-    giftChoices_.clear();
+    // 行与 giftChoices_ 一一对应：先成对收进来，排好再一起拆开，送出去的一定是光标指的那一件。
+    struct Pending {
+        ui::ListItem row;
+        GiftChoice choice;
+        int group = 1;   // 返修第 4 条：0 合意、1 不标、2 不喜（一档不知道喜好，全是 1）
+    };
+    std::vector<Pending> pending;
     const std::vector<ui::ListItem> bagRows = MenuScene::itemRows(data, state);
     std::size_t bagRow = 0;
     for (const core::BagEntry& entry : state.bag) {
@@ -557,15 +578,28 @@ void TongdaoPage::rebuildGifts(Application& app) {
         ui::ListItem row = bagRows[bagRow++];   // itemRows 与这里同一道过滤、同一个次序
         const core::Item* item = data.findItem(entry.itemId);
         if (item == nullptr || item->kind == core::ItemKind::Story) continue;
+        int group = 1;
         if (showTaste) {
             const rules::GiftTaste taste = rules::giftTaste(*companion, entry.itemId);
-            if (taste == rules::GiftTaste::Liked) row.detail = app.text("ui.tongdao.gift.liked") + "  " + row.detail;
+            if (taste == rules::GiftTaste::Liked) {
+                row.detail = app.text("ui.tongdao.gift.liked") + "  " + row.detail;
+                group = 0;
+            }
             if (taste == rules::GiftTaste::Disliked) {
                 row.detail = app.text("ui.tongdao.gift.disliked") + "  " + row.detail;
+                group = 2;
             }
         }
-        rows.push_back(std::move(row));
-        giftChoices_.push_back(GiftChoice{entry.itemId, entry.herbAge});
+        pending.push_back(Pending{std::move(row), GiftChoice{entry.itemId, entry.herbAge}, group});
+    }
+    // 返修第 4 条：二档起（行尾已标合意 / 不喜）合意的排最前、不标的居中、不喜的垫底；每组里保持储物袋的次序（稳定排序）。
+    std::stable_sort(pending.begin(), pending.end(),
+                     [](const Pending& a, const Pending& b) { return a.group < b.group; });
+    std::vector<ui::ListItem> rows;
+    giftChoices_.clear();
+    for (Pending& p : pending) {
+        rows.push_back(std::move(p.row));
+        giftChoices_.push_back(p.choice);
     }
     const int keep = gifts_.selection();
     gifts_.reset();
@@ -908,7 +942,7 @@ void TongdaoPage::drawCard(Application& app, const engine::Rect& box, std::size_
     } else {
         e.drawText(entry.name, textX, nameY, 22, theme.paperDim, theme.titleStyle);
     }
-    e.drawText(ellipsize(e, entry.intro, textW, 16), textX, nameY + 44, 16, theme.paperDim, theme.bodyStyle);
+    e.drawText(ellipsize(e, entry.brief, textW, 16), textX, nameY + 44, 16, theme.paperDim, theme.bodyStyle);
 
     if (entry.xuhuaReady) {
         // 角标「可叙话」：画面右上角一块小牌子。

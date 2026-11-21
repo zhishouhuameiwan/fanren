@@ -29,6 +29,7 @@
 
 #include "core/battle/Battle.h"
 #include "core/model/Types.h"
+#include "engine/TextLayout.h"
 #include "game/Application.h"
 #include "game/BattleScene.h"
 #include "ui/Widgets.h"
@@ -694,6 +695,58 @@ TEST_F(BattleMenuTest, TheBoostIsClampedToWhatTheActorHasAndRidesOnTheAttack) {
     }
     EXPECT_EQ(hits, 2) << "蓄 1 点劲 = 连击 2 下";
     EXPECT_EQ(scene.boost(), 0) << "出过手蓄劲归零，免得下一位接着用";
+}
+
+// ---------------------------------------------------------------------------
+// 返修第 5 条（docs/ch07-tongdaolu-fix1.md）：法术 / 物品选单说明区的排行（各章共用）
+// ---------------------------------------------------------------------------
+
+// 假尺子：一个字 10 像素。宽 100 = 一行 10 字。
+int tenPerGlyph(const std::string& text) {
+    return static_cast<int>(fanren::engine::splitGraphemes(text).size()) * 10;
+}
+
+TEST(BattleMenuNote, WithoutANoticeTheEffectGetsAllThreeLinesAndEndsWithAnEllipsisWhenItStillDoesNotFit) {
+    using fanren::game::layoutMenuNote;
+    const std::string shortEffect = "无属性·定身";
+    auto lines = layoutMenuNote("", shortEffect, 100, 3, tenPerGlyph);
+    ASSERT_EQ(lines.size(), 1u);
+    EXPECT_EQ(lines[0].text, shortEffect) << "放得下就整句，不加省略号";
+    EXPECT_FALSE(lines[0].notice);
+
+    const std::string thirty = "一二三四五六七八九十一二三四五六七八九十一二三四五六七八九十";
+    lines = layoutMenuNote("", thirty, 100, 3, tenPerGlyph);
+    ASSERT_EQ(lines.size(), 3u) << "正好三行";
+    EXPECT_EQ(lines[2].text.find("…"), std::string::npos) << "正好放下不加省略号";
+
+    const std::string longer = thirty + "多出来的半句";
+    lines = layoutMenuNote("", longer, 100, 3, tenPerGlyph);
+    ASSERT_EQ(lines.size(), 3u);
+    EXPECT_EQ(lines[0].text, "一二三四五六七八九十");
+    const std::string& last = lines[2].text;
+    ASSERT_GE(last.size(), std::string("…").size());
+    EXPECT_EQ(last.substr(last.size() - std::string("…").size()), "…") << "末行以省略号收尾：" << last;
+    EXPECT_LE(tenPerGlyph(last), 100) << "加了省略号也不出框";
+}
+
+TEST(BattleMenuNote, ANoticeTakesOneLineAndTheEffectKeepsAtLeastTwo) {
+    using fanren::game::layoutMenuNote;
+    const std::string effect = "一二三四五六七八九十一二三四五六七八九十一二三四五";   // 25 字：三行才放得下
+    auto lines = layoutMenuNote("背包里已经没有这件东西了", effect, 100, 3, tenPerGlyph);
+    ASSERT_EQ(lines.size(), 3u);
+    EXPECT_TRUE(lines[0].notice);
+    EXPECT_EQ(lines[0].text.find("背包里已经没有这件"), 0u);
+    EXPECT_LE(tenPerGlyph(lines[0].text), 100) << "提示只占一行，放不下截断";
+    EXPECT_NE(lines[0].text.find("…"), std::string::npos);
+    EXPECT_FALSE(lines[1].notice);
+    EXPECT_FALSE(lines[2].notice);
+    EXPECT_EQ(lines[1].text, "一二三四五六七八九十");
+    EXPECT_NE(lines[2].text.find("…"), std::string::npos) << "效果说明两行放不下，第二行收省略号";
+
+    lines = layoutMenuNote("法力不足", "无属性·定身", 100, 3, tenPerGlyph);
+    ASSERT_EQ(lines.size(), 2u);
+    EXPECT_EQ(lines[0].text, "法力不足");
+    EXPECT_EQ(lines[1].text, "无属性·定身");
 }
 
 }  // namespace

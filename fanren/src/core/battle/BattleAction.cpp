@@ -354,8 +354,8 @@ int BattleState::finalDamage(int baseDamage, const Unit& attacker, const Unit& t
     double damage = baseDamage;
     if (target.broken()) damage = damage * kBrokenDamagePercent / 100.0;
     if (target.guarding) damage = damage * kGuardDamagePercent / 100.0;
-    // 剑幕（同道录 2a）：张开的那一回合里受伤减几成。
-    if (target.status.bulwarkPercent > 0 && target.status.bulwarkRound == round_) {
+    // 剑幕（同道录 2a）：罩着就减几成。散的时机在 dropBulwarkOf（轮到施术者、她倒下），这里不看回合。
+    if (target.status.bulwarkPercent > 0) {
         damage = damage * (100 - target.status.bulwarkPercent) / 100.0;
     }
     if (attacker.charging) damage *= attacker.chargeMult;
@@ -649,10 +649,10 @@ std::string BattleState::applySupport(const Action& a, const Magic& magic, const
             for (Unit& u : units_) {
                 if (u.ally != caster.ally || !u.alive()) continue;
                 u.status.bulwarkPercent = magic.amount;
-                u.status.bulwarkRound = round_;
+                u.status.bulwarkCaster = a.actorIndex;
             }
             emit(BattleEvent{BattleEventKind::Bulwark, a.actorIndex, -1, magic.amount});
-            return head + lead + "本回合众人受伤减 " + std::to_string(magic.amount) + "%";
+            return head + lead + "到其下次出手前众人受伤减 " + std::to_string(magic.amount) + "%";
         }
         case MagicEffect::Bind: {
             Unit& t = unitRef(a.targetIndex);
@@ -715,7 +715,11 @@ void BattleState::emitStrike(int attackerIndex, int targetIndex, int category, i
     emit(std::move(event));
     emitBreak(attackerIndex, targetIndex, out);
     if (out.fled) emit(BattleEvent{BattleEventKind::Fled, attackerIndex, targetIndex});
-    if (out.fell) emit(BattleEvent{BattleEventKind::Fall, attackerIndex, targetIndex});
+    if (out.fell) {
+        emit(BattleEvent{BattleEventKind::Fall, attackerIndex, targetIndex});
+        // 施术者倒下：她张的剑幕立刻散（返修第 2 条）。
+        dropBulwarkOf(targetIndex);
+    }
 }
 
 void BattleState::emitBreak(int attackerIndex, int targetIndex, const StrikeOutcome& out) {

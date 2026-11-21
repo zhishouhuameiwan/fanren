@@ -5,6 +5,7 @@
 // 无头模式下那两样一概不建：runToCompletion 与既有测试走的路一个字节也不变。
 #include <cstddef>
 #include <deque>
+#include <functional>
 #include <map>
 #include <memory>
 #include <optional>
@@ -72,6 +73,18 @@ inline constexpr const char* kMindTerrain = "mind";
 // 择敌时菜单下方说明区那一句：「气血 12/18 · 架势 2 · 破绽 剑？？」（没有架势的只写气血）。
 // 择敌那一行只放得下破绽（终审 LOW-1），整句在这里；与 poisonStatusText 同一个理由拎成自由函数。
 [[nodiscard]] std::string foeStatusText(const core::battle::Unit& unit);
+
+// 返修第 5 条（docs/ch07-tongdaolu-fix1.md）：法术 / 物品选单说明区要画的几行。
+// notice 是**在这个选单里刚产生的**拒绝提示：至多一行，放不下截断加「…」；effect（光标那一门 / 那一件的效果说明）
+// 占余下的行——有提示时 maxLines - 1 行，没有时 maxLines 行——仍放不下时最后一行以「…」收尾，不半句硬截。
+// 上一手留下来的战报（feedback_）不在这里。measure 量一串字有多宽（像素），单测可以注入等宽的假尺子。
+struct MenuNoteLine {
+    std::string text;
+    bool notice = false;   // 这一行是拒绝提示（否则是效果说明）
+};
+[[nodiscard]] std::vector<MenuNoteLine> layoutMenuNote(const std::string& notice, const std::string& effect,
+                                                       int widthPx, int maxLines,
+                                                       const std::function<int(const std::string&)>& measure);
 
 // 战斗背景名：编成写了 backdrop 就用它，没写按地形推（画面路按这个名字找图）。
 [[nodiscard]] std::string backdropOf(const core::BattleSetup& setup);
@@ -196,6 +209,11 @@ public:
     [[nodiscard]] const ui::ListView& menuList() const { return menuList_; }
     // 面板上那句话：刚发生了什么，或者刚才为什么没成。
     [[nodiscard]] const std::string& feedback() const { return feedback_; }
+    // 返修第 5 条：法术 / 物品选单里**此刻**说明区顶上那一行拒绝提示——在这一级刚被拒的那一手（选中就出的法术 / 符
+    // 在发起时被拒，见 issueFromMenu）才有；光标一动、换一级菜单就让位。没有时是空串。渲染与测试读的是同一份。
+    [[nodiscard]] std::string menuNotice() const;
+    // 胜负已分、等确认键收场的那张战果卡（还没分出胜负时是空）。测试看副标题用。
+    [[nodiscard]] const ResultCard* resultCard() const { return card_.get(); }
 
     // 打开根菜单。轮不到我方就什么也不做。
     void openMenu(Application& app);
@@ -347,6 +365,10 @@ private:
     std::vector<int> menuTargets_;        // 与目标列表同序
     std::vector<int> menuPartners_;       // 与合招列表同序（另一位的单位下标）
     std::string feedback_;
+    // 返修第 5 条：在法术 / 物品选单里刚被拒时记下理由与光标所在的行（只在那一级、光标还在那一行时画）。
+    std::string menuNotice_;
+    int menuNoticeRow_ = -1;
+    BattleMenuMode menuNoticeMode_ = BattleMenuMode::Closed;
     int boost_ = 0;
 
     // ---- 逐条播放 ----

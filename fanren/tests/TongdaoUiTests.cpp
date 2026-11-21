@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,6 +24,7 @@
 #include "core/rules/Companions.h"
 #include "core/rules/Tongdao.h"
 #include "game/Application.h"
+#include "game/BattleHud.h"
 #include "game/BattleScene.h"
 #include "game/CultivationScene.h"
 #include "game/DialogueScene.h"
@@ -81,7 +83,7 @@ std::string role(const std::string& id, const std::string& name, int hp, int att
 //   probe_a：红颜线，会追击、三档一门法术与被动、四档合招、在册加成、切磋（她的角色一碰就倒）；叙话二档与请教有桩脚本
 //   probe_b：通用线，第 7 章封在四档（probe.cap 置位前）；没有脚本、没有加成
 //   probe_c：从来没遇到（剪影），有一句提示
-//   probe_d…probe_g：没遇到，只为凑满两页（九位）
+//   probe_d…probe_g：没遇到，只为凑满两页（九位）；各带一条在册加成（返修第 1 条：凑出「超过名额」，平时没遇到不作数）
 class TongdaoUi : public ::testing::Test {
 protected:
     static void SetUpTestSuite() {
@@ -138,7 +140,8 @@ protected:
             writeFile(data / "roles" / (roleId + ".json"), role(roleId, "探针", 300, 10));
             writeFile(companions / (std::string("probe_") + extra + ".json"),
                       std::string(R"({"id": "probe_)") + extra + R"(", "met_flag": "probe.)" + extra +
-                          R"(", "roles": [{"role": ")" + roleId + R"("}]})");
+                          R"(", "roles": [{"role": ")" + roleId +
+                          R"("}], "roster_bonus": {"kind": "talisman_power", "value": 10}})");
         }
         writeFile(data / "companions" / "probe_aide.json",
                   R"({"id": "probe_aide", "met_flag": "probe.aide", "roles": [{"role": "probe_aide_role"}]})");
@@ -146,6 +149,15 @@ protected:
                   R"({"id": "probe_spar_a", "name": "切磋", "chapter": 7, "terrain": "field", "can_escape": false, )"
                   R"("defeat_is_fatal": false, "spar": true, "units": [{"role_id": "probe_a_role", "faction": "enemy"}], )"
                   R"("rewards": {"cultivation": 0, "spirit_stones": 0, "drops": []}})");
+        // 返修第 3 条：与切磋同一位对手、同样不发奖励的寻常一仗（看战果卡的副标题只在切磋时换）。
+        writeFile(data / "battles" / "probe_plain_a.json",
+                  R"({"id": "probe_plain_a", "name": "寻常", "chapter": 7, "terrain": "field", "can_escape": true, )"
+                  R"("defeat_is_fatal": false, "units": [{"role_id": "probe_a_role", "faction": "enemy"}], )"
+                  R"("rewards": {"cultivation": 0, "spirit_stones": 0, "drops": []}})");
+        // 返修第 5 条：装着剑幕的符（选中就出），好在物品选单里造一次「发起时被拒」。
+        writeFile(data / "items" / "talismans" / "probe_wall_fu.json",
+                  R"({"id": "talisman_probe_wall", "name": "探针剑幕符", "kind": "talisman", "grade": 1, "price": 0, )"
+                  R"("tradeable": false, "castMagic": "magic_probe_wall"})");
         writeFile(data / "battles" / "probe_support.json",
                   R"({"id": "probe_support", "name": "探针", "chapter": 7, "terrain": "field", "can_escape": true, )"
                   R"("defeat_is_fatal": false, "units": [{"role_id": "probe_brute", "faction": "enemy"}], )"
@@ -366,7 +378,9 @@ TEST_F(TongdaoUi, AtBaiyaoyuanEachActionAsksTheRulesAndMissingScriptsSayContentN
     EXPECT_EQ(r[at(Act::Gift)].disabledReason, "今天已经送过了");
     EXPECT_EQ(r[at(Act::Spar)].disabledReason, "今天做过了");
     EXPECT_EQ(r[at(Act::Qingjiao)].disabledReason, "已经请教过了");
-    EXPECT_TRUE(r[at(Act::Bonus)].enabled) << "请教过：加成解锁，能勾";
+    // 返修第 1 条：原先钉「请教过：加成解锁，能勾」。已解锁的只有她一条、不超过名额（炼气 4）——自动生效，这一行灰着。
+    EXPECT_FALSE(r[at(Act::Bonus)].enabled);
+    EXPECT_EQ(r[at(Act::Bonus)].disabledReason, "名额未满，自动生效") << "请教过：加成解锁；名额没满，自动生效、不必勾";
 }
 
 // ---------------------------------------------------------------------------
@@ -453,9 +467,20 @@ TEST_F(TongdaoUi, XuhuaAndQingjiaoRunTheirScriptsWhichDoTheirOwnBookkeeping) {
     EXPECT_TRUE(rules::rosterBonusUnlocked(app_.data().companions.at("probe_a"), state()));
 }
 
+// 返修第 1 条：勾选只在已解锁的加成超过名额时才有意义——这里让 probe_d…g 也结识、请教过，凑满 5 条（名额 4）。
+// 原先这一条只解锁 probe_a 一条就去勾（名额没满时勾不勾没区别，那正是返修要改的）；断言本身没改。
+void unlockFourMoreBonuses(fanren::core::GameState& state) {
+    for (const char* extra : {"d", "e", "f", "g"}) {
+        state.setFlag(std::string("probe.") + extra);
+        state.setFlag(rules::qingjiaoFlag(std::string("probe_") + extra));
+    }
+}
+
 TEST_F(TongdaoUi, TheBonusToggleWritesOnlyItsOwnFlag) {
     state().bonds["probe_a"].value = 45;
     ASSERT_EQ(rules::recordQingjiao(app_.data().companions, "probe_a", state()), rules::TongdaoCheck::Ok);
+    unlockFourMoreBonuses(state());
+    ASSERT_EQ(game::tongdaoUnlockedBonusCount(app_), 5);
     state().mapId = "ch06_huangfenggu";   // 勾选哪里都能做（不是相处）
     openTongdaoPage();
     press(SDL_SCANCODE_RETURN);
@@ -471,6 +496,106 @@ TEST_F(TongdaoUi, TheBonusToggleWritesOnlyItsOwnFlag) {
     EXPECT_EQ(after, expected) << "别的旗一面不动";
     press(SDL_SCANCODE_RETURN);
     EXPECT_EQ(state().flag(rules::bonusOnFlag("probe_a")), 0);
+}
+
+// 返修第 1 条：已解锁的不超过名额时全都自动生效（路 K 8.8），「带上在册加成」灰着写「名额未满，自动生效」、按确认不切换；
+// 超过名额才能勾、行尾「已带上 / 未带上」。没有加成、还没解锁两种拒绝照旧且在前。
+TEST_F(TongdaoUi, TheBonusRowIsGreyedWhileEveryUnlockedBonusFitsAndOnlyTogglesOverTheLimit) {
+    EXPECT_EQ(rows("probe_a")[at(Act::Bonus)].disabledReason, "还没生效") << "没解锁：照旧";
+    unlockFourMoreBonuses(state());   // probe_d…g 解锁了，probe_a 还没有：已解锁 4 条，正好名额
+    EXPECT_EQ(rows("probe_a")[at(Act::Bonus)].disabledReason, "还没生效") << "没解锁的拒绝排在前头";
+    EXPECT_EQ(rows("probe_b")[at(Act::Bonus)].disabledReason, "没有在册加成") << "没有加成的拒绝排在前头";
+    EXPECT_EQ(rows("probe_d")[at(Act::Bonus)].disabledReason, "名额未满，自动生效") << "4 条、名额 4：不超";
+    EXPECT_EQ(rules::activeRosterBonuses(app_.data().companions, state()).size(), 4u) << "规则层：都生效";
+
+    // 不在百药园时别的四项也灰着：整列没有一行亮，确认键什么也不切。
+    state().mapId = "ch06_huangfenggu";
+    state().bonds["probe_d"].value = 0;
+    auto menuScene = std::make_unique<MenuScene>(MenuScene::Page::Roster, true);
+    menuScene->startTongdaoAt("probe_d", /*gift=*/false);
+    app_.pushScene(std::move(menuScene));
+    tick(2);
+    ASSERT_EQ(menu()->tongdao().focus(), TongdaoPage::Focus::Detail);
+    EXPECT_EQ(menu()->tongdao().actions().selection(), -1) << "这一行灰着，光标落不上去";
+    const auto before = state().flags;
+    press(SDL_SCANCODE_RETURN);
+    EXPECT_EQ(state().flags, before) << "按确认不切换";
+    app_.popScene();
+    tick();
+
+    // probe_a 也请教过：5 条超过名额 4，这一行亮起来、写勾没勾。
+    state().bonds["probe_a"].value = 45;
+    ASSERT_EQ(rules::recordQingjiao(app_.data().companions, "probe_a", state()), rules::TongdaoCheck::Ok);
+    auto r = rows("probe_a");
+    EXPECT_TRUE(r[at(Act::Bonus)].enabled);
+    EXPECT_EQ(r[at(Act::Bonus)].detail, "未带上");
+    state().setFlag(rules::bonusOnFlag("probe_a"));
+    EXPECT_EQ(rows("probe_a")[at(Act::Bonus)].detail, "已带上");
+    EXPECT_TRUE(rows("probe_d")[at(Act::Bonus)].enabled) << "超额时每一位都能勾";
+}
+
+// 返修第 4 条：二档起合意的排最前、不标的居中、不喜的垫底，每组里保持储物袋的次序；一档次序不变。
+// 送出去的必须是光标指的那一件（行与 giftChoices_ 一一对应）。
+TEST_F(TongdaoUi, GiftListPutsLikedFirstAndDislikedLastAndGivesTheRowUnderTheCursor) {
+    state().addItem("material_fuzhi", 1);    // 不喜
+    state().addItem("pill_huiqi_dan", 2);    // 不标
+    state().addItem("material_dansha", 3);   // 合意
+    state().addItem("pill_jinchuang_yao", 4);   // 不标
+    const auto labels = [this] {
+        std::vector<std::string> out;
+        for (const auto& item : menu()->tongdao().gifts().items()) out.push_back(item.label);
+        return out;
+    };
+    const auto openGift = [this] {
+        auto menuScene = std::make_unique<MenuScene>(MenuScene::Page::Roster, true);
+        menuScene->startTongdaoAt("probe_a", /*gift=*/true);
+        app_.pushScene(std::move(menuScene));
+        tick(2);
+        ASSERT_EQ(menu()->tongdao().focus(), TongdaoPage::Focus::Gift);
+    };
+    const auto name = [this](const char* id) { return app_.data().findItem(id)->name; };
+
+    openGift();   // 一档：照储物袋
+    EXPECT_EQ(labels(), (std::vector<std::string>{name("material_fuzhi"), name("pill_huiqi_dan"),
+                                                  name("material_dansha"), name("pill_jinchuang_yao")}));
+    app_.popScene();
+    tick();
+
+    state().bonds["probe_a"].value = 20;   // 二档
+    openGift();
+    EXPECT_EQ(labels(), (std::vector<std::string>{name("material_dansha"), name("pill_huiqi_dan"),
+                                                  name("pill_jinchuang_yao"), name("material_fuzhi")}));
+    const auto& items = menu()->tongdao().gifts().items();
+    EXPECT_NE(items.front().detail.find("合意"), std::string::npos);
+    EXPECT_NE(items.back().detail.find("不喜"), std::string::npos);
+    // 光标挪到最后一行（不喜的符纸）送出去：扣的是符纸，默契不加（不喜 0）。
+    for (int i = 0; i < 3; ++i) press(SDL_SCANCODE_DOWN);
+    ASSERT_EQ(menu()->tongdao().gifts().selection(), 3);
+    press(SDL_SCANCODE_RETURN);
+    tick();
+    EXPECT_EQ(state().itemCount("material_fuzhi"), 0) << "送出去的是光标指的那一件";
+    EXPECT_EQ(state().itemCount("material_dansha"), 3);
+    EXPECT_EQ(state().itemCount("pill_huiqi_dan"), 2);
+    EXPECT_EQ(state().itemCount("pill_jinchuang_yao"), 4);
+    EXPECT_EQ(state().bondOf("probe_a"), 20);
+}
+
+// 返修第 6 条：卡片那一行优先用短句 tongdao.<id>.brief，没有才退回 intro；没遇到的仍是提示。详情页仍用 intro。
+TEST_F(TongdaoUi, CardsUseTheShortBriefAndFallBackToTheIntro) {
+    for (const char* met : {"ch07.fanhui", "ch07.nangong", "ch07.wuyou"}) state().setFlag(met);
+    const std::map<std::string, std::string> briefs{{"chen_qiaoqian", "陈家小姐，双飞剑，专会补刀"},
+                                                    {"nangong_wan", "出身掩月宗，朱雀环火势逼人"},
+                                                    {"han_yunzhi", "灵兽山弟子，扔符是行家"}};
+    for (const auto& [id, brief] : briefs) {
+        const game::TongdaoEntry* e = entry(id);
+        ASSERT_NE(e, nullptr) << id;
+        ASSERT_TRUE(e->met) << id;
+        EXPECT_EQ(e->brief, brief) << id;
+        EXPECT_EQ(e->intro, app_.text("tongdao." + id + ".intro")) << "详情页仍是长句：" << id;
+        EXPECT_NE(e->intro, e->brief) << id;
+    }
+    EXPECT_EQ(entry("probe_a")->brief, "黄枫谷弟子") << "没有短句：退回 intro";
+    EXPECT_EQ(entry("probe_c")->brief, "传闻山中有位采药的姑娘。") << "没遇到：提示";
 }
 
 // ---------------------------------------------------------------------------
@@ -603,7 +728,8 @@ TEST_F(TongdaoUi, MagicDescriptionsNameTheNewEffectsWithNumbersFromTheTable) {
     EXPECT_TRUE(has(ward, "替一名队友挡下一击")) << ward;
     EXPECT_TRUE(has(ward, "不吃蓄劲")) << ward;
     const std::string wall = lines("magic_probe_wall");
-    EXPECT_TRUE(has(wall, "这一回合我方全员受伤减 30%")) << wall;
+    // 返修第 2 条：原先钉「这一回合我方全员受伤减 30%」；剑幕现在管到施术者下一次出手前。
+    EXPECT_TRUE(has(wall, "到施术者下次出手前，我方全员受伤减 30%")) << wall;
     EXPECT_TRUE(has(wall, "不吃蓄劲")) << wall;
     const std::string bind = lines("magic_probe_bind");
     EXPECT_TRUE(has(bind, "令一名敌人跳过下一次行动；首领与不能逃的仗里无效")) << bind;
@@ -930,6 +1056,23 @@ protected:
         tick(4);
         return dynamic_cast<game::BattleScene*>(app_.topScene());
     }
+    // 走一帧（返修第一批的两条用）：开战碎屏要等第一次画出来才拍世界画面，只 tick 不画就一直停在开场——
+    // 所以头几帧画一画，之后只 tick；按住加速键（Ctrl，战斗里 ×4）省时间。
+    void frame() {
+        if (framesDrawn_ == 0) pushKey(SDL_SCANCODE_LCTRL, true);
+        tick();
+        if (framesDrawn_ < 3) {
+            ++framesDrawn_;
+            app_.engine().beginFrame();
+            app_.drawScenes();
+            app_.engine().endFrame();
+        }
+    }
+    void TearDown() override {
+        if (framesDrawn_ > 0) pushKey(SDL_SCANCODE_LCTRL, false);
+        TongdaoPixels::TearDown();
+    }
+    int framesDrawn_ = 0;
 };
 
 TEST_F(TongdaoBattleShots, WardAndWardBlockMarkThenClearTheAlly) {
@@ -978,6 +1121,140 @@ TEST_F(TongdaoBattleShots, EachOfTheFiveMomentsIsReachedAndShot) {
         app_.popScene();
         tick(2);
     }
+}
+
+// ---------------------------------------------------------------------------
+// 返修第一批（docs/ch07-tongdaolu-fix1.md）：要真字体、真渲染才看得出的几条
+// ---------------------------------------------------------------------------
+
+// 第 6 条：三条短句在卡片上整句放得下（卡片文字宽 = 卡宽 - 左右各 12，16 号字），不出省略号。
+TEST_F(TongdaoPixels, TheThreeBriefsFitOnTheCardWithoutAnEllipsis) {
+    const int width = TongdaoPage::kCardW - 24;
+    for (const char* id : {"chen_qiaoqian", "nangong_wan", "han_yunzhi"}) {
+        const std::string brief = app_.text(std::string("tongdao.") + id + ".brief");
+        ASSERT_NE(brief, std::string("tongdao.") + id + ".brief") << id << " 没有短句";
+        EXPECT_LE(app_.engine().measureText(brief, 16).x, width) << id << "：" << brief;
+        const std::string intro = app_.text(std::string("tongdao.") + id + ".intro");
+        EXPECT_GT(app_.engine().measureText(intro, 16).x, width) << "先验：长句本来就放不下（这才要短句）：" << id;
+    }
+}
+
+// 第 3 条：切磋打赢、卡上没有掉落行时副标题写「点到为止」，不写「此战别无所得」；同样不掉东西的寻常一仗照旧。
+TEST_F(TongdaoBattleShots, AWonSparWithNothingToShowSaysItStoppedShortAndAPlainFightIsUnchanged) {
+    for (const auto& [battle, want] : std::vector<std::pair<std::string, std::string>>{
+             {"probe_spar_a", "点到为止"}, {"probe_plain_a", "此战别无所得"}}) {
+        state().party.clear();
+        app_.pushScene(std::make_unique<game::BattleScene>(battle, game::BattleShot::Victory));
+        tick(4);
+        auto* scene = dynamic_cast<game::BattleScene*>(app_.topScene());
+        ASSERT_NE(scene, nullptr) << battle;
+        ASSERT_NE(scene->resultCard(), nullptr) << battle;
+        EXPECT_EQ(scene->battle().spar(), battle == "probe_spar_a");
+        EXPECT_EQ(scene->resultCard()->phase, fanren::core::battle::BattlePhase::Won) << battle;
+        EXPECT_TRUE(scene->resultCard()->lines.empty()) << battle;
+        EXPECT_EQ(scene->resultCard()->subtitle, want) << battle;
+        (void)capture(battle == "probe_spar_a" ? "fix1_spar_result" : "fix1_plain_result");
+        app_.popScene();
+        tick(2);
+    }
+}
+
+// 第 2 条：剑幕的标记跟着规则层真正散掉的那一刻走——翻过回合（RoundStart）还亮着，轮到施术者（BulwarkEnd）才收。
+TEST_F(TongdaoBattleShots, TheBulwarkMarkStaysOverTheRoundBreakAndClearsWhenTheCasterComesUp) {
+    using K = fanren::core::battle::BattleEventKind;
+    state().party.clear();
+    state().setFlag("probe.aide");
+    ASSERT_TRUE(state().partyAdd("probe_aide_role"));
+    app_.pushScene(std::make_unique<game::BattleScene>("probe_support"));
+    tick();
+    auto* scene = dynamic_cast<game::BattleScene*>(app_.topScene());
+    ASSERT_NE(scene, nullptr);
+    const auto anyMarked = [scene] {
+        for (const auto& s : scene->shown()) {
+            if (s.bulwark) return true;
+        }
+        return false;
+    };
+    int castRound = 0;
+    bool sawRoundBreakMarked = false;
+    bool sawEnd = false;
+    for (int n = 0; n < 6000 && !sawEnd; ++n) {
+        frame();
+        if (scene->battle().phase() != fanren::core::battle::BattlePhase::Ongoing) break;
+        const auto last = scene->lastPlayed();
+        if (castRound > 0 && last == K::RoundStart && scene->battle().round() == castRound + 1 && !sawRoundBreakMarked) {
+            EXPECT_TRUE(anyMarked()) << "翻过回合，剑幕的标记还在";
+            sawRoundBreakMarked = anyMarked();
+            (void)capture("fix1_bulwark_roundbreak");
+        }
+        if (castRound > 0 && last == K::BulwarkEnd && !scene->playing()) {
+            EXPECT_FALSE(anyMarked()) << "轮到施术者、规则层散了，标记跟着收";
+            sawEnd = true;
+            (void)capture("fix1_bulwark_end");
+        }
+        if (scene->menuMode() != game::BattleMenuMode::Root || scene->playing()) continue;
+        const int actor = scene->battle().currentActor();
+        const auto& unit = scene->battle().units()[static_cast<std::size_t>(actor)];
+        if (unit.id == "probe_aide_role" && castRound == 0) {
+            ASSERT_TRUE(scene->menuChoose(app_, game::kBattleMenuCast));
+            int wall = -1;
+            for (int i = 0; i < scene->menuList().count(); ++i) {
+                if (scene->menuList().items()[static_cast<std::size_t>(i)].label == "探针剑幕") wall = i;
+            }
+            ASSERT_GE(wall, 0);
+            ASSERT_TRUE(scene->menuChoose(app_, wall)) << scene->feedback();
+            castRound = scene->battle().round();
+            continue;
+        }
+        ASSERT_TRUE(scene->menuChoose(app_, game::kBattleMenuDefend));
+    }
+    EXPECT_GT(castRound, 0) << "帮手没轮到";
+    EXPECT_TRUE(sawRoundBreakMarked);
+    EXPECT_TRUE(sawEnd) << "没等到剑幕散";
+}
+
+// 第 5 条：法术 / 物品选单的说明区不画上一手的战报；在这个选单里刚被拒（选中就出的符，发起时背包里已经没了）时
+// 留在这一级、理由占顶上一行，光标一动就让位。
+TEST_F(TongdaoBattleShots, ARefusalInTheItemMenuTakesOneLineUntilTheCursorMoves) {
+    state().party.clear();
+    state().addItem("pill_huiqi_dan", 1);
+    state().addItem("talisman_probe_wall", 1);
+    app_.pushScene(std::make_unique<game::BattleScene>("probe_support"));
+    tick();
+    auto* scene = dynamic_cast<game::BattleScene*>(app_.topScene());
+    ASSERT_NE(scene, nullptr);
+    // 先出一手（防御），让 feedback_ 里留下上一手的战报。
+    bool acted = false;
+    for (int n = 0; n < 3000; ++n) {
+        frame();
+        if (scene->menuMode() != game::BattleMenuMode::Root || scene->playing()) continue;
+        if (!acted) {
+            ASSERT_TRUE(scene->menuChoose(app_, game::kBattleMenuDefend));
+            acted = true;
+            continue;
+        }
+        break;
+    }
+    ASSERT_EQ(scene->menuMode(), game::BattleMenuMode::Root);
+    ASSERT_FALSE(scene->feedback().empty()) << "先验：上一手的战报在";
+    ASSERT_TRUE(scene->menuChoose(app_, game::kBattleMenuItem));
+    ASSERT_EQ(scene->menuMode(), game::BattleMenuMode::Item);
+    EXPECT_TRUE(scene->menuNotice().empty()) << "上一手的战报不进物品选单的说明区";
+    int talisman = -1;
+    for (int i = 0; i < scene->menuList().count(); ++i) {
+        if (scene->menuList().items()[static_cast<std::size_t>(i)].label == "探针剑幕符") talisman = i;
+    }
+    ASSERT_GE(talisman, 0);
+    for (int i = 0; i < 4 && scene->menuList().selection() != talisman; ++i) press(SDL_SCANCODE_DOWN);
+    ASSERT_EQ(scene->menuList().selection(), talisman);
+    ASSERT_TRUE(state().removeItem("talisman_probe_wall", 1));   // 菜单开着的时候局面变了
+    press(SDL_SCANCODE_RETURN);
+    EXPECT_EQ(scene->menuMode(), game::BattleMenuMode::Item) << "留在物品选单";
+    EXPECT_EQ(scene->menuNotice(), "背包里已经没有这件东西了");
+    EXPECT_FALSE(scene->menuList().items()[static_cast<std::size_t>(talisman)].enabled) << "列表照此刻重拼";
+    (void)capture("fix1_item_refusal");
+    press(SDL_SCANCODE_UP);
+    EXPECT_TRUE(scene->menuNotice().empty()) << "光标一动就让位";
 }
 
 }  // namespace

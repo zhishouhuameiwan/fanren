@@ -163,6 +163,37 @@ constexpr int kMenuFeedbackH = 72;
 
 }  // namespace
 
+std::vector<MenuNoteLine> layoutMenuNote(const std::string& notice, const std::string& effect, int widthPx, int maxLines,
+                                         const std::function<int(const std::string&)>& measure) {
+    std::vector<MenuNoteLine> out;
+    if (maxLines <= 0 || widthPx <= 0) return out;
+    // 一行放不下就截断、加「…」（与同道录页的 ellipsize 同一个做法）。
+    const auto fit = [&](const std::string& text) {
+        if (measure(text) <= widthPx) return text;
+        std::string kept;
+        for (const std::string& glyph : engine::splitGraphemes(text)) {
+            if (measure(kept + glyph + "…") > widthPx) break;
+            kept += glyph;
+        }
+        return kept + "…";
+    };
+    if (!notice.empty()) {
+        const std::vector<engine::LayoutLine> lines = engine::layoutText(notice, widthPx, measure);
+        std::string first = lines.empty() ? notice : lines.front().text;
+        if (lines.size() > 1) first = fit(first + "…");
+        out.push_back(MenuNoteLine{first, true});
+    }
+    const int room = maxLines - static_cast<int>(out.size());
+    if (effect.empty() || room <= 0) return out;
+    const std::vector<engine::LayoutLine> lines = engine::layoutText(effect, widthPx, measure);
+    for (std::size_t i = 0; i < lines.size() && static_cast<int>(i) < room; ++i) {
+        std::string text = lines[i].text;
+        if (static_cast<int>(i) + 1 == room && i + 1 < lines.size()) text = fit(text + "…");
+        out.push_back(MenuNoteLine{std::move(text), false});
+    }
+    return out;
+}
+
 std::string foeStatusText(const Unit& unit) {
     std::string text = "气血 " + std::to_string(std::max(0, unit.hp)) + "/" + std::to_string(unit.maxHp);
     if (unit.maxToughness > 0) {
@@ -877,6 +908,7 @@ std::vector<ui::ListItem> BattleScene::buildTargetItems(const core::GameState& s
 }
 
 void BattleScene::enterRoot(Application& app) {
+    menuNotice_.clear();   // 返修第 5 条：换一级菜单，拒绝提示不带过去
     menu_ = BattleMenuMode::Root;
     shape_ = Action{};
     menuIds_.clear();
@@ -888,6 +920,7 @@ void BattleScene::enterRoot(Application& app) {
 }
 
 void BattleScene::enterWeapon(Application& app) {
+    menuNotice_.clear();   // 返修第 5 条：换一级菜单，拒绝提示不带过去
     menu_ = BattleMenuMode::Weapon;
     menuList_.reset();
     menuList_.setPageSize(listPageRows(app.theme()));
@@ -895,6 +928,7 @@ void BattleScene::enterWeapon(Application& app) {
 }
 
 void BattleScene::enterDuo(Application& app) {
+    menuNotice_.clear();   // 返修第 5 条：换一级菜单，拒绝提示不带过去
     menu_ = BattleMenuMode::Duo;
     menuList_.reset();
     menuList_.setPageSize(listPageRows(app.theme()));
@@ -902,6 +936,7 @@ void BattleScene::enterDuo(Application& app) {
 }
 
 void BattleScene::enterMagic(Application& app) {
+    menuNotice_.clear();   // 返修第 5 条：换一级菜单，拒绝提示不带过去
     menu_ = BattleMenuMode::Magic;
     menuList_.reset();
     menuList_.setPageSize(listPageRows(app.theme()));
@@ -909,6 +944,7 @@ void BattleScene::enterMagic(Application& app) {
 }
 
 void BattleScene::enterItem(Application& app) {
+    menuNotice_.clear();   // 返修第 5 条：换一级菜单，拒绝提示不带过去
     menu_ = BattleMenuMode::Item;
     menuList_.reset();
     menuList_.setPageSize(listPageRows(app.theme()));
@@ -916,6 +952,7 @@ void BattleScene::enterItem(Application& app) {
 }
 
 void BattleScene::enterTarget(Application& app) {
+    menuNotice_.clear();   // 返修第 5 条：换一级菜单，拒绝提示不带过去
     menu_ = BattleMenuMode::Target;
     // 行动者一律在这一刻取，不缓存：缓存下来就有「菜单开着、回合已经过去了」的可能。
     shape_.actorIndex = battle_.currentActor();
@@ -942,6 +979,11 @@ void BattleScene::enterTarget(Application& app) {
     }
 }
 
+std::string BattleScene::menuNotice() const {
+    if (menuNotice_.empty() || menuNoticeMode_ != menu_ || menuNoticeRow_ != menuList_.selection()) return {};
+    return menuNotice_;
+}
+
 bool BattleScene::targetsAllies() const {
     const core::Item* item = shape_.kind == ActionKind::Item ? battle_.findItem(shape_.magicId) : nullptr;
     const core::Magic* magic = shape_.kind == ActionKind::Cast || shape_.kind == ActionKind::Duo
@@ -953,7 +995,7 @@ bool BattleScene::targetsAllies() const {
 std::string BattleScene::allyStatusText(Application& app, const Unit& unit) const {
     std::string text = "气血 " + std::to_string(std::max(0, unit.hp)) + "/" + std::to_string(unit.maxHp);
     if (unit.warded(battle_.round())) text += "　" + app.text("ui.tongdao.battle.status.ward");
-    if (unit.status.bulwarkPercent > 0 && unit.status.bulwarkRound == battle_.round()) {
+    if (unit.status.bulwarkPercent > 0) {
         text += "　" + app.text("ui.tongdao.battle.status.bulwark");
     }
     return text;
@@ -985,6 +1027,7 @@ void BattleScene::openMenu(Application& app) {
 }
 
 void BattleScene::closeMenu() {
+    menuNotice_.clear();   // 返修第 5 条：换一级菜单，拒绝提示不带过去
     menu_ = BattleMenuMode::Closed;
     menuList_.reset();
     menuList_.setItems({});
@@ -1027,6 +1070,31 @@ bool BattleScene::issueFromMenu(Application& app, const Action& action) {
     if (!result.ok) {
         // 菜单只让点得动的项被点中，走到这里说明局面在菜单开着的时候变了。
         feedback_ = result.error;
+        // 返修第 5 条：在法术 / 物品选单里被拒（选中就出的那几门：看破、剑幕，与装着它们的符）时留在这一级、
+        // 列表照此刻重拼，理由在说明区顶上占一行，光标一动就让位。别的几级照旧退回根菜单、理由写在说明区。
+        if (const BattleMenuMode mode = menu_; mode == BattleMenuMode::Magic || mode == BattleMenuMode::Item) {
+            const int keep = menuList_.selection();
+            if (mode == BattleMenuMode::Magic) {
+                enterMagic(app);
+            } else {
+                enterItem(app);
+            }
+            for (int guard = 0; guard < menuList_.count() && menuList_.selection() >= 0 && menuList_.selection() < keep;
+                 ++guard) {
+                const int before = menuList_.selection();
+                menuList_.moveDown();
+                if (menuList_.selection() <= before) {   // 绕回顶上了：退回去，停在 keep 之前最近的那一行
+                    menuList_.moveUp();
+                    break;
+                }
+            }
+            shape_ = Action{};
+            shape_.kind = mode == BattleMenuMode::Magic ? ActionKind::Cast : ActionKind::Item;
+            menuNotice_ = result.error;
+            menuNoticeRow_ = menuList_.selection();
+            menuNoticeMode_ = mode;
+            return false;
+        }
         enterRoot(app);
         return false;
     }
@@ -1179,7 +1247,10 @@ void BattleScene::updateMenu(Application& app) {
     const int row = menuList_.selection();
     if (eng.keyPressed(Key::Up)) menuList_.moveUp();
     if (eng.keyPressed(Key::Down)) menuList_.moveDown();
-    if (menuList_.selection() != row) eng.playSfx("ui_cursor");
+    if (menuList_.selection() != row) {
+        eng.playSfx("ui_cursor");
+        menuNotice_.clear();   // 返修第 5 条：光标一动，拒绝提示让位
+    }
     // 取消优先于确认：同一帧两个键都下来时，退一步比误出一手安全。
     // Tab 与 Esc / X 同义（施工图 1.5）：世界层按 Tab 开菜单，进了战斗手还放在 Tab 上。
     if (eng.keyPressed(Key::Cancel) || eng.keyPressed(Key::Menu)) {
@@ -1344,7 +1415,7 @@ void BattleScene::syncShown() {
         shown_[i].warded = units[i].warded(battle_.round());
         shown_[i].wardUntil = status.wardUntilRound;
         shown_[i].bound = status.bindSkips > 0;
-        shown_[i].bulwark = status.bulwarkPercent > 0 && status.bulwarkRound == battle_.round();
+        shown_[i].bulwark = status.bulwarkPercent > 0;
     }
 }
 
@@ -1369,9 +1440,9 @@ double BattleScene::playEvent(Application& app, const BattleEvent& e) {
             view.endAction();
             stageActor_ = -1;
             lastLog_ = "—— 第 " + std::to_string(e.value) + " 回合 ——";
-            // 同道录 2a·路 U：剑幕只管上一回合；护持过了它那一回合没用上就散（规则层不发事件，这里照回合号收）。
+            // 同道录 2a·路 U：护持过了它那一回合没用上就散（规则层不发事件，这里照回合号收）。
+            // 剑幕不在这里收：它散在施术者下一次轮到的那一刻，规则层发 BulwarkEnd（返修第 2 条）。
             for (ShownUnit& s : shown_) {
-                s.bulwark = false;
                 if (s.warded && e.value > s.wardUntil) s.warded = false;
             }
             return 0.2;
@@ -1554,6 +1625,11 @@ double BattleScene::playEvent(Application& app, const BattleEvent& e) {
             lastLog_ = tongdaoFill(app.text("ui.tongdao.battle.log.bound_skip"), "{target}", nameOf(e.target));
             view.say(e.target, app.text("ui.tongdao.battle.bound_skip"), app.theme().goldBright);
             return 0.5;
+        case BattleEventKind::BulwarkEnd:
+            // 返修第 2 条：剑幕真正散掉的这一刻才收标记（罩着几位就几条，一条收一位）。
+            if (ShownUnit* s = at(e.target)) s->bulwark = false;
+            lastLog_ = tongdaoFill(app.text("ui.tongdao.battle.log.bulwark_end"), "{actor}", nameOf(e.actor));
+            return 0.05;
     }
     return 0.1;
 }
@@ -1665,6 +1741,8 @@ void BattleScene::buildResultCard(Application& app) {
             card_->title = app.text("ui.battle.victory");
             card_->lines = rewardLines(granted_, app.data(), app.state(), app.text("ui.battle.result.cultivation"));
             card_->subtitle = app.text(card_->lines.empty() ? "ui.battle.result.nothing" : "ui.battle.victory.sub");
+            // 返修第 3 条：切磋赢了、卡上没有掉落行时不写「此战别无所得」——紧接着的回话还要报首胜之礼，两句读着打架。
+            if (battle_.spar() && card_->lines.empty()) card_->subtitle = app.text("ui.tongdao.spar.result.sub");
             app.engine().playSfx("victory");
             break;
         case BattlePhase::Lost:
@@ -1881,33 +1959,36 @@ void BattleScene::renderMenu(Application& app) const {
         if (target.ally && targetsAllies()) note = allyStatusText(app, target);
     }
     // 法术、物品选单：说明区写光标那一门 / 那一件的效果行（docs/ch07-foundation.md 3.3）。说明区只有 72 高，
-    // 按通用的文字块（内边距 24）只排得下一行：这里自己排，15 号字、内边距收窄，至多三行——上一句反馈在前，效果在后。
-    if (const int pick = menuList_.selection(); (menu_ == BattleMenuMode::Magic || menu_ == BattleMenuMode::Item) &&
-                                                pick >= 0 && static_cast<std::size_t>(pick) < menuIds_.size()) {
-        const std::string& id = menuIds_[static_cast<std::size_t>(pick)];
+    // 按通用的文字块（内边距 24）只排得下一行：这里自己排，15 号字、内边距收窄，至多三行。
+    // 返修第 5 条：这两个选单里上一手留下来的战报（feedback_）一律不画（光标停在「返回」上也不画）；在这一级刚被拒时，
+    // 理由占顶上一行（光标一动就让位），效果说明占余下的两到三行，放不下时末行以「…」收尾（layoutMenuNote）。
+    if (menu_ == BattleMenuMode::Magic || menu_ == BattleMenuMode::Item) {
+        const int pick = menuList_.selection();
         std::string effect;
-        if (menu_ == BattleMenuMode::Item) {
-            effect = itemEffectSummary(app, id);
-        } else if (const core::Magic* magic = app.data().findMagic(id)) {
-            effect = magicEffectSummary(app, *magic);
+        if (pick >= 0 && static_cast<std::size_t>(pick) < menuIds_.size()) {
+            const std::string& id = menuIds_[static_cast<std::size_t>(pick)];
+            if (menu_ == BattleMenuMode::Item) {
+                effect = itemEffectSummary(app, id);
+            } else if (const core::Magic* magic = app.data().findMagic(id)) {
+                effect = magicEffectSummary(app, *magic);
+            }
+            effect = stageWords(wordingStage(app.state()), effect);
         }
-        effect = stageWords(wordingStage(app.state()), effect);
         constexpr int kNoteFont = 15;
         constexpr int kNoteLine = 20;
         constexpr int kNoteInset = 12;
         const int width = content.w - kNoteInset * 2;
+        constexpr int kNoteTop = 6;
         const auto measure = [&eng](const std::string& sample) { return eng.measureText(sample, kNoteFont).x; };
-        int y = content.y + listH + 6;
-        const int bottom = content.y + listH + kMenuFeedbackH;
-        const auto put = [&](const std::string& text, const engine::Color& color) {
-            for (const engine::LayoutLine& line : engine::layoutText(text, width, measure)) {
-                if (y + kNoteFont > bottom) return;
-                if (!line.text.empty()) eng.drawText(line.text, content.x + kNoteInset, y, kNoteFont, color, theme.bodyStyle);
-                y += kNoteLine;
+        const int maxLines = (kMenuFeedbackH - kNoteTop - kNoteFont) / kNoteLine + 1;   // 72 高：三行
+        int y = content.y + listH + kNoteTop;
+        for (const MenuNoteLine& line : layoutMenuNote(menuNotice(), effect, width, maxLines, measure)) {
+            if (!line.text.empty()) {
+                eng.drawText(line.text, content.x + kNoteInset, y, kNoteFont, line.notice ? theme.paper : theme.goldBright,
+                             theme.bodyStyle);
             }
-        };
-        put(note, theme.paper);
-        put(effect, theme.goldBright);
+            y += kNoteLine;
+        }
         return;
     }
     if (!note.empty()) {

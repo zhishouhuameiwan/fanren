@@ -123,6 +123,8 @@ std::string BattleState::applyDuo(const Action& a) {
         log_.push_back(partner.name + " 收起守势");
         emit(BattleEvent{BattleEventKind::GuardEnd, a.partnerIndex});
     }
+    // 剑幕同理（返修第 2 条）：她这一手陪着出了合招，就是轮到过了，她张的剑幕此刻散去。
+    dropBulwarkOf(a.partnerIndex);
     // 效果：那门法术由发起人施放——境界压制、killableBy、事件归属都算发起人的（resolveMagic 按 actorIndex 走）。
     const Magic magic = *findMagic(a.magicId);
     return resolveMagic(a, magic, nullptr, a.partnerIndex);

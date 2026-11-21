@@ -276,6 +276,8 @@ void BattleState::skipIneligibleActors() {
         Unit& u = unitRef(order_[orderPos_]);
         // 定身（同道录 2a，Magic::effect Bind）：轮到它时失去这一次行动，定身随之解开。
         if (u.alive() && !u.broken() && u.status.bindSkips > 0) {
+            // 被定身跳过也算轮到她：她张的剑幕先散（返修第 2 条）。
+            dropBulwarkOf(order_[orderPos_]);
             --u.status.bindSkips;
             // 随后两回合不再吃定身，免得被一张符锁死。
             u.status.bindImmuneUntilRound = round_ + 2;
@@ -294,12 +296,27 @@ void BattleState::skipIneligibleActors() {
 void BattleState::beginActorTurn() {
     const int actor = currentActor();
     if (actor < 0) return;
+    // 剑幕（返修第 2 条）：轮到施术者，她上一次张的剑幕先散，再由她决定这一手（重放就是重新张开）。
+    dropBulwarkOf(actor);
     Unit& u = unitRef(actor);
     if (!u.guarding) return;
     // 日志上说一句：守势是玩家花掉一整手换来的，它什么时候没的得看得见。
     u.guarding = false;
     log_.push_back(u.name + " 收起守势");
     emit(BattleEvent{BattleEventKind::GuardEnd, actor});
+}
+
+void BattleState::dropBulwarkOf(int caster) {
+    bool any = false;
+    for (std::size_t i = 0; i < units_.size(); ++i) {
+        Unit::Status& status = units_[i].status;
+        if (status.bulwarkPercent <= 0 || status.bulwarkCaster != caster) continue;
+        status.bulwarkPercent = 0;
+        status.bulwarkCaster = -1;
+        any = true;
+        emit(BattleEvent{BattleEventKind::BulwarkEnd, caster, static_cast<int>(i)});
+    }
+    if (any) log_.push_back(unitRef(caster).name + " 的剑幕散去");
 }
 
 void BattleState::tickPoison(int unitIndex) {

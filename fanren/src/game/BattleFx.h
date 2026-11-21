@@ -27,7 +27,7 @@ struct ShownUnit {
     bool warded = false;     // 身上有护持（Ward 挂上、WardBlock 用掉、过了 wardUntil 那一回合散掉）
     int wardUntil = 0;
     bool bound = false;      // 被定身、还没轮到（Bind 挂上、BoundSkip 用掉）
-    bool bulwark = false;    // 剑幕罩着（本回合；下一回合开头散掉）
+    bool bulwark = false;    // 剑幕罩着（到施术者下一次轮到、或她倒下时散：播到 BulwarkEnd 才收）
 };
 
 struct StagePoint {

@@ -1,12 +1,13 @@
 // 同道录 2a·路 K：战斗规则层（core/battle）新加的几样，直接驱动 BattleState，不开 Application。
 //   * 开场的劲：先手、她的被动、同修不叠加取大；在册加成的偷袭劲叠在先手上；封顶 5；
-//   * 法术的基础段数（Magic::hits）；四种辅助效果（回血、护持、剑幕、定身）；
+//   * 法术的基础段数（Magic::hits）；四种辅助效果（回血、护持、剑幕、定身）；剑幕的时效（返修第 2 条：管到施术者下一次轮到）；
 //   * 打赢回血、符的威力加成、主角某属法术多削架势、她的追击加成；
 //   * 切磋：不追击、不合招。
 // 走 Application 真入口的那一半（建场、切磋编成、同修）在 TongdaoWiringTests.cpp。
 #include <gtest/gtest.h>
 
 #include <algorithm>
+#include <cmath>
 #include <string>
 #include <vector>
 
@@ -240,13 +241,27 @@ TEST(TongdaoBattleMagic, AWardSwallowsTheNextHitAndOnlyThatOne) {
     EXPECT_EQ(count(since(b, from), BattleEventKind::WardBlock), 0);
 }
 
-TEST(TongdaoBattleMagic, ABulwarkCutsDamageForTheWholeSideUntilTheRoundEnds) {
-    // 先量一记不带剑幕的普攻打多少。
+// 一记不带剑幕的普攻打多少（hero(50) 对 brute：恶狼攻 30、韩立防 5）。
+int plainBruteHit() {
     BattleState plain;
     plain.setup({hero(50), foe("brute", 10, 0)}, 1);
     plain.endTurn();
-    ASSERT_TRUE(plain.apply(act(ActionKind::Attack, 1, 0)).ok);
-    const int full = 200 - plain.units()[0].hp;
+    EXPECT_TRUE(plain.apply(act(ActionKind::Attack, 1, 0)).ok);
+    return 200 - plain.units()[0].hp;
+}
+
+// 事件 kind 在 events 里第一次出现的下标；没有返回 -1。
+int firstOf(const std::vector<BattleEvent>& events, BattleEventKind kind) {
+    for (std::size_t i = 0; i < events.size(); ++i) {
+        if (events[i].kind == kind) return static_cast<int>(i);
+    }
+    return -1;
+}
+
+// 返修（docs/ch07-tongdaolu-fix1.md 第 2 条）：原名 ABulwarkCutsDamageForTheWholeSideUntilTheRoundEnds，钉的是「只管这一回合」。
+// 剑幕现在管到施术者下一次轮到为止；这里韩立（身法 50）在下一回合排在恶狼前头，轮到他时剑幕就散，恶狼那一下照常。
+TEST(TongdaoBattleMagic, ABulwarkCutsDamageForTheWholeSideUntilTheCasterActsAgain) {
+    const int full = plainBruteHit();
     ASSERT_GT(full, 10);
 
     BattleState b;
@@ -259,16 +274,161 @@ TEST(TongdaoBattleMagic, ABulwarkCutsDamageForTheWholeSideUntilTheRoundEnds) {
     ASSERT_TRUE(b.apply(act(ActionKind::Cast, 0, -1, "wall")).ok);
     EXPECT_EQ(count(since(b, from), BattleEventKind::Bulwark), 1);
     EXPECT_EQ(b.units()[1].status.bulwarkPercent, 50) << "整边都护着";
+    EXPECT_EQ(b.units()[1].status.bulwarkCaster, 0) << "记着是谁张的";
     b.endTurn();
     turnOf(b, 2);
     ASSERT_TRUE(b.apply(act(ActionKind::Attack, 2, 0)).ok);
     const int cut = 200 - b.units()[0].hp;
     EXPECT_EQ(cut, (full + 1) / 2) << "减五成（四舍五入）";
+    from = b.events().size();
     b.endTurn();
-    turnOf(b, 2);   // 下一回合
+    turnOf(b, 2);   // 下一回合：韩立先轮到（剑幕散），再到恶狼
+    EXPECT_EQ(count(since(b, from), BattleEventKind::BulwarkEnd), 2) << "罩着两位，各散一条";
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 0);
+    EXPECT_EQ(b.units()[1].status.bulwarkPercent, 0);
     const int before = b.units()[0].hp;
     ASSERT_TRUE(b.apply(act(ActionKind::Attack, 2, 0)).ok);
-    EXPECT_EQ(before - b.units()[0].hp, full) << "过了这一回合剑幕就散了";
+    EXPECT_EQ(before - b.units()[0].hp, full) << "轮到施术者剑幕就散了";
+}
+
+// 返修第 2 条：她排在回合末张开，剑幕翻过回合接着管，下一回合抢在她前头出手的敌人照样吃减伤；轮到她时才散。
+TEST(TongdaoBattleMagic, ABulwarkCastLastInTheRoundStillCoversTheNextRoundUntilHerTurn) {
+    const int full = plainBruteHit();
+    BattleState b;
+    Unit chen = companion("chen", 0, 5);   // 最慢：回合末才轮到她
+    chen.magics = {"wall"};
+    b.setup({hero(50), chen, foe("brute", 30, 0)}, 1);   // 次序：韩立、恶狼、她
+    b.addMagic(support("wall", MagicEffect::Bulwark, 50));
+    turnOf(b, 1);
+    ASSERT_EQ(b.round(), 1);
+    ASSERT_TRUE(b.apply(act(ActionKind::Cast, 1, -1, "wall")).ok);
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 50);
+    b.endTurn();   // 她是这一回合最后一位：行动者推成 -1
+    b.endTurn();   // 第 2 回合，韩立先手
+    ASSERT_EQ(b.round(), 2);
+    ASSERT_EQ(b.currentActor(), 0);
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 50) << "翻过回合还罩着";
+    b.endTurn();
+    ASSERT_EQ(b.currentActor(), 2);
+    const int before = b.units()[0].hp;
+    ASSERT_TRUE(b.apply(act(ActionKind::Attack, 2, 0)).ok);
+    EXPECT_EQ(before - b.units()[0].hp, (full + 1) / 2) << "第 2 回合抢在她前头的这一下照样减五成";
+    const std::size_t from = b.events().size();
+    b.endTurn();   // 轮到她
+    ASSERT_EQ(b.currentActor(), 1);
+    const auto events = since(b, from);
+    EXPECT_EQ(count(events, BattleEventKind::BulwarkEnd), 2);
+    for (const BattleEvent& e : events) {
+        if (e.kind == BattleEventKind::BulwarkEnd) EXPECT_EQ(e.actor, 1) << "散的是她张的那一道";
+    }
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 0);
+    EXPECT_EQ(b.units()[1].status.bulwarkPercent, 0);
+    EXPECT_EQ(b.units()[0].status.bulwarkCaster, -1);
+}
+
+// 返修第 2 条：她那一手被定身跳过也算轮到——剑幕照样散，而且散在「动弹不得」之前。
+// 我方没有会定身的敌人，这里让敌方那一边的人张剑幕、韩立去定它（规则层不分敌我）。
+TEST(TongdaoBattleMagic, ABoundCasterLosesHerTurnAndHerBulwarkWithIt) {
+    BattleState b;
+    Unit h = hero(50);
+    h.magics = {"bind"};
+    Unit caster = foe("caster", 30, 0);
+    caster.magics = {"wall"};
+    b.setup({h, caster, foe("other", 10, 0)}, 1);
+    b.addMagic(support("wall", MagicEffect::Bulwark, 50));
+    b.addMagic(support("bind", MagicEffect::Bind));
+    turnOf(b, 1);
+    ASSERT_TRUE(b.apply(act(ActionKind::Cast, 1, -1, "wall")).ok);
+    EXPECT_EQ(b.units()[2].status.bulwarkPercent, 50) << "罩着她那一边";
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 0) << "不罩对面";
+    b.endTurn();
+    turnOf(b, 0);   // 第 2 回合，韩立
+    ASSERT_EQ(b.round(), 2);
+    ASSERT_TRUE(b.apply(act(ActionKind::Cast, 0, 1, "bind")).ok);
+    const std::size_t from = b.events().size();
+    b.endTurn();   // 轮到她：被定住跳过
+    EXPECT_EQ(b.currentActor(), 2);
+    const auto events = since(b, from);
+    ASSERT_EQ(count(events, BattleEventKind::BoundSkip), 1);
+    EXPECT_EQ(count(events, BattleEventKind::BulwarkEnd), 2);
+    EXPECT_LT(firstOf(events, BattleEventKind::BulwarkEnd), firstOf(events, BattleEventKind::BoundSkip))
+        << "先散剑幕，再动弹不得";
+    EXPECT_EQ(b.units()[1].status.bulwarkPercent, 0);
+    EXPECT_EQ(b.units()[2].status.bulwarkPercent, 0);
+}
+
+// 返修第 2 条：施术者倒下，剑幕当场散（紧跟在她的 Fall 之后），不等轮到她。
+TEST(TongdaoBattleMagic, ABulwarkFallsWithItsCaster) {
+    BattleState b;
+    Unit chen = companion("chen", 0, 50);
+    chen.magics = {"wall"};
+    chen.hp = 1;
+    b.setup({hero(5), chen, foe("brute", 30, 0)}, 1);   // 次序：她、恶狼、韩立
+    b.addMagic(support("wall", MagicEffect::Bulwark, 50));
+    turnOf(b, 1);
+    ASSERT_TRUE(b.apply(act(ActionKind::Cast, 1, -1, "wall")).ok);
+    b.endTurn();
+    ASSERT_EQ(b.currentActor(), 2);
+    const std::size_t from = b.events().size();
+    ASSERT_TRUE(b.apply(act(ActionKind::Attack, 2, 1)).ok);
+    const auto events = since(b, from);
+    ASSERT_EQ(count(events, BattleEventKind::Fall), 1);
+    EXPECT_EQ(count(events, BattleEventKind::BulwarkEnd), 2);
+    EXPECT_LT(firstOf(events, BattleEventKind::Fall), firstOf(events, BattleEventKind::BulwarkEnd));
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 0) << "韩立身上的也散了";
+    EXPECT_EQ(b.phase(), BattlePhase::Ongoing);
+}
+
+// 返修第 2 条：重放就是刷新——轮到她时旧的先散，再张开的那一道照新的数、管到她再下一次轮到。
+TEST(TongdaoBattleMagic, RecastingABulwarkRefreshesIt) {
+    const int full = plainBruteHit();
+    BattleState b;
+    Unit chen = companion("chen", 0, 50);
+    chen.magics = {"wall", "thin"};
+    b.setup({hero(5), chen, foe("brute", 30, 0)}, 1);   // 次序：她、恶狼、韩立
+    b.addMagic(support("wall", MagicEffect::Bulwark, 50));
+    b.addMagic(support("thin", MagicEffect::Bulwark, 30));
+    turnOf(b, 1);
+    ASSERT_TRUE(b.apply(act(ActionKind::Cast, 1, -1, "wall")).ok);
+    b.endTurn();
+    turnOf(b, 1);   // 第 2 回合轮到她
+    ASSERT_EQ(b.round(), 2);
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 0) << "轮到她时旧的先散";
+    const std::size_t from = b.events().size();
+    ASSERT_TRUE(b.apply(act(ActionKind::Cast, 1, -1, "thin")).ok);
+    EXPECT_EQ(count(since(b, from), BattleEventKind::Bulwark), 1);
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 30) << "照新的数";
+    EXPECT_EQ(b.units()[0].status.bulwarkCaster, 1);
+    b.endTurn();
+    ASSERT_EQ(b.currentActor(), 2);
+    const int before = b.units()[0].hp;
+    ASSERT_TRUE(b.apply(act(ActionKind::Attack, 2, 0)).ok);
+    EXPECT_EQ(before - b.units()[0].hp, static_cast<int>(std::lround(full * 70 / 100.0))) << "减三成";
+}
+
+// 返修第 2 条：她这一回合的行动被合招用掉（陪着出了合招）也算轮到过，剑幕在合招那一刻散（与守势同一个口径）。
+TEST(TongdaoBattleMagic, BeingCalledIntoADuoCountsAsHerTurnForTheBulwark) {
+    BattleState b;
+    Unit chen = companion("chen", 100, 40);
+    chen.duo = "duo";
+    chen.magics = {"wall"};
+    b.setup({hero(50), chen, foe("brute", 10, 0)}, 1);   // 次序：韩立、她、恶狼
+    b.addMagic(support("wall", MagicEffect::Bulwark, 50));
+    b.addMagic(magic("duo", 10));
+    turnOf(b, 1);
+    ASSERT_TRUE(b.apply(act(ActionKind::Cast, 1, -1, "wall")).ok);
+    b.endTurn();
+    turnOf(b, 0);   // 第 2 回合，韩立先手
+    ASSERT_EQ(b.round(), 2);
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 50);
+    Action duo = act(ActionKind::Duo, 0, 2, "duo");
+    duo.partnerIndex = 1;
+    std::string why;
+    ASSERT_TRUE(b.isLegal(duo, &why)) << why;
+    const std::size_t from = b.events().size();
+    ASSERT_TRUE(b.apply(duo).ok);
+    EXPECT_EQ(count(since(b, from), BattleEventKind::BulwarkEnd), 2);
+    EXPECT_EQ(b.units()[0].status.bulwarkPercent, 0);
 }
 
 TEST(TongdaoBattleMagic, ABoundFoeLosesItsNextTurnButBossesAndUnescapableFightsResist) {
