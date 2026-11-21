@@ -424,6 +424,11 @@ const FoeTrack::Slot* FoeTrack::find(const WorldFrame::Foe& foe) const {
     return it == slots_.end() ? nullptr : &*it;
 }
 
+bool standsOnObjective(const core::MapObject& target, core::Point hero) {
+    return hero.x >= target.position.x && hero.x < target.position.x + std::max(1, target.width) &&
+           hero.y >= target.position.y && hero.y < target.position.y + std::max(1, target.height);
+}
+
 std::vector<WorldDrawItem> depthOrder(const WorldFrame& frame, Vec2f playerCell,
                                       const std::vector<Vec2f>& followerCells, const RectF& view,
                                       const std::vector<Vec2f>* foeCells) {
@@ -1628,6 +1633,9 @@ void WorldView::drawObjectiveMarker(engine::Engine& engine, const ui::Theme& the
     const float top = fl(target->position.y) * kCell - vp.camY;
 
     if (!(left + w <= 0.f || top + h <= 0.f || left >= kViewW || top >= kViewH)) {
+        // 人就站在目标那一格上（拆包点、坐在蒲团上……）时不画菱形：它会悬在人脸上，与头顶的「[Z] …」挤成一团；
+        // 脚下那圈金光与头顶的提示已经说清了「就是这儿」（2026-11-20 试玩返修）。人一离开那一格，菱形照常。
+        if (standsOnObjective(*target, lastCell_)) return;
         // 在视野里：一枚金菱形悬在目标头顶。目标是 NPC 时抬到名牌上面去——画在名牌那个高度上，
         // 正好戳在名字中间，两样都读不清。
         float anchor = top;

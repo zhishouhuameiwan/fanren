@@ -1,5 +1,5 @@
 -- @hook ch07_huanxingshan trigger_qingshidian interact once
--- 第七章节点 29「青石殿与地道」。挂在 ch07_huanxingshan 青石殿的门 (37,31)
+-- 第七章节点 29「青石殿与地道」。挂在 ch07_huanxingshan 青石殿的门 (38,31)
 -- （mode=interact，once=true，guard_flag=ch07.wuyou，set_flag=ch07.didao）。拿金刃试殿门的是他。
 --
 -- 框架件（施工图 13.1 第 29 段）：第四日不顺——守护兽多、资料有误，法力体力都吃紧；药量勉强够；钟吾的玉简上近处还有一处：

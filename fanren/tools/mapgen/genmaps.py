@@ -1039,6 +1039,7 @@ def build_everything():
 FLAT_TRIGGERS = {
     "ch06_baiyaoyuan": ("trigger_chaibao",),          # (22,3) 居室里一格空地板
     "ch07_jindi_zhongxin": ("trigger_shulin",),       # (30,25) 大树树冠下的草地
+    "ch07_dihuo": ("trigger_zhuji",),                 # (28,1) 十九号墙角的蒲团（底图原画成木箱，第二批返修改画成蒲团）
 }
 
 

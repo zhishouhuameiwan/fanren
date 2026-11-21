@@ -1,5 +1,5 @@
 -- @hook ch06_baiyaoyuan trigger_chaibao interact once
--- 第七章节点 1「拆包」。挂在 ch06_baiyaoyuan 居室里放包袱的小桌 (22,3)
+-- 第七章节点 1「拆包」。挂在 ch06_baiyaoyuan 居室墙角地上的布包 (22,3)
 -- （mode=interact，once=true，guard_flag=ch06.done，set_flag=ch07.chaibao）。拆叶师叔那一包的是他。
 --
 -- 第 6 章章末的次日（第 6 章收在「第二日醒来」）。框架件照施工图 13.1 第 1 段：

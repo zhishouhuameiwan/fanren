@@ -23,6 +23,7 @@
 #include "game/Application.h"
 #include "game/FoePatrol.h"
 #include "game/WorldScene.h"
+#include "game/WorldView.h"
 #include "io/SaveFile.h"
 
 namespace {
@@ -326,19 +327,20 @@ TEST_F(FlatCells, TheSpotsThatAreDrawnAsSolidThingsStillBlock) {
     }
 }
 
-// 第 7 章会走到的图上、落在碰撞格上的按键型任务点一共 27 处：清 2 处，其余 25 处照旧挡路。
+// 第 7 章会走到的图上、落在碰撞格上的按键型任务点一共 27 处：清 3 处（第一批 2 处、第二批墙角蒲团 1 处），其余 24 处照旧挡路。
 // 名单与判定照 docs/ch07-foundation-integration.md「试玩返修·不挡路」那张表；图改了、判定变了，两边一起改。
 TEST_F(FlatCells, EveryChapterSevenInteractSpotKeepsItsJudgedCollision) {
     const std::vector<std::pair<std::string, std::vector<std::string>>> cleared{
         {"ch06_baiyaoyuan", {"trigger_chaibao"}},
         {"ch07_jindi_zhongxin", {"trigger_shulin"}},
+        {"ch07_dihuo", {"trigger_zhuji"}},   // 第二批返修：底图上的木箱改画成蒲团
     };
     const std::vector<std::pair<std::string, std::vector<std::string>>> kept{
         {"ch06_baiyaoyuan", {"trigger_yaolou", "trigger_dufang", "trigger_sannian"}},
         {"ch06_huangfenggu",
          {"trigger_ye_maidan", "trigger_dadian", "trigger_lin_lingqu", "trigger_wufeng", "trigger_zawu",
           "trigger_juanzong", "trigger_chuling", "trigger_baoming", "trigger_dengji"}},
-        {"ch07_dihuo", {"trigger_banian", "trigger_zhuji"}},
+        {"ch07_dihuo", {"trigger_banian"}},
         {"ch07_dixia_shiku", {"trigger_poding"}},
         {"ch07_dixia_zhaoze", {"trigger_fengkou"}},
         {"ch07_fangshi", {"trigger_wanbaolou"}},
@@ -375,8 +377,8 @@ TEST_F(FlatCells, EveryChapterSevenInteractSpotKeepsItsJudgedCollision) {
     };
     check(cleared, true, clearedCount);
     check(kept, false, keptCount);
-    EXPECT_EQ(clearedCount, 2);
-    EXPECT_EQ(keptCount, 25);
+    EXPECT_EQ(clearedCount, 3);
+    EXPECT_EQ(keptCount, 24);
 }
 
 // 全游戏 35 张蒲团：没有一格还被碰撞层标成墙。
@@ -424,4 +426,59 @@ TEST(FlatCellDepth, TheHeroAndAnyoneOnTheRowAboveAreDrawnOverTheCushion) {
     std::vector<Kind> kinds;
     for (const auto& item : items) kinds.push_back(item.kind);
     EXPECT_EQ(kinds, (std::vector<Kind>{Kind::Facility, Kind::Npc, Kind::Player}));
+}
+
+// ---------------------------------------------------------------------------
+// 第二批返修：地火屋墙角那张蒲团（第 7 章最后一步「去墙角的蒲团坐下」）
+// ---------------------------------------------------------------------------
+
+namespace {
+constexpr Point kZhuji{28, 1};
+constexpr Point kBelowZhuji{28, 2};
+}  // namespace
+
+class FlatCellsZhuji : public FlatCells {
+protected:
+    // 章首存档，摆到「筑基丹炼成了」那一刻：只差墙角这一步。
+    void enterDihuo() {
+        auto save = fanren::io::loadGame((repoRoot() / "saves" / "ch07-start.sav").string());
+        ASSERT_TRUE(save.ok) << save.error;
+        app_.state() = save.value;
+        app_.state().flags["ch07.chengdan"] = 1;
+        ASSERT_EQ(app_.state().flag("ch07.done"), 0);
+        enterWorld("ch07_dihuo");
+    }
+};
+
+TEST_F(FlatCellsZhuji, StandingOnTheCornerCushionStartsTheFoundationScene) {
+    enterDihuo();
+    stand(kBelowZhuji, kLeft);
+    ASSERT_TRUE(app_.currentMap()->walkable(kBelowZhuji));
+    EXPECT_TRUE(world_->tryStep(app_, 0, -1)) << "墙角那张蒲团贴地，走得上去";
+    ASSERT_EQ(app_.state().position, kZhuji);
+    EXPECT_TRUE(world_->interact(app_)) << "坐在上面按确认";
+    tick(2);
+    EXPECT_TRUE(app_.scripts().isRunning() || app_.awaitingCommand()) << "服丹筑基那一段起来了";
+}
+
+TEST_F(FlatCellsZhuji, FacingTheCornerCushionStartsTheFoundationSceneToo) {
+    enterDihuo();
+    stand(kBelowZhuji, kUp);
+    EXPECT_TRUE(world_->interact(app_)) << "在下面一格面朝它按确认";
+    tick(2);
+    EXPECT_TRUE(app_.scripts().isRunning() || app_.awaitingCommand());
+}
+
+// 人站在目标那一格上时目标菱形不画（它会悬在人脸上），离开那一格照常画。
+TEST(FlatCellMarker, TheDiamondStepsAsideOnlyWhileTheHeroStandsOnTheTarget) {
+    MapObject target;
+    target.type = "trigger";
+    target.position = Point{22, 3};
+    EXPECT_TRUE(fanren::game::standsOnObjective(target, Point{22, 3}));
+    EXPECT_FALSE(fanren::game::standsOnObjective(target, Point{22, 4}));
+    EXPECT_FALSE(fanren::game::standsOnObjective(target, Point{23, 3}));
+    target.width = 2;
+    target.height = 2;
+    EXPECT_TRUE(fanren::game::standsOnObjective(target, Point{23, 4})) << "占几格的目标，站在哪一格上都算";
+    EXPECT_FALSE(fanren::game::standsOnObjective(target, Point{24, 4}));
 }

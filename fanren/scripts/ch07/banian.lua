@@ -1,5 +1,5 @@
 -- @hook ch07_dihuo trigger_banian interact once
--- 第七章节点 35c「半年」。挂在 ch07_dihuo 十九号圆墩旁的石凳 (24,2)
+-- 第七章节点 35c「半年」。挂在 ch07_dihuo 十九号圆墩旁的木凳 (24,2)
 -- （mode=interact，once=true，guard_flag=ch07.feidan，set_flag=ch07.chengdan）。在鼎旁盘点、决定接着炼半年的是他。
 --
 -- 框架件（施工图 13.1 第 35c 段）：亲手成了第一颗；此后约三次成一次、取丹过半；辟谷丹一粒撑一月；丑汉那边从高兴到不安；半年得二十几颗。

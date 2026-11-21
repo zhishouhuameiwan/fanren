@@ -340,3 +340,64 @@
   `r04_beside_cushion.png`（`walk:DRu`，在蒲团下方面朝它，「[Z] 打坐」浮在蒲团上方）；裁图总览 `r00`（27 处任务点）、`r01`（35 处蒲团）。
 - 截图里看到、没动的两处：人站在目标格上时（r02），目标菱形悬在人脸上、「[Z] 调查」框在它上面，三样挤在一起——
   这是「脚下的调查点」原有的画法，不是这次引进的，只是现在站上目标格的机会多了；「[Z] …」框的下沿与背影的发顶贴着（r03），同一个原因。
+
+---
+
+## 10. 试玩返修第二批：图文对不上的 6 处 + 目标菱形让位（2026-11-21）
+
+主会话复审第 9 节通过，用户同意把图文对不上的几处修掉。编号沿用 9.2 的表。
+
+| 项 | 处 | 做法 | 修前修后 |
+| --- | --- | --- | --- |
+| 1 | #15 `ch07_dihuo` `trigger_zhuji` (28,1) | **改底图**：木箱抹回地面，画上蒲团（物件表 `facility.meditate` 的原稿）；加进 `FLAT_TRIGGERS`，碰撞清掉，能走上去，站在上面、面朝它按确认都开演服丹筑基 | `r10_15_zhuji.png` |
+| 2 | #02 `ch06_baiyaoyuan` `trigger_yaolou` (23,8) | **改底图**：石灯两格（墙基、草地）抹掉，同一格画上药篓（Seedream 新出 1 张）；任务点不挪，照旧挡路 | `r11_02_yaolou.png`、游戏内 `r11_02_yaolou_ingame.png` |
+| 3 | #01 拆包点 (22,3) | **改文案**：`ch07.chaibao.stones`「压在桌底的那只布包」→「搁在墙角地上的那只布包」。目标不动。**地上没画布包**：任务点没有「拆完就不画」的挂图办法（见 10.3） | `r13_01_chaibao.png` |
+| 4 | #19 `ch07_huanxingshan` 岔路石 (19,28) | **改文案**：目标 `n34_sichu`「去岔路石，照玉简跑一遍」→「去洞外的树桩，照玉简跑一遍」，详情「到洞外的岔路石，……」→「到洞外岔路口那截树桩，……」。对白、见闻里没有说到岔路石 | `r14_19_sichu.png` |
+| 5 | #12 报名处、#14 盘点处 | **改文案**（玩家看得到的字里都明写了）：`ch07.baoming.desk`「大殿前一张长案，王师叔坐在后头」→「大殿前立着一副兵器架，王师叔守在架旁」，目标详情 `n19_baoming.detail`「去大殿前王师叔的案子那里报名」→「去大殿前兵器架旁找王师叔报名」；目标 `n45_chengdan`「去石凳盘点」→「去木凳盘点」，详情末句「圆墩旁的石凳上」→「圆墩旁的木凳上」 | `r15_12_baoming.png`、`r16_14_banian.png` |
+| 6 | #20 `ch07_huanxingshan` 青石殿的门 | **改地图数据**：`trigger_qingshidian` 从 (37,31) 挪到门那一格 (38,31)（`genmaps_ch07.py` 改坐标，`genmaps.py --sync` 只写了这一张图、只差这一个对象的 x）。门那一格照旧是实心，人站 (38,32) 面朝上按 | `r12_20_qingshidian.png` |
+| 7 | 目标菱形压脸 | `WorldView::drawObjectiveMarker`：人站在目标对象那块矩形里（`standsOnObjective`）时不画菱形，脚下金圈与头顶「[Z] …」照常；离开那一格菱形照常 | 修前 `r17_07_marker_before.png`、修后 `r17_07_marker_after.png` |
+
+脚本与生成器里说到这几件东西的注释一并改成新说法（`chaibao.lua`、`baoming.lua`、`banian.lua`、`sichu.lua`、`qingshidian.lua` 的挂点注释，
+`genmaps_ch07.py` 的几行注释）；`data/visual/maps.json` 里灯光的 `why` 说明（「圆墩旁的石凳」「洞外的岔路石」）是美术生成器的输入，
+不是玩家看得到的字，没动，免得牵动烘焙图。
+
+### 10.1 改图怎么做的（走仓库现成的管线，两张都是第一条路「改底图的源再重出」）
+
+- 源图：主检出 `E:\fanren\fanren\docs\companions-overhaul\maps\` 里的 13 张定稿原图（每格 48 像素）**原样复制**到本工作树的
+  `fanren/docs/companions-overhaul/`（`.gitignore` 里，不入库），只改工作树里这份；主检出那份没动。物件表原稿 `raw/objects/sheet.png` 也复制了一份。
+- 先核管线可复现：用复制过来的原始源图按 `hd_maps.build_files` 重打一遍，36 个产物文件**逐字节**与仓库里的一样，再动手。
+- 改源图的两个脚本（`build-int/tools/patch_zhuji.py`、`patch_yaolou.py`，从 `build-int/*.orig.png` 这两份原始源图出发，可重跑）：
+  - 地火屋 (28,1)：木箱连影子抹掉，地面取正下方 (28,2) 那一格、按周边平均色配色、四边羽化；墙脚下那道横向暗影逐行取左边紧挨的三列补；
+    蒲团取物件表原稿按宽 46 缩（与游戏里蒲团物件同大），去掉原稿底边那圈蓝灰反光、按暗室压暗（打包时整图还要 ×1.6），加一层淡影。旁边的火盆没动。
+  - 百药园 (23,8)：石灯连同压在墙基上的那半截一起抹掉——墙基与草地都是横向铺的，取左边一格 (22,7)(22,8) 同高度的整块补；石灯檐角压在门框左沿的几个像素取同一列门框补；
+    药篓取 Seedream 原稿裁到外框、按高 54 缩（约半人高）、底边落在这一格下沿，加一块淡影。
+- 重出：仍是 `hd_maps.build_files` + `hd_maps.write`（`build-int/tools/hdcmp.py --write` 只是先比后写），产物里变了的只有
+  `ch07_dihuo/below.png`、`ch06_baiyaoyuan/below.png`、`ch06_baiyaoyuan/above.png`（上层是按旧烘焙图的遮挡范围从新下层里取的，跟着变）与 `index.json` 的三行 sha256。
+  缩图是整张取色板，所以这两张图别处的像素也会有一点点色差，这是管线本来的性质。
+- **要主会话或用户做的一件事**：把工作树里改过的两张源图与药篓原稿复制回主检出的源目录，否则以后在主检出跑 `hd_maps.py --check` 会报这两张「从源图重打出来像素不同」：
+  `fanren/docs/companions-overhaul/maps/ch07_dihuo.png`、`maps/ch06_baiyaoyuan.png` → `E:\fanren\fanren\docs\companions-overhaul\maps\`；
+  `raw/objects/yaolou.png` → `E:\fanren\fanren\docs\companions-overhaul\raw\objects\`。我只许在主检出新建 `build-s7` 里的文件，没有替你覆盖。
+
+### 10.2 出图
+
+Seedream **1 张**（药篓）：主检出的 `tools/artgen/seedream_run.js` 原样调用（没改它），`--ref raw/objects/sheet.png`（物件表原稿，带透明通道，
+定画法与视角）、`--size 1024x1024`、`--background transparent`。提示词在 `build-int/art/yaolou_prompt.txt`。原图存进工作树源目录 `raw/objects/yaolou.png`；
+脚本照它的老规矩另在主检出 `build-s7\seedream-out\` 下留了一份运行记录（新建文件）。蒲团没有出图，用的是物件表现成的原稿。
+
+### 10.3 没做成的、拿不准的
+
+1. **拆包点地上没画布包**（第 3 项的后半）。要做到「拆完就不画」，得给任务点挂物件图并按 `set_flag` 隐藏——引擎眼下只有设施、宝箱、采集点、明雷、机关这几类对象有图，
+   任务点没有；画进底图又去不掉。照返修单的口径只改了文案。若要做，最小的办法是给 `trigger` 加一个可选的 `look` 属性（物件图 id），没触发过时画、`set_flag` 置了就不画，另加一张布包物件图。
+2. 地火屋的蒲团在暗室里打包后偏红褐（整图 ×1.6 提亮、加火光），远看像一块圆垫，近看是编织纹，我认为能认出是蒲团，但没有用户的眼睛复核过。
+
+### 10.4 测试
+
+- `tests/FlatCellTests.cpp` 加 3 条（共 15 条）：站上墙角蒲团按确认开演、在下面一格面朝它按确认开演、`standsOnObjective` 的判定（只在人站在目标矩形里时为真）；
+  「27 处逐个钉住」那一条按新判定改为清 3、留 24（`trigger_zhuji` 从留挪到清）。这是本批改了判定、必须跟着变的断言，第 7 章验收的断言一条没改。
+- 第 7 章验收、目标、指引、对白字数（`DialogueBudget`）、文案（`Text*`）几组先单独跑过，全过；没有因为改文案、挪任务点而要改的旧断言
+  （第 7 章验收里 `expectHint("n45_chengdan", …)` 比的是详情的前半句，没碰到改的那几个字；机器人照常走到 (38,32) 面朝青石殿的门）。
+- 全量 ctest：见 10.5。
+
+### 10.5 结果
+
+全量 ctest **2409 / 2409 通过**（`build-int`，`-j 4`，407 秒，`build-int/ctest_b2.log`；比第 9 节多 3 条）。`build-int/fanren.exe` 已重编。

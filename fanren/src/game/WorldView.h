@@ -341,6 +341,9 @@ struct WorldDrawItem {
                                                     const engine::RectF& view,
                                                     const std::vector<Vec2f>* foeCells = nullptr);
 
+// 人是不是正站在目标对象那块矩形里（目标菱形此时不画，见 drawObjectiveMarker）。
+[[nodiscard]] bool standsOnObjective(const core::MapObject& target, core::Point hero);
+
 // ---------------------------------------------------------------------------
 // 渲染器本体
 // ---------------------------------------------------------------------------
