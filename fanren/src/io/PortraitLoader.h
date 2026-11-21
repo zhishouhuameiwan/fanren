@@ -31,4 +31,17 @@ namespace fanren::io {
 [[nodiscard]] core::Result<core::PortraitTable> parsePortraits(std::string_view json);
 [[nodiscard]] core::Result<core::PortraitTable> loadPortraits(const std::string& path);
 
+// 高清立绘表 data/visual/busts.json（女角色立绘，docs/heroine-art-build.md 第 2 节）：与头像表同一个形状、同一套严格口径，
+// 只是顶层键叫 busts、图相对 assets/art/busts/，另可带一个 files（文件名 → sha256，tools/artgen/busts.py 写、--check 核）。
+// 报错以「busts.json」起头。
+//
+//   {
+//     "_doc": "……",
+//     "busts": {"chen_shimei": [{"file": "chen_shimei.png", "frame_w": 840, "frame_h": 1260, "cols": 4,
+//                                "faces": {"normal": 0, "smile": 1, "angry": 2, "hurt": 3}}]},
+//     "files": {"chen_shimei.png": "<sha256>"}
+//   }
+[[nodiscard]] core::Result<core::PortraitTable> parseBusts(std::string_view json);
+[[nodiscard]] core::Result<core::PortraitTable> loadBusts(const std::string& path);
+
 }  // namespace fanren::io

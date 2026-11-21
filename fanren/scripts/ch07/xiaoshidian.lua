@@ -13,15 +13,11 @@
 -- 名字：「菡云芝」只在 ch07.xiaoshidian.after* 里出现（12.2 按 key 前缀断言）；她报名之前说话人是 maifu_shaonv（名牌卖符少女），
 -- 之后换 han_yunzhi。末尾 advance_days(1)：第三日过去（施工图 3.3）。
 
-talk("", "ch07.xiaoshidian.sound")
 talk("", "ch07.xiaoshidian.scene")
 talk("yan_wuchi", "ch07.xiaoshidian.dahan")
-talk("maifu_shaonv", "ch07.xiaoshidian.girl")
-talk("", "ch07.xiaoshidian.break")
 talk("", "ch07.xiaoshidian.save")
 talk("maifu_shaonv", "ch07.xiaoshidian.girl_you")
 talk("yan_wuchi", "ch07.xiaoshidian.chi")
-talk("", "ch07.xiaoshidian.go")
 
 local won = battle("b07_zhongxinqu_duoyao")
 if not won then
@@ -34,17 +30,13 @@ talk("yan_wuchi", "ch07.xiaoshidian.after_mirror")
 if take("story_xiao_yuanjing", 1) then
     give("story_qingning_jing")
 end
-talk("yan_wuchi", "ch07.xiaoshidian.after_shuang")
-talk("", "ch07.xiaoshidian.after_heavy")
 talk("maifu_shaonv", "ch07.xiaoshidian.after_secret")
-talk("", "ch07.xiaoshidian.after_look")
 talk("", "ch07.xiaoshidian.after_ten")
 talk("maifu_shaonv", "ch07.xiaoshidian.after_me")
 talk("", "ch07.xiaoshidian.after_burn")
 give("story_yinhui_jian")
-talk("", "ch07.xiaoshidian.after_sorry")
-talk("", "ch07.xiaoshidian.after_han")
 talk("", "ch07.xiaoshidian.after_name")
+intro_card("han_yunzhi")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 talk("han_yunzhi", "ch07.xiaoshidian.after_flower")
 
 local pick = choice{
@@ -63,9 +55,7 @@ end
 talk("", "ch07.xiaoshidian.after_knock")
 talk("", "ch07.xiaoshidian.after_sweep")
 give("herb_tianling_guo", 4, 1)
-talk("", "ch07.xiaoshidian.after_cave")
 talk("", "ch07.xiaoshidian.after_needle")
-talk("", "ch07.xiaoshidian.after_tree")
 
 advance_days(1)
 

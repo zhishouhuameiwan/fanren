@@ -110,7 +110,8 @@ std::vector<std::string> splitSpec(const std::string& spec, char separator) {
 //   chapter:<n>[:end]                       第 n 章开篇卡 / 章末那一串（终卡接下一章）
 //   menu[:status|items|magic|board|settings|home] 在当前地图上打开主菜单（物品、法术两页光标进列表；
 //                                           settings 是光标停在「设置」、右栏写摘要）
-//   settings[:keys]                         系统设置面板 / 改键面板，压在世界层上（docs/settings.md 5.5）
+//   settings[:keys|row<n>]                  系统设置面板 / 改键面板，压在世界层上（docs/settings.md 5.5）；
+//                                           row<n> 光标停在第 n 行（拍那一行的说明，第一期地基包集成加的）
 //   talk:<文案 key>[:<说话人角色 id>]       对话框；带说话人就有名签
 //   choice:<选项 key,选项 key…>[:<上一句 key>[:<说话人>]]   选项对话框
 //   ending:<标题 key>:<正文 key>            结局卡
@@ -149,6 +150,10 @@ bool pushUiShot(fanren::game::Application& app, const std::string& kind, const s
         else {
             return false;
         }
+        return true;
+    }
+    if (kind == "settings" && arg.rfind("row", 0) == 0 && arg.size() > 3) {
+        app.pushScene(std::make_unique<game::SettingsScene>(false, std::atoi(arg.c_str() + 3)));
         return true;
     }
     if (kind == "settings" && (arg.empty() || arg == "keys")) {
@@ -231,6 +236,8 @@ int main(int argc, char** argv) {
     }
     // 野外遭遇：Application 缺省关着（几百条无头测试不该冷不丁被拖进一场仗），上线的游戏打开。
     app.setEncountersEnabled(true);
+    // 教学卡（第一期地基包 2.3）：同一个套路，缺省关着；正常游玩打开，截图与无头不弹。
+    app.setTutorialsEnabled(interactive);
 
     // ---- 系统设置（docs/settings.md 第 2 节「谁读、谁写」）----
     //
@@ -327,6 +334,10 @@ int main(int argc, char** argv) {
             app.shutdown();
             return 1;
         }
+        // --window-scale <n>：窗口放大到 n 倍再拍（女角色立绘：看两倍窗口里立绘清不清楚，docs/heroine-art-build.md）。
+        if (const std::string scale = optionValue(argc, argv, "--window-scale"); !scale.empty()) {
+            app.engine().setWindowScale(std::atoi(scale.c_str()));
+        }
         // --scene battle:<编成 id> / board / talk:<文案 key> / fxdemo[:night|day|rain|snow]
         //
         // 一个口子而不是三个开关：面板种类只会越来越多，每种加一个 --xxx
@@ -389,6 +400,16 @@ int main(int argc, char** argv) {
                     app.state().position.x, app.state().position.y);
         app.shutdown();
         return 0;
+    }
+
+    // --event <脚本>：开局就演这一段（开发自检口，与 --map / --scene 同一类，不改任何游戏行为；
+    // 「看立绘-七位巡览」用它演 scripts/dev/heroine_tour.lua）。
+    if (const std::string event = optionValue(argc, argv, "--event"); !event.empty()) {
+        if (auto started = app.startEvent(event); !started) {
+            app.shutdown();
+            reportFatal(interactive, "演不了 " + event + "：" + started.error);
+            return 1;
+        }
     }
 
     const int code = app.run();

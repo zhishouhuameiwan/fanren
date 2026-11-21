@@ -23,45 +23,29 @@ if flag.get("ch07.lianqi") == 0 then
     else
         talk("wu_feng", "ch07.chuangong.open_won")
     end
-    talk("", "ch07.chuangong.who")
     talk("", "ch07.chuangong.ask")
     talk("wu_feng", "ch07.chuangong.name")
-    talk("", "ch07.chuangong.name_what")
-    talk("wu_feng", "ch07.chuangong.only")
     talk("wu_feng", "ch07.chuangong.reward")
-    talk("", "ch07.chuangong.fingers")
     talk("wu_feng", "ch07.chuangong.dead")
-    talk("wu_feng", "ch07.chuangong.seal")
-    talk("wu_feng", "ch07.chuangong.next")
-    talk("", "ch07.chuangong.leave")
 
     advance_days(3)
 
-    talk("", "ch07.chuangong.night1")
     talk("", "ch07.chuangong.night2")
-    talk("", "ch07.chuangong.night3")
     talk("", "ch07.chuangong.choose")
-    talk("", "ch07.chuangong.lianqi")
-    talk("", "ch07.chuangong.reason")
     flag.set("ch07.lianqi")
     return
 end
 
 if flag.get("ch07.fanhui") ~= 0 and flag.get("ch07.fudan_fa") == 0 then
-    talk("", "ch07.fudan.pretext")
     talk("", "ch07.fudan.ask")
-    talk("wu_feng", "ch07.fudan.swallow")
     talk("wu_feng", "ch07.fudan.close")
     talk("", "ch07.fudan.clash")
 
     advance_days(14)
 
     talk("", "ch07.fudan.weigh")
-    talk("", "ch07.fudan.notice")
     talk("", "ch07.fudan.notice_seal")
-    talk("", "ch07.fudan.notice_why")
     talk("", "ch07.fudan.judge")
-    talk("", "ch07.fudan.decide")
     flag.set("ch07.fudan_fa")
     return
 end

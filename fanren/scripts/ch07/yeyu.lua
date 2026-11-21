@@ -16,12 +16,9 @@
 --   没有就改成他榨出最后一点法力、以定神术定住她——不设死局。
 
 talk("", "ch07.yeyu.rest")
-talk("", "ch07.yeyu.steps")
 talk("", "ch07.yeyu.lianqi")
 talk("", "ch07.yeyu.see")
-talk("", "ch07.yeyu.box")
 talk("lu_shixiong", "ch07.yeyu.lu1")
-talk("lu_shixiong", "ch07.yeyu.lu2")
 talk("", "ch07.yeyu.daze")
 talk("", "ch07.yeyu.weigh")
 
@@ -51,11 +48,9 @@ end
 talk("", "ch07.yeyu.stalemate")
 talk("", "ch07.yeyu.drain")
 talk("", "ch07.yeyu.last")
-talk("", "ch07.yeyu.cut")
 talk("", "ch07.yeyu.ash")
 take("talisman_jianfu", 1)
 magic.forget("magic_ji_jianfu")
-talk("", "ch07.yeyu.ring")
 take("story_jinggang_huan", 1)
 
 talk("", "ch07.yeyu.loot")
@@ -67,7 +62,6 @@ give("story_yin_gou")
 give("talisman_huoqiu_fu", 4)
 give("talisman_hushen_fu", 2)
 give("material_lingshi", 20)
-talk("", "ch07.yeyu.pain")
 
 talk("", "ch07.yeyu.lunge")
 if take("talisman_dingshen_fu", 1) then

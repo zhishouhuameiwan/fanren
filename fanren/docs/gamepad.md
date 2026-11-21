@@ -51,8 +51,9 @@
 | `skip` | Skip | RT、RB（按住快进 / 加速） |
 | `save` | Save | ⧉（Back / 视图键） |
 | `action` | Action | X |
+| `map` | Map | LB（2026-11-20 第 7 章改版·路 M 追加：区域地图，`docs/ch07-foundation.md` 3.2） |
 
-- 不配任何动作：LB、LT、左右摇杆按下、右摇杆、Xbox 键（Guide，Windows 的 Game Bar 要用它）、分享键、背键、触摸板。
+- 不配任何动作：LT、左右摇杆按下、右摇杆、Xbox 键（Guide，Windows 的 Game Bar 要用它）、分享键、背键、触摸板。
 - 一个手柄键只属于一个动作；每个动作至少一个手柄键（测试钉）。
 - SDL 对应：A = `SDL_GAMEPAD_BUTTON_SOUTH`、B = `EAST`、X = `WEST`、Y = `NORTH`、⧉ = `BACK`、≡ = `START`、LB / RB = `LEFT/RIGHT_SHOULDER`、
   十字键 = `DPAD_*`；LT / RT = `SDL_GAMEPAD_AXIS_LEFT/RIGHT_TRIGGER`；左摇杆 = `SDL_GAMEPAD_AXIS_LEFTX/LEFTY`。
@@ -136,6 +137,10 @@
 | `ui.battle.hint.menu` | ↑↓ 选择 · ←→ 蓄劲 · 回车 确定 · Esc / {key.menu} 返回 · 按住 {key.skip} 加速 | ↑↓ 选择 · ←→ 蓄劲 · {pad.confirm} 确定 · {pad.cancel} / {pad.menu} 返回 · 按住 {pad.skip} 加速 | ↑↓ 选择 · ←→ 蓄劲 · A 确定 · B / Y 返回 · 按住 RT 加速 |
 | `ui.battle.hint.watch` | 按住 {key.skip} 加速 | 按住 {pad.skip} 加速 | 按住 RT 加速 |
 | `ui.world.interact.key`（2026-11-20 追加） | [{key.confirm}] | [{pad.confirm}] | [A] |
+| `ui.map.hint`（2026-11-20 第 7 章改版·路 M） | {key.map} / Esc 关闭 | {pad.map} / {pad.cancel} 关闭 | LB / B 关闭 |
+| `ui.map.hint.pan`（同上） | ↑↓←→ 平移　{key.map} / Esc 关闭 | ↑↓←→ 平移　{pad.map} / {pad.cancel} 关闭 | ↑↓←→ 平移　LB / B 关闭 |
+| `ui.map.minimap.key`（同上，小地图右下角） | {key.map} 地图 | {pad.map} 地图 | LB 地图 |
+| `ui.menu.map.desc`（同上，主菜单「地图」的说明） | ……随时可按 {key.map}。 | ……随时可按 {pad.map}。 | ……随时可按 LB。 |
 
   `ui.world.interact.key` 是地图上「靠近能按的东西时头顶那块小牌子」的键位（`WorldScene::interactHint`，后面接「打开 / 采集 / 调查 / 交谈 / 使用 / 偷袭 / 迎战 / 查看」），
   用户 2026-11-20 试玩第 7 章时要的：「可以拾取的道具或者可以交互的道具……离近之后要有对应按钮提示」。`KeyPrompts` 两条白名单随之各加一条。

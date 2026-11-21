@@ -14,6 +14,7 @@
 #include "core/rules/Bottle.h"   // herbMaxAgeForGrade / kMaxHerbAge：灵草年份上限的唯一出处
 #include "core/rules/Realm.h"
 #include "io/CompanionLoader.h"
+#include "io/GuideLoader.h"
 #include "io/JsonUtil.h"
 #include "io/PathActionLoader.h"
 #include "io/QuestLoader.h"
@@ -580,6 +581,56 @@ core::Result<bool> loadOneTextFile(const fs::path& path, std::map<std::string, s
 // 文件不动、不改名、内容不改，out 那条链一个字节不变——HUD 与告示板上半截仍只读它；
 // mainQuest 与它逐步对应，只是换了个「任务」的身份，让告示板与测试能把主线和支线
 // 放在同一张表里问状态。两份出自同一次解析，不会走散。
+// hint_key / detail_key / progress（docs/ch07-foundation.md 2.1）。缺省都是「没有」；写了却写坏的
+// 一律加载失败——一个永远显示 0/0 的进度，比没有进度更让人摸不着头脑。
+core::Result<bool> readObjectiveExtras(const json& step, core::Objective& objective, const fs::path& path) {
+    const auto fail = [&path, &objective](const std::string& why) {
+        return core::Result<bool>::failure("目标链第 " + objective.id + " 步" + why + ": " + path.string());
+    };
+    for (const auto& [field, out] : {std::pair{"hint_key", &objective.hintKey},
+                                     std::pair{"detail_key", &objective.detailKey}}) {
+        if (!step.contains(field)) continue;
+        if (!step[field].is_string()) return fail(std::string("的 ") + field + " 不是字符串");
+        *out = step[field].get<std::string>();
+    }
+    if (!step.contains("progress")) return core::Result<bool>::success(true);
+    const json& p = step["progress"];
+    if (!p.is_object() || !p.contains("kind") || !p["kind"].is_string()) return fail("的 progress 缺 kind");
+    const std::string kind = p["kind"].get<std::string>();
+    core::ObjectiveProgress& out = objective.progress;
+    if (kind == "item" || kind == "aged_item") {
+        if (!p.contains("item") || !p["item"].is_string() || p["item"].get<std::string>().empty()) {
+            return fail("的 progress 缺 item");
+        }
+        if (!p.contains("need") || !p["need"].is_number_integer() || p["need"].get<int>() <= 0) {
+            return fail("的 progress.need 不是正整数");
+        }
+        out.item = p["item"].get<std::string>();
+        out.need = p["need"].get<int>();
+        out.kind = core::ObjectiveProgress::Kind::Item;
+        if (kind == "aged_item") {
+            if (!p.contains("min_age") || !p["min_age"].is_number_integer() || p["min_age"].get<int>() <= 0) {
+                return fail("的 progress.min_age 不是正整数");
+            }
+            out.minAge = p["min_age"].get<int>();
+            out.kind = core::ObjectiveProgress::Kind::AgedItem;
+        }
+    } else if (kind == "flags") {
+        if (!p.contains("flags") || !p["flags"].is_array() || p["flags"].empty()) {
+            return fail("的 progress.flags 不是非空数组");
+        }
+        for (const json& flag : p["flags"]) {
+            if (!flag.is_string() || flag.get<std::string>().empty()) return fail("的 progress.flags 里有空项");
+            out.flags.push_back(flag.get<std::string>());
+        }
+        out.need = static_cast<int>(out.flags.size());
+        out.kind = core::ObjectiveProgress::Kind::Flags;
+    } else {
+        return fail("的 progress.kind 认不出：" + kind);
+    }
+    return core::Result<bool>::success(true);
+}
+
 core::Result<bool> loadOneObjectiveFile(const fs::path& path,
                                         std::vector<core::Objective>& out,
                                         core::Quest& mainQuest) {
@@ -632,6 +683,9 @@ core::Result<bool> loadOneObjectiveFile(const fs::path& path,
         objective.targetMap = step["target_map"].get<std::string>();
         objective.targetObject = step["target_object"].get<std::string>();
         objective.chapter = chapter;
+        // 第一期地基包（docs/ch07-foundation.md 2.1）：三项都可空；写了就得写对。
+        core::Result<bool> extras = readObjectiveExtras(step, objective, path);
+        if (!extras) return extras;
 
         // 主线任务的这一步：形状照抄，done 留空——主线的完成只认目标链判据
         // （doneFlag 置位），不在任务里另写一份，见 core::QuestStep::done 的注释。
@@ -758,6 +812,14 @@ core::Result<GameData> loadGameDataImpl(const std::string& dataRootStr) {
         loadCompanions((dataRoot / "companions").string());
     if (!companions) return core::Result<GameData>::failure(companions.error);
     data.companions = std::move(companions.value);
+
+    // 教学卡与见闻（第一期地基包，docs/ch07-foundation.md 2.3、2.5）。只查形状；文案、旗标、角色的引用归测试。
+    core::Result<std::vector<core::TutorialCard>> tutorials = loadTutorialDir((dataRoot / "tutorials").string());
+    if (!tutorials) return core::Result<GameData>::failure(tutorials.error);
+    data.tutorials = std::move(tutorials.value);
+    core::Result<std::vector<core::LoreEntry>> lore = loadLoreDir((dataRoot / "lore").string());
+    if (!lore) return core::Result<GameData>::failure(lore.error);
+    data.lore = std::move(lore.value);
 
     return core::Result<GameData>::success(std::move(data));
 }

@@ -9,10 +9,7 @@
 talk("", "ch07.yueyang.banner")
 talk("", "ch07.yueyang.wait")
 talk("", "ch07.yueyang.light")
-talk("", "ch07.yueyang.rain")
 talk("", "ch07.yueyang.envy")
 talk("", "ch07.yueyang.mountain")
-talk("", "ch07.yueyang.others")
-talk("", "ch07.yueyang.last")
 
 flag.set("ch07.yueyang")

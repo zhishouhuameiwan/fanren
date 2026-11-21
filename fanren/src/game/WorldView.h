@@ -43,6 +43,9 @@
 namespace fanren::game {
 
 class Application;
+namespace minimap {
+class MapThumbnail;   // game/Minimap.h（它要 include 本文件，这里只前置声明）
+}
 
 // 像素尺度（施工图 1.1）：地图与人物是 16px 的像素美术，放大三倍，一格在屏幕上 48 像素。
 // 逻辑格仍是 engine::kTileSize = 32：地图、碰撞、对象、测试全都不动，48 只活在渲染层。
@@ -167,6 +170,9 @@ struct WorldFrame {
         std::string name;          // 名牌上的字（data/roles 里查不到时是 role_id 本身）
         int facing = 2;            // 同 GameState::facing
         PathBubble bubble = PathBubble::None;
+        // 头顶标记（第一期地基包 2.6）：「支」有支线要找他、「商」开着铺子。空串 = 没有。
+        std::string mark;
+        bool markQuest = false;    // 支线（翠色）还是商店（金色）
     };
     struct Portal {
         const core::MapObject* object = nullptr;
@@ -218,6 +224,13 @@ struct WorldFrame {
     const core::MapObject* objectiveTarget = nullptr;   // 目标就在这张图上时是它
     std::string objectiveText;                      // 左上角目标框第一行
     std::string objectiveWhere;                     // 第二行（WorldScene::objectiveWhereText）
+    // 要点（第一期地基包 2.1）：行动句下面那一行小字。空串 = 这一步没写要点（第 7 章以外各章），
+    // 目标框与从前逐像素相同。
+    std::string objectiveHint;
+    // 不是人的支线目标（触发区）：头顶同样浮一枚「支」（第一期地基包 2.6）。
+    std::vector<const core::MapObject*> questTargets;
+    std::string questMark;     // 「支」这个字（ui_guide.json）
+    std::string objectiveId;                        // 这一步的 id：换了就闪一下、响一声（WorldView::drawHud）
     std::string mapTitle;                           // 地名横幅
     int dangerStars = 0;                            // 野外图的危险星级（0 = 这张图没有遭遇；算法见 docs/interfaces-octo-encounters.md）
     std::string saveNotice;                         // 空串 = 不显示
@@ -236,6 +249,14 @@ struct WorldFrame {
     std::vector<Gather> gathers;
     std::vector<Foe> foes;
     std::vector<Gate> gates;
+
+    // ---- 小地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.1）----
+    // minimap：这一帧画不画右上角那块小地图（设置开着、世界层在最上面、没有对白与过场）。
+    // objects：此刻用的那份对象状态（采集点「采过」看它）；heroFacing：主角朝向（小地图上那个三角）。
+    bool minimap = false;
+    const core::WorldObjectState* objects = nullptr;
+    int heroFacing = 2;
+    std::string minimapKey;   // 小地图右下角那一小行「M 地图」（跟着键位与设备走，经 Application::text）
 
     void clear();
 };
@@ -320,6 +341,9 @@ struct WorldDrawItem {
                                                     const engine::RectF& view,
                                                     const std::vector<Vec2f>* foeCells = nullptr);
 
+// 人是不是正站在目标对象那块矩形里（目标菱形此时不画，见 drawObjectiveMarker）。
+[[nodiscard]] bool standsOnObjective(const core::MapObject& target, core::Point hero);
+
 // ---------------------------------------------------------------------------
 // 渲染器本体
 // ---------------------------------------------------------------------------
@@ -354,6 +378,10 @@ public:
     [[nodiscard]] Vec2f camera() const { return camera_; }
     [[nodiscard]] float fadeAlpha() const { return mapFadeAlpha(fadeClock_); }
     [[nodiscard]] float bannerOpacity() const { return bannerAlpha(bannerClock_, bannerAfterFade_); }
+    // 第一期地基包集成：上一帧 HUD 落在哪（屏幕坐标，没画就是空矩形）。世界层之上另画的几样东西拿它让位：
+    // 得物卡片排在存盘提示下面；「已跳过 N 句」碰上很宽的目标框时往右让。
+    [[nodiscard]] const engine::RectF& saveNoticeRect() const { return saveNoticeRect_; }
+    [[nodiscard]] const engine::RectF& objectiveColumnRect() const { return objectiveColumnRect_; }
 
 private:
     struct ParticleSlot {
@@ -452,6 +480,11 @@ private:
     void drawObjectiveMarker(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame,
                              const Viewport& vp);
     void drawHud(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame, const Viewport& vp);
+    // 支线触发区头顶的「支」（第一期地基包 2.6）。
+    void drawQuestTargets(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame, const Viewport& vp);
+    // 右上角的小地图（docs/ch07-foundation.md 3.1）。covering：它盖住主角时淡成半透明。
+    void drawMinimap(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame, const Viewport& vp,
+                     bool covering);
 
     // ---- 画面状态（advance 推进）----
     bool entered_ = false;          // reset 之后见过地图没有
@@ -467,6 +500,9 @@ private:
     float fadeClock_ = kMapFadeSeconds;
     float bannerClock_ = 0.f;
     bool bannerAfterFade_ = false;
+    // 换目标那一闪（第一期地基包 2.1）：上一帧画的是哪一步、这一闪还剩几秒。
+    std::string seenObjective_;
+    float objectiveFlash_ = 0.f;
     bool advanced_ = false;         // 上一次 render 之后 advance 过没有
 
     // ---- 资源（render 时按需载入，无头模式从不碰）----
@@ -487,6 +523,10 @@ private:
     std::set<std::string> warned_;
     std::vector<WorldDrawItem> drawables_;   // 每帧复用
     std::vector<engine::RectF> plates_; // 本帧已经落下的名牌（后来的避开它们往上叠）
+    std::unique_ptr<minimap::MapThumbnail> minimap_;   // 小地图的底图（换图才重建）
+    engine::RectF saveNoticeRect_{};        // drawHud 记下（第一期地基包集成）
+    engine::RectF objectiveColumnRect_{};   // 目标框连同收集进度那一列
+    const core::TileMap* minimapMap_ = nullptr;        // 这一帧的地图（render 记下，drawMinimap 用）
 };
 
 }  // namespace fanren::game

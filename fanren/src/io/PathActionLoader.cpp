@@ -15,6 +15,7 @@
 #include <nlohmann/json.hpp>
 
 #include "core/model/AttackCategory.h"
+#include "core/model/Portraits.h"
 #include "core/rules/Realm.h"
 #include "io/BattleLoader.h"
 #include "io/DataLoader.h"
@@ -48,7 +49,7 @@ constexpr int kLastChapter = 14;
 const std::set<std::string>& commonFields() {
     static const std::set<std::string> kFields = {
         "id", "kind", "map", "npc", "when", "until", "realm", "done_flag", "text_key",
-        "refuse_key", "origin", "note",
+        "refuse_key", "origin", "note", "face",
     };
     return kFields;
 }
@@ -530,6 +531,17 @@ struct Problem {
     }
     if (!readOptionalString(node, "origin", out.origin) || !readOptionalString(node, "note", out.note)) {
         why = problem(here, "origin / note 必须是字符串");
+        return false;
+    }
+    // face：text_key 那一句的表情，只认对白头像的四个（core/model/Portraits.h 的 kPortraitFaces）。
+    if (!readOptionalString(node, "face", out.face)) {
+        why = problem(here, "face 必须是字符串");
+        return false;
+    }
+    if (node.contains("face") &&
+        std::find_if(core::kPortraitFaces.begin(), core::kPortraitFaces.end(),
+                     [&out](const char* f) { return out.face == f; }) == core::kPortraitFaces.end()) {
+        why = problem(here, "face 只认 normal / smile / angry / hurt，实际是 " + out.face);
         return false;
     }
 

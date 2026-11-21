@@ -932,7 +932,8 @@ protected:
     bool enterable(Point p) {
         if (!map().walkable(p)) return false;
         if (WorldScene::visibleNpcAt(app().state(), map(), p, app().data().companions) != nullptr) return false;
-        if (map().objectAt(p, "facility") != nullptr) return false;
+        // 蒲团贴地、走得上去（2026-11-20 试玩返修）：与引擎 tryStep 问同一句。
+        if (WorldScene::blockingFacilityAt(map(), p) != nullptr) return false;
         if (fanren::game::worldobj::blockerAt(app().state(), app().worldObjects(), map(), p) != nullptr) return false;
         return true;
     }
@@ -2125,12 +2126,18 @@ protected:
     }
 
     // 目标行此刻是这一步、而且说的就是 3.4 那一格 R-3 提示的原文（验收 17 在第 6 章的口径）。
+    // 第一期地基包（docs/ch07-foundation.md 2.1）把目标行拆成行动句 + 要点 + 详情：原来的长句一字不改挂在详情里
+    //（记事主线页「眼下」写全文），所以提示原文在三者之一里找。
     void expectHint(const std::string& stepId, const std::string& phrase) {
         const auto* obj = fanren::rules::currentObjective(app().data().objectives, state());
         ASSERT_NE(obj, nullptr) << "目标行空了，该是 " << stepId;
         EXPECT_EQ(obj->id, stepId);
-        EXPECT_NE(app().data().lookupText(obj->textKey).find(phrase), std::string::npos)
-            << obj->id << " 的目标行该含 3.4 的 R-3 提示「" << phrase << "」：" << app().data().lookupText(obj->textKey);
+        const fanren::core::GameData& data = app().data();
+        std::string said = data.lookupText(obj->textKey);
+        if (!obj->hintKey.empty()) said += " / " + data.lookupText(obj->hintKey);
+        if (!obj->detailKey.empty()) said += " / " + data.lookupText(obj->detailKey);
+        EXPECT_NE(said.find(phrase), std::string::npos)
+            << obj->id << " 的目标行（行动句、要点、详情）该含 3.4 的 R-3 提示「" << phrase << "」：" << said;
         hints_.push_back(obj->id);
     }
 
@@ -2968,6 +2975,10 @@ const std::vector<KeyOrder>& keyOrders() {
         {"ch07.block.jindi_zhongxin", 24},  {"ch07.block.huanxingshan", 28},
         // 坊市收药摊的店名
         {"ch07.shop.", 13},
+        // 第一期地基包·路 G（docs/ch07-foundation-g.md）：教学卡第 1 步起就可能弹；妖兽见闻按解锁那一步的图
+        {"tutorial.", 0},
+        {"lore.ch07.hanbing_chan.", 24},    {"lore.ch07.cai_e.", 24},         {"lore.ch07.fei_she.", 28},
+        {"lore.ch07.huoyan_shu.", 31},      {"lore.ch07.bishui_e.", 36},
         // 主线挂点（3.1 表，按 3.4 目标链的步序）
         {"ch07.chaibao.", 1},
         {"ch07.yaolou.hj_less", 2},         {"ch07.yaolou.y1_", 2},           {"ch07.yaolou.zs_less", 3},
@@ -3000,6 +3011,15 @@ const std::vector<KeyOrder>& keyOrders() {
         {"ch07.chukou.", 40},               {"ch07.xieshili.", 41},           {"ch07.sannian.", 42},
         {"ch07.chouhan.", 43},              {"ch07.shijiu.", 44},             {"ch07.banian.", 45},
         {"ch07.zhuji.", 46},
+        // 见闻（地基包路 D，data/lore/ch07.json）：按解锁那一场的步序登记——见闻页上读到它不早于那一场。
+        {"lore.ch07.yuelu_ru_menjin.", 4},  {"lore.ch07.cangshi_xulao.", 5},  {"lore.ch07.dihuo_wen_dihuo.", 6},
+        {"lore.ch07.dufang_zhuyao.", 9},  {"lore.ch07.chuangong_jindi.", 10},  {"lore.ch07.chuangong_lianqishu.", 10},
+        {"lore.ch07.fangshi_guiju.", 13},  {"lore.ch07.wanbaolou_fubao.", 14},  {"lore.ch07.chuangong_fengjin.", 18},
+        {"lore.ch07.liedui_qipai.", 23},  {"lore.ch07.liedui_duyue.", 23},  {"lore.ch07.yixiantian_guiju.", 27},
+        {"lore.ch07.shulin_qianyin.", 28},  {"lore.ch07.tongmen_sanceng.", 29},  {"lore.ch07.yueyang_baozhu.", 30},
+        {"lore.ch07.xiaoshidian_wangchen.", 35},  {"lore.ch07.fengkou_sunv.", 38},  {"lore.ch07.chukou_guiju.", 40},
+        {"lore.ch07.chukou_duyue.", 40},  {"lore.ch07.xieshili_xieshili.", 41},  {"lore.ch07.chouhan_lingshi.", 43},
+        {"lore.ch07.shijiu_dihuojian.", 44},  {"lore.ch07.zhuji_qingyuan.", 46},
         // 支线（第 6 节：Z1 在节点 3 接、Z2 在节点 24 接；Z2 的两处要进了环形山才走得到）
         {"ch07.quest.baigong.", 3},         {"ch07.quest.yujian.", 29},
         {"ch07.yujian_dongpo.", 31},        {"ch07.yujian_hantan.", 31},
@@ -3178,7 +3198,9 @@ TEST_F(Ch07Acceptance, No6_TheNamePlatesFollowTheSameOrder) {
                 << key << "（步序 " << order << "）的名牌「" << r->name << "」含「" << gate.word << "」——施工图 " << gate.why;
         }
     }
-    EXPECT_GT(checked, 100);
+    // 先验：真的核到了一批带名牌的句子。地基包路 D 把对白砍到约一半（docs/ch07-foundation.md 4.1），
+    // 带名牌的句子从一百多句降到九十句上下（新真值）。
+    EXPECT_GT(checked, 60);
 }
 
 // 12.2 与第 5 节写死的名牌。
@@ -3443,8 +3465,11 @@ TEST_F(Ch07Acceptance, No22_BranchesMapsNodesAndWordsAreWhereSectionFifteenPutsT
             }
         }
     }
-    std::cout << "[ch07 字数] 三份主线文案汉字 " << chars << "（施工图第 3 节约 17300）" << std::endl;
-    EXPECT_GE(chars, 17300 * 8 / 10) << "主线对白比施工图的「约 17300 字」少了两成以上";
+    std::cout << "[ch07 字数] 三份主线文案汉字 " << chars << "（地基包路 D：9,000–10,000）" << std::endl;
+    // 地基包路 D（docs/ch07-foundation.md 4.1）把主线对白从约 17,500 字砍到 9,000–10,000（新真值，口径与精确上下限
+    // 见 tests/DialogueBudgetTests.cpp）。这里仍只防塌：三份文案（不含伙伴那一份）少于 9,000 的八成就判红；也不许回涨过上限。
+    EXPECT_GE(chars, 9000 * 8 / 10) << "主线对白比地基包的「9,000–10,000 字」少了两成以上";
+    EXPECT_LE(chars, 10000) << "主线对白回涨过了地基包的上限 10,000 字";
 }
 
 // ---------------------------------------------------------------------------

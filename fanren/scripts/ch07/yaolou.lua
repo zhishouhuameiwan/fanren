@@ -27,13 +27,10 @@ if flag.get("ch07.jiaoyao1") == 0 then
         return
     end
     talk("", "ch07.yaolou.y1_basket")
-    talk("", "ch07.yaolou.y1_ma")
     talk("ma_shibo", "ch07.yaolou.y1_ma_ok")
     talk("", "ch07.yaolou.y1_pay")
     give("material_lingshi", 24)
-    talk("ma_shibo", "ch07.yaolou.y1_news")
     talk("ma_shibo", "ch07.yaolou.y1_murong")
-    talk("", "ch07.yaolou.y1_self")
     flag.set("ch07.jiaoyao1")
     return
 end
@@ -53,24 +50,16 @@ if flag.get("ch07.danbao") == 0 then
         return
     end
     talk("", "ch07.yaolou.y2_basket")
-    talk("", "ch07.yaolou.y2_ma")
-    talk("", "ch07.yaolou.y2_pay")
     give("material_lingshi", 60)
-    talk("", "ch07.yaolou.y2_pills")
     local ok = realm.advance(11)
     if ok then
         talk("", "ch07.yaolou.y2_level")
     end
     talk("", "ch07.yaolou.y2_useless")
     talk("", "ch07.yaolou.y2_nephew")
-    talk("", "ch07.yaolou.y2_ask")
-    talk("ma_shibo", "ch07.yaolou.y2_ma_no")
     talk("ma_shibo", "ch07.yaolou.y2_ma_where")
-    talk("", "ch07.yaolou.y2_look")
     talk("ma_shibo", "ch07.yaolou.y2_ma_price")
-    talk("", "ch07.yaolou.y2_count")
     talk("", "ch07.yaolou.y2_yufu")
-    talk("ma_shibo", "ch07.yaolou.y2_z1")
     flag.set("ch07.baigong_qiu")
     flag.set("ch07.danbao")
     return
@@ -86,7 +75,6 @@ if flag.get("ch07.baigong_qiu") ~= 0 and flag.get("ch07.baigong") == 0 and flag.
         return
     end
     talk("", "ch07.yaolou.z1_basket")
-    talk("", "ch07.yaolou.z1_ma")
     talk("ma_shibo", "ch07.yaolou.z1_ma_say")
     flag.set("ch07.baigong")
     return

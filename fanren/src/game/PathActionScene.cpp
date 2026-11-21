@@ -125,7 +125,7 @@ void PathActionScene::choose(Application& app, int row) {
     switch (action.kind) {
         case core::PathActionKind::Purchase:
             chosen_ = &action;
-            app.sayAs(role_, action.textKey);
+            app.sayAs(role_, action.textKey, action.face.empty() ? std::string(script::kDefaultFace) : action.face);
             phase_ = Phase::Offer;
             return;
         case core::PathActionKind::Inquire:

@@ -9,12 +9,8 @@
 
 talk("", "ch07.wulongtan.first")
 talk("", "ch07.wulongtan.notes")
-talk("", "ch07.wulongtan.pond")
 talk("", "ch07.wulongtan.man")
-talk("", "ch07.wulongtan.dead")
 talk("", "ch07.wulongtan.two")
-talk("", "ch07.wulongtan.argue")
 talk("", "ch07.wulongtan.still")
-talk("", "ch07.wulongtan.empty")
 
 flag.set("ch07.wulongtan")

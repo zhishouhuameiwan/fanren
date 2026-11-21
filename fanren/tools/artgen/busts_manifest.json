@@ -1,0 +1,97 @@
+{
+  "_doc": "女角色高清立绘的打包清单（tools/artgen/busts.py 读，docs/heroine-art-build.md 第 2 节）。每条一张立绘表：file 是 assets/art/busts/ 下的产物名；roles 是共用这张表的角色 id；faces 是表情 → 原图（相对原图目录 docs/heroine-art/final/，不入库），至少有 normal，没画的表情不写（表里指回 normal）；head_adjust / x_adjust 是头顶线、水平位置的微调（格子像素，正数往下 / 往右）；min_chapter / max_chapter 照 portraits.json。",
+  "busts": [
+    {
+      "file": "chen_shimei.png",
+      "roles": [
+        "chen_shimei"
+      ],
+      "faces": {
+        "normal": "chen_shimei/normal.png",
+        "smile": "chen_shimei/smile.png",
+        "angry": "chen_shimei/angry.png",
+        "hurt": "chen_shimei/hurt.png"
+      },
+      "head_adjust": 0
+    },
+    {
+      "file": "nichang_xianzi.png",
+      "roles": [
+        "nichang_xianzi"
+      ],
+      "faces": {
+        "normal": "nichang_xianzi/normal.png",
+        "smile": "nichang_xianzi/smile.png",
+        "angry": "nichang_xianzi/angry.png",
+        "hurt": "nichang_xianzi/hurt.png"
+      },
+      "head_adjust": 72
+    },
+    {
+      "file": "duobao_nv.png",
+      "roles": [
+        "duobao_nv"
+      ],
+      "faces": {
+        "normal": "duobao_nv/normal.png",
+        "smile": "duobao_nv/smile.png",
+        "angry": "duobao_nv/angry.png",
+        "hurt": "duobao_nv/hurt.png"
+      },
+      "head_adjust": 0
+    },
+    {
+      "file": "huangshan_shijie.png",
+      "roles": [
+        "huangshan_shijie"
+      ],
+      "faces": {
+        "normal": "huangshan_shijie/normal.png",
+        "smile": "huangshan_shijie/smile.png",
+        "angry": "huangshan_shijie/angry.png",
+        "hurt": "huangshan_shijie/hurt.png"
+      },
+      "head_adjust": -18
+    },
+    {
+      "file": "baiyi_shaonv.png",
+      "roles": [
+        "baiyi_shaonv"
+      ],
+      "faces": {
+        "normal": "baiyi_shaonv/normal.png",
+        "smile": "baiyi_shaonv/smile.png",
+        "angry": "baiyi_shaonv/angry.png",
+        "hurt": "baiyi_shaonv/hurt.png"
+      },
+      "head_adjust": 23
+    },
+    {
+      "file": "nangong_wan_ch07.png",
+      "roles": [
+        "nangong_wan_ch07"
+      ],
+      "faces": {
+        "normal": "nangong_wan_ch07/normal.png",
+        "smile": "nangong_wan_ch07/smile.png",
+        "angry": "nangong_wan_ch07/angry.png",
+        "hurt": "nangong_wan_ch07/hurt.png"
+      },
+      "head_adjust": 23
+    },
+    {
+      "file": "han_yunzhi.png",
+      "roles": [
+        "han_yunzhi",
+        "maifu_shaonv"
+      ],
+      "faces": {
+        "normal": "han_yunzhi/normal.png",
+        "smile": "han_yunzhi/smile.png",
+        "angry": "han_yunzhi/angry.png",
+        "hurt": "han_yunzhi/hurt.png"
+      },
+      "head_adjust": -8
+    }
+  ]
+}

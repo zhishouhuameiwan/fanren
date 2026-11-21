@@ -8,7 +8,6 @@
 
 talk("", "ch07.fangshi.walk")
 talk("", "ch07.fangshi.change")
-talk("", "ch07.fangshi.street")
 talk("", "ch07.fangshi.people")
 talk("", "ch07.fangshi.stall")
 

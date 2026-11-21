@@ -4,10 +4,12 @@
 // 脚本在 Lua 侧 yield 出命令对象，这里每帧取出、交给对应场景执行，
 // 场景完成后把结果回填并 resume 协程。script 层因此不必知道 engine / game 的存在
 // （方案 3.2 的依赖方向）。
+#include <cstdint>
 #include <functional>
 #include <map>
 #include <memory>
 #include <optional>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -17,11 +19,16 @@
 #include "core/rules/Crafting.h"
 #include "core/rules/Economy.h"
 #include "core/rules/Encounter.h"
+#include "core/rules/ItemInfo.h"
 #include "core/rules/Objectives.h"
 #include "core/rules/PathActions.h"
+#include "core/rules/Tutorials.h"
 #include "engine/Engine.h"
 #include "game/ChapterCardScene.h"
+#include "game/DialogueExtras.h"
 #include "game/ItemToasts.h"
+#include "game/LoreNotices.h"
+#include "game/Busts.h"
 #include "game/Portraits.h"
 #include "game/WorldHud.h"
 #include "game/Scene.h"
@@ -112,6 +119,8 @@ struct LilianEntry {
     std::vector<std::string> party;    // 这一趟的队员：currentRole 给的角色 id，至多 3 位
 };
 
+class WorldScene;   // 路 M：worldScene() 的返回类型
+
 class Application {
 public:
     Application();
@@ -181,6 +190,15 @@ public:
 
     // 对白头像（伙伴改版 3.9）：表与图都从 init 收的游戏根取（game/Portraits.h 的 PortraitBook）。
     [[nodiscard]] PortraitBook& portraits() { return portraits_; }
+    // 女角色的高清立绘（docs/heroine-art-build.md 第 3 节）：表 data/visual/busts.json、图 assets/art/busts/，
+    // 同样从游戏根取。bustStage 记着一段对白里立绘的淡入淡出（跨句，见 game/Busts.h）。
+    [[nodiscard]] PortraitBook& busts() { return busts_; }
+    [[nodiscard]] BustStage& bustStage() { return bustStage_; }
+    // 登场卡（3.5.3）：这个角色这一章有立绘就压一张 IntroCardScene、返回 true；无头、没有立绘返回 false（没有立绘时
+    // 每个角色警告一次）。脚本 intro_card 与截图口 card: 都走它。
+    bool pushIntroCard(const std::string& roleId);
+    // 此刻画立绘的那一层对话框的序号（DialogueScene::serial；栈里没有对话框为 0）：每帧改栈之后认一次。
+    [[nodiscard]] std::uint64_t bustOwner() const { return bustOwner_; }
 
     // 角色 id 到显示名。查不到就回显 id，画面上一眼看出谁没进 data。
     [[nodiscard]] std::string speakerName(const std::string& roleId) const;
@@ -398,6 +416,33 @@ public:
         return encounterTables_;
     }
 
+    // ---- 教学卡与见闻提示（第一期地基包，docs/ch07-foundation.md 2.3、2.5）----
+    //
+    // 教学卡与野外遭遇同一个套路：**缺省关闭**。几百条无头测试与通关验收不该冷不丁被一张卡拦住、
+    // 也不该多出 tutorial.seen.* 旗标；启动器（main.cpp）打开它，教学卡自己的测试打开它（判据：给测试一个关掉它的办法）。
+    // 关着时 tutorialEvent / requestTutorial 什么也不做。
+    void setTutorialsEnabled(bool enabled) { tutorialsEnabled_ = enabled; }
+    [[nodiscard]] bool tutorialsEnabled() const { return tutorialsEnabled_; }
+    // 引擎事件（data/tutorials 的 trigger）：此刻有一张能弹的卡就排进队里。事件名的清单见 docs/ch07-foundation-g.md。
+    void tutorialEvent(const std::string& event);
+    // 脚本 tutorial("id")：按 id 排一张。卡不存在返回 "no_card"，看过了或不在这一章返回 "skipped"，排上了返回空串。
+    [[nodiscard]] std::string requestTutorial(const std::string& cardId);
+    // 排着、还没弹的卡。弹的时机（flushTutorials）：战斗里轮到我方时；不在战斗里时脚本演完、顶上是走图或设施面板。
+    // 对白进行中不弹。
+    [[nodiscard]] const std::vector<std::string>& pendingTutorials() const { return pendingTutorials_; }
+    // 至今弹过（或设置里关了、只记了看过）的卡，按次序。测试用它断言「弹了哪几张」。
+    [[nodiscard]] const std::vector<std::string>& tutorialLog() const { return tutorialLog_; }
+    // 开战时记一笔「这一场之前看过哪几张卡」：BattleScene::onEnter 调。轮到我方时对其中每一张发「battle.after.<id>」，
+    // 于是「防御换先手」挂 battle.after.boost，就落在蓄劲讲过之后的**下一场**仗第 1 回合，不与蓄劲挤在同一场。
+    void noteBattleStart();
+    [[nodiscard]] const std::vector<std::string>& tutorialsSeenAtBattleStart() const { return battleStartSeen_; }
+    // 记事「指南」页重看一张：直接压卡片，不看开关、不改旗标。
+    void replayTutorial(const std::string& cardId);
+    // 全部战斗编成（见闻页的「掉落」从这里查）。
+    [[nodiscard]] const std::map<std::string, core::BattleSetup>& battles() const { return battles_; }
+    // 「见闻：XXX」提示：不进场景栈，画在世界层之上（与得物卡片同一个做法）。
+    [[nodiscard]] LoreNotices& loreNotices() { return loreNotices_; }
+
     // ---- BGM ----
     // 此刻世界层该放的曲子：脚本 bgm("id") 点播的那一首，没点播就是地图属性上的。
     // 战斗打完回到世界层时该续哪一首，问它（BattleScene 自己换战斗曲，收场后由画面路接回来）。
@@ -408,8 +453,9 @@ public:
     // 以某个角色的口吻说一句：记进 spokenKeys 与对话回看，压对话框。脚本的 talk(role, key)
     // 也走这里——路径行动的话与剧情的话必须是同一个口径（契约 5.4）。roleId 为空是旁白。
     // face 是表情（normal / smile / angry / hurt，伙伴改版 3.9），原样送到对话框（DialogueScene::setPortrait）。
+    // bust = false：这一句不出高清立绘（伙伴插话气泡退回成的对白，docs/heroine-art-build.md 3.1），小头像照旧。
     void sayAs(const std::string& roleId, const std::string& textKey,
-               const std::string& face = script::kDefaultFace);
+               const std::string& face = script::kDefaultFace, bool bust = true);
 
     // ---- 脚本 ----
     core::Result<bool> startEvent(const std::string& scriptPath);
@@ -470,6 +516,45 @@ public:
     [[nodiscard]] const std::vector<SpokenLine>& dialogueLog() const { return dialogueLog_; }
     void pushDialogueLine(std::string speaker, std::string body, std::string roleId = {}, std::string face = {});
 
+    // ---- 对白减负（第 7 章地基包路 D，docs/ch07-foundation.md 4.2–4.4）----
+    // 自动播放开 / 关：改设置、当场写盘（对话框里按路径行动键走这里）。
+    void toggleAutoAdvance();
+    // 此刻能不能整段跳过：有脚本在跑、正等着一句 talk 演完（路径行动、提示那种不经脚本的框不跳）。
+    [[nodiscard]] bool canSkipDialogue() const;
+    // 开始整段跳过：从下一条命令起，talk 不再逐框显示，直接记进回看（spokenKeys 照记），
+    // 直到下一条要玩家动手的命令（选择、战斗、商店、结局卡）或脚本结束。途中 give、set_flag、teleport 照常，
+    // wait 与淡入淡出压成当场完成。选择永远不自动选：跳到选择就停。
+    void beginDialogueSkip();
+    [[nodiscard]] bool skippingDialogue() const { return dialogueSkipping_; }
+    // 跳完之后那一条「已跳过 N 句 · 按 Tab 回看」。停着的时候世界层上的菜单键翻开回看面板。
+    [[nodiscard]] const SkipNotice& skipNotice() const { return skipNotice_; }
+    // 插话气泡（bubble 命令）。
+    [[nodiscard]] const SpeechBubbles& speechBubbles() const { return speechBubbles_; }
+    // 浮一只气泡（不记回看；bubble 命令自己先记）。跟随者按 roleId 每帧重找，找不到用 fallbackCell。截图口也调它。
+    void pushSpeechBubble(const std::string& roleId, const std::string& textKey, float seconds,
+                          std::optional<Vec2f> fallbackCell);
+    // 弹「已跳过 N 句 · 按 Tab 回看」（endDialogueSkip 与截图口共用）。
+    void noteDialogueSkipped(int lines);
+    // 这个角色此刻在画面上的哪一格（世界格，带滑步的小数）：跟随者、主角按画面上的位置，NPC 按图上那一格。
+    // 不在画面上（没有世界层、人不在这张图上、出了镜头）返回空——bubble 据此退回成普通对白。
+    [[nodiscard]] std::optional<Vec2f> bubbleCell(const std::string& roleId);
+    // 一格在屏幕上的位置（逻辑像素，格的左上角）；没有世界层时返回空。
+    [[nodiscard]] std::optional<engine::Point> cellToScreen(Vec2f cell) const;
+    // ---- 地图与说明（第 7 章可玩性改版·第一期，路 M，docs/ch07-foundation.md 第 3 节）----
+    //
+    // 物品说明「来源」一行要知道哪张图的宝箱、采集点里有它（rules::ItemSpots）。那要把 maps/ 全扫一遍，
+    // 所以头一次要用时才建（game/ItemInfoIndex.h），建好留着；换章、读档都不用重建（地图是只读的静态数据）。
+    [[nodiscard]] const rules::ItemSpots& itemSpots();
+    // 栈里最上面那一层世界画面（区域地图要它此刻的那一帧）；没有为 nullptr。
+    [[nodiscard]] WorldScene* worldScene();
+    // 全部集齐奖励（物品说明的来源用；单查一张图走 explorationReward）。
+    [[nodiscard]] const std::map<std::string, core::ExplorationReward>& explorationRewards() const {
+        return explorationRewards_;
+    }
+    [[nodiscard]] const std::string& assetRoot() const { return assetRoot_; }
+    // 全部商店（只读；物品说明的来源用）。改库存走 shop(id)。全部编成 battles() 在上面教学卡与见闻那一段（路 G 已加，集成时去重）。
+    [[nodiscard]] const std::map<std::string, rules::Shop>& shops() const { return shops_; }
+
 private:
     // 取出脚本命令并派发。能就地完成的（给物品、置旗标）直接执行并 resume；
     // 需要玩家参与的（对话、选择、战斗）压入场景，由场景回填。
@@ -522,8 +607,19 @@ private:
     std::vector<std::string> spokenKeys_;
     // 回看用的对话记录。上限比 key 那一份小：回看是「刚才说了什么」，
     // 不是通关实录，六十行已经比任何一场戏都长（最长的一场 39 句）。
-    static constexpr std::size_t kDialogueLogCap = 60;
+    // 地基包路 D：整段跳过把一整段直接塞进来，跳过之前那一段、跳过的这一段都要翻得全——调到 120。
+    static constexpr std::size_t kDialogueLogCap = 120;
     std::vector<SpokenLine> dialogueLog_;
+    // 地基包路 D：整段跳过、跳完的提示、插话气泡。
+    bool dialogueSkipping_ = false;
+    int skippedLines_ = 0;
+    SkipNotice skipNotice_;
+    SpeechBubbles speechBubbles_;
+    void endDialogueSkip();
+    void resetDialogueExtras();
+    // 记一句话（spokenKeys + 回看），不压对话框。sayAs、整段跳过、气泡共用。
+    void recordSpoken(const std::string& roleId, const std::string& textKey, const std::string& face);
+    void drawSpeechBubbles();
     int pendingPops_ = 0;
 
     ChapterTable chapters_;
@@ -552,6 +648,10 @@ private:
     std::string bgmOverride_;
 
     PortraitBook portraits_;   // portraits()
+    PortraitBook busts_{kBustSheets};   // busts()
+    BustStage bustStage_;               // bustStage()
+    std::uint64_t bustOwner_ = 0;       // bustOwner()
+    std::set<std::string> introCardWarned_;   // pushIntroCard：没有立绘的警告一个角色一次
     double fixedWorldClock_ = 0.0;   // fixedWorldClock()
 
     // 得物卡片（itemToasts）与集齐奖励表（explorationReward）。图标图集画的时候才载，无头从不碰。
@@ -562,10 +662,31 @@ private:
     hud::Geometry toastGeometry_;
     // 从栈顶往下第一层不透明的是不是世界层（玩家此刻眼里的底图是不是地图）。卡片只在这时走时钟。
     [[nodiscard]] bool worldShown() const;
+    // ---- 教学卡与见闻提示（第一期地基包）----
+    // 等着弹的卡：战斗里轮到我方、或脚本演完回到走图 / 设施面板时，一帧弹一张（tick 末尾）。
+    void flushTutorials();
+    // 教学卡判「在不在这一章」用的：章节表的 done_flag（与对白头像同一个判据）。
+    [[nodiscard]] rules::ChapterDoneFn chapterDoneFn() const;
+    // 每帧看一眼：见闻有没有新解锁（有就推一条提示）、主线目标换没换、名册与默契、气血——后几样折成教学卡的引擎事件。
+    void watchGuide();
+    // 新开局、读档、返回首页：重记一遍「已经知道的」，读进来的档不该把早就解锁的见闻当成新的再报一遍。
+    void resetGuideWatch();
+    bool tutorialsEnabled_ = false;
+    std::vector<std::string> pendingTutorials_;
+    std::vector<std::string> tutorialLog_;
+    std::vector<std::string> battleStartSeen_;   // noteBattleStart
+    bool guideBaselined_ = false;
+    std::set<std::string> loreKnown_;
+    std::string guideObjective_;
+    LoreNotices loreNotices_;
+    hud::Geometry loreGeometry_;
     io::Settings settings_;
     // 「已落盘」的那一份：enable 时读进来生效的、之后每次写盘成功写下的。shutdown 时与 settings_ 不同就补写。
     io::Settings savedSettings_;
     std::string settingsPath_;   // enableSettingsFile 记下的路径；空 = 不碰文件
+
+    // 路 M：物品来源的地图索引（itemSpots）。头一次要用时建。
+    std::optional<rules::ItemSpots> itemSpots_;
 };
 
 }  // namespace fanren::game

@@ -5,6 +5,7 @@
 #include <utility>
 
 #include "game/Application.h"
+#include "game/ItemInfoView.h"
 #include "game/Wording.h"
 
 namespace fanren::game {
@@ -42,7 +43,7 @@ int spiritStones(const core::GameState& state) {
     return state.itemCount(kSpiritStoneItemId);
 }
 
-ShopScene::ShopScene(std::string shopId) : shopId_(std::move(shopId)) {}
+ShopScene::ShopScene(std::string shopId, bool startInBuy) : shopId_(std::move(shopId)), startInBuy_(startInBuy) {}
 
 std::vector<ui::ListItem> ShopScene::buildBuyItems(const core::GameData& data,
                                                    const core::GameState& state,
@@ -305,6 +306,10 @@ void ShopScene::onEnter(Application& app) {
         feedback_ = "货在架上，价随年份。要买要卖，自己看着办。";
     }
     enterMain(app);
+    if (startInBuy_ && shopFound_) {
+        enterBuy(app);
+        feedback_.clear();
+    }
 }
 
 void ShopScene::leave(Application& app) {
@@ -404,8 +409,33 @@ void ShopScene::renderStatus(Application& app, const engine::Rect& area) const {
     line(std::string(currencyName(app.state())) + "　" +
          std::to_string(spiritStones(app.state())) + " 块");
 
-    const engine::Rect note{area.x, y, area.w, std::max(0, area.y + area.h - y)};
+    // 买卖页：光标停在哪一样，底下就写它的四行式说明（docs/ch07-foundation.md 3.3，与主菜单物品页同一个画法）。
+    // 上一笔的反馈（买不起、卖空了）照旧先写，说明接在它下面。
+    std::string itemId;
+    int herbAge = 0;
+    if (const rules::Shop* shop = app.shop(shopId_); shop != nullptr && mode_ == Mode::Buy) {
+        const int index = buy_.selection();
+        if (index >= 0 && index < static_cast<int>(shop->entries.size())) {
+            itemId = shop->entries[static_cast<std::size_t>(index)].itemId;
+        }
+    } else if (mode_ == Mode::Sell) {
+        const int index = sell_.selection();
+        if (index >= 0 && index < static_cast<int>(sellStacks_.size())) {
+            itemId = sellStacks_[static_cast<std::size_t>(index)].itemId;
+            herbAge = sellStacks_[static_cast<std::size_t>(index)].herbAge;
+        }
+    }
+    int noteH = std::max(0, area.y + area.h - y);
+    if (!itemId.empty()) noteH = feedback_.empty() ? 0 : std::min(noteH, row * 2 + theme.padding * 2);
+    const engine::Rect note{area.x, y, area.w, noteH};
     ui::drawTextBlock(engine, feedback_, note, theme.bodyFontSize, theme);
+    if (itemId.empty()) return;
+    y += noteH;
+    ui::drawRuleH(engine, static_cast<float>(area.x), static_cast<float>(y + 4), static_cast<float>(area.w), theme);
+    const engine::Rect detail{area.x - theme.padding, y + 10, area.w + theme.padding * 2,
+                              std::max(0, area.y + area.h - y - 10)};
+    // 品阶行不写基准价（返修第 3 条）：右边挂的是店价，左边再写基价两个数打架。
+    drawDetailBlock(app, detail, detail_.item(app, itemId, herbAge, {}, /*withPrice=*/false), 17);
 }
 
 void ShopScene::render(Application& app) {

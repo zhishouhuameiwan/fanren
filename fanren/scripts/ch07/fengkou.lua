@@ -11,14 +11,9 @@
 
 talk("", "ch07.kundi.passage")
 talk("baiyi_shaonv", "ch07.kundi.no_way")
-talk("baiyi_shaonv", "ch07.kundi.see_sword")
-talk("", "ch07.kundi.hand_over")
 talk("baiyi_shaonv", "ch07.jiaoshi.silver")
-talk("", "ch07.kundi.take_back")
 bond.add("nangong_wan", 8)
 talk("baiyi_shaonv", "ch07.kundi.plan")
-talk("baiyi_shaonv", "ch07.kundi.stone")
 talk("", "ch07.kundi.ok")
-talk("", "ch07.kundi.follow")
 
 flag.set("ch07.kundi")

@@ -12,9 +12,13 @@
 #include "core/rules/Roster.h"
 #include "engine/TextLayout.h"
 #include "game/Application.h"
+#include "game/AreaMapScene.h"
 #include "game/BoardScene.h"
+#include "game/Busts.h"
 #include "game/CultivationScene.h"
 #include "game/DialogueScene.h"
+#include "game/ItemInfoView.h"
+#include "game/ItemToasts.h"
 #include "game/SettingsScene.h"
 #include "game/ShopScene.h"
 #include "game/SpriteAtlas.h"
@@ -33,7 +37,7 @@ constexpr int kCommandRows = 8;
 constexpr engine::Rect kInfoPanel{48, 540, 300, 132};
 constexpr engine::Rect kPagePanel{372, 48, 860, 624};
 // Page 枚举里一共几项（menuStrings 逐项取字）。
-constexpr int kPageCount = 10;
+constexpr int kPageCount = 11;
 
 // 「设置」页的摘要列哪几行（系统设置面板的行下标）：有值的那九项（含手柄震动，docs/gamepad.md 第 8 节），
 // 按键设置、恢复默认不列。
@@ -41,6 +45,8 @@ constexpr int kSettingsSummaryRows = SettingsScene::kPadRumble + 1;
 
 // 右栏列表页下方留给说明的那一截。
 constexpr int kDescriptionH = 150;
+// 物品页、法术页：左边列表占这么宽（百分比），右边是四行式说明（docs/ch07-foundation.md 3.3）。
+constexpr int kSplitListPercent = 44;
 
 // 状态页一人一行：小像框 96×132，里面贴 16×24 的行走帧 ×4（64×96，施工图 1.1 的战斗尺度）。
 // 倍数按表取（MenuScene::menuSpriteScale）：世界层倍数的 kMenuScaleNum / kMenuScaleDen，取整。
@@ -84,6 +90,7 @@ constexpr const char* kSfxSaved = "save";
         case MenuScene::Page::Back: return "ui.menu.back";
         case MenuScene::Page::Party: return "ui.menu.party";
         case MenuScene::Page::Roster: return "ui.menu.roster";
+        case MenuScene::Page::Map: return "ui.menu.map";
     }
     return "";
 }
@@ -107,7 +114,8 @@ constexpr const char* kSfxSaved = "save";
 
 }  // namespace
 
-MenuScene::MenuScene(Page initial, bool focusList) : initial_(initial), focusList_(focusList) {}
+MenuScene::MenuScene(Page initial, bool focusList, int listRow)
+    : initial_(initial), focusList_(focusList), listRow_(listRow) {}
 
 MenuScene::~MenuScene() = default;
 
@@ -161,6 +169,11 @@ std::vector<ui::ListItem> MenuScene::itemRows(const core::GameData& data,
         row.label = item != nullptr ? item->name : entry.itemId;
         if (entry.herbAge > 0) row.label += "（" + std::to_string(entry.herbAge) + " 年）";
         row.detail = "×" + std::to_string(entry.count);
+        // 按品阶上色（docs/ch07-foundation.md 3.3）：凡品照旧正文色，往上与得物卡片同一套五档色。
+        if (item != nullptr && gradeTier(item->grade) > 0) {
+            static const ui::Theme kPalette;
+            row.labelColor = kPalette.gradeColors[gradeTier(item->grade)];
+        }
         rows.push_back(std::move(row));
     }
     return rows;
@@ -199,8 +212,9 @@ void MenuScene::onEnter(Application& app) {
     backdropReady_ = false;
 
     // 左栏有哪几项：前八项照旧；名册上有人才在「状态」后面插进队伍、名册（文件头）。
-    pages_ = {Page::Status, Page::Items, Page::Magic, Page::Journal,
-              Page::Save,   Page::Settings, Page::Home, Page::Back};
+    // 「地图」（docs/ch07-foundation.md 3.2）排在「记事」后面：两样都是「我该去哪」的答案。
+    pages_ = {Page::Status, Page::Items,    Page::Magic, Page::Journal, Page::Map,
+              Page::Save,   Page::Settings, Page::Home,  Page::Back};
     if (!rules::roster(app.data().companions, app.state()).empty()) {
         pages_.insert(pages_.begin() + 1, {Page::Party, Page::Roster});
     }
@@ -229,8 +243,13 @@ void MenuScene::onEnter(Application& app) {
     journalOpen_ = false;
     if (focusList_ && initial_ == Page::Items && items_.hasSelectable()) focus_ = Focus::Items;
     if (focusList_ && initial_ == Page::Magic && magics_.hasSelectable()) focus_ = Focus::Magic;
+    for (int i = 0; i < listRow_ && (focus_ == Focus::Items || focus_ == Focus::Magic); ++i) {
+        (focus_ == Focus::Items ? items_ : magics_).moveDown();
+    }
     if (focusList_ && initial_ == Page::Home) focus_ = Focus::Home;
     if (focusList_ && initial_ == Page::Party && party_.hasSelectable()) focus_ = Focus::Party;
+    // 截图口 menu:party#<n>：光标停在第 n 位（女角色立绘，拍队伍页选中有 / 没有立绘的人）。
+    for (int i = 0; i < listRow_ && focus_ == Focus::Party; ++i) party_.moveDown();
     app.engine().playSfx(kSfxOpen);
 }
 
@@ -321,10 +340,11 @@ std::string MenuScene::selectedCompanion(Application& app) const {
 }
 
 void MenuScene::rebuildLists(Application& app) {
+    detail_.clear();   // 背包变了（用掉一件、送出一件），说明跟着重算
     const core::GameState& state = app.state();
     const PanelStage stage = wordingStage(state);
-    const int rows = ui::listRowsThatFit(
-        kPagePanel.h - ui::panelTitleBandHeight(true, app.theme()) - kDescriptionH, app.theme());
+    // 物品、法术两页的列表占满页高（说明挪到右边，docs/ch07-foundation.md 3.3），不再让出底下那条说明区。
+    const int rows = ui::listRowsThatFit(kPagePanel.h - ui::panelTitleBandHeight(true, app.theme()), app.theme());
 
     itemIds_.clear();
     itemAges_.clear();
@@ -406,6 +426,16 @@ void MenuScene::loadMembers(Application& app) {
     hero.hero = true;
     portraitOf(hero);
     members_.push_back(std::move(hero));
+
+    // 队伍页右栏的像素小人（女角色立绘，docs/heroine-art-build.md 3.2）：队里每一位（歇着的也算），按 GameState::party 的次序。
+    partyFigures_.clear();
+    for (const core::PartyMember& member : state.party) {
+        Member figure;
+        figure.roleId = member.roleId;
+        if (const core::RoleTemplate* role = data.findRole(member.roleId)) figure.name = role->name;
+        portraitOf(figure);
+        partyFigures_.push_back(std::move(figure));
+    }
 
     for (const core::PartyMember& member : state.party) {
         const core::RoleTemplate* role = data.findRole(member.roleId);
@@ -503,6 +533,11 @@ bool MenuScene::activate(Application& app) {
             // 只读的一页，与「状态」一样：确认只响一声。
             e.playSfx(kSfxConfirm);
             return true;
+        case Page::Map:
+            // 区域地图（docs/ch07-foundation.md 3.2）：菜单合上、地图压在世界层上（帧末先出栈后入栈）。
+            e.playSfx(kSfxConfirm);
+            app.pushScene(std::make_unique<AreaMapScene>());
+            return false;
     }
     return true;
 }
@@ -921,37 +956,36 @@ void MenuScene::drawPage(Application& app) const {
             drawStatus(app, area);
             break;
         case Page::Items: {
-            std::string description;
-            const int index = items_.selection();
-            if (focus_ == Focus::Items && index >= 0 &&
-                index < static_cast<int>(itemIds_.size())) {
-                if (const core::Item* item =
-                        app.data().findItem(itemIds_[static_cast<std::size_t>(index)])) {
-                    if (!item->descKey.empty()) description = app.text(item->descKey);
-                    if (rules::fieldUsable(*item)) {
-                        if (!description.empty()) description += "\n";
-                        description += app.text("ui.menu.items.use_hint");
-                    }
-                }
-            }
             if (focus_ == Focus::ItemTarget) {
                 drawListPage(app, area, itemTargets_, true, app.text("ui.menu.items.target_hint"));
                 break;
             }
-            drawListPage(app, area, items_, focus_ == Focus::Items, description);
+            // 四行式说明（docs/ch07-foundation.md 3.3）：左边列表、右边说明——名称、效果、用途、来源、品阶与价值、
+            // 一条分隔线、原来的风味文字。原来压在列表底下 150 高的那一条放不下这么多。
+            const DetailBlock* block = nullptr;
+            const int index = items_.selection();
+            if (focus_ == Focus::Items && index >= 0 && index < static_cast<int>(itemIds_.size())) {
+                const std::string& id = itemIds_[static_cast<std::size_t>(index)];
+                const int age = index < static_cast<int>(itemAges_.size()) ? itemAges_[static_cast<std::size_t>(index)] : 0;
+                std::string extra;
+                if (const core::Item* item = app.data().findItem(id); item != nullptr && rules::fieldUsable(*item)) {
+                    extra = app.text("ui.menu.items.use_hint");
+                }
+                block = &detail_.item(app, id, age, extra);
+            }
+            drawSplitPage(app, area, items_, focus_ == Focus::Items, block);
             break;
         }
         case Page::Magic: {
-            std::string description;
+            const DetailBlock* block = nullptr;
             const int index = magics_.selection();
             const std::vector<std::string>& learned = app.state().learnedMagics;
             if (focus_ == Focus::Magic && index >= 0 && index < static_cast<int>(learned.size())) {
-                if (const core::Magic* magic =
-                        app.data().findMagic(learned[static_cast<std::size_t>(index)])) {
-                    if (!magic->descKey.empty()) description = app.text(magic->descKey);
+                if (const core::Magic* magic = app.data().findMagic(learned[static_cast<std::size_t>(index)])) {
+                    block = &detail_.magic(app, *magic);
                 }
             }
-            drawListPage(app, area, magics_, focus_ == Focus::Magic, description);
+            drawSplitPage(app, area, magics_, focus_ == Focus::Magic, block);
             break;
         }
         case Page::Journal:
@@ -968,15 +1002,21 @@ void MenuScene::drawPage(Application& app) const {
             break;
         case Page::Back:
             break;
-        case Page::Party:
+        case Page::Party: {
+            // 女角色立绘（3.2）：队里有人有立绘时右边留一栏放大图，名单、说明、动作、赠与列表照旧排在左边那一块。
+            const engine::Rect side = drawPartyArt(app, area);
             if (focus_ == Focus::Gift) {
-                drawListPage(app, area, gifts_, true, app.text("ui.menu.party.gift.hint"));
+                drawListPage(app, side, gifts_, true, app.text("ui.menu.party.gift.hint"));
             } else {
-                drawParty(app, area);
+                drawParty(app, side);
             }
             break;
+        }
         case Page::Roster:
             drawListPage(app, area, roster_, false, app.text("ui.menu.roster.hint"));
+            break;
+        case Page::Map:
+            drawMapPage(app, area);
             break;
     }
 }
@@ -995,6 +1035,47 @@ void MenuScene::drawParty(Application& app, const engine::Rect& area) const {
     ui::drawRuleH(e, static_cast<float>(area.x + theme.padding), static_cast<float>(ruleY),
                   static_cast<float>(area.w - theme.padding * 2), theme);
     partyActions_.render(e, engine::Rect{area.x, ruleY + 4, area.w, ui::listAreaHeight(2, theme)}, theme);
+}
+
+engine::Rect MenuScene::partyArtColumn(const engine::Rect& area) {
+    return engine::Rect{area.x + area.w - kPartyArtW, area.y, kPartyArtW, area.h};
+}
+
+engine::Rect MenuScene::drawPartyArt(Application& app, const engine::Rect& area) const {
+    engine::Engine& e = app.engine();
+    const ui::Theme& theme = app.theme();
+    const core::GameState& state = app.state();
+    // 立绘与对白同一个判据：这一章生效、图载得进来（无头模式一律没有，也不读表）。
+    const ChapterDone chapterDone = [&app](int n) { return app.chapterTable().chapterDone(app.state(), n); };
+    const auto bustOf = [&](const std::string& roleId) {
+        return app.busts().frameFor(e, app.headless(), roleId, "normal", chapterDone);
+    };
+    bool any = false;
+    for (const core::PartyMember& member : state.party) any = any || bustOf(member.roleId).has_value();
+    if (!any) return area;   // 谁都没有立绘：版面与改版前一模一样
+
+    const engine::Rect column = partyArtColumn(area);
+    ui::drawRuleV(e, static_cast<float>(column.x), static_cast<float>(area.y + theme.padding / 2),
+                  static_cast<float>(area.h - theme.padding), theme);
+    const core::PartyMember* selected = selectedMember(app);
+    if (selected != nullptr) {
+        const std::size_t at = static_cast<std::size_t>(selected - state.party.data());
+        if (const std::optional<PortraitFrame> bust = bustOf(selected->roleId)) {
+            const engine::RectF src = bustRosterSource(bust->src);
+            const engine::Rect room{column.x, column.y, column.w, std::max(0, column.h - kPartyArtBottom)};
+            const engine::RectF dst = bustRosterArea(room, src);
+            if (dst.w > 0.f) e.drawTexture(bust->texture, src, dst, engine::DrawOptions{});
+        } else if (at < partyFigures_.size()) {
+            // 没有立绘：照旧只是像素小人（与状态页同一种画法，放大一倍），立在这一栏下半。
+            Member figure = partyFigures_[at];
+            figure.portraitScale *= 2;
+            const engine::Rect box{column.x + (column.w - kPartyFigureW) / 2,
+                                   column.y + column.h - kPartyFigureH - kPartyFigureBottom, kPartyFigureW,
+                                   kPartyFigureH};
+            drawPortrait(app, figure, box);
+        }
+    }
+    return engine::Rect{area.x, area.y, std::max(0, area.w - kPartyArtW), area.h};
 }
 
 void MenuScene::drawStatus(Application& app, const engine::Rect& area) const {
@@ -1088,6 +1169,32 @@ void MenuScene::drawListPage(Application& app, const engine::Rect& area, const u
                   static_cast<float>(area.w - theme.padding * 2), theme);
     ui::drawTextBlock(e, description, engine::Rect{area.x, ruleY + 4, area.w, kDescriptionH - 4}, 20,
                       theme);
+}
+
+void MenuScene::drawSplitPage(Application& app, const engine::Rect& area, const ui::ListView& list, bool focused,
+                              const DetailBlock* block) const {
+    engine::Engine& e = app.engine();
+    const ui::Theme& theme = app.theme();
+    const int listW = area.w * kSplitListPercent / 100;
+    const engine::Rect listArea{area.x, area.y, listW, area.h};
+    if (focused) {
+        list.render(e, listArea, theme);
+    } else {
+        list.renderPreview(e, listArea, theme);
+    }
+    ui::drawRuleV(e, static_cast<float>(area.x + listW), static_cast<float>(area.y + theme.padding / 2),
+                  static_cast<float>(area.h - theme.padding), theme);
+    const engine::Rect detailArea{area.x + listW + 8, area.y, area.w - listW - 8, area.h};
+    if (block != nullptr && !block->title.empty()) {
+        drawDetailBlock(app, detailArea, *block);
+    } else {
+        ui::drawTextBlock(e, app.text("ui.iteminfo.empty"), detailArea, 18, theme);
+    }
+}
+
+void MenuScene::drawMapPage(Application& app, const engine::Rect& area) const {
+    // 右栏写一句说明（含地图键，跟着键位与设备走）；确认才打开全屏的区域地图。
+    ui::drawTextBlock(app.engine(), app.text("ui.menu.map.desc"), area, 20, app.theme());
 }
 
 void MenuScene::drawJournal(Application& app, const engine::Rect& area) const {

@@ -9,6 +9,8 @@
 
 #include "game/Application.h"
 #include "game/MapArt.h"
+#include "game/Minimap.h"
+#include "game/WorldScene.h"
 #include "io/VisualLoader.h"
 
 namespace fanren::game {
@@ -422,6 +424,11 @@ const FoeTrack::Slot* FoeTrack::find(const WorldFrame::Foe& foe) const {
     return it == slots_.end() ? nullptr : &*it;
 }
 
+bool standsOnObjective(const core::MapObject& target, core::Point hero) {
+    return hero.x >= target.position.x && hero.x < target.position.x + std::max(1, target.width) &&
+           hero.y >= target.position.y && hero.y < target.position.y + std::max(1, target.height);
+}
+
 std::vector<WorldDrawItem> depthOrder(const WorldFrame& frame, Vec2f playerCell,
                                       const std::vector<Vec2f>& followerCells, const RectF& view,
                                       const std::vector<Vec2f>* foeCells) {
@@ -446,7 +453,18 @@ std::vector<WorldDrawItem> depthOrder(const WorldFrame& frame, Vec2f playerCell,
         if (culled(footX, footY)) return;
         items.push_back(WorldDrawItem{DepthKey{footY, footX, order++}, kind, index});
     };
-    for (std::size_t i = 0; i < frame.facilities.size(); ++i) addRect(*frame.facilities[i].object, Kind::Facility, i, false);
+    for (std::size_t i = 0; i < frame.facilities.size(); ++i) {
+        const core::MapObject& object = *frame.facilities[i].object;
+        // 蒲团贴地、人能坐上去（WorldScene::walksOnto）：按矩形**上沿**排，排在站在它上面、上一行的人之前——
+        // 按底边排时与坐在上面的人同一个 footY，再比 footX，两格宽的蒲团就压在人腿上。
+        if (WorldScene::walksOnto(object)) {
+            const float footX = (fl(object.position.x) + fl(std::max(1, object.width)) / 2.f) * kCell;
+            items.push_back(WorldDrawItem{DepthKey{fl(object.position.y) * kCell - 1.f, footX, order++},
+                                          Kind::Facility, i});
+            continue;
+        }
+        addRect(object, Kind::Facility, i, false);
+    }
     for (std::size_t i = 0; i < frame.npcs.size(); ++i) {
         const core::MapObject& object = *frame.npcs[i].object;
         addCell(Vec2f{fl(object.position.x), fl(object.position.y)}, Kind::Npc, i);
@@ -542,6 +560,10 @@ void WorldFrame::clear() {
     objectiveTarget = nullptr;
     objectiveText.clear();
     objectiveWhere.clear();
+    objectiveHint.clear();
+    questTargets.clear();
+    questMark.clear();
+    objectiveId.clear();
     mapTitle.clear();
     dangerStars = 0;
     saveNotice.clear();
@@ -556,6 +578,10 @@ void WorldFrame::clear() {
     gathers.clear();
     foes.clear();
     gates.clear();
+    minimap = false;
+    objects = nullptr;
+    heroFacing = 2;
+    minimapKey.clear();
 }
 
 // ---------------------------------------------------------------------------
@@ -640,6 +666,7 @@ void WorldView::advance(Application& app, double deltaSeconds) {
     foes_.advance(dt);
     fadeClock_ += dt;
     bannerClock_ += dt;
+    objectiveFlash_ = std::max(0.f, objectiveFlash_ - dt);
     if (const core::TileMap* map = app.currentMap()) {
         const Vec2f target = cameraTarget(map->width, map->height, focusCell());
         camera_.x = approach(camera_.x, target.x, dt, kCameraRate);
@@ -894,6 +921,7 @@ void WorldView::render(Application& app, const WorldFrame& frame) {
     trackFollowers(app, frame);
     trackFoes(app, frame);
     ensureMap(app, *map);
+    minimapMap_ = map;
     if (!fx_) fx_ = std::make_unique<engine::PostFx>(engine);
 
     const Viewport vp = viewport(app, *map);
@@ -930,6 +958,7 @@ void WorldView::render(Application& app, const WorldFrame& frame) {
     // UI：不糊、不压暗、不被调色。
     const ui::Theme& theme = app.theme();
     drawNamePlates(engine, theme, frame, vp);
+    drawQuestTargets(engine, theme, frame, vp);
     drawFoeMarks(engine, frame, vp);
     drawObjectiveMarker(engine, theme, frame, vp);
     drawHud(engine, theme, frame, vp);
@@ -1566,6 +1595,11 @@ void WorldView::drawNamePlates(engine::Engine& engine, const ui::Theme& theme, c
         }
         plates_.push_back(plate);
         hud::drawNamePlate(engine, theme, npc.name, footX, plateBottom);
+        // 头顶标记（第一期地基包 2.6）：一枚小圆章贴在名牌左边，不抢名字、也不压路径行动气泡。
+        if (!npc.mark.empty() && plate.w > 0.f) {
+            hud::drawHeadMark(engine, theme, geometry_, plate.x - 12.f, plateBottom - plate.h / 2.f, npc.mark,
+                              npc.markQuest);
+        }
         if (npc.bubble == PathBubble::None) continue;
         const char* id = pathBubbleSprite(npc.bubble);
         const ObjectSprite* bubble = id != nullptr ? objectSprite(id) : nullptr;
@@ -1574,6 +1608,18 @@ void WorldView::drawNamePlates(engine::Engine& engine, const ui::Theme& theme, c
         const float bob = std::round(std::sin(clock_ * 2.4f + fl(object.position.x))) * kPixel;
         drawObjectSprite(engine, objectsTexture_, *bubble, footX, plateBottom - 22.f + bob, 0.f, kWhite,
                          BlendMode::Alpha);
+    }
+}
+
+void WorldView::drawQuestTargets(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame,
+                                 const Viewport& vp) {
+    // 支线的触发区（不是人）：那一格头顶浮一枚「支」，轻轻漂。
+    for (const core::MapObject* object : frame.questTargets) {
+        const float cx = (fl(object->position.x) + fl(std::max(1, object->width)) / 2.f) * kCell - vp.camX;
+        const float top = fl(object->position.y) * kCell - vp.camY;
+        if (cx < -kCell || cx > kViewW + kCell || top < -kCell || top > kViewH + kCell) continue;
+        const float bob = std::round(std::sin(clock_ * 2.0f + fl(object->position.y))) * kPixel;
+        hud::drawHeadMark(engine, theme, geometry_, cx, top - 14.f + bob, frame.questMark, true);
     }
 }
 
@@ -1587,6 +1633,9 @@ void WorldView::drawObjectiveMarker(engine::Engine& engine, const ui::Theme& the
     const float top = fl(target->position.y) * kCell - vp.camY;
 
     if (!(left + w <= 0.f || top + h <= 0.f || left >= kViewW || top >= kViewH)) {
+        // 人就站在目标那一格上（拆包点、坐在蒲团上……）时不画菱形：它会悬在人脸上，与头顶的「[Z] …」挤成一团；
+        // 脚下那圈金光与头顶的提示已经说清了「就是这儿」（2026-11-20 试玩返修）。人一离开那一格，菱形照常。
+        if (standsOnObjective(*target, lastCell_)) return;
         // 在视野里：一枚金菱形悬在目标头顶。目标是 NPC 时抬到名牌上面去——画在名牌那个高度上，
         // 正好戳在名字中间，两样都读不清。
         float anchor = top;
@@ -1618,6 +1667,21 @@ void WorldView::drawObjectiveMarker(engine::Engine& engine, const ui::Theme& the
     if (dy < 0.f) t = std::min(t, (kMargin - sy) / dy);
     if (t >= 1e9f) return;
     t = std::max(t, 0.f);
+    // 小地图开着时，右上角那一块（连同左边写「N 格」的余地）不许箭头钻进去：射线在进那一块之前停下
+    //（docs/ch07-foundation.md 3.1：小地图与别的界面不重叠）。
+    if (frame.minimap) {
+        const RectF panel = minimap::panelRect();
+        const float keepLeft = panel.x - 70.f;
+        const float keepBottom = panel.y + panel.h + 30.f;
+        const float tipX = sx + dx * t;
+        const float tipY = sy + dy * t;
+        if (tipX >= keepLeft && tipY <= keepBottom) {
+            float entry = 0.f;
+            if (sx < keepLeft && dx > 0.f) entry = std::max(entry, (keepLeft - sx) / dx);
+            if (sy > keepBottom && dy < 0.f) entry = std::max(entry, (keepBottom - sy) / dy);
+            if (entry > 0.f && entry < t) t = entry;
+        }
+    }
     const float targetX = fl(target->position.x) + fl(std::max(1, target->width)) / 2.f;
     const float targetY = fl(target->position.y) + fl(std::max(1, target->height)) / 2.f;
     const int cells = static_cast<int>(std::abs(targetX - (fl(lastCell_.x) + 0.5f)) +
@@ -1646,15 +1710,37 @@ void WorldView::drawHud(engine::Engine& engine, const ui::Theme& theme, const Wo
     // 目标框排在横幅下面，横幅淡出后也不往上挪：会自己换位置的框，玩家每次都得重新找。
     const float boxX = 16.f;
     const float boxY = hud::PlaceBanner::bottom();
-    const RectF box = hud::objectiveBoxRect(engine, boxX, boxY, frame.objectiveText, frame.objectiveWhere);
-    hud::drawObjectiveBox(engine, theme, geometry_, boxX, boxY, frame.objectiveText, frame.objectiveWhere,
-                          covers(box) ? kCoveringAlpha : 1.f);
+    // 换了一步（不是头一回见到目标、也不是读档）：框闪一下，响一声提示音（第一期地基包 2.1）。
+    constexpr float kObjectiveFlashSeconds = 1.2f;
+    if (frame.objectiveId != seenObjective_) {
+        if (!seenObjective_.empty() && !frame.objectiveId.empty()) {
+            objectiveFlash_ = kObjectiveFlashSeconds;
+            engine.playSfx("ui_open");
+        }
+        seenObjective_ = frame.objectiveId;
+    }
+    // 两下：亮—暗—亮—灭，一闪而过会被正在看人物的眼睛漏掉。
+    const float flashPhase = objectiveFlash_ / kObjectiveFlashSeconds;
+    const float flash = objectiveFlash_ > 0.f ? flashPhase * (0.5f + 0.5f * std::cos(flashPhase * 4.f * std::numbers::pi_v<float>)) : 0.f;
+    const RectF box =
+        hud::objectiveBoxRect(engine, boxX, boxY, frame.objectiveText, frame.objectiveHint, frame.objectiveWhere);
+    hud::drawObjectiveBox(engine, theme, geometry_, boxX, boxY, frame.objectiveText, frame.objectiveHint,
+                          frame.objectiveWhere, covers(box) ? kCoveringAlpha : 1.f, flash);
     // 收集进度紧贴在目标框底下（没有目标时顶到目标框的位置），一直在：横幅几秒就淡了，进度要随时看得到。
     const float tagY = box.h > 0.f ? box.y + box.h + 6.f : boxY;
     const RectF tag = hud::exploreTagRect(engine, boxX, tagY, frame.exploreLine);
     hud::drawExploreTag(engine, theme, geometry_, boxX, tagY, frame.exploreLine, frame.exploreComplete,
                         covers(tag) ? kCoveringAlpha : 1.f);
-    hud::drawSaveNotice(engine, theme, geometry_, frame.saveNotice);
+    // 第一期地基包集成：记下目标框连同收集进度那一列（「已跳过 N 句」拿它让位）。
+    objectiveColumnRect_ = box.w > 0.f ? box : tag;
+    if (box.w > 0.f && tag.w > 0.f) {
+        objectiveColumnRect_.w = std::max(box.x + box.w, tag.x + tag.w) - box.x;
+        objectiveColumnRect_.h = std::max(box.y + box.h, tag.y + tag.h) - box.y;
+    }
+    if (frame.minimap) drawMinimap(engine, theme, frame, vp, covers(minimap::panelRect()));
+    // 存盘提示一律排在小地图那一块之下（第一期地基包集成）：小地图关着时若照旧贴顶（16），它那五百来像素宽的
+    // 一条会与上沿正中的「见闻：XXX」、目标的边缘箭头叠在一起。
+    saveNoticeRect_ = hud::drawSaveNotice(engine, theme, geometry_, frame.saveNotice, minimap::kSaveNoticeTop);
     hud::drawPathActionHint(engine, theme, geometry_, frame.pathActionHint);
 
     // 「[Z] 打开」浮在那一格头顶：人的话在名牌上方，脚下那个调查点的话在主角头顶。
@@ -1668,6 +1754,37 @@ void WorldView::drawHud(engine::Engine& engine, const ui::Theme& theme, const Wo
             bottom = footY - kCell * 1.5f - 6.f;
         }
         hud::drawInteractPrompt(engine, theme, geometry_, frame.interactHint, cx, bottom);
+    }
+}
+
+void WorldView::drawMinimap(engine::Engine& engine, const ui::Theme& theme, const WorldFrame& frame,
+                            const Viewport& vp, bool covering) {
+    // 底图要地图本身（通行格、尺寸）：render 顶上记的那一份。
+    const core::TileMap* map = minimapMap_;
+    if (map == nullptr || frame.objects == nullptr) return;
+    if (!minimap_) minimap_ = std::make_unique<minimap::MapThumbnail>();
+    minimap_->ensure(engine, *map);
+    const float alpha = covering ? minimap::kCoveringAlpha : 1.f;
+    const RectF panel = minimap::panelRect();
+    hud::drawPanel(engine, theme, geometry_, panel, alpha);
+    const minimap::Layout layout = minimap::fit(minimap::mapArea(panel), map->width, map->height,
+                                                Vec2f{vp.player.x + 0.5f, vp.player.y + 0.5f});
+    minimap_->draw(engine, layout, alpha);
+    const auto marks = minimap::collectMarks(frame, *frame.objects, vp.player, frame.heroFacing);
+    minimap::drawMarks(engine, theme, geometry_, layout, marks, 3.2f, alpha);
+    // 右下角一小行「M 地图」：告诉玩家整张图怎么看。
+    if (!frame.minimapKey.empty()) {
+        constexpr int kKeyFont = 13;
+        const engine::Point size = engine.measureText(frame.minimapKey, kKeyFont);
+        if (size.x > 0) {
+            const float w = static_cast<float>(size.x) + 10.f;
+            const float h = static_cast<float>(size.y) + 4.f;
+            const RectF tag{panel.x + panel.w - w - 3.f, panel.y + panel.h - h - 3.f, w, h};
+            engine.fillRect(tag, hud::faded(theme.inkDeep, 0.75f * alpha), engine::BlendMode::Alpha);
+            engine::TextStyle style = theme.bodyStyle;
+            engine.drawText(frame.minimapKey, static_cast<int>(tag.x + 5.f), static_cast<int>(tag.y + 2.f), kKeyFont,
+                            hud::faded(theme.paper, alpha), style);
+        }
     }
 }
 

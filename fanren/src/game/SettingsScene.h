@@ -36,9 +36,14 @@ public:
     static constexpr int kScreenShake = 6;
     static constexpr int kTextSpeed = 7;
     static constexpr int kPadRumble = 8;
-    static constexpr int kKeys = 9;
-    static constexpr int kRestore = 10;
-    static constexpr int kRowCount = 11;
+    // 地基包路 D（docs/ch07-foundation.md 4.2）：对白自动播放，插在「手柄震动」之后，后两行各往后挪一行。
+    static constexpr int kAutoAdvance = 9;
+    static constexpr int kTutorialCards = 10;   // 教学提示（第一期地基包，docs/ch07-foundation.md 2.3）
+    // 「小地图」（第 7 章改版·路 M，docs/ch07-foundation.md 3.1）。集成后「游玩」组次序：文字速度、手柄震动、自动播放、教学提示、小地图。
+    static constexpr int kMinimap = 11;
+    static constexpr int kKeys = 12;
+    static constexpr int kRestore = 13;
+    static constexpr int kRowCount = 14;
 
     // 面板上可能出现的全部固有字：标题、分组、行名、各档的叫法、说明、提示、成败的话。
     // 与 render 取的是同一批 key，tests/UiStyleTests.cpp 拿禁词表扫它。
@@ -59,6 +64,8 @@ public:
 
     // openKeyConfig：一打开就直接翻开改键面板（截图口 settings:keys 用；游戏里从「按键设置」那一行进）。
     explicit SettingsScene(bool openKeyConfig = false) : openKeyConfig_(openKeyConfig) {}
+    // 截图口用（settings:row<n>，第一期地基包集成）：一打开光标就停在第 n 行，拍那一行的说明。
+    SettingsScene(bool openKeyConfig, int startRow) : openKeyConfig_(openKeyConfig), startRow_(startRow) {}
 
     void onEnter(Application& app) override;
     bool update(Application& app, double deltaSeconds) override;
@@ -97,6 +104,7 @@ private:
     std::optional<io::Settings> failedAt_;
     bool keysOpen_ = false;   // 改键面板正压在上面（它一收、本面板又是顶层时 update 里清掉）
     bool openKeyConfig_ = false;
+    int startRow_ = 0;
 };
 
 }  // namespace fanren::game

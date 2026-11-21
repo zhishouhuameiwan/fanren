@@ -8,13 +8,9 @@
 -- give：紫猴花幼苗 4（herb_age 1）、蜈蚣背壳 3（施工图 3.2 节点 26）。
 
 talk("", "ch07.youdi.walk")
-talk("", "ch07.youdi.stone")
 talk("", "ch07.youdi.chase")
-talk("", "ch07.youdi.blades")
-talk("", "ch07.youdi.dead")
 talk("", "ch07.youdi.dig")
 give("herb_zihou_hua", 4, 1)
-talk("", "ch07.youdi.shell")
 give("material_wugong_ke", 3)
 if take("pill_qingling_san", 1) then
     talk("", "ch07.youdi.qingling")

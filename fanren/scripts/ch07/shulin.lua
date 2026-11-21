@@ -15,13 +15,12 @@
 -- 校对整改 16.5：封岳的名号由他自己报（§4.2(e) 第 38 行），不再由黄衫师姐惊叫出来。
 
 talk("", "ch07.shulin.tree")
-talk("", "ch07.shulin.night")
-talk("", "ch07.shulin.purge")
 
 advance_days(1)
 
 talk("", "ch07.shulin.banner")
 talk("", "ch07.shulin.morning")
+intro_card("huangshan_shijie")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 talk("huangshan_shijie", "ch07.shulin.help")
 talk("", "ch07.shulin.chaser")
 
@@ -37,22 +36,17 @@ if pick == 1 then
 else
     talk("", "ch07.shulin.hide")
 end
-talk("duobao_nv", "ch07.shulin.duobao_sneer")
+intro_card("duobao_nv")   -- 登场卡（docs/heroine-art-build.md 3.5.3；她出手的那一拍：镜子与水晶球）
 talk("", "ch07.shulin.mirror")
-talk("", "ch07.shulin.orb")
 if take("story_yin_gou", 1) then
     talk("", "ch07.shulin.hook")
 end
 talk("", "ch07.shulin.rope")
-talk("", "ch07.shulin.flash")
 if take("story_qing_suo", 1) then
     talk("", "ch07.shulin.rope_cut")
 end
 talk("", "ch07.shulin.fengyue")
 talk("feng_yue", "ch07.shulin.name")
-talk("", "ch07.shulin.grab")
-talk("", "ch07.shulin.shijie")
-talk("feng_yue", "ch07.shulin.ask")
 talk("", "ch07.shulin.answer")
 
 local had_lei = item.count("talisman_tianleizi") > 0
@@ -76,6 +70,5 @@ give("talisman_xiaodao_fubao")
 talk("", "ch07.shulin.boots")
 give("story_hei_xue")
 talk("", "ch07.shulin.bury")
-talk("", "ch07.shulin.seventy")
 
 flag.set("ch07.fengyue", pick)

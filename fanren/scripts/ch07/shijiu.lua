@@ -10,15 +10,12 @@
 -- 节点 34 给的 40 份到这里一定还在；take 仍看返回值。
 
 talk("", "ch07.shijiu.hall")
-talk("", "ch07.shijiu.nineteen")
 talk("", "ch07.shijiu.room")
-talk("", "ch07.shijiu.door")
 talk("", "ch07.shijiu.hang")
 if take("material_zhuji_yaofen", 22) then
     give("story_feidan_yuhe")
 end
 talk("", "ch07.shijiu.fail")
-talk("", "ch07.shijiu.box")
 talk("", "ch07.shijiu.quit")
 talk("", "ch07.shijiu.again")
 

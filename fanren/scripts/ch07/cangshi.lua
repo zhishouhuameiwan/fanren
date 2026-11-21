@@ -13,7 +13,6 @@
 
 talk("", "ch07.cangshi.stairs")
 talk("xu_lao", "ch07.cangshi.xu_price")
-talk("xu_lao", "ch07.cangshi.xu_name")
 if item.count("material_lingshi") < 22 then
     talk("", "ch07.cangshi.poor")
     return
@@ -27,19 +26,13 @@ if not take("material_lingshi", 1) then
     talk("", "ch07.cangshi.poor")
     return
 end
-talk("", "ch07.cangshi.shelves")
-talk("", "ch07.cangshi.tubes")
 talk("", "ch07.cangshi.zhuji")
 talk("", "ch07.cangshi.loop")
 talk("", "ch07.cangshi.dingyan")
-talk("", "ch07.cangshi.dingyan_keep")
-talk("", "ch07.cangshi.copy")
 if not take("material_lingshi", 20) then
     talk("", "ch07.cangshi.poor")
     return
 end
 talk("xu_lao", "ch07.cangshi.xu_lost")
-talk("xu_lao", "ch07.cangshi.xu_left")
-talk("", "ch07.cangshi.end")
 
 flag.set("ch07.cangshi")

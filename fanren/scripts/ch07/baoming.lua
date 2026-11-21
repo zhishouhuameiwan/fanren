@@ -1,5 +1,5 @@
 -- @hook ch06_huangfenggu trigger_baoming interact once
--- 第七章节点 16「报名：王师叔」。挂在 ch06_huangfenggu 大殿前王师叔身边那张案 (25,12)
+-- 第七章节点 16「报名：王师叔」。挂在 ch06_huangfenggu 大殿前王师叔身边那副兵器架 (25,12)
 -- （mode=interact，once=true，guard_flag=ch07.fudan_fa，set_flag=ch07.baoming）。去报名的是他。
 --
 -- 施工图写「百机堂另一格」：王师叔的 NPC 一直站在大殿前 (26,12)（第 6 章，没有撤场旗标），本作把收报名的案摆在他身边，
@@ -10,7 +10,6 @@
 
 talk("", "ch07.baoming.desk")
 talk("wang_shishu", "ch07.baoming.wang_new")
-talk("wang_shishu", "ch07.baoming.wang_fast")
 talk("", "ch07.baoming.test")
 talk("wang_shishu", "ch07.baoming.wang_ask")
 

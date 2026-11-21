@@ -20,11 +20,9 @@ if not won then
     return
 end
 
-talk("", "ch07.jiaoshi.dig")
 talk("", "ch07.jiaoshi.brick_gone")
 take("talisman_jinguangzhuan", 1)
 magic.forget("magic_ji_jinguangzhuan")
-talk("", "ch07.jiaoshi.cost")
 talk("", "ch07.poding.collapse")
 
 flag.set("ch07.poding")

@@ -263,7 +263,7 @@ def make_yuelu_dian():
 # 地图 2：地火屋 32x24 —— 节点 35b、35c、36
 #
 # 坞石通道从南缘进来（落点），北上一座圆厅，四周石门一圈（装饰）；东北角那一扇通十九号：
-# 门内第一格 35b、圆墩（地火，facility_dihuo grade 4）、墩旁石凳 35c、墙角蒲团 36。
+# 门内第一格 35b、圆墩（地火，facility_dihuo grade 4）、墩旁木凳 35c、墙角蒲团 36。
 # 打坐点不放：此图的日子只由脚本拨（施工图第 4 节）。
 # ---------------------------------------------------------------------------
 def make_dihuo():
@@ -284,7 +284,7 @@ def make_dihuo():
         thing(g, 26, y, 26, y)
     floor(g, 18, 1, 28, 4)                   # 十九号
     road(g, 22, 5, 22, 6)                    # 十九号的门
-    thing(g, 24, 2, 24, 2)                   # 圆墩旁的石凳
+    thing(g, 24, 2, 24, 2)                   # 圆墩旁的木凳
     thing(g, 28, 1, 28, 1)                   # 墙角的蒲团
 
     objects = [
@@ -294,7 +294,7 @@ def make_dihuo():
         # ---- 35b：十九号门内第一格 ----
         trigger("trigger_shijiu", 22, 4, "ch07/shijiu.lua", "enter", True,
                 guard_flag="ch07.dihuo", set_flag="ch07.feidan"),
-        # ---- 35c：圆墩旁的石凳 ----
+        # ---- 35c：圆墩旁的木凳 ----
         trigger("trigger_banian", 24, 2, "ch07/banian.lua", "interact", True,
                 guard_flag="ch07.feidan", set_flag="ch07.chengdan"),
         # ---- 36：墙角蒲团 ----
@@ -635,7 +635,7 @@ def make_jindi_zhongxin():
 # 地图 8：环形山 48x40 —— 节点 26–29、31 落点、32a；支线 Z2
 #
 # 南缘进来是上山小路（落点、存档点、遭遇区）。西边一大块山体里是紫猴花洞：洞口朝东，横洞道西行，
-# 转北一条竖洞道（中段 26b），拐角（26a），石厅口（26c）。洞外岔路石（27）。
+# 转北一条竖洞道（中段 26b），拐角（26a），石厅口（26c）。洞外岔路口的树桩（27）。
 # 北边山顶：小石殿围在一圈山石里，只留一道豁口（28），豁口外一个存档点；西北山顶石洞（打坐点）；
 # 北坡寒潭（Z2b）；东坡石屋（Z2a）。东南一个小盆地，青石殿（29）；殿旁地面破洞（31 落点、32a）。
 # ---------------------------------------------------------------------------
@@ -669,7 +669,7 @@ def make_huanxingshan():
     rock(g, 37, 34, 39, 34)                  # 地面破洞一圈
     rock(g, 37, 36, 39, 36)
     rock(g, 37, 35, 37, 35)
-    thing(g, 19, 28, 19, 28)                 # 岔路石
+    thing(g, 19, 28, 19, 28)                 # 岔路口的树桩
     for tx, ty in ((21, 20), (27, 23), (31, 18), (36, 12), (44, 10), (46, 24), (20, 34), (29, 35),
                    (44, 35), (26, 29), (22, 14), (33, 14)):
         tree(g, tx, ty)
@@ -686,14 +686,15 @@ def make_huanxingshan():
                 guard_flag="ch07.kuitan", set_flag="ch07.mairen"),
         trigger("trigger_youdi", 8, 16, "ch07/youdi.lua", "enter", True, w=2,
                 guard_flag="ch07.mairen", set_flag="ch07.zihouhua"),
-        # ---- 27：岔路石 ----
+        # ---- 27：岔路口的树桩 ----
         trigger("trigger_sichu", 19, 28, "ch07/sichu.lua", "interact", True,
                 guard_flag="ch07.zihouhua", set_flag="ch07.sichu"),
         # ---- 28：小石殿前的豁口 ----
         trigger("trigger_xiaoshidian", 23, 11, "ch07/xiaoshidian.lua", "enter", True, w=2,
                 guard_flag="ch07.sichu", set_flag="ch07.wuyou"),
         # ---- 29：青石殿的门 ----
-        trigger("trigger_qingshidian", 37, 31, "ch07/qingshidian.lua", "interact", True,
+        # 门画在 (38,31)（高清底图），任务点跟着门走（2026-11-20 试玩返修第二批；原先挂在 (37,31) 的墙上）。
+        trigger("trigger_qingshidian", 38, 31, "ch07/qingshidian.lua", "interact", True,
                 guard_flag="ch07.wuyou", set_flag="ch07.didao"),
         # ---- 32a：破洞外一格 ----
         trigger("trigger_xiashan", 39, 35, "ch07/xiashan.lua", "enter", True,
@@ -1251,7 +1252,7 @@ def patch_huangfenggu(payload):
 
 def patch_baiyaoyuan(payload):
     """给百药园补上第 7 章：居室的桌与书桌、药篓、园角两槽灵田、园门内、茅屋门内。幂等。"""
-    _furnish(payload, 22, 3)                 # 居室里放包袱的小桌
+    _furnish(payload, 22, 3)                 # 居室墙角地上的布包（画面上是空地，碰撞由 genmaps.FLAT_TRIGGERS 清掉）
     _furnish(payload, 26, 4)                 # 书桌
     _furnish(payload, 26, 5)
     _furnish(payload, 23, 8)                 # 茅屋前的药篓
@@ -1261,7 +1262,7 @@ def patch_baiyaoyuan(payload):
             _put(payload, "overlay", x, y, 6)
 
     return _append(payload, [
-        # ---- 1：居室小桌上的包袱 ----
+        # ---- 1：居室墙角地上的包袱 ----
         trigger("trigger_chaibao", 22, 3, "ch07/chaibao.lua", "interact", True,
                 guard_flag="ch06.done", set_flag="ch07.chaibao"),
         # ---- 2 / 3 / Z1：药篓 ----

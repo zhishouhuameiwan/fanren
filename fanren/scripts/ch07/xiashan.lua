@@ -11,8 +11,6 @@ advance_days(1)
 
 talk("", "ch07.xiashan.banner")
 talk("", "ch07.xiashan.run")
-talk("", "ch07.xiashan.ambush")
-talk("", "ch07.xiashan.bag")
 talk("", "ch07.xiashan.exit")
 
 flag.set("ch07.xiashan")

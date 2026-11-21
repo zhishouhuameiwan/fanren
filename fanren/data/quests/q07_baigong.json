@@ -43,6 +43,7 @@
   ],
   "fail_text_key": "ch07.quest.baigong.fail",
   "rewards": [],
+  "reward_key": "ch07.quest.baigong.reward",
   "origin": "原著 ch153（担保的代价是白看一年园子）、ch173（马师伯临别丢下两瓶丹药）；步骤为改编",
   "note": "支线 Z1（docs/ch07-design.md 第 6 节）。接：节点 3 药篓第二年担保之后（scripts/ch07/yaolou.lua 置 ch07.baigong_qiu）。步骤：药篓交一株 ≥ 176 年的血红芝（三阶药；yaolou.lua 的 Z1 分支 item.count_aged + take_aged 成功后置 ch07.baigong）——谓词读旗标、不读背包：交出去的药背包里已经没有了。过期：ch07.ma_songyao 置位（节点 17 马师伯卸差事时还没交）；了结压过过期。回报不进 rewards：节点 17 两瓶丹药各 5（没做各 3），多一句台词（scripts/ch07/ma_songyao.lua）。"
 }

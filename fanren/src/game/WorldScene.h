@@ -64,6 +64,15 @@ public:
     [[nodiscard]] static bool npcVisible(const core::GameState& state,
                                         const core::MapObject& npc);
 
+    // 贴地的设施能走上去（2026-11-20 用户试玩）：画面上是实心东西才挡路。眼下只有蒲团（kind=meditate）。
+    // 碰撞层那一半在 tools/mapgen/genmaps.py 的 is_flat_facility，判据与这里一字一样。
+    // 明雷巡逻不问这个：明雷照旧不踩蒲团（advanceFoes 的 around.solid）。
+    [[nodiscard]] static bool walksOnto(const core::MapObject& facility);
+    // 这一格上挡路的设施（蒲团不算）；没有就是 nullptr。tryStep 用它判占格。
+    [[nodiscard]] static const core::MapObject* blockingFacilityAt(const core::TileMap& map, core::Point cell);
+    // 这一格上的蒲团；没有就是 nullptr。interact / interactHint 用它认「坐在上面」。
+    [[nodiscard]] static const core::MapObject* flatFacilityAt(const core::TileMap& map, core::Point cell);
+
     // ---- 伙伴改版（docs/interfaces-companions.md 3.8、3.11）----
     //
     // 两条新规矩都要问「这个角色是哪位伙伴」，所以要伙伴数据（GameData::companions）。
@@ -142,10 +151,19 @@ public:
     // 这一帧要画的东西（render 里 describe 装好交给 WorldView 的那一份）。公开给无头测试：
     // 跟随者站在哪、宝箱开没开、明雷在不在，要从画面拿到的那一份上断言，不另算一遍。
     const WorldFrame& describeFrame(Application& app);
+    // 教学卡的走图事件（第一期地基包 2.3）：describe 末尾按这一帧的样子发给 Application::tutorialEvent。
+    static void noteGuideEvents(Application& app, const WorldFrame& frame);
+    // 头顶标记（第一期地基包 2.6）：describe 末尾给 NPC 标「支」「商」，收支线的触发区目标。
+    void markHeads(Application& app, const core::TileMap& map);
 
     // 画这一层的那个 WorldView（只读）。公开给跨路的用例：世界逻辑填的帧，经世界画面画出来之后
     // 跟随者滑在哪、与主角同不同一帧到格，要从真正在画的那一份上看。
     [[nodiscard]] const WorldView& view() const { return view_; }
+    // 截图口用（seam:，第一期地基包集成）：摆出右上角那句存盘提示，与别的顶端提示一起拍同屏。
+    void showSaveNotice(std::string text, double seconds) {
+        saveNotice_ = std::move(text);
+        saveNoticeSeconds_ = seconds;
+    }
 
     // 主角走过的格子（最近的在前，至多三格）。跟随者照它排；公开给测试看足迹记没记上。
     [[nodiscard]] const std::vector<core::Point>& footprints() const { return trail_; }

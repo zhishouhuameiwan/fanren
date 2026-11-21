@@ -82,11 +82,14 @@ private:
 };
 
 // 卡片画在哪：屏幕右侧，自上往下排。index 是在 cards() 里的下标。
-[[nodiscard]] engine::RectF itemToastRect(std::size_t index);
+// top 是第一张的上沿：缺省排在右上角的小地图之下；存盘提示正亮着时排在它下面（第一期地基包集成）。
+inline constexpr float kItemToastTop = 172.f;
+[[nodiscard]] engine::RectF itemToastRect(std::size_t index, float top = kItemToastTop);
 
 // 画一遍（后处理之外、世界层之上、对话框之下：Application::drawScenes 紧跟着世界层调）。
 // icons 是图标图集（无效句柄时只是不画图标）；hero 是主角此刻占的屏幕矩形，卡片盖住他时淡成半透明。
 void drawItemToasts(engine::Engine& engine, const ui::Theme& theme, hud::Geometry& geometry,
-                    engine::TextureId icons, const ItemToasts& toasts, const engine::Rect& hero);
+                    engine::TextureId icons, const ItemToasts& toasts, const engine::Rect& hero,
+                    float top = kItemToastTop);
 
 }  // namespace fanren::game

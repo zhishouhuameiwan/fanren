@@ -41,8 +41,8 @@ enum class TextSpeed { Slow, Normal, Fast, Instant };
 
 // 键位设置里的动作 id（契约第 6 节那张表，次序即表的次序）。二期引擎的 Engine::keyId
 // 必须用同一组词——到时候加一条测试把两边钉在一起（共享词表只许有一种写法）。
-inline constexpr std::array<std::string_view, 10> kKeyActionIds{
-    "up", "down", "left", "right", "confirm", "cancel", "menu", "skip", "save", "action"};
+inline constexpr std::array<std::string_view, 11> kKeyActionIds{
+    "up", "down", "left", "right", "confirm", "cancel", "menu", "skip", "save", "action", "map"};
 
 // 一个动作的两格自定义键位（SDL 扫描码数值，0 = 空格位）。
 using KeySlots = std::array<int, 2>;
@@ -59,6 +59,14 @@ struct Settings {
     bool screenShake = true;
     TextSpeed textSpeed = TextSpeed::Normal;
     bool padRumble = true;   // 文件里的键 pad_rumble
+    // 教学提示（第一期地基包，docs/ch07-foundation.md 2.3）：文件里的键 tutorial_cards，缺省开。
+    // 关了不弹教学卡，但照样记作看过，记事「指南」页里照样翻得到。
+    bool tutorialCards = true;
+    // 对白自动播放（第 7 章地基包路 D，docs/ch07-foundation.md 4.2）：一句显示完停一会儿自动翻下一句，
+    // 有选项时停住。缺省关 = 改造前的行为。文件里的键 auto_advance。
+    bool autoAdvance = false;
+    // 小地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.1）：右上角那块小地图画不画。文件里的键 minimap，缺省开。
+    bool minimap = true;
     // 动作 id → 两格键位。没列出的动作用默认键位；空表 = 全部默认。一期只存、只往返，不推给引擎。
     std::map<std::string, KeySlots> keys;
 

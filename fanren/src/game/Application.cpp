@@ -19,12 +19,15 @@
 #include "core/rules/Companions.h"
 #include "core/rules/Field.h"
 #include "core/rules/Lilian.h"
+#include "core/rules/Lore.h"
 #include "core/rules/Realm.h"
+#include "core/rules/Tutorials.h"
 #include "game/AlchemyScene.h"
 #include "game/BattleScene.h"
 #include "game/BoardScene.h"
 #include "game/CultivationScene.h"
 #include "game/DialogueScene.h"
+#include "game/IntroCardScene.h"
 #include "game/FadeScene.h"
 #include "game/FieldScene.h"
 #include "game/KeyConfigScene.h"
@@ -34,6 +37,7 @@
 #include "game/SettingsScene.h"
 #include "game/ShopScene.h"
 #include "game/TitleScene.h"
+#include "game/TutorialScene.h"
 #include "game/WorldScene.h"
 #include "io/BattleLoader.h"
 #include "io/DataLoader.h"
@@ -44,6 +48,7 @@
 #include "io/SaveFile.h"
 #include "io/ShopLoader.h"
 #include "io/VisualLoader.h"
+#include "game/ItemInfoView.h"
 
 namespace fanren::game {
 
@@ -190,6 +195,9 @@ Application::~Application() = default;
 core::Result<bool> Application::init(const std::string& assetRoot, bool headless) {
     assetRoot_ = assetRoot;
     portraits_.setRoot(assetRoot_);
+    busts_.setRoot(assetRoot_);
+    bustStage_.clear();
+    bustOwner_ = 0;
     headless_ = headless;
 
     engine_ = std::make_unique<engine::Engine>();
@@ -575,6 +583,8 @@ void Application::returnToTitle() {
     bgmOverride_.clear();
     itemsGiven_ = false;
     itemToasts_.clear();
+    resetGuideWatch();
+    resetDialogueExtras();   // 地基包路 D：跳过、跳完的提示、气泡
     shops_ = initialShops_;
     // 历练里返回首页：那一趟就此作罢（与读档、新开局同一个口径），不然 inLilian() 还为真，
     // 回到首页再「继续旅程」之前，存档闸、worldObjects() 都还指着那一趟。
@@ -591,6 +601,8 @@ core::Result<bool> Application::startNewJourney() {
     spokenKeys_.clear();
     pendingCards_.clear();
     itemToasts_.clear();
+    resetGuideWatch();
+    resetDialogueExtras();   // 地基包路 D：跳过、跳完的提示、气泡
     screenFade_ = 0.f;
     auto loaded = loadMap(kNewGameMap, std::string{});
     if (!loaded) return loaded;
@@ -619,6 +631,8 @@ core::Result<bool> Application::continueJourney(const std::string& savePath) {
     state_.facing = facing;
     pendingCards_.clear();
     itemToasts_.clear();   // 读档前那一局拿到的东西，不该在读回来的这一局里弹出来
+    resetGuideWatch();
+    resetDialogueExtras();   // 地基包路 D：跳过、跳完的提示、气泡
     screenFade_ = 0.f;
     replaceScene(std::make_unique<WorldScene>());
     return core::Result<bool>::success(true);
@@ -740,6 +754,8 @@ void Application::openFacility(const core::MapObject& facility) {
         showMessage("ui.facility.locked");
         return;
     }
+    // 教学卡（第一期地基包 2.3）：第一次打开灵田、打坐、炼丹……压在面板上面讲一句。
+    tutorialEvent("facility." + kind);
 
     if (kind == "meditate") {
         // 此地的打坐效率（map_spec 4.6 的 effectiveness，百分比；契约 docs/interfaces-p3-ch08.md 1.4）：
@@ -859,7 +875,7 @@ bool Application::applyPathEffect(const core::PathAction& action, const rules::P
     // **不要加 default:**：规则层多一种效果时让编译器告警，而不是悄悄跳过。
     switch (effect.kind) {
         case Kind::Say:
-            sayAs(speakerRole, effect.textKey);
+            sayAs(speakerRole, effect.textKey, effect.face.empty() ? std::string(script::kDefaultFace) : effect.face);
             return true;
         case Kind::RevealWeakness: {
             // 契约 5.4 的两条路里取「此刻就写」：玩家打探完回头就去打，开战那一刻才并进去的话，
@@ -972,17 +988,23 @@ std::string Application::worldBgm() const {
     return map_ == nullptr ? std::string{} : map_->bgm;
 }
 
-void Application::sayAs(const std::string& roleId, const std::string& textKey, const std::string& face) {
+void Application::recordSpoken(const std::string& roleId, const std::string& textKey, const std::string& face) {
     // 先记下 key 再建场景：建场景会把 key 换成正文，之后就查不到它了。
     if (spokenKeys_.size() >= kSpokenLogCap) spokenKeys_.erase(spokenKeys_.begin());
     spokenKeys_.push_back(textKey);
     const std::string speaker = roleId.empty() ? std::string{} : speakerName(roleId);
-    const std::string body = text(textKey);
     // 同一行同时进两份记录：key 那份给测试，这份给玩家回看。
-    pushDialogueLine(speaker, body, roleId, face);
+    pushDialogueLine(speaker, text(textKey), roleId, face);
+}
+
+void Application::sayAs(const std::string& roleId, const std::string& textKey, const std::string& face, bool bust) {
+    recordSpoken(roleId, textKey, face);
+    const std::string speaker = roleId.empty() ? std::string{} : speakerName(roleId);
+    const std::string body = text(textKey);
     auto scene = std::make_unique<DialogueScene>(speaker, body);
     // 头像要的是角色 id 与表情，不是名字（伙伴改版 3.9）；画不画由对话框自己定。
     scene->setPortrait(roleId, face);
+    if (!bust) scene->suppressBust();
     pushScene(std::move(scene));
 }
 
@@ -1171,6 +1193,26 @@ void Application::pushDialogueLine(std::string speaker, std::string body, std::s
     dialogueLog_.push_back(SpokenLine{std::move(speaker), std::move(body), std::move(roleId), std::move(face)});
 }
 
+bool Application::pushIntroCard(const std::string& roleId) {
+    if (headless_ || roleId.empty()) return false;   // 无头：不读表、不改任何状态
+    const ChapterDone chapterDone = [this](int n) { return chapterTable().chapterDone(state_, n); };
+    const std::optional<PortraitFrame> bust = busts_.frameFor(*engine_, headless_, roleId, "normal", chapterDone);
+    if (!bust) {
+        if (introCardWarned_.insert(roleId).second) {
+            std::fprintf(stderr, "[bust] WARNING: %s 没有立绘（这一章没登记、或图载不进来）：登场卡不出\n", roleId.c_str());
+        }
+        return false;
+    }
+    const auto lookup = [this](const std::string& key, const std::string& fallback) {
+        const std::string value = data_.lookupText(key);
+        return value.empty() || value == key ? fallback : value;
+    };
+    const std::string base = "card." + roleId + ".";
+    pushScene(std::make_unique<IntroCardScene>(roleId, bust->texture, bust->src, lookup(base + "name", speakerName(roleId)),
+                                               lookup(base + "title", std::string{}), lookup(base + "line", std::string{})));
+    return true;
+}
+
 void Application::showMessage(const std::string& textKey) {
     if (textKey.empty()) return;
     // 空说话人 = 旁白，对话框不画名字框。
@@ -1182,11 +1224,43 @@ void Application::showMessage(const std::string& textKey) {
 bool Application::dispatch(const script::Command& command, script::CommandResult& outcome) {
     using script::CommandKind;
 
+    // 地基包路 D（docs/ch07-foundation.md 4.3）：整段跳过一路跳到要玩家动手的那一条为止。
+    // **选择永远不自动选**：跳到选择就停，选择框照常弹出来等玩家按。
+    if (dialogueSkipping_ && (command.kind == CommandKind::Choice || command.kind == CommandKind::Battle ||
+                              command.kind == CommandKind::Shop || command.kind == CommandKind::Ending ||
+                              command.kind == CommandKind::GameOver)) {
+        endDialogueSkip();
+    }
+
     switch (command.kind) {
         case CommandKind::Talk:
+            // 整段跳过中：不压对话框，只记进回看（spokenKeys 照记），就地完成。
+            if (dialogueSkipping_) {
+                recordSpoken(command.b, command.a, command.c.empty() ? std::string(script::kDefaultFace) : command.c);
+                ++skippedLines_;
+                return true;
+            }
             // 与路径行动的话同一个入口（sayAs），口径只有一处定义。表情没给就是缺省那一个。
             sayAs(command.b, command.a, command.c.empty() ? std::string(script::kDefaultFace) : command.c);
             return false;
+        case CommandKind::Bubble: {
+            // 伙伴插话气泡（4.4）：浮在那个人头顶，不压场景、不收输入，人照走；同时记进回看。
+            // 那个人不在画面上：退回成普通对白，话不能丢。整段跳过中与 talk 一样只记一笔。
+            if (dialogueSkipping_) {
+                recordSpoken(command.b, command.a, std::string(script::kDefaultFace));
+                ++skippedLines_;
+                return true;
+            }
+            const std::optional<Vec2f> cell = bubbleCell(command.b);
+            if (!cell) {
+                // 退回的对白不带立绘（docs/heroine-art-build.md 3.1：插话不出大图），小头像照旧。
+                sayAs(command.b, command.a, std::string(script::kDefaultFace), /*bust=*/false);
+                return false;
+            }
+            recordSpoken(command.b, command.a, std::string(script::kDefaultFace));
+            pushSpeechBubble(command.b, command.a, command.x > 0 ? static_cast<float>(command.x) / 1000.f : 3.f, cell);
+            return true;
+        }
         case CommandKind::Choice: {
             std::vector<std::string> options;
             options.reserve(command.options.size());
@@ -1310,9 +1384,9 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
                                          : command.kind == CommandKind::FadeIn
                                              ? FadeScene::Kind::In
                                              : FadeScene::Kind::Wait;
-            if (headless_) {
+            if (headless_ || dialogueSkipping_) {
                 // 无头没人看，当场到终值、当场回填：与改造前一样一帧也不多等，
-                // 测试与无头 bot 的节奏不受影响。
+                // 测试与无头 bot 的节奏不受影响。整段跳过中（地基包路 D）同样压成当场完成。
                 setScreenFade(FadeScene::levelAt(kind, screenFade_, 0.0, 0.0));
                 return true;
             }
@@ -1555,6 +1629,20 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
             return true;
         }
 
+        // ---- 女角色立绘：登场卡（docs/heroine-art-build.md 3.5.3）----
+        case CommandKind::IntroCard:
+            // 整段跳过中直接略过；没有立绘、无头时 pushIntroCard 不压卡片，就地完成。卡片收起时回填。
+            outcome.ok = true;
+            return dialogueSkipping_ || !pushIntroCard(command.a);
+
+        // ---- 第一期地基包：教学卡（docs/ch07-foundation.md 2.3）----
+        case CommandKind::Tutorial: {
+            // 不等卡片弹出：卡片等这段戏演完才弹（flushTutorials），脚本照常往下走。
+            outcome.code = requestTutorial(command.a);
+            outcome.ok = outcome.code.empty();
+            return true;
+        }
+
         // ---- 伙伴改版：默契加分（docs/interfaces-companions.md 2.2、3.8）----
         case CommandKind::BondAdd: {
             // 伙伴 id 必须在 data/companions 里查得到：拼错的 id 记下一笔谁也读不到的账，
@@ -1690,7 +1778,11 @@ void Application::pumpScriptCommands() {
         if (commandPending_) return;
 
         script::Command command;
-        if (!scripts_->pollCommand(command)) return;
+        if (!scripts_->pollCommand(command)) {
+            // 地基包路 D：整段跳过一路跳到脚本结束——收住，弹「已跳过 N 句」。
+            if (dialogueSkipping_ && !scripts_->isRunning()) endDialogueSkip();
+            return;
+        }
 
         commandPending_ = true;
         script::CommandResult result;
@@ -1715,11 +1807,22 @@ void Application::tick(double deltaSeconds) {
 
     if (!scenes_.empty()) {
         Scene& top = *scenes_.back();
-        if (!top.update(*this, deltaSeconds)) popScene();
+        // 地基包路 D：「已跳过 N 句 · 按 Tab 回看」停着时，世界层上的菜单键翻开回看面板（不开主菜单）。
+        // 这一帧世界层不再 update：同一下按键不能既翻回看又开主菜单。
+        if (skipNotice_.holding() && engine_ && engine_->keyPressed(engine::Engine::Key::Menu) &&
+            dynamic_cast<WorldScene*>(&top) != nullptr) {
+            skipNotice_.clear();
+            pushScene(std::make_unique<DialogueLogScene>());
+        } else if (!top.update(*this, deltaSeconds)) {
+            popScene();
+        }
     }
 
     // 章节卡排在改栈之前：这一帧要压的卡与别的压栈一起在下面落地，下一帧就在最上面。
     flushChapterCards();
+    // 教学卡与见闻提示（第一期地基包）：同样排在改栈之前。
+    watchGuide();
+    flushTutorials();
 
     // 帧末统一改栈，避免在 update 中途让容器失效。
     while (pendingPops_ > 0 && !scenes_.empty()) {
@@ -1734,6 +1837,19 @@ void Application::tick(double deltaSeconds) {
     }
     pendingPush_.clear();
 
+    // 对白立绘（docs/heroine-art-build.md 3.1）：栈里最上面那一层对话框换了，就把它的说话人交给 bustStage
+    // （跨句的淡入淡出记在那里）；栈里没有对话框一阵子就清空。
+    DialogueScene* topDialogue = nullptr;
+    for (auto it = scenes_.rbegin(); it != scenes_.rend() && topDialogue == nullptr; ++it) {
+        topDialogue = dynamic_cast<DialogueScene*>(it->get());
+    }
+    const std::uint64_t owner = topDialogue == nullptr ? 0 : topDialogue->serial();
+    if (owner != bustOwner_) {
+        bustOwner_ = owner;
+        if (topDialogue != nullptr) topDialogue->enterBust(*this);
+    }
+    bustStage_.advance(deltaSeconds, topDialogue != nullptr);
+
     // 这一帧发过东西：一声就够。一段脚本连给三样、一条路径行动给两样，都是同一次发放。
     if (itemsGiven_) {
         itemsGiven_ = false;
@@ -1742,6 +1858,10 @@ void Application::tick(double deltaSeconds) {
 
     // 得物卡片的时钟：只在世界层露着时走——给完东西紧接着开战、开菜单，卡片停在那里，回到地图上再放完。
     if (worldShown()) itemToasts_.advance(static_cast<float>(deltaSeconds));
+    if (worldShown()) loreNotices_.advance(static_cast<float>(deltaSeconds));
+    // 地基包路 D：跳过提示照墙上的钟走（打开回看、进了战斗都照走）；气泡只在世界层露着时走。
+    skipNotice_.advance(static_cast<float>(deltaSeconds));
+    if (worldShown()) speechBubbles_.advance(static_cast<float>(deltaSeconds));
 
     // 玩法计时器。系统菜单（主菜单、标题画面）的时间另记，见方案 2.2 的防刷口径：
     // 「首次游玩 ≥ 10 小时」数的是玩的时间，不是开着菜单发呆的时间。
@@ -1761,8 +1881,11 @@ void Application::drawScenes() {
             break;
         }
     }
+    // 第一期地基包集成：这一帧画出来的世界层（没画就是空）。得物卡片、「已跳过 N 句」照它的 HUD 让位。
+    const WorldScene* drawnWorld = nullptr;
     for (std::size_t i = first; i < scenes_.size(); ++i) {
         scenes_[i]->render(*this);
+        if (const auto* world = dynamic_cast<const WorldScene*>(scenes_[i].get())) drawnWorld = world;
         // 脚本 fade.out 的黑幕：紧贴着世界层画，压住地图、人物、HUD，却压不住它上面的
         // 对话框——黑场里的一句旁白是演出，不是事故。世界层被不透明的场景（战斗、卡片）
         // 盖住时它也跟着不画。
@@ -1778,8 +1901,27 @@ void Application::drawScenes() {
                 toastIconsTried_ = true;
                 toastIcons_ = engine_->loadTexture("art/ui/icons.png");
             }
-            drawItemToasts(*engine_, theme_, toastGeometry_, toastIcons_, itemToasts_, heroScreenRect());
+            // 存盘提示亮着时（小地图下面那一块）卡片排到它下面，不叠在上面。
+            float toastTop = kItemToastTop;
+            if (drawnWorld != nullptr) {
+                const engine::RectF& notice = drawnWorld->view().saveNoticeRect();
+                if (notice.h > 0.f) toastTop = std::max(toastTop, notice.y + notice.h + 6.f);
+            }
+            drawItemToasts(*engine_, theme_, toastGeometry_, toastIcons_, itemToasts_, heroScreenRect(), toastTop);
         }
+        // 「见闻：XXX」：同样紧贴着世界层画，对话框压在它上面。
+        if (loreNotices_.active() && dynamic_cast<WorldScene*>(scenes_[i].get()) != nullptr) {
+            drawLoreNotice(*engine_, theme_, loreGeometry_, loreNotices_);
+        }
+        // 地基包路 D：插话气泡紧贴世界层画，对话框压在它上面。
+        if (speechBubbles_.active() && dynamic_cast<WorldScene*>(scenes_[i].get()) != nullptr) {
+            drawSpeechBubbles();
+        }
+    }
+    // 地基包路 D：「已跳过 N 句」画在最上面——跳到选择时它要压在选择框之上才看得见。
+    if (skipNotice_.active()) {
+        drawSkipNotice(*engine_, theme_, skipNotice_,
+                       drawnWorld != nullptr ? drawnWorld->view().objectiveColumnRect() : engine::RectF{});
     }
 }
 
@@ -1812,6 +1954,257 @@ int Application::run() {
         if (scenes_.empty() && !scripts_->isRunning()) break;
     }
     return 0;
+}
+
+// ---------------------------------------------------------------------------
+// 教学卡与见闻提示（第一期地基包，docs/ch07-foundation.md 2.3、2.5）
+// ---------------------------------------------------------------------------
+
+void Application::tutorialEvent(const std::string& event) {
+    if (!tutorialsEnabled_ || event.empty()) return;
+    const core::TutorialCard* card = rules::tutorialForEvent(data_.tutorials, event, state_, chapterDoneFn());
+    if (card == nullptr) return;
+    // 已经排着就不再排：同一个事件每帧都可能来一遍（走在宝箱旁边、每回合开菜单）。
+    if (std::find(pendingTutorials_.begin(), pendingTutorials_.end(), card->id) != pendingTutorials_.end()) return;
+    pendingTutorials_.push_back(card->id);
+}
+
+std::string Application::requestTutorial(const std::string& cardId) {
+    const core::TutorialCard* card = rules::findTutorial(data_.tutorials, cardId);
+    if (card == nullptr) return "no_card";
+    if (!rules::tutorialEligible(*card, state_, chapterDoneFn())) return "skipped";
+    // 关着（无头测试的缺省）：脚本照常走，不排卡、不记旗标——与 tutorialEvent 同一个闸。
+    if (!tutorialsEnabled_) return "skipped";
+    if (std::find(pendingTutorials_.begin(), pendingTutorials_.end(), card->id) == pendingTutorials_.end()) {
+        pendingTutorials_.push_back(card->id);
+    }
+    return {};
+}
+
+rules::ChapterDoneFn Application::chapterDoneFn() const {
+    return [this](int number) { return chapters_.chapterDone(state_, number); };
+}
+
+void Application::noteBattleStart() {
+    battleStartSeen_.clear();
+    for (const core::TutorialCard* card : rules::seenTutorials(data_.tutorials, state_)) battleStartSeen_.push_back(card->id);
+}
+
+void Application::replayTutorial(const std::string& cardId) {
+    if (rules::findTutorial(data_.tutorials, cardId) == nullptr) return;
+    pushScene(std::make_unique<TutorialScene>(cardId));
+}
+
+void Application::flushTutorials() {
+    if (pendingTutorials_.empty()) return;
+    if (pendingPops_ > 0 || !pendingPush_.empty() || scenes_.empty()) return;
+    Scene* top = scenes_.back().get();
+    // 两种时候弹：
+    //   · 战斗里轮到我方（BattleScene 开菜单时才发事件；卡片压上去，战斗只更新最上面那一层，于是输入暂停）；
+    //   · 不在战斗里：脚本演完、没有命令等着回填，顶上是走图或设施面板。对白、选项、章节卡、菜单开着都等。
+    const bool inBattle = dynamic_cast<BattleScene*>(top) != nullptr;
+    if (!inBattle) {
+        if (scripts_ == nullptr || scripts_->isRunning() || commandPending_) return;
+        const bool calm = dynamic_cast<WorldScene*>(top) != nullptr || dynamic_cast<FieldScene*>(top) != nullptr ||
+                          dynamic_cast<CultivationScene*>(top) != nullptr ||
+                          dynamic_cast<AlchemyScene*>(top) != nullptr;
+        if (!calm) return;
+    }
+    const std::string id = pendingTutorials_.front();
+    pendingTutorials_.erase(pendingTutorials_.begin());
+    const core::TutorialCard* card = rules::findTutorial(data_.tutorials, id);
+    if (card == nullptr || rules::tutorialSeen(*card, state_)) return;
+    // 看过一次就记下；设置里关了教学提示也照样记（判据 3：关掉后不弹，但记事「指南」页里翻得到）。
+    state_.flags[rules::tutorialSeenFlag(id)] = 1;
+    tutorialLog_.push_back(id);
+    if (settings_.tutorialCards) pushScene(std::make_unique<TutorialScene>(id));
+}
+
+void Application::resetGuideWatch() {
+    guideBaselined_ = false;
+    loreKnown_.clear();
+    guideObjective_.clear();
+    pendingTutorials_.clear();
+    loreNotices_.clear();
+}
+
+void Application::watchGuide() {
+    // 见闻：前后两份解锁表一比，多出来的报一句「见闻：XXX」。头一回（新开局、读档）只记不报。
+    std::set<std::string> known = rules::unlockedLoreIds(data_.lore, state_);
+    if (guideBaselined_) {
+        for (const core::LoreEntry* entry : rules::newlyUnlockedLore(data_.lore, loreKnown_, known)) {
+            loreNotices_.push(data_.lookupText("ui.guide.lore.unlocked") + data_.lookupText(entry->titleKey));
+        }
+    }
+    loreKnown_ = std::move(known);
+
+    // 主线目标：换了一步就发「objective.<id>」（教学卡可以挂在某一步上，例如交药那一步讲年份）。
+    // 头一回也发：读第 7 章章首存档时，那一步挂着的卡同样该弹。
+    const core::Objective* step = rules::currentObjective(data_.objectives, state_);
+    const std::string stepId = step != nullptr ? step->id : std::string{};
+    if (!stepId.empty() && (!guideBaselined_ || stepId != guideObjective_)) tutorialEvent("objective." + stepId);
+    guideObjective_ = stepId;
+    guideBaselined_ = true;
+
+    if (!tutorialsEnabled_ || scenes_.empty() || dynamic_cast<WorldScene*>(scenes_.back().get()) == nullptr) return;
+    // 下面几样只在走图时看（打完仗回到地图上才说「战斗外也能吃药」）。
+    tutorialEvent("world.idle");
+    bool anyMet = false;
+    bool anyBond = false;
+    for (const auto& [id, companion] : data_.companions) {
+        if (!companion.metFlag.empty() && state_.flag(companion.metFlag) != 0) anyMet = true;
+        if (state_.bondOf(id) > 0) anyBond = true;
+    }
+    if (anyMet) tutorialEvent("roster.joined");
+    if (anyBond) tutorialEvent("bond.gained");
+    if (state_.maxHp > 0 && state_.hp * 2 < state_.maxHp) tutorialEvent("world.hurt");
+}
+
+}  // namespace fanren::game
+
+namespace fanren::game {
+// ---------------------------------------------------------------------------
+// 对白减负（第 7 章地基包路 D，docs/ch07-foundation.md 4.2–4.4）
+// ---------------------------------------------------------------------------
+
+void Application::resetDialogueExtras() {
+    dialogueSkipping_ = false;
+    skippedLines_ = 0;
+    skipNotice_.clear();
+    speechBubbles_.clear();
+}
+
+void Application::toggleAutoAdvance() {
+    io::Settings next = settings_;
+    next.autoAdvance = !next.autoAdvance;
+    setSettings(next);
+    // 写盘失败不拦着：这一局里照样生效，原因打到标准错误（与设置面板以外的写盘同一个态度）。
+    if (auto saved = saveSettings(); !saved) {
+        std::fprintf(stderr, "[settings] 自动播放没写进设置文件：%s\n", saved.error.c_str());
+    }
+}
+
+bool Application::canSkipDialogue() const {
+    return scripts_ != nullptr && scripts_->isRunning() && commandPending_ && !dialogueSkipping_;
+}
+
+void Application::beginDialogueSkip() {
+    if (!canSkipDialogue()) return;
+    dialogueSkipping_ = true;
+    skippedLines_ = 0;
+    skipNotice_.clear();
+}
+
+void Application::endDialogueSkip() {
+    if (!dialogueSkipping_) return;
+    dialogueSkipping_ = false;
+    noteDialogueSkipped(skippedLines_);
+}
+
+void Application::noteDialogueSkipped(int lines) {
+    std::string line = text("ui.dialogue.skipped");
+    if (const std::size_t at = line.find("{n}"); at != std::string::npos) line.replace(at, 3, std::to_string(lines));
+    skipNotice_.show(std::move(line));
+}
+
+void Application::pushSpeechBubble(const std::string& roleId, const std::string& textKey, float seconds,
+                                   std::optional<Vec2f> fallbackCell) {
+    SpeechBubble bubble;
+    bubble.roleId = roleId;
+    bubble.text = text(textKey);
+    bubble.seconds = seconds > 0.f ? seconds : 3.f;
+    bubble.fixedCell = fallbackCell;
+    speechBubbles_.push(std::move(bubble));
+}
+
+std::optional<engine::Point> Application::cellToScreen(Vec2f cell) const {
+    for (auto it = scenes_.rbegin(); it != scenes_.rend(); ++it) {
+        if (const auto* world = dynamic_cast<const WorldScene*>(it->get())) {
+            const Vec2f camera = world->view().camera();
+            return engine::Point{static_cast<int>(std::lround(cell.x * kWorldTilePx - camera.x)),
+                                 static_cast<int>(std::lround(cell.y * kWorldTilePx - camera.y))};
+        }
+    }
+    return std::nullopt;
+}
+
+std::optional<Vec2f> Application::bubbleCell(const std::string& roleId) {
+    if (roleId.empty() || map_ == nullptr || !worldShown()) return std::nullopt;
+    WorldScene* world = nullptr;
+    for (auto it = scenes_.rbegin(); it != scenes_.rend() && world == nullptr; ++it) {
+        world = dynamic_cast<WorldScene*>(it->get());
+    }
+    if (world == nullptr) return std::nullopt;
+    std::optional<Vec2f> cell;
+    // 跟在身后的伙伴：画面上她此刻站在哪儿（带滑步）。
+    for (const FollowerTrack::Slot& slot : world->view().followers()) {
+        if (slot.roleId == roleId) {
+            cell = slot.slide.position();
+            break;
+        }
+    }
+    // 图上站着的 NPC（只算此刻在场的）。
+    if (!cell) {
+        for (const WorldFrame::Npc& npc : world->describeFrame(*this).npcs) {
+            if (npc.roleId == roleId && npc.object != nullptr) {
+                cell = Vec2f{static_cast<float>(npc.object->position.x), static_cast<float>(npc.object->position.y)};
+                break;
+            }
+        }
+    }
+    if (!cell) return std::nullopt;
+    // 出了镜头也算不在画面上。镜头按逻辑位置算（与 heroScreenRect 同一个算法）：画面的镜头要渲染过才有，
+    // 无头下没有渲染，而「在不在画面上」是规则层的判断，不该随有没有窗口变。
+    const Vec2f focus{static_cast<float>(state_.position.x) + 0.5f, static_cast<float>(state_.position.y) + 0.5f};
+    const Vec2f camera = cameraTarget(map_->width, map_->height, focus);
+    const std::optional<engine::Point> screen = engine::Point{
+        static_cast<int>(std::lround(cell->x * kWorldTilePx - camera.x)),
+        static_cast<int>(std::lround(cell->y * kWorldTilePx - camera.y))};
+    if (!screen || screen->x + kWorldTilePx < 0 || screen->y + kWorldTilePx < 0 || screen->x >= engine::kLogicalWidth ||
+        screen->y >= engine::kLogicalHeight) {
+        return std::nullopt;
+    }
+    return cell;
+}
+
+void Application::drawSpeechBubbles() {
+    if (engine_ == nullptr) return;
+    const WorldScene* world = nullptr;
+    for (auto it = scenes_.rbegin(); it != scenes_.rend() && world == nullptr; ++it) {
+        world = dynamic_cast<const WorldScene*>(it->get());
+    }
+    for (const SpeechBubble& bubble : speechBubbles_.bubbles()) {
+        // 跟随者每帧重找：人走气泡跟着走。找不到（离队、换了图）就用压气泡那一刻的格。
+        std::optional<Vec2f> cell;
+        if (world != nullptr) {
+            for (const FollowerTrack::Slot& slot : world->view().followers()) {
+                if (slot.roleId == bubble.roleId) cell = slot.slide.position();
+            }
+        }
+        if (!cell) cell = bubble.fixedCell;
+        if (!cell) continue;
+        const std::optional<engine::Point> screen = cellToScreen(*cell);
+        if (!screen) continue;
+        // 头顶：格的上沿再往上半格（人比一格高出一截）。
+        const engine::Point anchor{screen->x + kWorldTilePx / 2, screen->y - kWorldTilePx / 2};
+        drawSpeechBubble(*engine_, theme_, bubble.text, anchor, SpeechBubbles::opacity(bubble));
+    }
+}
+
+// ---------------------------------------------------------------------------
+// 路 M：地图与说明（docs/ch07-foundation.md 第 3 节）
+// ---------------------------------------------------------------------------
+
+const rules::ItemSpots& Application::itemSpots() {
+    if (!itemSpots_) itemSpots_ = buildItemSpots(assetRoot_, data_, explorationRewards_);
+    return *itemSpots_;
+}
+
+WorldScene* Application::worldScene() {
+    for (auto it = scenes_.rbegin(); it != scenes_.rend(); ++it) {
+        if (auto* world = dynamic_cast<WorldScene*>(it->get())) return world;
+    }
+    return nullptr;
 }
 
 }  // namespace fanren::game

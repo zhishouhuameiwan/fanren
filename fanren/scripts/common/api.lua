@@ -411,3 +411,45 @@ bond = {
     get = function(companion_id) return __host.bond_get(companion_id or "") end,
     tier = function(companion_id) return __host.bond_tier(companion_id or "") end,
 }
+
+-- ---------------------------------------------------------------------------
+-- 教学卡（第一期地基包，docs/ch07-foundation.md 2.3）
+--
+-- tutorial("id") 叫一张 data/tutorials/ 里的卡。不等：卡片等这段戏演完、回到走图时才弹；
+-- 看过的、不在这一章的、设置里关了教学提示的都不弹（关了照样记作看过，记事「指南」页里翻得到）。
+-- 返回 ok, code；code 为 ASCII 机器码，成功时是空串：
+--   "no_card"  data/tutorials/ 里没有这张
+--   "skipped"  这张看过了、或不在这一章，这一次不弹
+-- ---------------------------------------------------------------------------
+
+function tutorial(card_id)
+    assert(type(card_id) == "string" and card_id ~= "", "tutorial() 需要教学卡 id")
+    local result = emit{ kind = "tutorial", a = card_id }
+    return result.ok == true, result.code or ""
+end
+
+-- ---------------------------------------------------------------------------
+-- 伙伴插话气泡（第 7 章地基包路 D，docs/ch07-foundation.md 4.4）
+--
+-- 在那个角色头顶浮一条气泡：不压场景、不收输入，人照走；同时记进对话回看。
+-- 角色此刻不在画面上（不在队里、不在这张图、出了镜头）时退回成普通对白——话不能丢。
+-- seconds 是停多久（不含淡入淡出），省略为 3 秒。
+-- ---------------------------------------------------------------------------
+function bubble(role_id, text_key, seconds)
+    assert(type(role_id) == "string" and role_id ~= "", "bubble() 需要说话人的角色 id")
+    assert(type(text_key) == "string" and text_key ~= "", "bubble() 需要文案 key")
+    local ms = math.floor((seconds or 3) * 1000 + 0.5)
+    emit{ kind = "bubble", a = text_key, b = role_id, x = ms }
+end
+
+-- ---------------------------------------------------------------------------
+-- 登场卡（女角色立绘，docs/heroine-art-build.md 3.5.3）
+--
+-- 整屏压暗，她的立绘从右侧滑进来，左边写名字、身份、一句短评；玩家按确认收起（自动播放时自己收）。
+-- 文字取文本表 card.<role>.name（缺省用角色名）、card.<role>.title、card.<role>.line。
+-- 这个角色没有立绘、整段跳过中、无头模式：不出卡片，直接往下走。不记存档、不进回看。
+-- ---------------------------------------------------------------------------
+function intro_card(role_id)
+    assert(type(role_id) == "string" and role_id ~= "", "intro_card() 需要角色 id")
+    emit{ kind = "intro_card", a = role_id }
+end

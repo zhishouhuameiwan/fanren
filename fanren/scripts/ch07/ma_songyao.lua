@@ -21,7 +21,6 @@ give("pill_jinchuang_yao", count)
 if count == 5 then
     talk("ma_shibo", "ch07.ma_songyao.baigong")
 end
-talk("", "ch07.ma_songyao.gone")
 
 advance_days(20)
 

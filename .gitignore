@@ -29,4 +29,6 @@ __pycache__/
 
 # fanren：伙伴改版的设计图、原稿与出图工作笔记——只留在本地，不入库（游戏运行要用的图在 fanren/assets/ 下，照常入库）
 /fanren/docs/companions-overhaul/
+# 女角色立绘的样张与原图（docs/heroine-art.md、heroine-art-build.md）：只留在本地；打包后的表在 fanren/assets/art/busts/ 入库
+/fanren/docs/heroine-art/
 /fanren/work-notes/

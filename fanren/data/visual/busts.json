@@ -1,0 +1,126 @@
+{
+  "_doc": "女角色高清立绘（由 tools/artgen/busts.py 按 tools/artgen/busts_manifest.json 生成，docs/heroine-art-build.md 第 2 节）：角色 id → 立绘列表，形状照 portraits.json（每条可带 min_chapter / max_chapter，取第一条成立的）。图相对 assets/art/busts/，每格 840×1260、屏幕上画成 420×630；没画的表情指回 normal 那一格。files 是每张图的 sha256（busts.py --check 核）。没登记的角色对白照旧画像素小头像。",
+  "busts": {
+    "baiyi_shaonv": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "baiyi_shaonv.png",
+        "frame_h": 1260,
+        "frame_w": 840
+      }
+    ],
+    "chen_shimei": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "chen_shimei.png",
+        "frame_h": 1260,
+        "frame_w": 840
+      }
+    ],
+    "duobao_nv": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "duobao_nv.png",
+        "frame_h": 1260,
+        "frame_w": 840
+      }
+    ],
+    "han_yunzhi": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "han_yunzhi.png",
+        "frame_h": 1260,
+        "frame_w": 840
+      }
+    ],
+    "huangshan_shijie": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "huangshan_shijie.png",
+        "frame_h": 1260,
+        "frame_w": 840
+      }
+    ],
+    "maifu_shaonv": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "han_yunzhi.png",
+        "frame_h": 1260,
+        "frame_w": 840
+      }
+    ],
+    "nangong_wan_ch07": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "nangong_wan_ch07.png",
+        "frame_h": 1260,
+        "frame_w": 840
+      }
+    ],
+    "nichang_xianzi": [
+      {
+        "cols": 4,
+        "faces": {
+          "angry": 2,
+          "hurt": 3,
+          "normal": 0,
+          "smile": 1
+        },
+        "file": "nichang_xianzi.png",
+        "frame_h": 1260,
+        "frame_w": 840
+      }
+    ]
+  },
+  "files": {
+    "baiyi_shaonv.png": "2c1dc92977fe8dfd2ae243239ef9d3c0995179b5e17439983562c264a21b9e47",
+    "chen_shimei.png": "142b9919af2ddee4fb71d30d621ec2a52ab8c4ad75948c3719e25dfe3791d8bf",
+    "duobao_nv.png": "dfb5f48213551fad3ae65a1220bf2afd473b6ea197797dd88b1a9b72c6f1d4a0",
+    "han_yunzhi.png": "14725dac2776a16522e32e73fa3bbad9de23d5a3e737388992d4c061adbd9ddf",
+    "huangshan_shijie.png": "c4f28c56833a6ebd65d54511e68a13338ed5c16bc9522818f37305fd0ac3960a",
+    "nangong_wan_ch07.png": "e42e30d2fc52801949776e91addc37b9d3b6dcd721a1f928b44e7c8874f484f1",
+    "nichang_xianzi.png": "614fea3fe4eda9a9000df249edf3bd8e9f398b3142dcedb72a82565582944720"
+  }
+}

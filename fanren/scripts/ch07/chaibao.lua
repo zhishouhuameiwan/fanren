@@ -1,5 +1,5 @@
 -- @hook ch06_baiyaoyuan trigger_chaibao interact once
--- 第七章节点 1「拆包」。挂在 ch06_baiyaoyuan 居室里放包袱的小桌 (22,3)
+-- 第七章节点 1「拆包」。挂在 ch06_baiyaoyuan 居室墙角地上的布包 (22,3)
 -- （mode=interact，once=true，guard_flag=ch06.done，set_flag=ch07.chaibao）。拆叶师叔那一包的是他。
 --
 -- 第 6 章章末的次日（第 6 章收在「第二日醒来」）。框架件照施工图 13.1 第 1 段：
@@ -10,7 +10,6 @@
 -- 讲述次序是本作自己的：先园子、后包袱、夜里试瓶（原著先写灵石）。
 -- 目标链第 2、3 步的 R-3 提示在 data/text/ch07_objectives.json。
 
-talk("", "ch07.chaibao.dawn")
 talk("", "ch07.chaibao.seedlings")
 give("herb_huangjing_cao", 3, 0)
 give("herb_zishen_cao", 2, 0)
@@ -19,7 +18,6 @@ give("herb_huangjing_zhi", 2, 0)
 talk("", "ch07.chaibao.corner")
 field.unlock("field_baiyaoyuan_jiao", 2)
 
-talk("", "ch07.chaibao.bundle")
 talk("", "ch07.chaibao.stones")
 give("material_lingshi_zhong", 2)
 talk("", "ch07.chaibao.tools")
@@ -31,11 +29,9 @@ give("talisman_tulao_fu", 2)
 
 if bottle.spend(1) then
     talk("", "ch07.chaibao.test")
-    talk("", "ch07.chaibao.test_gone")
 else
     talk("", "ch07.chaibao.test_none")
 end
 talk("", "ch07.chaibao.canpian")
-talk("", "ch07.chaibao.plan")
 
 flag.set("ch07.chaibao")

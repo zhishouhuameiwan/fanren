@@ -1,0 +1,198 @@
+{
+  "id": "tutorials_ch07",
+  "name": "第 7 章教学卡",
+  "cards": [
+    {
+      "id": "keys",
+      "title_key": "tutorial.keys.title",
+      "body_keys": [
+        "tutorial.keys.l1",
+        "tutorial.keys.l2",
+        "tutorial.keys.l3"
+      ],
+      "trigger": "world.idle",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "herb_age",
+      "title_key": "tutorial.herb_age.title",
+      "body_keys": [
+        "tutorial.herb_age.l1",
+        "tutorial.herb_age.l2",
+        "tutorial.herb_age.l3"
+      ],
+      "trigger": "objective.n02_jiaoyao",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "bottle",
+      "title_key": "tutorial.bottle.title",
+      "body_keys": [
+        "tutorial.bottle.l1",
+        "tutorial.bottle.l2",
+        "tutorial.bottle.l3"
+      ],
+      "trigger": "facility.field",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "meditate",
+      "title_key": "tutorial.meditate.title",
+      "body_keys": [
+        "tutorial.meditate.l1",
+        "tutorial.meditate.l2",
+        "tutorial.meditate.l3"
+      ],
+      "trigger": "facility.meditate",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "weakness",
+      "title_key": "tutorial.weakness.title",
+      "body_keys": [
+        "tutorial.weakness.l1",
+        "tutorial.weakness.l2",
+        "tutorial.weakness.l3"
+      ],
+      "trigger": "battle.command",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "boost",
+      "title_key": "tutorial.boost.title",
+      "body_keys": [
+        "tutorial.boost.l1",
+        "tutorial.boost.l2",
+        "tutorial.boost.l3"
+      ],
+      "trigger": "battle.round2",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "defend",
+      "title_key": "tutorial.defend.title",
+      "body_keys": [
+        "tutorial.defend.l1",
+        "tutorial.defend.l2",
+        "tutorial.defend.l3"
+      ],
+      "trigger": "battle.after.boost",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "item_cast",
+      "title_key": "tutorial.item_cast.title",
+      "body_keys": [
+        "tutorial.item_cast.l1",
+        "tutorial.item_cast.l2",
+        "tutorial.item_cast.l3"
+      ],
+      "trigger": "battle.item_cast",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "ambush",
+      "title_key": "tutorial.ambush.title",
+      "body_keys": [
+        "tutorial.ambush.l1",
+        "tutorial.ambush.l2",
+        "tutorial.ambush.l3"
+      ],
+      "trigger": "foe.near",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "chase",
+      "title_key": "tutorial.chase.title",
+      "body_keys": [
+        "tutorial.chase.l1",
+        "tutorial.chase.l2",
+        "tutorial.chase.l3"
+      ],
+      "trigger": "foe.alert",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "loot",
+      "title_key": "tutorial.loot.title",
+      "body_keys": [
+        "tutorial.loot.l1",
+        "tutorial.loot.l2",
+        "tutorial.loot.l3"
+      ],
+      "trigger": "loot.near",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "gate",
+      "title_key": "tutorial.gate.title",
+      "body_keys": [
+        "tutorial.gate.l1",
+        "tutorial.gate.l2",
+        "tutorial.gate.l3"
+      ],
+      "trigger": "gate.near",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "alchemy",
+      "title_key": "tutorial.alchemy.title",
+      "body_keys": [
+        "tutorial.alchemy.l1",
+        "tutorial.alchemy.l2",
+        "tutorial.alchemy.l3"
+      ],
+      "trigger": "facility.alchemy",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "companion",
+      "title_key": "tutorial.companion.title",
+      "body_keys": [
+        "tutorial.companion.l1",
+        "tutorial.companion.l2",
+        "tutorial.companion.l3"
+      ],
+      "trigger": "roster.joined",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "gift",
+      "title_key": "tutorial.gift.title",
+      "body_keys": [
+        "tutorial.gift.l1",
+        "tutorial.gift.l2",
+        "tutorial.gift.l3"
+      ],
+      "trigger": "bond.gained",
+      "min_chapter": 7,
+      "max_chapter": 7
+    },
+    {
+      "id": "field_item",
+      "title_key": "tutorial.field_item.title",
+      "body_keys": [
+        "tutorial.field_item.l1",
+        "tutorial.field_item.l2",
+        "tutorial.field_item.l3"
+      ],
+      "trigger": "world.hurt",
+      "min_chapter": 7,
+      "max_chapter": 7
+    }
+  ]
+}

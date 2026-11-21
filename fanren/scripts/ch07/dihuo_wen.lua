@@ -8,8 +8,6 @@
 
 talk("", "ch07.dihuo_wen.ask")
 talk("xu_lao", "ch07.dihuo_wen.fire")
-talk("xu_lao", "ch07.dihuo_wen.where")
-talk("", "ch07.dihuo_wen.half")
 talk("xu_lao", "ch07.dihuo_wen.ding")
 talk("", "ch07.dihuo_wen.pick")
 if not take("material_lingshi", 32) then

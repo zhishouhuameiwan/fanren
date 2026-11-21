@@ -16,19 +16,14 @@
 --   · 4.2 她在出手这一刻入队：party.add("baiyi_shaonv")，编成里写死的那名友军删掉，改由队伍带入（否则场上两个她）。
 --     这一仗默契是 0，没有追击；打赢了「并肩打赢一仗」+2 由战斗结算记（契约 2.2）。名牌仍是白衣少女（问名在 4.5）。
 
-talk("", "ch07.guanzhan.stairs")
 talk("", "ch07.guanzhan.hide")
-talk("", "ch07.guanzhan.come")
+intro_card("baiyi_shaonv")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 talk("yanyue_dizi", "ch07.guanzhan.shizu")
 talk("", "ch07.guanzhan.shock")
-talk("baiyi_shaonv", "ch07.guanzhan.order")
-talk("", "ch07.guanzhan.ring")
-talk("baiyi_shaonv", "ch07.guanzhan.mojiao")
 talk("", "ch07.guanzhan.shed")
 talk("baiyi_shaonv", "ch07.guanzhan.retreat")
 talk("", "ch07.guanzhan.sealed")
 talk("baiyi_shaonv", "ch07.guanzhan.seal_name")
-talk("", "ch07.guanzhan.hours")
 
 local pick = choice{
     "ch07.guanzhan.opt_wait",
@@ -42,11 +37,9 @@ if pick == 1 then
 else
     talk("", "ch07.guanzhan.now")
 end
-talk("", "ch07.guanzhan.calc")
 talk("baiyi_shaonv", "ch07.guanzhan.why_late")
 talk("", "ch07.guanzhan.honest")
 talk("baiyi_shaonv", "ch07.guanzhan.xiaojia")
-talk("", "ch07.guanzhan.brick")
 
 -- 4.2：她入队。拼错角色 id 时 party.add 返回 false——这里错了整段就不对，直接停下。
 assert(party.add("baiyi_shaonv"), "party.add(baiyi_shaonv) 失败")
@@ -59,7 +52,6 @@ if not won then
     return
 end
 
-talk("", "ch07.guanzhan.down")
 talk("", "ch07.guanzhan.soul")
 if pick == 2 then
     talk("baiyi_shaonv", "ch07.guanzhan.cold")

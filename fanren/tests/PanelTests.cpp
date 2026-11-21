@@ -867,17 +867,18 @@ TEST_F(PanelTest, FacilitiesOccupyTheirCellSoTheyCanBeFaced) {
 
     const fanren::core::TileMap* map = app_.currentMap();
     ASSERT_NE(map, nullptr);
+    // 2026-11-20 起蒲团（kind=meditate）贴地、走得上去（坐在上面按确认照样打坐，见 FlatCellTests.cpp），
+    // 这一条改拿药田来问：其余设施照旧占格，只能面朝它按确认。
     const fanren::core::MapObject* spot = nullptr;
     for (const auto& object : map->objects) {
-        if (object.type == "facility" && object.property("kind") == "meditate") spot = &object;
+        if (object.type == "facility" && object.property("kind") == "field") spot = &object;
     }
     ASSERT_NE(spot, nullptr);
 
-    const Point beside{spot->position.x, spot->position.y + 1};
+    const Point beside{spot->position.x, spot->position.y + spot->height};
     app_.state().position = beside;
     app_.state().facing = 2;
 
-    // 能站上去的话，玩家会正踩在蒲团上却怎么按都没反应。
     WorldScene world;
     EXPECT_FALSE(world.tryStep(app_, 0, -1));
     EXPECT_EQ(app_.state().position, beside);

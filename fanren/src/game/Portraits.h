@@ -11,6 +11,7 @@
 #include <string>
 #include <vector>
 
+#include "core/Result.h"
 #include "core/model/Portraits.h"
 #include "engine/Engine.h"
 #include "game/SpriteAtlas.h"   // ChapterDone：「第 n 章演完了没有」，世界画面、主菜单、战斗取外观用的同一个判据
@@ -44,8 +45,23 @@ struct PortraitFrame {
 //
 // 表在第一次真要画头像时才读（headless 时永远不读）；读不到、读坏了都当空表，各打一行警告。
 // 警告按这一份去重：同一个问题一局只报一次。
+// 同一套「按章取格、缺图不崩」管两份表：对白头像（像素图，最近邻）与女角色的高清立绘（docs/heroine-art-build.md，
+// 线性缩放）。两份只差这几样，PortraitBook 构造时给定。
+struct SheetKind {
+    const char* tableFile;      // <游戏根>/data/visual/<tableFile>
+    const char* imageSubdir;    // <游戏根>/assets/art/<imageSubdir>
+    engine::ScaleMode scale;
+    const char* tag;            // 警告行的前缀：[portrait] / [bust]
+    const char* noun;           // 警告里的叫法：头像 / 立绘
+    core::Result<core::PortraitTable> (*load)(const std::string& path);
+};
+extern const SheetKind kPortraitSheets;   // portraits.json、assets/art/portraits、Pixel
+extern const SheetKind kBustSheets;       // busts.json、assets/art/busts、Linear
+
 class PortraitBook {
 public:
+    explicit PortraitBook(const SheetKind& kind = kPortraitSheets) : kind_(&kind) {}
+
     // 换根：丢掉已读的表与已打过的警告，下次用到时按新根重读。
     void setRoot(const std::string& gameRoot);
 
@@ -62,10 +78,13 @@ public:
 
     // 当前的表（第一次调时读盘）。给测试与诊断用。
     [[nodiscard]] const core::PortraitTable& table();
+    // 表读过没有（无头模式永远不读：测试钉这一条）。
+    [[nodiscard]] bool tableLoaded() const { return loaded_; }
 
 private:
     void warnOnce(const std::string& key, const std::string& message);
 
+    const SheetKind* kind_;
     std::string root_;
     bool loaded_ = false;
     core::PortraitTable table_;

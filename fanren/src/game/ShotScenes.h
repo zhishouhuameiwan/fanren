@@ -8,7 +8,14 @@
 //   menu:party / menu:roster  主菜单的队伍页 / 名册页（名册上有人时才有这两页；没人时退回状态页）
 //   walk:<方向串>             让主角照真入口（WorldScene::tryStep）走几步再拍：U 上 D 下 L 左 R 右，
 //                             每一步照游戏的次序一帧帧走到主角与跟随者都停下；撞墙的那一步不算错，照样往下走。
-//                             另认 Z（面朝前方按确认：开箱、采集）与 .（空转 0.25 秒，等得物卡片淡入）
+//                             另认 Z（面朝前方按确认：开箱、采集）与 .（空转 0.25 秒，等得物卡片淡入）；
+//                             小写 u d l r 只转身不迈步
+//   dlg:auto|skipask|skipped|bubble:…  地基包路 D 的对白减负四张图（自动小标、跳过确认框、跳过提示、插话气泡），
+//                             参数见 ShotScenes.cpp 的 pushDialogueShot
+//   areamap                   区域地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.2），压在当前世界层上
+//   toast:<物品 id>,<物品 id>  推几张得物卡片、空转到都出场（看副行的效果行，3.3）
+//   shopbuy:<店 id>           商店直接停在买货页（看左栏的四行式说明，3.3）
+//   （战斗选单的说明栏：battle:<编成 id>:items / :magic，见 BattleScene.h 的 BattleShot）
 //
 // 带伙伴的世界层、四人战斗面板不另开入口：存档里有伙伴（--load）、编成照旧（battle:<编成 id>）就拍得到。
 #include <string>
@@ -23,6 +30,20 @@ class Application;
 // 世界层（撞上明雷、踩响触发器，压上了战斗或对白）。
 // warmup 是截图前空转的帧数，只在需要更多时调大（现在这几个入口都不用）。
 bool pushCompanionShot(Application& app, const std::string& kind, const std::string& arg, int& warmup);
+
+// 第一期地基包·路 G 的截图口（pushCompanionShot 认 kind == "guide" 时转到这里）：
+//   guide:world[@记号…]            世界层本身（目标框两行式、「前往」整条路、头顶标记）
+//   guide:main|side|guide|lore[@…]  记事的那一页
+//   guide:tutorial=<卡 id>          一张教学卡
+//   guide:lorenote=<见闻 id>        「见闻：XXX」提示
+// 记号见 ShotScenes.cpp：旗标名、weak.<角色 id>。演示用：截图口不存盘。
+bool pushGuideShot(Application& app, const std::string& spec, int& warmup);
+
+// 第一期地基包集成的截图口（kind == "seam"）：屏幕上沿几样东西同时出现时的样子。
+//   seam:<部件,部件…>[@记号…]   部件：lore（「见闻：XXX」）、skip（「已跳过 12 句」）、save（存盘提示）、
+//                               toast（两张得物卡片）；记号同 guide:（先办，用来把目标推到两行式的那一步）。
+//                               小地图开不开照设置（--settings 指一份关掉的就拍关着的）。
+bool pushSeamShot(Application& app, const std::string& spec, int& warmup);
 
 // 截图模式下世界层的时钟步长（秒）。世界层被对白、菜单压着时不走自己的 update，画的时候按「这一帧过了多久」
 // 补一步；截图时那就是从引擎开机到拍照的真实时长，灯的明灭随它变——同一个程序拍几次，对白类截图差出几百到

@@ -39,10 +39,13 @@ using fanren::io::TextSpeed;
 
 // 行的下标即契约第 1 节的 # 次序（「按键设置」一期不可选时也占着第 8 行，二期接通时没挪别的行）。
 // docs/gamepad.md 第 8 节在「文字速度」之后插了「手柄震动」：第 8 行是它，「按键设置」「恢复默认」各往后挪一行（新真值）。
+// 第一期地基包（docs/ch07-foundation.md 第 2–4 节）在「手柄震动」之后插了三行，集成后的次序（施工图第 7 节定的）：
+// 自动播放（路 D）第 9 行、教学提示（路 G）第 10 行、小地图（路 M）第 11 行；「按键设置」「恢复默认」各往后挪三行（新真值）。
 static_assert(SettingsScene::kBgmVolume == 0 && SettingsScene::kSfxVolume == 1 && SettingsScene::kFullscreen == 2 &&
               SettingsScene::kScale == 3 && SettingsScene::kVSync == 4 && SettingsScene::kEffects == 5 &&
               SettingsScene::kScreenShake == 6 && SettingsScene::kTextSpeed == 7 && SettingsScene::kPadRumble == 8 &&
-              SettingsScene::kKeys == 9 && SettingsScene::kRestore == 10 && SettingsScene::kRowCount == 11);
+              SettingsScene::kAutoAdvance == 9 && SettingsScene::kTutorialCards == 10 && SettingsScene::kMinimap == 11 &&
+              SettingsScene::kKeys == 12 && SettingsScene::kRestore == 13 && SettingsScene::kRowCount == 14);
 // 标题画面：新的旅程 0 / 继续旅程 1 / 设置 2 / 离开 3（契约 5.1）。
 static_assert(fanren::game::TitleScene::kNewJourney == 0 && fanren::game::TitleScene::kContinue == 1 &&
               fanren::game::TitleScene::kSettings == 2 && fanren::game::TitleScene::kQuit == 3);
@@ -247,6 +250,12 @@ TEST_F(SettingsWiring, TheKeysRowOpensTheKeyPanelAndRestoreBringsEveryDefaultBac
     press(SDL_SCANCODE_DOWN);
     ASSERT_EQ(panel->selection(), SettingsScene::kPadRumble);
     press(SDL_SCANCODE_DOWN);
+    ASSERT_EQ(panel->selection(), SettingsScene::kAutoAdvance);   // 地基包路 D 插的一行
+    press(SDL_SCANCODE_DOWN);
+    ASSERT_EQ(panel->selection(), SettingsScene::kTutorialCards);   // 第一期地基包插的「教学提示」
+    press(SDL_SCANCODE_DOWN);   // 第 7 章改版·路 M 插的「小地图」（docs/ch07-foundation.md 3.1）
+    ASSERT_EQ(panel->selection(), SettingsScene::kMinimap);
+    press(SDL_SCANCODE_DOWN);
     ASSERT_EQ(panel->selection(), SettingsScene::kKeys);
     press(SDL_SCANCODE_RETURN);
     EXPECT_EQ(top(), "KeyConfig");
@@ -260,9 +269,9 @@ TEST_F(SettingsWiring, TheKeysRowOpensTheKeyPanelAndRestoreBringsEveryDefaultBac
     Settings custom = app_.settings();
     custom.fullscreen = true;
     custom.effects = fanren::io::EffectsLevel::Lite;
-    custom.keys = {{"menu", {SDL_SCANCODE_M, 0}}};
+    custom.keys = {{"menu", {SDL_SCANCODE_J, 0}}};
     app_.setSettings(custom);
-    ASSERT_EQ(app_.engine().customKeys(fanren::engine::Engine::Key::Menu)[0], SDL_SCANCODE_M) << "先验：键位推到了引擎";
+    ASSERT_EQ(app_.engine().customKeys(fanren::engine::Engine::Key::Menu)[0], SDL_SCANCODE_J) << "先验：键位推到了引擎";
     press(SDL_SCANCODE_RETURN);
     EXPECT_EQ(app_.settings(), Settings{});
     EXPECT_FALSE(app_.engine().fullscreen());
@@ -497,7 +506,7 @@ TEST_F(SettingsWiring, DefaultKeyPromptsAreByteForByteTheOldText) {
     EXPECT_NE(app_.data().lookupText("ui.menu.keys").find("{key.menu}"), std::string::npos);
 }
 
-// 从玩家碰得到的入口改键：设置面板「按键设置」→ 改键面板 →「菜单」第一格 → 按 M。
+// 从玩家碰得到的入口改键：设置面板「按键设置」→ 改键面板 →「菜单」第一格 → 按 J。
 // 引擎的键位、提示文案、写盘，三处都跟着变。
 TEST_F(SettingsWiring, RebindingThroughTheKeyPanelMovesTheKeyThePromptsAndTheFile) {
     using Key = fanren::engine::Engine::Key;
@@ -517,18 +526,18 @@ TEST_F(SettingsWiring, RebindingThroughTheKeyPanelMovesTheKeyThePromptsAndTheFil
     press(SDL_SCANCODE_RETURN);
     ASSERT_TRUE(keys->capturing());
     EXPECT_EQ(keys->note(), "按下新键（Esc 作罢，Backspace 清空）");
-    press(SDL_SCANCODE_M);
+    press(SDL_SCANCODE_J);
     EXPECT_FALSE(keys->capturing());
-    EXPECT_EQ(app_.engine().customKeys(Key::Menu), (fanren::engine::Engine::KeySlots{SDL_SCANCODE_M, 0}));
-    EXPECT_EQ(app_.settings().keys.at("menu"), (fanren::io::KeySlots{SDL_SCANCODE_M, 0}));
+    EXPECT_EQ(app_.engine().customKeys(Key::Menu), (fanren::engine::Engine::KeySlots{SDL_SCANCODE_J, 0}));
+    EXPECT_EQ(app_.settings().keys.at("menu"), (fanren::io::KeySlots{SDL_SCANCODE_J, 0}));
     EXPECT_EQ(app_.settings().keys.size(), 1u) << "只存与默认不同的动作";
     EXPECT_EQ(keys->note(), "改好了。");
-    EXPECT_EQ(app_.text("ui.menu.keys"), "M 关闭　Esc 返回") << "提示跟着键位走";
-    EXPECT_EQ(app_.text("ui.dialogue.keys"), "M 回看　长按 Ctrl 快进");
-    EXPECT_EQ(app_.text("ui.battle.hint.menu"), "↑↓ 选择 · ←→ 蓄劲 · 回车 确定 · Esc / M 返回 · 按住 Ctrl 加速");
+    EXPECT_EQ(app_.text("ui.menu.keys"), "J 关闭　Esc 返回") << "提示跟着键位走";
+    EXPECT_EQ(app_.text("ui.dialogue.keys"), "J 回看　长按 Ctrl 快进");
+    EXPECT_EQ(app_.text("ui.battle.hint.menu"), "↑↓ 选择 · ←→ 蓄劲 · 回车 确定 · Esc / J 返回 · 按住 Ctrl 加速");
 
-    // 新键立刻生效：在改键面板里按 M 就是「菜单键」——关面板（与 Esc 同一个口径）。Tab 不再是菜单。
-    press(SDL_SCANCODE_M);
+    // 新键立刻生效：在改键面板里按 J 就是「菜单键」——关面板（与 Esc 同一个口径）。Tab 不再是菜单。
+    press(SDL_SCANCODE_J);
     EXPECT_EQ(top(), "Settings");
     EXPECT_FALSE(fs::exists(path)) << "改键面板自己不写盘：随设置面板关闭时一起写";
     press(SDL_SCANCODE_TAB);
@@ -549,6 +558,7 @@ TEST_F(SettingsWiring, InTheKeyPanelEscCancelsBackspaceClearsAndTheLastKeyStays)
     const auto* keys = dynamic_cast<const fanren::game::KeyConfigScene*>(app_.topScene());
     ASSERT_NE(keys, nullptr);
     press(SDL_SCANCODE_UP);   // 从「向上」往上绕一格 = 最后一行「恢复默认键位」
+    press(SDL_SCANCODE_UP);   // 再一格 =「地图」（第 7 章改版·路 M 追加在「路径行动」之后）
     press(SDL_SCANCODE_UP);   // 再一格 =「路径行动」
     ASSERT_EQ(keys->row(), static_cast<int>(Key::Action));
     press(SDL_SCANCODE_RIGHT);
@@ -577,7 +587,8 @@ TEST_F(SettingsWiring, InTheKeyPanelEscCancelsBackspaceClearsAndTheLastKeyStays)
     EXPECT_EQ(keys->note(), "这是「向上」的固定键，不能挪作他用。");
     EXPECT_EQ(keys->row(), static_cast<int>(Key::Action)) << "抓走的 ↑ 不是「光标上移」";
 
-    // 恢复默认键位（最后一行）。
+    // 恢复默认键位（最后一行；「路径行动」与它之间隔着第 7 章改版·路 M 追加的「地图」）。
+    press(SDL_SCANCODE_DOWN);
     press(SDL_SCANCODE_DOWN);
     ASSERT_EQ(keys->row(), fanren::game::KeyConfigScene::kRestoreRow);
     press(SDL_SCANCODE_RETURN);
@@ -653,6 +664,7 @@ TEST_F(SettingsWiring, AfterAFailedWriteAKeyChangeMakesTheNextCloseTryAgain) {
     ASSERT_EQ(top(), "KeyConfig");
     press(SDL_SCANCODE_UP);
     press(SDL_SCANCODE_UP);
+    press(SDL_SCANCODE_UP);   // 「恢复默认键位」「地图」之上才是「路径行动」（地图是第 7 章改版·路 M 追加的）
     press(SDL_SCANCODE_RIGHT);
     press(SDL_SCANCODE_RETURN);
     press(SDL_SCANCODE_BACKSPACE);
@@ -714,4 +726,28 @@ TEST_F(SettingsWiring, AfterAFailedWriteAdjustingAwayAndBackStillRetriesOnClose)
     EXPECT_NE(panel->note().find("blocked_away_and_back.json"), std::string::npos) << panel->note();
     press(SDL_SCANCODE_ESCAPE);
     EXPECT_NE(top(), "Settings") << "原样不动再按一次才关";
+}
+
+// 第一期地基包集成：三路各插的开 / 关行（自动播放、教学提示、小地图）左右键只动自己那一项。
+// 合并时 switch 里曾漏掉 break 一路往下掉，按「自动播放」连带改了「教学提示」与「小地图」，这条钉住它。
+TEST(SettingsFoundationRows, EachOnOffRowTogglesOnlyItsOwnSetting) {
+    Settings base;
+    base.autoAdvance = false;
+    base.tutorialCards = true;
+    base.minimap = true;
+
+    const Settings autoOn = SettingsScene::adjusted(base, SettingsScene::kAutoAdvance, -1);
+    EXPECT_TRUE(autoOn.autoAdvance);
+    EXPECT_TRUE(autoOn.tutorialCards);
+    EXPECT_TRUE(autoOn.minimap);
+
+    const Settings cardsOff = SettingsScene::adjusted(base, SettingsScene::kTutorialCards, +1);
+    EXPECT_FALSE(cardsOff.tutorialCards);
+    EXPECT_FALSE(cardsOff.autoAdvance);
+    EXPECT_TRUE(cardsOff.minimap);
+
+    const Settings mapOff = SettingsScene::adjusted(base, SettingsScene::kMinimap, +1);
+    EXPECT_FALSE(mapOff.minimap);
+    EXPECT_FALSE(mapOff.autoAdvance);
+    EXPECT_TRUE(mapOff.tutorialCards);
 }

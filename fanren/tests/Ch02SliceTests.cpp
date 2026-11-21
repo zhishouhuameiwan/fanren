@@ -280,7 +280,8 @@ protected:
     bool enterable(Point p) {
         if (!map().walkable(p)) return false;
         if (WorldScene::visibleNpcAt(app_.state(), map(), p) != nullptr) return false;
-        if (map().objectAt(p, "facility") != nullptr) return false;
+        // 蒲团贴地、走得上去（2026-11-20 试玩返修）：与引擎 tryStep 问同一句。
+        if (WorldScene::blockingFacilityAt(map(), p) != nullptr) return false;
         return true;
     }
 

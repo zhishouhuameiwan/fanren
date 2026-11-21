@@ -2,15 +2,20 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <memory>
+#include <set>
 #include <string>
 #include <vector>
 
 #include "core/rules/Companions.h"
 #include "core/rules/Objectives.h"
+#include "core/rules/Quests.h"
 #include "game/Application.h"
+#include "game/AreaMapScene.h"
 #include "game/DialogueScene.h"
 #include "game/Exploration.h"
+#include "game/Guide.h"
 #include "game/PathActionScene.h"
 #include "game/WorldObjects.h"
 
@@ -122,6 +127,37 @@ const core::MapObject* WorldScene::visibleNpcAt(const core::GameState& state, co
     return nullptr;
 }
 
+// 贴地的设施不占格（2026-11-20 用户试玩：「打坐的蒲团……都不应该阻挡走路，这样才符常理」）。
+// 一句话：画面上是实心东西才挡路；贴地的、看不见的不挡。设施里贴地的眼下只有蒲团（kind=meditate，
+// 第 1 章的平石、第 8 章的养息处都是这一种）；存记点、历练晶石、药田、摊位、丹炉、告示牌、制符、锻造照旧占格。
+// 碰撞层那一半在 tools/mapgen/genmaps.py 的 is_flat_facility，两处判据必须一样。
+bool WorldScene::walksOnto(const core::MapObject& facility) {
+    return facility.type == "facility" && facility.property("kind") == "meditate";
+}
+
+const core::MapObject* WorldScene::blockingFacilityAt(const core::TileMap& map, core::Point cell) {
+    for (const core::MapObject& object : map.objects) {
+        if (object.type != "facility" || walksOnto(object)) continue;
+        // 与 core::TileMap::objectAt 逐字相同的矩形命中。
+        if (cell.x >= object.position.x && cell.x < object.position.x + object.width &&
+            cell.y >= object.position.y && cell.y < object.position.y + object.height) {
+            return &object;
+        }
+    }
+    return nullptr;
+}
+
+const core::MapObject* WorldScene::flatFacilityAt(const core::TileMap& map, core::Point cell) {
+    for (const core::MapObject& object : map.objects) {
+        if (!walksOnto(object)) continue;
+        if (cell.x >= object.position.x && cell.x < object.position.x + object.width &&
+            cell.y >= object.position.y && cell.y < object.position.y + object.height) {
+            return &object;
+        }
+    }
+    return nullptr;
+}
+
 void WorldScene::onEnter(Application&) {
     stepCooldown_ = 0.0;
     // 画面从「开场」算起：镜头直接就位、不淡入、地名横幅直接在（外层的开场转场自己会淡）。
@@ -162,17 +198,17 @@ bool WorldScene::tryStep(Application& app, int dx, int dy) {
 
     const core::Point target{state.position.x + dx, state.position.y + dy};
     if (!map->walkable(target)) return false;
-    // NPC 与设施占格，不能走上去。
+    // NPC 与设施占格，不能走上去——蒲团除外。
     //
-    // 设施这一条此前漏了：站到蒲团那一格上之后，交互看的是「面朝的前一格」，
-    // 于是玩家正站在打坐点上却怎么按都没反应。占格之后只能面朝它按确认，
-    // 与 NPC 同一套手感。
+    // 设施占格是当初为了躲「站在蒲团上按确认没反应」（交互只看面朝的前一格）。如今 interact()
+    // 也看脚下的蒲团，那个理由没了；而一块贴地的蒲团挡路不合常理（2026-11-20 用户试玩）。
+    // 于是蒲团能走上去（walksOnto），其余设施照旧占格，与 NPC 同一套手感。
     //
     // NPC 走 visibleNpcAt 而不是 objectAt：**不在场的人不挡路**。从前用 objectAt，
     // 一个还没现身（或已经离开）的 NPC 照样占着那一格，玩家撞上的是一堵看不见、
-    // 没有任何反馈的墙。设施没有可见性属性，照旧一律占格。
+    // 没有任何反馈的墙。设施没有可见性属性，占不占格只看种类。
     if (visibleNpcAt(state, *map, target, companions) != nullptr) return false;
-    if (map->objectAt(target, "facility") != nullptr) return false;
+    if (blockingFacilityAt(*map, target) != nullptr) return false;
     // 宝箱、采集点、明雷占格；机关关着时占格、开了不占（契约 2.4）。在不在场、开没开问 worldobj，
     // 状态经 Application::worldObjects()——历练里是「这一趟」那份。会走的明雷按它此刻那一格（foePoses）。
     const worldobj::FoePoses* poses = foePoses(app);
@@ -283,6 +319,12 @@ bool WorldScene::interact(Application& app) {
             app.startEvent(here->property("script"));
             return true;
         }
+    }
+    // 再看脚下的蒲团：蒲团不占格，人能坐上去，坐在上面按确认就该打坐。排在脚下的任务点之后——
+    // 与面前那一格「剧情优先、设施其次」同一个次序。
+    if (const core::MapObject* seat = flatFacilityAt(*map, state.position)) {
+        app.openFacility(*seat);
+        return true;
     }
     return false;
 }
@@ -471,6 +513,7 @@ bool WorldScene::advanceFoes(Application& app, double deltaSeconds) {
     const Companions& companions = app.data().companions;
     // 明雷走不走得上去、看不看得穿，与主角走位问的是同一组问题（tryStep）：在场的 NPC、设施、四种新对象
     // （明雷按此刻站位）。墙、主角那一格、传送点与踏入触发区那一圈由 FoePatrol 自己管。跟随的伙伴不占格，不算。
+    // 只有一处与主角不同：设施这里一律当墙，**蒲团也算**——人能坐上去（walksOnto），明雷不去踩它。
     foepatrol::Surroundings around;
     around.hero = state.position;
     around.solid = [&](core::Point cell) {
@@ -542,9 +585,9 @@ std::string WorldScene::interactHint(Application& app, core::Point& cell, const 
             return hint("ui.world.interact.examine");
         }
     }
-    if (map->objectAt(front, "facility") != nullptr) {
+    if (const core::MapObject* facility = map->objectAt(front, "facility")) {
         cell = front;
-        return hint("ui.world.interact.use");
+        return hint(walksOnto(*facility) ? "ui.world.interact.meditate" : "ui.world.interact.use");
     }
     if (const core::MapObject* chest = worldobj::presentAt(state, objects, *map, front, worldobj::kChest)) {
         if (worldobj::chestOpened(objects, *chest)) return {};
@@ -571,6 +614,11 @@ std::string WorldScene::interactHint(Application& app, core::Point& cell, const 
             cell = state.position;
             return hint("ui.world.interact.examine");
         }
+    }
+    // 坐在蒲团上：提示浮在主角头顶（cell 是自己那一格），与脚下的调查点同一套。
+    if (flatFacilityAt(*map, state.position) != nullptr) {
+        cell = state.position;
+        return hint("ui.world.interact.meditate");
     }
     return {};
 }
@@ -610,6 +658,12 @@ bool WorldScene::update(Application& app, double deltaSeconds) {
     // 上面那道「脚本在跑就不受理」已经把对话、剧情挡在外头。
     if (eng.keyPressed(engine::Engine::Key::Menu) || eng.keyPressed(engine::Engine::Key::Cancel)) {
         app.openMainMenu();
+        return true;
+    }
+
+    // 区域地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.2）：M / 手柄 LB。与主菜单同一个口径：只在世界层受理。
+    if (eng.keyPressed(engine::Engine::Key::Map)) {
+        app.pushScene(std::make_unique<AreaMapScene>());
         return true;
     }
 
@@ -747,8 +801,11 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     }
 
     if (const core::Objective* step = objectiveOf(app)) {
-        frame_.objectiveText = app.text(step->textKey);
+        // 行动句接进度「1/3」，下面一行要点（第一期地基包 2.1，game/Guide.h）。没写这两样的步骤与从前相同。
+        frame_.objectiveText = guide::objectiveActionLine(app.data(), state, *step);
+        frame_.objectiveHint = step->hintKey.empty() ? std::string{} : app.text(step->hintKey);
         frame_.objectiveWhere = objectiveWhereText(app, hop);
+        frame_.objectiveId = step->id;
         if (step->targetMap == map->id) {
             // 目标对象不在这张图上（数据写错，或这一步指的是别处）时**什么都不标**，
             // 不要退回去在屏幕中央画个箭头——一个指着不存在的东西的箭头，比没有箭头
@@ -772,6 +829,79 @@ void WorldScene::describe(Application& app, const rules::PortalLink* hop) {
     if (saveNoticeSeconds_ > 0.0) frame_.saveNotice = saveNotice_;
     frame_.pathActionHint = pathActionHint(app);
     frame_.interactHint = interactHint(app, frame_.interactCell, frame_.interactNpc);
+
+    // 小地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.1）：设置开着、世界层在最上面（对白、面板、菜单压着时不画）、
+    // 脚本没在跑（过场里不画）。
+    frame_.objects = &app.worldObjects();
+    frame_.heroFacing = state.facing;
+    frame_.minimapKey = app.text("ui.map.minimap.key");
+    frame_.minimap = app.settings().minimap && app.topScene() == this && !app.awaitingCommand() &&
+                     !app.scripts().isRunning();
+    markHeads(app, *map);
+    noteGuideEvents(app, frame_);
+}
+
+void WorldScene::markHeads(Application& app, const core::TileMap& map) {
+    // 头顶标记（第一期地基包 2.6）：支线眼下要去找的人 / 触发区浮「支」，开铺子的人浮「商」。
+    // 支线：进行中、这一步的目标就在这张图上（rules::sideQuestJournal 的当前步骤）。
+    std::set<std::string> questObjects;
+    for (const rules::QuestEntry& entry : rules::sideQuestJournal(app.data().quests, app.state())) {
+        if (entry.status != rules::QuestStatus::Active || entry.step == nullptr) continue;
+        if (entry.step->targetMap == map.id && !entry.step->targetObject.empty()) {
+            questObjects.insert(entry.step->targetObject);
+        }
+    }
+    // 商店：站在 kind=shop 的设施旁边（两格以内）的人就是掌柜。
+    std::vector<core::Point> shops;
+    for (const core::MapObject& object : map.objects) {
+        if (object.type == "facility" && object.property("kind") == "shop") shops.push_back(object.position);
+    }
+    const std::string questMark = app.data().lookupText("ui.guide.mark.quest");
+    const std::string shopMark = app.data().lookupText("ui.guide.mark.shop");
+    frame_.questMark = questMark;
+    for (WorldFrame::Npc& npc : frame_.npcs) {
+        if (questObjects.count(npc.object->name) != 0) {
+            npc.mark = questMark;
+            npc.markQuest = true;
+            questObjects.erase(npc.object->name);
+            continue;
+        }
+        const core::Point at = npc.object->position;
+        const bool keeper = std::any_of(shops.begin(), shops.end(), [&at](const core::Point& shop) {
+            return std::max(std::abs(shop.x - at.x), std::abs(shop.y - at.y)) <= 2;
+        });
+        if (keeper) npc.mark = shopMark;
+    }
+    // 剩下的支线目标是触发区：在场（triggerReady 与世界层标「按键才响」同一个判据，踩入型也照样标——它是支线自己的目标）。
+    for (const core::MapObject& object : map.objects) {
+        if (object.type == "trigger" && questObjects.count(object.name) != 0) frame_.questTargets.push_back(&object);
+    }
+}
+
+void WorldScene::noteGuideEvents(Application& app, const WorldFrame& frame) {
+    // 教学卡（第一期地基包 2.3）的走图事件：明雷进了眼前、追上来了；靠近没开的宝箱、采集点、关着的机关。
+    // 只发事件，弹不弹、弹哪张由 Application 与 data/tutorials 定。
+    if (!app.tutorialsEnabled()) return;
+    const core::Point hero = app.state().position;
+    const auto near = [&hero](core::Point cell, int reach) {
+        return std::abs(cell.x - hero.x) + std::abs(cell.y - hero.y) <= reach;
+    };
+    constexpr int kFoeReach = 6;
+    constexpr int kObjectReach = 2;
+    for (const WorldFrame::Foe& foe : frame.foes) {
+        const core::Point at = foe.cell.x >= 0 ? foe.cell : foe.object->position;
+        if (foe.alert) app.tutorialEvent("foe.alert");
+        else if (near(at, kFoeReach)) app.tutorialEvent("foe.near");
+    }
+    for (const WorldFrame::Chest& chest : frame.chests) {
+        if (!chest.opened && near(chest.object->position, kObjectReach)) app.tutorialEvent("loot.near");
+    }
+    for (const WorldFrame::Gather& gather : frame.gathers) {
+        if (!gather.depleted && near(gather.object->position, kObjectReach)) app.tutorialEvent("loot.near");
+    }
+    for (const WorldFrame::Gate& gate : frame.gates) {
+        if (!gate.open && near(gate.object->position, kObjectReach)) app.tutorialEvent("gate.near");
+    }
 }
 
 const core::Objective* WorldScene::objectiveOf(Application& app) {
@@ -817,6 +947,15 @@ std::string WorldScene::objectiveWhereText(Application& app, const rules::Portal
     // 目标就在这张图上时不报地名：那时地名是废话，头上那个标记才是答案。
     if (step == nullptr || map == nullptr || step->targetMap == map->id) return {};
     std::string where = "前往　" + mapName(app, step->targetMap);
+    // 第一期地基包（docs/ch07-foundation.md 2.2）：照新版式写过的步骤（有详情长句的那些，第 7 章起）
+    // 写整条路——「前往　巫钧山（经黄枫谷）」。别的章照旧只报下一站，目标框与从前逐字相同（判据 5）。
+    if (guide::upgradedObjective(*step)) {
+        const std::vector<std::string> via = rules::routeWaypoints(
+            rules::routeToward(app.portalLinks(), map->id, step->targetMap, app.state()));
+        std::vector<std::string> names;
+        for (const std::string& id : via) names.push_back(mapName(app, id));
+        return where + guide::viaClause(names);
+    }
     // 下一道门不直接通到目标图时，再说一句先去哪。只报下一站，不报整条路：
     // 整条路是一串七个地名，玩家读不完，读完了也记不住；下一站配上那道亮着的门就够了。
     if (hop != nullptr && hop->targetMap != step->targetMap) {
