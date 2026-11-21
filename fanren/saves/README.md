@@ -76,6 +76,17 @@ cd H:\Work\Kys\fanren
 | `ch07-tongdao-t3.sav` | 黄枫谷百药园茅屋里，蒲团（`facility_dazuo`）正下方一格、面朝它（23,5），右上两格是历练石碑 | **同道录 2a 试玩乙「三位都在三档门口」**（2026-11-21 加，调试档，不是玩出来的）：甲那份检查点演过谢师礼（`ch07.xieshili`），三位默契各 42（合意赠礼 +5 或同修 +4 就到 45「三档」），二档叙话都还没演；背包另加三位喜欢的礼物各 3 份、养精丹 8、金疮药 6、回气丹 3。别的与检查点一样（炼气十一层、第 2420 日、存档版本 10）。进去先看：同道录选菡云芝 → 叙话（二档，得 3 张火球符）→ 赠礼合意 → 进「信任」、上沿「默契渐深」→ 叙话三档、请教（在册加成生效）→ 切磋（「切磋」教学卡、打完气血法力回到开打前）；面朝蒲团按确认试「同修」。启动：`.\build-<槽>\fanren.exe --assets . --load saves\ch07-tongdao-t3.sav` |
 | `ch07-tongdao-top.sav` | 同上（23,5，面朝蒲团） | **同道录 2a 试玩丙「最高档门口」**（2026-11-21 加，调试档）：站位、礼物、丹药同乙；陈巧倩 93、菡云芝 93（差一次合意赠礼到五档），南宫婉 67（差一次到四档，她第 7 章封在四档，`bond_cap`）；各人前面各档的叙话（`tongdao.<id>.xuhua`）、请教都记过账，首胜奖品记到此刻的档，菡云芝二档那 3 张火球符照账发了；三条在册加成生效（名额 3/4）。进去先看：同道录选陈巧倩 → 赠礼火龙草 → 98「红颜」→ 叙话五档（事件图淡入、她开口的两句不叠立绘、淡出）；菡云芝赠礼 → 「莫逆」→ 叙话五档；南宫婉赠礼火灵石 → 「知己」，五档那格「机缘未到」；再到历练石碑带三位进「禁地旧境」看按档的法术（剑幕、环护、回春符、定身符）、择人菜单与合招。启动：`.\build-<槽>\fanren.exe --assets . --load saves\ch07-tongdao-top.sav` |
 
+**macOS 上的启动写法**（2026-11-21 在 Intel Mac 上实测这四份都读得进）：在 `fanren/` 下，路径一律正斜杠，可执行文件没有 `.exe`：
+
+```bash
+./build-<槽>/fanren --assets . --load saves/ch07-tongdao-t3.sav
+./build-<槽>/fanren --assets . --load saves/ch07-tongdao-top.sav
+./build-<槽>/fanren --assets . --load tests/fixtures/companions/ch07-chujindi-first.sav
+./build-<槽>/fanren --assets . --load saves/ch07-start.sav
+```
+
+重生成两份试玩档的 macOS 写法：`FANREN_TONGDAO_PLAYSAVES=saves ./build-<槽>/fanren_tests --gtest_filter='TongdaoPlaySaves.*'`。
+
 **同道录 2a 两份试玩档怎么重生成**（`tests/TongdaoPlaySaves.cpp`，设了环境变量才写、没设时全量 ctest 里记为 Skipped）：
 两份都从检查点 `tests/fixtures/companions/ch07-chujindi-first.sav` 起、无头演一遍 `scripts/ch07/xieshili.lua`，再照上表摆默契、旗标与背包；
 同一棵树上重跑逐字节相同。第 7 章的检查点重生成之后要跟着重跑。在 `fanren/` 下：

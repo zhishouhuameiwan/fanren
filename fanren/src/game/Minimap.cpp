@@ -304,7 +304,7 @@ void MapThumbnail::draw(engine::Engine& engine, const Layout& layout, float alph
 // 标记
 // ---------------------------------------------------------------------------
 
-void drawMarkShape(engine::Engine& engine, const ui::Theme& theme, hud::Geometry& g, MarkKind kind, float x, float y,
+void drawMarkShape([[maybe_unused]] engine::Engine& engine, const ui::Theme& theme, hud::Geometry& g, MarkKind kind, float x, float y,
                    float size, float alpha, int facing) {
     const Color ink = withA(theme.inkDeep, alpha);
     const Color grey = withA(Color{150, 144, 130, 230}, alpha);
