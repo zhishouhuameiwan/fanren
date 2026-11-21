@@ -1207,13 +1207,10 @@ void BattleScene::settle(Application& app) {
     settled_ = true;
 
     const auto& units = battle_.units();
-    // 切磋（同道录 2a）：打完双方回满——他的气血、法力放回满的；不掉东西、不记并肩的默契、不记破绽。
-    // 输赢的账（默契、首胜奖品）由开这一场的那一方（Application::startSpar）按战果记。
+    // 切磋（同道录 2a）：打完他的气血、法力**放回开打前的数**——一个字节都不写回（存档里的就是开打前的；
+    // 打的时候只改战场上的单位）。不回满：回满等于百药园里多一个免费回满，第三期还要做「法力跨场不回满」。
+    // 也不掉东西、不记并肩的默契、不记破绽。输赢的账（默契、首胜奖品）由 Application::startSpar 按战果记。
     if (battle_.spar()) {
-        if (heroPresent_) {
-            app.state().hp = std::max(1, app.state().maxHp);
-            app.state().mp = app.state().maxMp;
-        }
         bondGained_.clear();
         return;
     }

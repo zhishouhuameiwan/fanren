@@ -313,7 +313,7 @@ struct SetupOptions {
     int ambushBp = 0;              // 先手时我方全员再多几点（与先手叠加）；不是先手不读
     int victoryHealPercent = 0;    // 打赢（Won）时我方站着的人各回几成气血
     int talismanPowerPercent = 0;  // 道具施法（符）的威力加几成
-    // 切磋（BattleSetup::spar）：不触发追击、不出合招。别的规矩（只有主角一人、不掉东西、打完回满）在 game 层。
+    // 切磋（BattleSetup::spar）：不触发追击、不出合招。别的规矩（只有主角一人、不掉东西、打完放回开打前的气血法力）在 game 层。
     bool spar = false;
 };
 

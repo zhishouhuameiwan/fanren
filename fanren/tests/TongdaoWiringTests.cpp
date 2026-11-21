@@ -1,6 +1,6 @@
 // 同道录 2a·路 K：走 Application 真入口的那一半（docs/ch07-tongdaolu-k.md 第 4、5 节）。
 //   * 建场：按档解锁的法术、她的被动、在册加成、同修的劲都只在第 7 章、只在够档时进战斗；
-//   * 切磋：Application::startSpar 开她那一场——只有主角一人，赢 +4 输 +2，首胜奖品，打完回满，不掉东西；
+//   * 切磋：Application::startSpar 开她那一场——只有主角一人，赢 +4 输 +2，首胜奖品，打完气血法力放回开打前的数，不掉东西；
 //   * 同修：Application::tongxiu 过一天、第二天第一场开场多 1 点劲（开了就用掉）；
 //   * 脚本：tongdao.* 的查询与动作、show_cg / hide_cg。
 #include <gtest/gtest.h>
@@ -313,14 +313,16 @@ TEST_F(TongdaoWiring, ASparIsHeroAloneAgainstHerAndAWinPaysTheFirstWinPrize) {
     EXPECT_EQ(state().itemCount("pill_huiqi_dan"), 2);
     EXPECT_EQ(state().bondOf("probe_win"), 24);
     EXPECT_EQ(state().flag(rules::sparDayFlag("probe_win")), 30);
-    EXPECT_EQ(state().hp, 400) << "打完回满";
-    EXPECT_EQ(state().mp, 60);
+    EXPECT_EQ(state().hp, 200) << "打完放回开打前的数，不回满";
+    EXPECT_EQ(state().mp, 10);
     EXPECT_EQ(state().bondOf("probe_qing"), 0) << "队里的人没上场，不记并肩";
     EXPECT_EQ(app_.startSpar("probe_win", nullptr), rules::TongdaoCheck::DoneToday);
 }
 
 TEST_F(TongdaoWiring, LosingASparIsNotADefeatTheHeroIsRestoredAndGetsTwo) {
     state().bonds["probe_lose"].value = 20;
+    state().hp = 250;
+    state().mp = 20;
     const auto bag = state().bag;
     bool done = false;
     ASSERT_EQ(app_.startSpar("probe_lose",
@@ -335,7 +337,8 @@ TEST_F(TongdaoWiring, LosingASparIsNotADefeatTheHeroIsRestoredAndGetsTwo) {
     tick();   // 压栈要等一帧
     finishBattles();
     ASSERT_TRUE(done);
-    EXPECT_EQ(state().hp, 400) << "气血见底就停，打完回满";
+    EXPECT_EQ(state().hp, 250) << "气血见底就停，打完放回开打前的数";
+    EXPECT_EQ(state().mp, 20);
     EXPECT_EQ(state().bondOf("probe_lose"), 22);
     EXPECT_EQ(state().bag.size(), bag.size()) << "不掉东西";
     EXPECT_EQ(dynamic_cast<BattleScene*>(app_.topScene()), nullptr);

@@ -299,13 +299,16 @@ SparOutcome recordSpar(const std::map<std::string, Companion>& companions, const
     const int before = record.value;
     addBond(record, won ? kBondSparWin : kBondSparLoss, bondCap(companion, state));
     out.gained = record.value - before;
-    if (won && state.flag(sparPrizeFlag(companionId)) < tier) {
+    if (const int paid = state.flag(sparPrizeFlag(companionId)); won && paid < tier) {
         state.setFlag(sparPrizeFlag(companionId), tier);
+        // 此刻这一档及以下、还没领过的都发：一次升了两档，中间那一档的奖品不丢。
         for (const core::SparPrize& prize : companion.sparPrizes) {
-            if (prize.tier != tier) continue;
-            out.prizeTier = tier;
-            out.prize = prize.items;
-            for (const core::BagEntry& entry : prize.items) state.addItem(entry.itemId, entry.count, entry.herbAge);
+            if (prize.tier <= paid || prize.tier > tier) continue;
+            out.prizeTier = prize.tier;
+            for (const core::BagEntry& entry : prize.items) {
+                out.prize.push_back(entry);
+                state.addItem(entry.itemId, entry.count, entry.herbAge);
+            }
         }
     }
     return out;

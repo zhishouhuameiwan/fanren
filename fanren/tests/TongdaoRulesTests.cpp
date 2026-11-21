@@ -398,6 +398,29 @@ TEST(TongdaoSpar, TheFirstWinAtEachTierPaysThatTiersPrizeOnce) {
     EXPECT_EQ(lost.prizeTier, 0) << "输了不给";
 }
 
+TEST(TongdaoSpar, AWinAfterAJumpPaysEveryUnclaimedPrizeUpToTheCurrentTier) {
+    const auto companions = probes();
+    GameState state = ch07State();
+    state.bonds["qing"].value = 70;   // 从没赢过就到了四档：二档、四档的奖品都没领
+    const rules::SparOutcome won = rules::recordSpar(companions, "qing", state, true);
+    EXPECT_EQ(won.prizeTier, 4) << "领到的最高一档";
+    EXPECT_EQ(state.itemCount("pill_a"), 2) << "跳过的二档不丢";
+    EXPECT_EQ(state.itemCount("pill_b"), 1);
+    ASSERT_EQ(won.prize.size(), 2u);
+    EXPECT_EQ(won.prize[0].itemId, "pill_a") << "按档从低到高";
+    EXPECT_EQ(state.flag(rules::sparPrizeFlag("qing")), 4) << "记到此刻的档";
+
+    GameState lostFirst = ch07State();
+    lostFirst.bonds["qing"].value = 70;
+    static_cast<void>(rules::recordSpar(companions, "qing", lostFirst, false));
+    EXPECT_EQ(lostFirst.itemCount("pill_a"), 0) << "输了一样不发";
+    EXPECT_EQ(lostFirst.flag(rules::sparPrizeFlag("qing")), 0) << "输了不记档";
+    lostFirst.day += 1;
+    const rules::SparOutcome later = rules::recordSpar(companions, "qing", lostFirst, true);
+    EXPECT_EQ(later.prizeTier, 4);
+    EXPECT_EQ(lostFirst.itemCount("pill_a") + lostFirst.itemCount("pill_b"), 3) << "下一场赢了照样补齐";
+}
+
 TEST(TongdaoSpar, TheCapHoldsForSparToo) {
     const auto companions = probes();
     GameState state = ch07State();

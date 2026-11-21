@@ -204,12 +204,12 @@ BondGain tongxiu(const std::map<std::string, core::Companion>& companions, const
 struct SparOutcome {
     TongdaoCheck check = TongdaoCheck::Ok;
     int gained = 0;                       // 默契实际加了多少
-    int prizeTier = 0;                    // 这一场领了第几档的首胜奖品；0 = 没领
-    std::vector<core::BagEntry> prize;    // 领到的东西（已放进背包）
+    int prizeTier = 0;                    // 这一场领到的最高一档首胜奖品；0 = 一样没领
+    std::vector<core::BagEntry> prize;    // 领到的东西（已放进背包），按档从低到高
 };
-// 打完记账：记下今天；赢 +4、输 +2（受封顶）；赢了且开打时这一档的首胜还没领过、表里这一档有奖品，
-// 东西放进背包、记下这一档。首胜按开打时的档算（这一场把她推上新档的，下一场赢了才领新档那一份）；
-// 跳过去的档不补发。canSpar 不成立时什么都不写。
+// 打完记账：记下今天；赢 +4、输 +2（受封顶）。赢了：开打时那一档及以下、还没领过的首胜奖品**都发**
+//（跳档不丢），sparPrizeFlag 记到开打时的档。档按开打时算（这一场把她推上新档的，下一场赢了才领新档那一份）。
+// canSpar 不成立时什么都不写。
 SparOutcome recordSpar(const std::map<std::string, core::Companion>& companions, const std::string& companionId,
                        core::GameState& state, bool won);
 
