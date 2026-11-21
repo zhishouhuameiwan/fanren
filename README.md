@@ -6,7 +6,7 @@ C++20 + SDL3；剧情脚本用 Lua（sol2 协程），数据用 JSON，地图用
 
 进度：第 1–12 章已完成，玩法与画面按《八方旅人》的路子改造过（横版「破势与蓄劲」战斗、像素美术烘焙地图、路径行动）；第 13 章已完成（内容初审 3.0 → 整改 → 独立复验 3.8 后按清单收口，原创性机器口径 495 条 0 超）；第 14 章施工图已出、未开工。当前状态与接手须知见 [fanren/docs/handoff.md](fanren/docs/handoff.md)。
 
-2026-11-20 起在做「可玩性改版」（第 7 章先行：指引与说明、女角色立绘、伙伴「同道录」），进度、规矩与换电脑须知见 [fanren/docs/handoff-2026-11-21.md](fanren/docs/handoff-2026-11-21.md)。日常构建用 `fanrenuild_quick.bat <槽名>`（只构建 + 单元测试，不跑内容门禁）。
+2026-11-20 起在做「可玩性改版」（第 7 章先行：指引与说明、女角色立绘、伙伴「同道录」），进度、规矩与换电脑须知见 [fanren/docs/handoff-2026-11-21.md](fanren/docs/handoff-2026-11-21.md)。日常构建用 `fanren\build_quick.bat <槽名>`（只构建 + 单元测试，不跑内容门禁）。
 
 ## 目录
 
@@ -45,6 +45,8 @@ export PATH="$HOME/Library/Python/3.12/bin:$PATH"
 cd fanren
 ./build.sh
 ```
+
+日常构建用 `./build_quick.sh <槽名>`（`build_quick.bat` 的对应物：只做 bootstrap + CMake + Ninja + ctest，**不跑内容门禁**；第二个参数 `notest` 只构建，`--log` 写日志；`cmake` / `ninja` 不在 PATH 上时自动用 `~/Library/Python/3.*/bin` 里的那一份）。上面代码块里的 `./build.sh` 先跑四道门禁，只在要跑门禁时用。
 
 `build.sh` 的四步和 `build.bat` 一样。SDL3 系列没有 macOS 预编译包，`bootstrap.py` 会用同样锁定的版本从源码构建（首次约十几分钟）。`./build.sh myslot` 换构建目录，`./build.sh --log myslot` 把输出写进 `build-myslot.log`，末行是 `EXITCODE=n`。随机数和背包排序都按 MSVC 的算法实现，跑出的存档与 Windows 逐字节相同（Intel Mac 实测）。细节见 [docs/deps.md](docs/deps.md) 第六节。
 

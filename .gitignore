@@ -21,7 +21,8 @@ __pycache__/
 /fanren/*.log
 
 # fanren：第三方依赖，由 bootstrap.py 下载、按 SHA256 校验后解压
-/fanren/vendor/
+# 不带结尾斜杠：工作树里的 vendor 常是指向主检出的符号链接（macOS），带斜杠只认真目录、认不出链接
+/fanren/vendor
 
 # fanren：游戏运行时写出的本机文件（F5 快速存档、系统设置，见 fanren/docs/settings.md）
 /fanren/saves/quick.sav
