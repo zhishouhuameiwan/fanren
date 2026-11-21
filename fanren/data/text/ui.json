@@ -86,6 +86,7 @@
   "ui.world.interact.talk": "交谈",
   "ui.world.interact.examine": "调查",
   "ui.world.interact.use": "使用",
+  "ui.world.interact.meditate": "打坐",
   "ui.world.interact.open": "打开",
   "ui.world.interact.gather": "采集",
   "ui.world.interact.fight": "迎战",

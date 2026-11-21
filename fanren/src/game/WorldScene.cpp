@@ -127,6 +127,37 @@ const core::MapObject* WorldScene::visibleNpcAt(const core::GameState& state, co
     return nullptr;
 }
 
+// 贴地的设施不占格（2026-11-20 用户试玩：「打坐的蒲团……都不应该阻挡走路，这样才符常理」）。
+// 一句话：画面上是实心东西才挡路；贴地的、看不见的不挡。设施里贴地的眼下只有蒲团（kind=meditate，
+// 第 1 章的平石、第 8 章的养息处都是这一种）；存记点、历练晶石、药田、摊位、丹炉、告示牌、制符、锻造照旧占格。
+// 碰撞层那一半在 tools/mapgen/genmaps.py 的 is_flat_facility，两处判据必须一样。
+bool WorldScene::walksOnto(const core::MapObject& facility) {
+    return facility.type == "facility" && facility.property("kind") == "meditate";
+}
+
+const core::MapObject* WorldScene::blockingFacilityAt(const core::TileMap& map, core::Point cell) {
+    for (const core::MapObject& object : map.objects) {
+        if (object.type != "facility" || walksOnto(object)) continue;
+        // 与 core::TileMap::objectAt 逐字相同的矩形命中。
+        if (cell.x >= object.position.x && cell.x < object.position.x + object.width &&
+            cell.y >= object.position.y && cell.y < object.position.y + object.height) {
+            return &object;
+        }
+    }
+    return nullptr;
+}
+
+const core::MapObject* WorldScene::flatFacilityAt(const core::TileMap& map, core::Point cell) {
+    for (const core::MapObject& object : map.objects) {
+        if (!walksOnto(object)) continue;
+        if (cell.x >= object.position.x && cell.x < object.position.x + object.width &&
+            cell.y >= object.position.y && cell.y < object.position.y + object.height) {
+            return &object;
+        }
+    }
+    return nullptr;
+}
+
 void WorldScene::onEnter(Application&) {
     stepCooldown_ = 0.0;
     // 画面从「开场」算起：镜头直接就位、不淡入、地名横幅直接在（外层的开场转场自己会淡）。
@@ -167,17 +198,17 @@ bool WorldScene::tryStep(Application& app, int dx, int dy) {
 
     const core::Point target{state.position.x + dx, state.position.y + dy};
     if (!map->walkable(target)) return false;
-    // NPC 与设施占格，不能走上去。
+    // NPC 与设施占格，不能走上去——蒲团除外。
     //
-    // 设施这一条此前漏了：站到蒲团那一格上之后，交互看的是「面朝的前一格」，
-    // 于是玩家正站在打坐点上却怎么按都没反应。占格之后只能面朝它按确认，
-    // 与 NPC 同一套手感。
+    // 设施占格是当初为了躲「站在蒲团上按确认没反应」（交互只看面朝的前一格）。如今 interact()
+    // 也看脚下的蒲团，那个理由没了；而一块贴地的蒲团挡路不合常理（2026-11-20 用户试玩）。
+    // 于是蒲团能走上去（walksOnto），其余设施照旧占格，与 NPC 同一套手感。
     //
     // NPC 走 visibleNpcAt 而不是 objectAt：**不在场的人不挡路**。从前用 objectAt，
     // 一个还没现身（或已经离开）的 NPC 照样占着那一格，玩家撞上的是一堵看不见、
-    // 没有任何反馈的墙。设施没有可见性属性，照旧一律占格。
+    // 没有任何反馈的墙。设施没有可见性属性，占不占格只看种类。
     if (visibleNpcAt(state, *map, target, companions) != nullptr) return false;
-    if (map->objectAt(target, "facility") != nullptr) return false;
+    if (blockingFacilityAt(*map, target) != nullptr) return false;
     // 宝箱、采集点、明雷占格；机关关着时占格、开了不占（契约 2.4）。在不在场、开没开问 worldobj，
     // 状态经 Application::worldObjects()——历练里是「这一趟」那份。会走的明雷按它此刻那一格（foePoses）。
     const worldobj::FoePoses* poses = foePoses(app);
@@ -288,6 +319,12 @@ bool WorldScene::interact(Application& app) {
             app.startEvent(here->property("script"));
             return true;
         }
+    }
+    // 再看脚下的蒲团：蒲团不占格，人能坐上去，坐在上面按确认就该打坐。排在脚下的任务点之后——
+    // 与面前那一格「剧情优先、设施其次」同一个次序。
+    if (const core::MapObject* seat = flatFacilityAt(*map, state.position)) {
+        app.openFacility(*seat);
+        return true;
     }
     return false;
 }
@@ -476,6 +513,7 @@ bool WorldScene::advanceFoes(Application& app, double deltaSeconds) {
     const Companions& companions = app.data().companions;
     // 明雷走不走得上去、看不看得穿，与主角走位问的是同一组问题（tryStep）：在场的 NPC、设施、四种新对象
     // （明雷按此刻站位）。墙、主角那一格、传送点与踏入触发区那一圈由 FoePatrol 自己管。跟随的伙伴不占格，不算。
+    // 只有一处与主角不同：设施这里一律当墙，**蒲团也算**——人能坐上去（walksOnto），明雷不去踩它。
     foepatrol::Surroundings around;
     around.hero = state.position;
     around.solid = [&](core::Point cell) {
@@ -547,9 +585,9 @@ std::string WorldScene::interactHint(Application& app, core::Point& cell, const 
             return hint("ui.world.interact.examine");
         }
     }
-    if (map->objectAt(front, "facility") != nullptr) {
+    if (const core::MapObject* facility = map->objectAt(front, "facility")) {
         cell = front;
-        return hint("ui.world.interact.use");
+        return hint(walksOnto(*facility) ? "ui.world.interact.meditate" : "ui.world.interact.use");
     }
     if (const core::MapObject* chest = worldobj::presentAt(state, objects, *map, front, worldobj::kChest)) {
         if (worldobj::chestOpened(objects, *chest)) return {};
@@ -576,6 +614,11 @@ std::string WorldScene::interactHint(Application& app, core::Point& cell, const 
             cell = state.position;
             return hint("ui.world.interact.examine");
         }
+    }
+    // 坐在蒲团上：提示浮在主角头顶（cell 是自己那一格），与脚下的调查点同一套。
+    if (flatFacilityAt(*map, state.position) != nullptr) {
+        cell = state.position;
+        return hint("ui.world.interact.meditate");
     }
     return {};
 }

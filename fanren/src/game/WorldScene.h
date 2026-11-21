@@ -64,6 +64,15 @@ public:
     [[nodiscard]] static bool npcVisible(const core::GameState& state,
                                         const core::MapObject& npc);
 
+    // 贴地的设施能走上去（2026-11-20 用户试玩）：画面上是实心东西才挡路。眼下只有蒲团（kind=meditate）。
+    // 碰撞层那一半在 tools/mapgen/genmaps.py 的 is_flat_facility，判据与这里一字一样。
+    // 明雷巡逻不问这个：明雷照旧不踩蒲团（advanceFoes 的 around.solid）。
+    [[nodiscard]] static bool walksOnto(const core::MapObject& facility);
+    // 这一格上挡路的设施（蒲团不算）；没有就是 nullptr。tryStep 用它判占格。
+    [[nodiscard]] static const core::MapObject* blockingFacilityAt(const core::TileMap& map, core::Point cell);
+    // 这一格上的蒲团；没有就是 nullptr。interact / interactHint 用它认「坐在上面」。
+    [[nodiscard]] static const core::MapObject* flatFacilityAt(const core::TileMap& map, core::Point cell);
+
     // ---- 伙伴改版（docs/interfaces-companions.md 3.8、3.11）----
     //
     // 两条新规矩都要问「这个角色是哪位伙伴」，所以要伙伴数据（GameData::companions）。

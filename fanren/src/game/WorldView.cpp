@@ -10,6 +10,7 @@
 #include "game/Application.h"
 #include "game/MapArt.h"
 #include "game/Minimap.h"
+#include "game/WorldScene.h"
 #include "io/VisualLoader.h"
 
 namespace fanren::game {
@@ -447,7 +448,18 @@ std::vector<WorldDrawItem> depthOrder(const WorldFrame& frame, Vec2f playerCell,
         if (culled(footX, footY)) return;
         items.push_back(WorldDrawItem{DepthKey{footY, footX, order++}, kind, index});
     };
-    for (std::size_t i = 0; i < frame.facilities.size(); ++i) addRect(*frame.facilities[i].object, Kind::Facility, i, false);
+    for (std::size_t i = 0; i < frame.facilities.size(); ++i) {
+        const core::MapObject& object = *frame.facilities[i].object;
+        // 蒲团贴地、人能坐上去（WorldScene::walksOnto）：按矩形**上沿**排，排在站在它上面、上一行的人之前——
+        // 按底边排时与坐在上面的人同一个 footY，再比 footX，两格宽的蒲团就压在人腿上。
+        if (WorldScene::walksOnto(object)) {
+            const float footX = (fl(object.position.x) + fl(std::max(1, object.width)) / 2.f) * kCell;
+            items.push_back(WorldDrawItem{DepthKey{fl(object.position.y) * kCell - 1.f, footX, order++},
+                                          Kind::Facility, i});
+            continue;
+        }
+        addRect(object, Kind::Facility, i, false);
+    }
     for (std::size_t i = 0; i < frame.npcs.size(); ++i) {
         const core::MapObject& object = *frame.npcs[i].object;
         addCell(Vec2f{fl(object.position.x), fl(object.position.y)}, Kind::Npc, i);

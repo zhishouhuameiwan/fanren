@@ -1015,7 +1015,67 @@ def build_everything():
     built.update(genmaps_ch11.build_all())
     built.update(genmaps_ch12.build_all())
     built.update(genmaps_ch13.build_all())
+    for map_id, payload in built.items():
+        clear_flat_cells(map_id, payload)
     return built
+
+
+# ---------------------------------------------------------------------------
+# 贴地的东西不挡路（2026-11-20 用户试玩：「打坐的蒲团、任务提示点都不应该阻挡走路」）
+# ---------------------------------------------------------------------------
+# 一句话：画面上是实心东西才挡路；贴地的、看不见的不挡。引擎那一半在 WorldScene::tryStep
+# （蒲团不占格，walksOnto）；这一半管碰撞层——各章生成器早年把蒲团、几处任务点用 solid_rect
+# 画成了 gid 8 的「次体」，连带碰撞置 1。这里在全仓产出的最后统一清掉，不去各章逐处改：
+# 规则只有一条，散在十几个生成器里迟早有一处漏掉。
+#
+# building 层**照留**：烘焙底图（tools/artgen/mapinfer.py）靠 gid 8 认出这里摆着一件东西、
+# 画出蒲团；清掉 building，下次重烘蒲团就没了。于是这几格是「画了、不挡路」——与水面
+# 「不画墙、只挡路」反过来，是 genmaps.py 文件头那条不变量（building 有瓦片处 collision 非 0）
+# 仅有的例外，只限下面两类。
+#
+# 按键型任务点只清画面上那一格确实空着的（逐格对着底图看过，清单与理由见
+# docs/ch07-foundation-integration.md「试玩返修·不挡路」）。画着床、柜、案、门、石灯、
+# 树桩、岩壁的照旧挡路，不在这张表里。
+FLAT_TRIGGERS = {
+    "ch06_baiyaoyuan": ("trigger_chaibao",),          # (22,3) 居室里一格空地板
+    "ch07_jindi_zhongxin": ("trigger_shulin",),       # (30,25) 大树树冠下的草地
+}
+
+
+def _tile_cells(o):
+    x0, y0 = o["x"] // TILE, o["y"] // TILE
+    w, h = max(1, o["width"] // TILE), max(1, o["height"] // TILE)
+    return [(x, y) for y in range(y0, y0 + h) for x in range(x0, x0 + w)]
+
+
+def is_flat_facility(o):
+    """蒲团（kind=meditate）贴地，不占格——与 WorldScene 的 walksOnto 同一判据。"""
+    if o.get("type") != "facility":
+        return False
+    return any(p["name"] == "kind" and p["value"] == "meditate" for p in o.get("properties", []))
+
+
+def clear_flat_cells(map_id, payload):
+    """把这张图上蒲团、FLAT_TRIGGERS 所列任务点那几格的碰撞清零（幂等）。"""
+    flat_names = set(FLAT_TRIGGERS.get(map_id, ()))
+    collision = None
+    objects = []
+    for layer in payload["layers"]:
+        if layer.get("name") == "collision":
+            collision = layer["data"]
+        elif layer.get("type") == "objectgroup":
+            objects = layer["objects"]
+    w = payload["width"]
+    found = set()
+    for o in objects:
+        if is_flat_facility(o) or (o.get("type") == "trigger" and o["name"] in flat_names):
+            found.add(o["name"])
+            for x, y in _tile_cells(o):
+                collision[y * w + x] = 0
+    missing = flat_names - found
+    if missing:
+        raise SystemExit("FLAT_TRIGGERS 里的 %s 在 %s 上找不到" % (", ".join(sorted(missing)), map_id))
+    return payload
 
 
 def sync():

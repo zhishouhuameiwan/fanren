@@ -55,8 +55,13 @@ bool walk(Application& app, const std::string& steps) {
             case 'Z':
             case '.':
                 break;
+            case 'u': app.state().facing = 0; continue;   // 小写：只转身不迈步（「在蒲团旁面朝它」那一张靠这个）
+            case 'r': app.state().facing = 1; continue;
+            case 'd': app.state().facing = 2; continue;
+            case 'l': app.state().facing = 3; continue;
             default:
-                std::fprintf(stderr, "walk: 认不出的方向 %c（只认 U D L R，与按确认 Z、等一会儿 .）\n", step);
+                std::fprintf(stderr, "walk: 认不出的方向 %c（只认 U D L R、只转身的 u d l r，与按确认 Z、等一会儿 .）\n",
+                             step);
                 return false;
         }
         // Z：面朝前方按一下确认（WorldScene::interact，开箱、采集就是这一下）；「.」：空转一刻（0.25 秒），

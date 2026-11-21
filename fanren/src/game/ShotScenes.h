@@ -8,7 +8,8 @@
 //   menu:party / menu:roster  主菜单的队伍页 / 名册页（名册上有人时才有这两页；没人时退回状态页）
 //   walk:<方向串>             让主角照真入口（WorldScene::tryStep）走几步再拍：U 上 D 下 L 左 R 右，
 //                             每一步照游戏的次序一帧帧走到主角与跟随者都停下；撞墙的那一步不算错，照样往下走。
-//                             另认 Z（面朝前方按确认：开箱、采集）与 .（空转 0.25 秒，等得物卡片淡入）
+//                             另认 Z（面朝前方按确认：开箱、采集）与 .（空转 0.25 秒，等得物卡片淡入）；
+//                             小写 u d l r 只转身不迈步
 //   dlg:auto|skipask|skipped|bubble:…  地基包路 D 的对白减负四张图（自动小标、跳过确认框、跳过提示、插话气泡），
 //                             参数见 ShotScenes.cpp 的 pushDialogueShot
 //   areamap                   区域地图（第 7 章改版·路 M，docs/ch07-foundation.md 3.2），压在当前世界层上
