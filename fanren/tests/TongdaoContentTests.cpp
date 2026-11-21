@@ -564,7 +564,7 @@ TEST_F(TongdaoContent, TheLinesStayInsideTheLinesOfSectionTwoTwo) {
     const json texts = json::parse(readFile(fs::path(assetRoot()) / "data" / "text" / "tongdao.json"));
     for (const auto& [key, value] : texts.items()) {
         const std::string line = value.get<std::string>();
-        for (const char* word : {"拥抱", "抱住", "抱起", "吻", "握住", "搂", "依偎", "牵着", "肌肤", "衣带"}) {
+        for (const char* word : {"拥抱", "抱住", "抱起", "背着", "吻", "握住", "搂", "依偎", "牵着", "肌肤", "衣带"}) {
             EXPECT_EQ(line.find(word), std::string::npos) << key << " 含「" << word << "」";
         }
         if (key.rfind("tongdao.nangong_wan.", 0) == 0 || key.rfind("tongdao.han_yunzhi.", 0) == 0) {
