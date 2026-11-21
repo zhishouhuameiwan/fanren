@@ -15,6 +15,7 @@
 // 事件脚本的约定（路 N 照同一条写）：叙话第 N 档 scripts/ch07/tongdao_<id>_t<N>.lua（N = 2–5），
 // 请教 scripts/ch07/tongdao_<id>_qingjiao.lua；脚本末尾自己调 tongdao.xuhua_mark / tongdao.qingjiao 记账。
 // 文件不在时那一项置灰写「（内容未到）」。
+#include <functional>
 #include <optional>
 #include <string>
 #include <vector>
@@ -112,6 +113,12 @@ public:
     [[nodiscard]] const ui::ListView& actions() const { return actions_; }
     [[nodiscard]] const ui::ListView& gifts() const { return gifts_; }
     [[nodiscard]] std::string selectedId() const;
+
+    // 详情页「喜好」那一块的行：一行放得下就「喜欢：…　不喜：…」一行；放不下就把「不喜：…」整段挪到第二行
+    //（不在词中间断开）；某一段自己还放不下才截断加「…」。measure 量一段字的像素宽。
+    [[nodiscard]] static std::vector<std::string> likesLines(const std::string& like, const std::string& dislike,
+                                                             int width,
+                                                             const std::function<int(const std::string&)>& measure);
 
     // 这一页可能画出来的全部固有字（UiStyleTests 那种禁词扫描用）。
     [[nodiscard]] static std::vector<std::string> strings(const core::GameData& data);

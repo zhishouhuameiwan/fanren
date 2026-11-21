@@ -227,3 +227,22 @@
 全量 ctest（`build-u`，`-j 4`）：2526 条（路 K 交来时 2500 + 这一路 26）。第一遍 4 条红：上面两条 `GuideTutorials`（改了，见第 9 节），
 加 `SoftwareEngine.WithVSyncOffAFrameStillTakesAtLeastA240thOfASecond`（十帧要在 120 毫秒内，`-j 4` 压着时超了）与 `KeyRepeat.OnTheKeyboardOnlyTheFourArrowsRepeat`（按住计时）——
 这两条是引擎的计时用例、与这一路无关，单跑各 5 遍全过。改完第二遍：**2526 条全过（`CTEST_EXIT=0`）**。门禁没跑（用户定的规矩）。
+
+---
+
+# 复审补丁（2026-11-21，主会话复审路 U 之后的三处）
+
+第 10 节九条的裁定：1、2、3、5、6、7 认可；4 见下面第 1 处；8、9（切磋教学卡、择目标菜单没有自动测试）留给集成，等路 N 的数据进来用截图口拍、试玩时看。
+
+1. **事件图铺着时不画立绘。** `DialogueScene::enterBust`：`currentCg()` 非空就不交立绘；名牌、对话框、小头像照常（与没有立绘的人一样）。
+   测试 `WhileACgIsUpTheSpeakerKeepsHerNameButNotHerBust`：先验没有事件图时她带立绘；铺着事件图时同一句不带、名牌照常、立绘那一块露着的是事件图。截图 `shots-test/u_cg_no_bust.png`。
+2. **法术说明写出新效果**（`rules::describeMagic`，`src/core/rules/ItemInfo.cpp`；字在 `data/text/ui_tongdao.json` 的 `ui.tongdao.magic.*`，数取法术表）：
+   回血「回一名队友 N 点气血」、护持「替一名队友挡下一击」、剑幕「这一回合我方全员受伤减 N%」、定身「令一名敌人跳过下一次行动；首领与不能逃的仗里无效」、
+   `hits ≥ 2`「连出 N 段，每段单独判破绽」。四种辅助效果那一行「不吃蓄劲」照旧留着。战斗里择法术时的说明走的是同一个函数（`magicEffectSummary` → `magicSummary(describeMagic)`），跟着对了。
+   测试写在 `tests/TongdaoUiTests.cpp`（`MagicDescriptionsNameTheNewEffectsWithNumbersFromTheTable`），没动 `tests/ItemInfoTests.cpp`。
+3. **喜好整段换行**：`TongdaoPage::likesLines`——一行放得下写一行；放不下把「不喜：…」整段挪到第二行；某一段自己还放不下才截断加「…」。
+   文案 `ui.tongdao.likes.line` 拆成 `ui.tongdao.likes.like` / `ui.tongdao.likes.dislike`。测试 `TongdaoLikes.TheDislikePartMovesWholeToTheSecondLine`。截图 `u04_detail_nangong_capped.png` 重拍（「不喜：兽材」整段在第二行）。
+
+新加测试 3 条，`tests/TongdaoUiTests.cpp` 共 29 条。改过的截图：`shots/` 全部重拍（只有 `u04` 有变化），`shots-test/` 全部重拍（加 `u_cg_no_bust.png`；`u_cards` 剪影卡不再叠两层「？」、战斗五张的光调暗了，是第一个提交里就改了、这一轮才重拍）。
+
+全量 ctest（`build-u`，`-j 4`，这一轮）：**2529 条全过（`CTEST_EXIT=0`）**。门禁没跑。

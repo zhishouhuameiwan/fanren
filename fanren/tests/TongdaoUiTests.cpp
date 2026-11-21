@@ -25,6 +25,9 @@
 #include "game/Application.h"
 #include "game/BattleScene.h"
 #include "game/CultivationScene.h"
+#include "game/DialogueScene.h"
+#include "core/rules/ItemInfo.h"
+#include "engine/TextLayout.h"
 #include "game/EventCg.h"
 #include "game/MenuScene.h"
 #include "game/ShotScenes.h"
@@ -96,6 +99,10 @@ protected:
                   R"({"id": "magic_probe_ward", "name": "探针护持", "needMp": 0, "power": 0, "effect": "ward"})");
         writeFile(data / "magics" / "probe_wall.json",
                   R"({"id": "magic_probe_wall", "name": "探针剑幕", "needMp": 0, "power": 0, "effect": "bulwark", "amount": 30})");
+        writeFile(data / "magics" / "probe_heal.json",
+                  R"({"id": "magic_probe_heal", "name": "探针回春", "needMp": 0, "power": 0, "effect": "heal", "amount": 50})");
+        writeFile(data / "magics" / "probe_twin.json",
+                  R"({"id": "magic_probe_twin", "name": "探针双剑", "element": 1, "needMp": 0, "power": 5, "hits": 2, "needRealm": "Mortal"})");
         writeFile(data / "magics" / "probe_bind.json",
                   R"({"id": "magic_probe_bind", "name": "探针定身", "needMp": 0, "power": 0, "effect": "bind"})");
         writeFile(data / "roles" / "probe_a_role.json",
@@ -578,6 +585,54 @@ TEST_F(TongdaoUi, HeadlessNeverWatchesOrPushesNotices) {
 }
 
 // ---------------------------------------------------------------------------
+// 复审补的两样：法术说明写出新效果、喜好整段换行
+// ---------------------------------------------------------------------------
+
+TEST_F(TongdaoUi, MagicDescriptionsNameTheNewEffectsWithNumbersFromTheTable) {
+    const auto lines = [this](const std::string& id) {
+        const fanren::core::Magic* magic = app_.data().findMagic(id);
+        EXPECT_NE(magic, nullptr) << id;
+        if (magic == nullptr) return std::string{};
+        return rules::magicSummary(rules::describeMagic(app_.data(), *magic, rules::InfoWords{}));
+    };
+    const auto has = [](const std::string& text, const std::string& want) { return text.find(want) != std::string::npos; };
+    const std::string heal = lines("magic_probe_heal");
+    EXPECT_TRUE(has(heal, "回一名队友 50 点气血")) << heal;
+    EXPECT_TRUE(has(heal, "不吃蓄劲")) << heal;
+    const std::string ward = lines("magic_probe_ward");
+    EXPECT_TRUE(has(ward, "替一名队友挡下一击")) << ward;
+    EXPECT_TRUE(has(ward, "不吃蓄劲")) << ward;
+    const std::string wall = lines("magic_probe_wall");
+    EXPECT_TRUE(has(wall, "这一回合我方全员受伤减 30%")) << wall;
+    EXPECT_TRUE(has(wall, "不吃蓄劲")) << wall;
+    const std::string bind = lines("magic_probe_bind");
+    EXPECT_TRUE(has(bind, "令一名敌人跳过下一次行动；首领与不能逃的仗里无效")) << bind;
+    EXPECT_TRUE(has(bind, "不吃蓄劲")) << bind;
+    const std::string twin = lines("magic_probe_twin");
+    EXPECT_TRUE(has(twin, "连出 2 段，每段单独判破绽")) << twin;
+    EXPECT_FALSE(has(lines("magic_probe_one"), "段")) << "一段的不写";
+}
+
+TEST(TongdaoLikes, TheDislikePartMovesWholeToTheSecondLine) {
+    const auto measure = [](const std::string& text) {
+        return static_cast<int>(fanren::engine::splitGraphemes(text).size()) * 10;
+    };
+    const std::string like = "喜欢：火灵石、寒烟草、火鼠绒、彩蛾鳞粉";
+    const std::string dislike = "不喜：兽材";
+    const auto wide = TongdaoPage::likesLines(like, dislike, 1000, measure);
+    ASSERT_EQ(wide.size(), 1u);
+    EXPECT_EQ(wide[0], like + "　" + dislike);
+    const auto narrow = TongdaoPage::likesLines(like, dislike, 230, measure);   // 一行 23 字：两段合起来 25 字放不下
+    ASSERT_EQ(narrow.size(), 2u);
+    EXPECT_EQ(narrow[0], like);
+    EXPECT_EQ(narrow[1], dislike) << "「不喜：兽材」整段在第二行，不从「兽材」中间断开";
+    const auto tiny = TongdaoPage::likesLines(like, dislike, 100, measure);
+    ASSERT_EQ(tiny.size(), 2u);
+    EXPECT_LE(measure(tiny[0]), 100);
+    EXPECT_NE(tiny[0].find("…"), std::string::npos) << "一段自己放不下才截断";
+}
+
+// ---------------------------------------------------------------------------
 // 事件图：表
 // ---------------------------------------------------------------------------
 
@@ -810,6 +865,27 @@ TEST_F(TongdaoPixels, TheCgFadesInUnderTheDialogueBox) {
     app_.setCurrentCg("");
     tick(30);
     EXPECT_TRUE(app_.cgStage().empty());
+}
+
+TEST_F(TongdaoPixels, WhileACgIsUpTheSpeakerKeepsHerNameButNotHerBust) {
+    // 先验：没有事件图时她说话带立绘。
+    app_.sayAs("probe_a_role", "ui.tongdao.title");
+    tick(30);
+    auto* plain = dynamic_cast<game::DialogueScene*>(app_.topScene());
+    ASSERT_NE(plain, nullptr);
+    ASSERT_TRUE(plain->showsBust());
+    app_.popScene();
+    tick(30);
+    // 事件图铺着：同一句不交立绘，名牌照常。
+    app_.setCurrentCg("probe_cg");
+    app_.sayAs("probe_a_role", "ui.tongdao.title");
+    tick(30);
+    auto* withCg = dynamic_cast<game::DialogueScene*>(app_.topScene());
+    ASSERT_NE(withCg, nullptr);
+    EXPECT_FALSE(withCg->showsBust());
+    EXPECT_EQ(app_.dialogueLog().back().speaker, "探针甲") << "名牌照常";
+    const Frame frame = capture("u_cg_no_bust");
+    EXPECT_TRUE(near(frame.at(1010, 250), kCgColor)) << "立绘那一块露着的是事件图";
 }
 
 TEST_F(TongdaoPixels, AMissingCgWarnsOnceAndDrawsNothing) {

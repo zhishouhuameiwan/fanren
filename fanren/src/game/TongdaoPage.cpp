@@ -432,6 +432,23 @@ std::string TongdaoPage::selectedId() const {
     return entries_[static_cast<std::size_t>(cursor_)].id;
 }
 
+std::vector<std::string> TongdaoPage::likesLines(const std::string& like, const std::string& dislike, int width,
+                                                 const std::function<int(const std::string&)>& measure) {
+    const std::string joined = like + "　" + dislike;
+    if (measure(joined) <= width) return {joined};
+    // 截断：一段自己放不下时按字退到放得下为止，末尾加「…」。
+    const auto fit = [&](const std::string& text) {
+        if (measure(text) <= width) return text;
+        std::string out;
+        for (const std::string& g : engine::splitGraphemes(text)) {
+            if (measure(out + g + "…") > width) break;
+            out += g;
+        }
+        return out + "…";
+    };
+    return {fit(like), fit(dislike)};
+}
+
 std::vector<std::string> TongdaoPage::strings(const core::GameData& data) {
     std::vector<std::string> out;
     for (const auto& [key, value] : data.text) {
@@ -1016,9 +1033,8 @@ void TongdaoPage::drawInfo(Application& app, const engine::Rect& info, const Ton
     }
     block(app.text("ui.tongdao.next"), next, theme.paper);
 
-    std::string likes;
     if (entry.tier < 2) {
-        likes = app.text("ui.tongdao.likes.hidden");
+        block(app.text("ui.tongdao.likes"), app.text("ui.tongdao.likes.hidden"), theme.paperDim);
     } else {
         const auto names = [&app](const std::vector<std::string>& ids) {
             std::vector<std::string> out;
@@ -1028,10 +1044,17 @@ void TongdaoPage::drawInfo(Application& app, const engine::Rect& info, const Ton
             }
             return out.empty() ? app.text("ui.tongdao.none") : joinList(out);
         };
-        likes = tongdaoFill(app.text("ui.tongdao.likes.line"), "{like}", names(companion->giftsLike));
-        likes = tongdaoFill(likes, "{dislike}", names(companion->giftsDislike));
+        const std::string like = tongdaoFill(app.text("ui.tongdao.likes.like"), "{like}", names(companion->giftsLike));
+        const std::string dislike =
+            tongdaoFill(app.text("ui.tongdao.likes.dislike"), "{dislike}", names(companion->giftsDislike));
+        e.drawText(app.text("ui.tongdao.likes"), x, y, kInfoFont, theme.gold, theme.bodyStyle);
+        const std::vector<std::string> lines = likesLines(
+            like, dislike, textW, [&e](const std::string& s) { return e.measureText(s, kInfoFont).x; });
+        for (std::size_t i = 0; i < lines.size(); ++i) {
+            e.drawText(lines[i], textX, y + static_cast<int>(i) * kInfoLineH, kInfoFont, theme.paper, theme.bodyStyle);
+        }
+        y += kBlockH;
     }
-    block(app.text("ui.tongdao.likes"), likes, entry.tier < 2 ? theme.paperDim : theme.paper);
 
     // 在册加成：说明 + 状态 + 名额。
     std::string bonus;
