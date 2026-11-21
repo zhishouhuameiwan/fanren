@@ -10,6 +10,7 @@
 -- 只顾自己——他不以为然；陆师兄看清了他的脸（节点 13 的由头）。蓝衣女子不点名（聂盈 ch708，施工图 12.1）。
 
 talk("", "ch07.murong.twins")
+intro_card("chen_shimei")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 talk("lu_shixiong", "ch07.murong.lu_boast")
 talk("", "ch07.murong.clash")
 talk("", "ch07.murong.boy1")

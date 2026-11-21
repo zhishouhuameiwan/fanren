@@ -19,6 +19,7 @@ talk("fuyunzi", "ch07.liedui.fuyun_bet")
 talk("qiong_qianbei", "ch07.liedui.qiong_bet")
 talk("li_huayuan", "ch07.liedui.li_world")
 talk("", "ch07.liedui.yanyue")
+intro_card("nichang_xianzi")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 talk("", "ch07.liedui.face")
 
 -- 太南谷那笔账：第 6 章 8b 以物易物补不齐时，卖符少女让他先欠着的养精丹，ch06.qianyao 记瓶数

@@ -20,8 +20,10 @@ advance_days(1)
 
 talk("", "ch07.shulin.banner")
 talk("", "ch07.shulin.morning")
+intro_card("huangshan_shijie")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 talk("huangshan_shijie", "ch07.shulin.help")
 talk("", "ch07.shulin.chaser")
+intro_card("duobao_nv")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 
 local pick = choice{
     "ch07.shulin.opt_help",

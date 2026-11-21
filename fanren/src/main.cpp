@@ -402,6 +402,16 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    // --event <脚本>：开局就演这一段（开发自检口，与 --map / --scene 同一类，不改任何游戏行为；
+    // 「看立绘-七位巡览」用它演 scripts/dev/heroine_tour.lua）。
+    if (const std::string event = optionValue(argc, argv, "--event"); !event.empty()) {
+        if (auto started = app.startEvent(event); !started) {
+            app.shutdown();
+            reportFatal(interactive, "演不了 " + event + "：" + started.error);
+            return 1;
+        }
+    }
+
     const int code = app.run();
     app.shutdown();
     return code;

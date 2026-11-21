@@ -56,6 +56,7 @@ const std::unordered_map<std::string, CommandKind>& kindTable() {
         {"bond_add", CommandKind::BondAdd},
         {"tutorial", CommandKind::Tutorial},
         {"bubble", CommandKind::Bubble},   // 地基包路 D：伙伴插话气泡
+        {"intro_card", CommandKind::IntroCard},   // 女角色立绘：登场卡
     };
     return table;
 }

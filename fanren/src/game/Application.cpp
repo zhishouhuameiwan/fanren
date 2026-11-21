@@ -27,6 +27,7 @@
 #include "game/BoardScene.h"
 #include "game/CultivationScene.h"
 #include "game/DialogueScene.h"
+#include "game/IntroCardScene.h"
 #include "game/FadeScene.h"
 #include "game/FieldScene.h"
 #include "game/KeyConfigScene.h"
@@ -1192,6 +1193,26 @@ void Application::pushDialogueLine(std::string speaker, std::string body, std::s
     dialogueLog_.push_back(SpokenLine{std::move(speaker), std::move(body), std::move(roleId), std::move(face)});
 }
 
+bool Application::pushIntroCard(const std::string& roleId) {
+    if (headless_ || roleId.empty()) return false;   // 无头：不读表、不改任何状态
+    const ChapterDone chapterDone = [this](int n) { return chapterTable().chapterDone(state_, n); };
+    const std::optional<PortraitFrame> bust = busts_.frameFor(*engine_, headless_, roleId, "normal", chapterDone);
+    if (!bust) {
+        if (introCardWarned_.insert(roleId).second) {
+            std::fprintf(stderr, "[bust] WARNING: %s 没有立绘（这一章没登记、或图载不进来）：登场卡不出\n", roleId.c_str());
+        }
+        return false;
+    }
+    const auto lookup = [this](const std::string& key, const std::string& fallback) {
+        const std::string value = data_.lookupText(key);
+        return value.empty() || value == key ? fallback : value;
+    };
+    const std::string base = "card." + roleId + ".";
+    pushScene(std::make_unique<IntroCardScene>(roleId, bust->texture, bust->src, lookup(base + "name", speakerName(roleId)),
+                                               lookup(base + "title", std::string{}), lookup(base + "line", std::string{})));
+    return true;
+}
+
 void Application::showMessage(const std::string& textKey) {
     if (textKey.empty()) return;
     // 空说话人 = 旁白，对话框不画名字框。
@@ -1607,6 +1628,12 @@ bool Application::dispatch(const script::Command& command, script::CommandResult
             outcome.ok = true;
             return true;
         }
+
+        // ---- 女角色立绘：登场卡（docs/heroine-art-build.md 3.5.3）----
+        case CommandKind::IntroCard:
+            // 整段跳过中直接略过；没有立绘、无头时 pushIntroCard 不压卡片，就地完成。卡片收起时回填。
+            outcome.ok = true;
+            return dialogueSkipping_ || !pushIntroCard(command.a);
 
         // ---- 第一期地基包：教学卡（docs/ch07-foundation.md 2.3）----
         case CommandKind::Tutorial: {

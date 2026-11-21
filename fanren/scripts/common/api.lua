@@ -441,3 +441,15 @@ function bubble(role_id, text_key, seconds)
     local ms = math.floor((seconds or 3) * 1000 + 0.5)
     emit{ kind = "bubble", a = text_key, b = role_id, x = ms }
 end
+
+-- ---------------------------------------------------------------------------
+-- 登场卡（女角色立绘，docs/heroine-art-build.md 3.5.3）
+--
+-- 整屏压暗，她的立绘从右侧滑进来，左边写名字、身份、一句短评；玩家按确认收起（自动播放时自己收）。
+-- 文字取文本表 card.<role>.name（缺省用角色名）、card.<role>.title、card.<role>.line。
+-- 这个角色没有立绘、整段跳过中、无头模式：不出卡片，直接往下走。不记存档、不进回看。
+-- ---------------------------------------------------------------------------
+function intro_card(role_id)
+    assert(type(role_id) == "string" and role_id ~= "", "intro_card() 需要角色 id")
+    emit{ kind = "intro_card", a = role_id }
+end

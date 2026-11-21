@@ -215,6 +215,12 @@ bool pushCompanionShot(Application& app, const std::string& kind, const std::str
         app.pushScene(std::make_unique<MenuScene>(MenuScene::Page::Party, true, row));
         return true;
     }
+    // 女角色立绘（docs/heroine-art-build.md 3.5.3）：card:<角色 id>——那个人的登场卡，空转到滑入、淡入都走完。
+    if (kind == "card" && !arg.empty()) {
+        if (!app.pushIntroCard(arg)) return false;   // 没有立绘：Application 已警告
+        warmup = std::max(warmup, 45);
+        return true;
+    }
     if (kind == "walk" && !arg.empty()) return walk(app, arg);
     // ---- 第 7 章改版·路 M（docs/ch07-foundation.md 1.6、第 3 节）----
     // menu:items:<n> / menu:magic:<n>：物品 / 法术页，光标停在第 n 行（0 起），看那一样的四行式说明。

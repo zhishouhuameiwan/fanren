@@ -194,6 +194,9 @@ public:
     // 同样从游戏根取。bustStage 记着一段对白里立绘的淡入淡出（跨句，见 game/Busts.h）。
     [[nodiscard]] PortraitBook& busts() { return busts_; }
     [[nodiscard]] BustStage& bustStage() { return bustStage_; }
+    // 登场卡（3.5.3）：这个角色这一章有立绘就压一张 IntroCardScene、返回 true；无头、没有立绘返回 false（没有立绘时
+    // 每个角色警告一次）。脚本 intro_card 与截图口 card: 都走它。
+    bool pushIntroCard(const std::string& roleId);
     // 此刻画立绘的那一层对话框的序号（DialogueScene::serial；栈里没有对话框为 0）：每帧改栈之后认一次。
     [[nodiscard]] std::uint64_t bustOwner() const { return bustOwner_; }
 
@@ -648,6 +651,7 @@ private:
     PortraitBook busts_{kBustSheets};   // busts()
     BustStage bustStage_;               // bustStage()
     std::uint64_t bustOwner_ = 0;       // bustOwner()
+    std::set<std::string> introCardWarned_;   // pushIntroCard：没有立绘的警告一个角色一次
     double fixedWorldClock_ = 0.0;   // fixedWorldClock()
 
     // 得物卡片（itemToasts）与集齐奖励表（explorationReward）。图标图集画的时候才载，无头从不碰。

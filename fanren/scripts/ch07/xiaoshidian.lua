@@ -36,6 +36,7 @@ talk("maifu_shaonv", "ch07.xiaoshidian.after_me")
 talk("", "ch07.xiaoshidian.after_burn")
 give("story_yinhui_jian")
 talk("", "ch07.xiaoshidian.after_name")
+intro_card("han_yunzhi")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 talk("han_yunzhi", "ch07.xiaoshidian.after_flower")
 
 local pick = choice{

@@ -12,6 +12,7 @@
 
 talk("", "ch07.wenming.climb")
 talk("", "ch07.jiaoshi.name_ask")
+intro_card("nangong_wan_ch07")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 talk("nangong_wan_ch07", "ch07.jiaoshi.name_say")
 bond.add("nangong_wan", 8)
 talk("", "ch07.jiaoshi.name_after")

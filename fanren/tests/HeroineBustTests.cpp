@@ -22,9 +22,11 @@
 #include <gtest/gtest.h>
 
 #include "TempDir.h"
+#include "engine/TextLayout.h"
 #include "game/Application.h"
 #include "game/Busts.h"
 #include "game/DialogueScene.h"
+#include "game/IntroCardScene.h"
 #include "game/Portraits.h"
 #include "io/PortraitLoader.h"
 
@@ -119,56 +121,72 @@ TEST(BustLoader, TheFirstEntryInEffectThisChapterWins) {
 
 constexpr Rect kBottomBox{48, 472, 1184, 200};   // DialogueScene::boxAreaFor(0, 缺省皮肤)
 
-TEST(BustLayout, WithTheBoxAtTheBottomTheBustStandsRightAndItsFootSits40BelowTheBoxTop) {
-    const Rect bust = fanren::game::bustDialogueArea(kBottomBox, kBottomBox, kBottomBox.y);
+TEST(BustLayout, WithTheBoxAtTheBottomTheCellTopSitsAt18AndOnlyTheRowsAboveTheBoxAreDrawn) {
+    const Rect bust = fanren::game::bustDialogueArea(kBottomBox, kBottomBox);
     EXPECT_EQ(bust.w, 420);
     EXPECT_EQ(bust.h, 630);
     EXPECT_EQ(bust.x + bust.w, 1280 - 60) << "右边距 60";
-    EXPECT_EQ(bust.y + bust.h, kBottomBox.y + 40) << "底边落在框顶以下 40";
-    EXPECT_GE(bust.y + fanren::game::kBustHeadLine, 40) << "头顶线在屏幕里";
+    EXPECT_EQ(bust.y, 18) << "施工图 3.5.1：格子顶边 y = 18";
+    EXPECT_EQ(bust.y + fanren::game::kBustHeadLine, 48) << "头顶约在 y = 48";
+    EXPECT_EQ(bust.h - fanren::game::kBustHeadLine, 600) << "人物从头顶到格底在屏幕上高 600";
     // 框是半透明的：框后面那一截不画，画到框顶金线下 3 像素。
     EXPECT_EQ(fanren::game::bustVisibleRows(bust, kBottomBox, false), kBottomBox.y + 3 - bust.y);
-    // 不压左上角的地名与目标框（WorldHud 那一栏宽不到 560）。
-    EXPECT_GT(bust.x, 560);
 }
 
-TEST(BustLayout, ATallerChoiceBoxDoesNotPushTheHeadOffScreen) {
+TEST(BustLayout, ATallerChoiceBoxDoesNotLiftTheBust) {
     const Rect tall{48, 300, 1184, 372};
-    const Rect bust = fanren::game::bustDialogueArea(tall, tall, kBottomBox.y);
-    EXPECT_EQ(bust.y + bust.h, kBottomBox.y + 40) << "框因选项长高了，立绘不跟着往上抬";
+    const Rect bust = fanren::game::bustDialogueArea(tall, tall);
+    EXPECT_EQ(bust.y, 18) << "框因选项长高了，立绘不跟着往上抬";
     EXPECT_EQ(fanren::game::bustVisibleRows(bust, tall, false), tall.y + 3 - bust.y) << "多出来的那截由框压住";
 }
 
-TEST(BustLayout, WithTheBoxRaisedToTheTopTheBustSitsOnTheScreenBottom) {
+TEST(BustLayout, WithTheBoxRaisedTheHeadStaysBelowTheBox) {
+    // 框贴到顶边：头顶线 30 时，「头顶在框底以下 12」比「贴屏幕底」更靠下，下半截出屏。
     const Rect top{48, 48, 1184, 200};
-    const Rect bust = fanren::game::bustDialogueArea(top, kBottomBox, kBottomBox.y);
-    EXPECT_EQ(bust.y + bust.h, 720) << "框贴到顶边：立绘底边贴屏幕底边";
-    EXPECT_EQ(bust.x + bust.w, 1220);
-    EXPECT_GT(bust.y + fanren::game::kBustHeadLine, top.y + top.h) << "头顶在框下面";
-    EXPECT_EQ(fanren::game::bustVisibleRows(bust, top, true), 630) << "整幅都画";
-}
-
-TEST(BustLayout, WithTheBoxRaisedOnlyHalfwayTheFaceIsNotUnderTheBox) {
+    const Rect atTop = fanren::game::bustDialogueArea(top, kBottomBox);
+    EXPECT_EQ(atTop.y + fanren::game::kBustHeadLine, top.y + top.h + fanren::game::kBustHeadGap);
+    EXPECT_GT(atTop.y + atTop.h, 720);
+    EXPECT_EQ(atTop.x + atTop.w, 1220);
+    EXPECT_EQ(fanren::game::bustVisibleRows(atTop, top, true), 630) << "整幅都画";
+    // 框只抬到半中腰：同一条规则，人沉得更深。
     const Rect mid{48, 235, 1184, 200};
-    const Rect bust = fanren::game::bustDialogueArea(mid, kBottomBox, kBottomBox.y);
-    EXPECT_EQ(bust.y + fanren::game::kBustHeadLine, mid.y + mid.h + fanren::game::kBustHeadGap)
-        << "头顶落在框底以下 12";
-    EXPECT_GT(bust.y + bust.h, 720) << "下半截出屏";
+    const Rect atMid = fanren::game::bustDialogueArea(mid, kBottomBox);
+    EXPECT_EQ(atMid.y + fanren::game::kBustHeadLine, mid.y + mid.h + fanren::game::kBustHeadGap);
+    // 框底比 108 还高（只有很矮的框才会）：贴屏幕底。
+    const Rect high{48, -150, 1184, 200};
+    EXPECT_EQ(fanren::game::bustDialogueArea(high, kBottomBox).y + 630, 720);
 }
 
-TEST(BustLayout, TheRosterTakesTheMiddleOfTheCellAt560High) {
+TEST(BustLayout, WhenTheHeroWouldBeCoveredTheBustStandsOnTheLeft) {
+    const Rect bust = fanren::game::bustDialogueArea(kBottomBox, kBottomBox);
+    const int rows = fanren::game::bustVisibleRows(bust, kBottomBox, false);
+    // 主角站在右边（镜头贴地图右沿）：与画出来的那一块相交 → 改站左侧，格子左边 x = 160，大小不变。
+    const Rect heroRight{900, 150, 144, 144};
+    const Rect moved = fanren::game::bustAvoidHero(bust, rows, heroRight);
+    EXPECT_EQ(moved.x, 160);
+    EXPECT_EQ(moved.y, bust.y);
+    EXPECT_EQ(moved.w, bust.w);
+    EXPECT_EQ(moved.h, bust.h);
+    // 主角在中间、或在右边但在框后那截（不画的地方）：不动。
+    EXPECT_EQ(fanren::game::bustAvoidHero(bust, rows, Rect{568, 200, 144, 144}).x, 800);
+    EXPECT_EQ(fanren::game::bustAvoidHero(bust, rows, Rect{900, 480, 144, 144}).x, 800) << "框后那截不画，不算挡";
+    // 没有世界层：主角矩形为空，不动。
+    EXPECT_EQ(fanren::game::bustAvoidHero(bust, rows, Rect{}).x, 800);
+}
+
+TEST(BustLayout, TheRosterShowsTheWholePersonAt560High) {
     const RectF src = fanren::game::bustRosterSource(RectF{0.f, 0.f, 840.f, 1260.f});
-    EXPECT_FLOAT_EQ(src.x, 120.f);
-    EXPECT_FLOAT_EQ(src.y, 336.f) << "头顶线 376 以上留 40";
-    EXPECT_FLOAT_EQ(src.w, 600.f);
-    EXPECT_FLOAT_EQ(src.h, 924.f);
+    EXPECT_FLOAT_EQ(src.x, 0.f) << "左右不裁：最宽的一位约 827";
+    EXPECT_FLOAT_EQ(src.y, 20.f) << "头顶线 60 以上留 20";
+    EXPECT_FLOAT_EQ(src.w, 840.f);
+    EXPECT_FLOAT_EQ(src.h, 1240.f);
     const RectF dst = fanren::game::bustRosterArea(Rect{100, 50, 380, 600}, src);
     EXPECT_FLOAT_EQ(dst.h, 560.f);
-    EXPECT_NEAR(dst.w, 560.f * 600.f / 924.f, 0.01f);
+    EXPECT_NEAR(dst.w, 560.f * 840.f / 1240.f, 0.01f);
+    EXPECT_LE(dst.w, 380.f) << "放得进那一栏";
     EXPECT_FLOAT_EQ(dst.y + dst.h, 650.f) << "底边贴那一栏的底";
     EXPECT_NEAR(dst.x + dst.w / 2.f, 290.f, 0.01f) << "水平居中";
-    // 那一栏不够高：按栏高缩。
-    EXPECT_FLOAT_EQ(fanren::game::bustRosterArea(Rect{0, 0, 380, 400}, src).h, 400.f);
+    EXPECT_FLOAT_EQ(fanren::game::bustRosterArea(Rect{0, 0, 380, 400}, src).h, 400.f) << "那一栏不够高：按栏高缩";
 }
 
 // ---------------------------------------------------------------------------
@@ -315,6 +333,13 @@ protected:
                       "\")\ntalk(\"chen_shimei\", \"" + kLine + "\")\nflag.set(\"test_bust.end\", 1)\n");
         writeText(root_->path() / "scripts" / "test_bust" / "bubble.lua",
                   std::string("bubble(\"chen_shimei\", \"") + kLine + "\", 2)\n");
+        writeText(root_->path() / "scripts" / "test_bust" / "card.lua",
+                  "intro_card(\"chen_shimei\")\nflag.set(\"test_bust.card\", 1)\n");
+        writeText(root_->path() / "scripts" / "test_bust" / "card_nobody.lua",
+                  "intro_card(\"hanli\")\nflag.set(\"test_bust.card\", 1)\n");
+        writeText(root_->path() / "scripts" / "test_bust" / "card_skip.lua",
+                  std::string("talk(\"\", \"") + kLine + "\")\nintro_card(\"chen_shimei\")\ntalk(\"\", \"" + kLine +
+                      "\")\nflag.set(\"test_bust.card\", 1)\n");
     }
     static void TearDownTestSuite() { root_.reset(); }
 
@@ -587,6 +612,150 @@ TEST_F(BustShotTest, ABubbleThatFallsBackToADialogueCarriesNoBust) {
     EXPECT_FALSE(dialogue->showsBust()) << "插话不出大图";
     const Frame frame = capture(app);
     EXPECT_GT(portraitPixels(frame), 112 * 128 - 10) << "小头像照旧";
+    app.shutdown();
+}
+
+// ---------------------------------------------------------------------------
+// 登场卡（3.5.3）
+// ---------------------------------------------------------------------------
+
+TEST(IntroCard, TheTimelineSlidesInOverAQuarterSecondAndFadesOutInAFifth) {
+    using fanren::game::IntroCardScene;
+    EXPECT_FLOAT_EQ(IntroCardScene::opacityAt(0.0, false, 0.0), 0.f);
+    EXPECT_NEAR(IntroCardScene::opacityAt(0.125, false, 0.0), 0.5f, 1e-4f);
+    EXPECT_FLOAT_EQ(IntroCardScene::opacityAt(0.25, false, 0.0), 1.f);
+    EXPECT_NEAR(IntroCardScene::opacityAt(1.0, true, 0.1), 0.5f, 1e-4f);
+    EXPECT_FLOAT_EQ(IntroCardScene::opacityAt(1.0, true, 0.2), 0.f);
+    EXPECT_FLOAT_EQ(IntroCardScene::slideOffsetAt(0.0), static_cast<float>(IntroCardScene::kSlideFrom))
+        << "从右边滑进来";
+    EXPECT_FLOAT_EQ(IntroCardScene::slideOffsetAt(0.25), 0.f);
+    EXPECT_DOUBLE_EQ(IntroCardScene::kArmSeconds, 0.6);
+    EXPECT_DOUBLE_EQ(IntroCardScene::kAutoSeconds, 2.5);
+    const RectF bust = IntroCardScene::bustRect(fanren::game::bustRosterSource(RectF{0.f, 0.f, 840.f, 1260.f}));
+    EXPECT_FLOAT_EQ(bust.h, 660.f) << "高约 660";
+    EXPECT_GT(bust.x + bust.w / 2.f, 640.f) << "停在中间偏右";
+    EXPECT_LE(bust.x + bust.w, 1280.f);
+    EXPECT_FLOAT_EQ(bust.y + bust.h, 720.f);
+}
+
+TEST_F(BustShotTest, HeadlessCardsFinishAtOnceAndChangeNothing) {
+    fanren::game::Application app;
+    ASSERT_TRUE(open(app, /*headless=*/true));
+    const auto spokenBefore = app.spokenKeys().size();
+    const auto logBefore = app.dialogueLog().size();
+    ASSERT_TRUE(app.startEvent("test_bust/card.lua").ok);
+    tick(app, 3);
+    EXPECT_EQ(app.state().flag("test_bust.card"), 1) << "卡片立即完成，脚本照常往下走";
+    EXPECT_EQ(dynamic_cast<fanren::game::IntroCardScene*>(app.topScene()), nullptr);
+    EXPECT_EQ(app.spokenKeys().size(), spokenBefore) << "不记进已说的话";
+    EXPECT_EQ(app.dialogueLog().size(), logBefore) << "不进回看";
+    EXPECT_FALSE(app.busts().tableLoaded()) << "无头不读表";
+    app.shutdown();
+}
+
+TEST_F(BustShotTest, ACardWaitsSixTenthsBeforeConfirmThenFadesAndTheScriptGoesOn) {
+    fanren::game::Application app;
+    ASSERT_TRUE(open(app));
+    ASSERT_TRUE(app.startEvent("test_bust/card.lua").ok);
+    tick(app, 3);
+    auto* card = dynamic_cast<fanren::game::IntroCardScene*>(app.topScene());
+    ASSERT_NE(card, nullptr);
+    EXPECT_EQ(card->role(), "chen_shimei");
+    const auto press = [&](SDL_Scancode code) {
+        SDL_Event e{};
+        e.type = SDL_EVENT_KEY_DOWN;
+        e.key.scancode = code;
+        e.key.down = true;
+        SDL_PushEvent(&e);
+        tick(app, 1);
+        e.type = SDL_EVENT_KEY_UP;
+        e.key.down = false;
+        SDL_PushEvent(&e);
+        tick(app, 1);
+    };
+    press(SDL_SCANCODE_RETURN);   // 0.6 秒之内：不收
+    ASSERT_EQ(app.topScene(), card);
+    EXPECT_FALSE(card->closing());
+    tick(app, 40);
+    press(SDL_SCANCODE_RETURN);
+    ASSERT_EQ(app.topScene(), card);
+    EXPECT_TRUE(card->closing()) << "按确认：开始淡出";
+    EXPECT_EQ(app.state().flag("test_bust.card"), 0) << "淡完之前脚本还在等";
+    tick(app, 20);
+    EXPECT_EQ(dynamic_cast<fanren::game::IntroCardScene*>(app.topScene()), nullptr);
+    EXPECT_EQ(app.state().flag("test_bust.card"), 1);
+    app.shutdown();
+}
+
+TEST_F(BustShotTest, WithAutoAdvanceACardClosesItself) {
+    fanren::game::Application app;
+    ASSERT_TRUE(open(app));
+    fanren::io::Settings next = app.settings();
+    next.autoAdvance = true;
+    app.setSettings(next);
+    ASSERT_TRUE(app.startEvent("test_bust/card.lua").ok);
+    tick(app, 3);
+    ASSERT_NE(dynamic_cast<fanren::game::IntroCardScene*>(app.topScene()), nullptr);
+    tick(app, 140);   // 约 2.4 秒：还在
+    EXPECT_NE(dynamic_cast<fanren::game::IntroCardScene*>(app.topScene()), nullptr);
+    tick(app, 30);    // 过了 2.5 秒、再淡 0.2 秒
+    EXPECT_EQ(dynamic_cast<fanren::game::IntroCardScene*>(app.topScene()), nullptr);
+    EXPECT_EQ(app.state().flag("test_bust.card"), 1);
+    app.shutdown();
+}
+
+TEST_F(BustShotTest, SomeoneWithoutABustGetsNoCardAndOneWarning) {
+    fanren::game::Application app;
+    ASSERT_TRUE(open(app));
+    ::testing::internal::CaptureStderr();
+    ASSERT_TRUE(app.startEvent("test_bust/card_nobody.lua").ok);
+    tick(app, 3);
+    ASSERT_TRUE(app.startEvent("test_bust/card_nobody.lua").ok);
+    tick(app, 3);
+    const std::string err = ::testing::internal::GetCapturedStderr();
+    EXPECT_EQ(dynamic_cast<fanren::game::IntroCardScene*>(app.topScene()), nullptr);
+    EXPECT_EQ(app.state().flag("test_bust.card"), 1) << "脚本照常往下走";
+    const auto first = err.find("hanli");
+    ASSERT_NE(first, std::string::npos) << err;
+    EXPECT_EQ(err.find("hanli", first + 1), std::string::npos) << "一个角色只警告一次：" << err;
+    app.shutdown();
+}
+
+TEST(IntroCard, TheTourScriptRunsAndEveryCardHasItsText) {
+    // 「看立绘-七位巡览」用 --event 演 scripts/dev/heroine_tour.lua：七张卡、每人一句。无头下卡片立即完成，停在第一句。
+    fanren::game::Application app;
+    ASSERT_TRUE(app.init(repoRoot(), /*headless=*/true).ok);
+    ASSERT_TRUE(app.startEvent("dev/heroine_tour.lua").ok);
+    for (int i = 0; i < 3; ++i) app.tick(kFrame);
+    auto* dialogue = dynamic_cast<fanren::game::DialogueScene*>(app.topScene());
+    ASSERT_NE(dialogue, nullptr);
+    EXPECT_EQ(dialogue->speakerRole(), "chen_shimei");
+    // 七位的身份与短评都在文本表里；短评 16 字以内（3.5.3）。
+    for (const char* role : {"chen_shimei", "nichang_xianzi", "duobao_nv", "huangshan_shijie", "baiyi_shaonv",
+                             "nangong_wan_ch07", "han_yunzhi"}) {
+        const std::string base = std::string("card.") + role + ".";
+        EXPECT_NE(app.text(base + "title"), base + "title") << role;
+        const std::string line = app.text(base + "line");
+        ASSERT_NE(line, base + "line") << role;
+        EXPECT_LE(fanren::engine::splitGraphemes(line).size(), 17u) << role << "：" << line;   // 16 字 + 句号
+    }
+    EXPECT_EQ(app.text("card.baiyi_shaonv.line").find("南宫"), std::string::npos) << "问名之前的那张不点名";
+    app.shutdown();
+}
+
+TEST_F(BustShotTest, SkippingTheWholeSceneSkipsTheCardToo) {
+    fanren::game::Application app;
+    ASSERT_TRUE(open(app));
+    ASSERT_TRUE(app.startEvent("test_bust/card_skip.lua").ok);
+    tick(app, 30);
+    ASSERT_NE(dynamic_cast<fanren::game::DialogueScene*>(app.topScene()), nullptr);
+    ASSERT_TRUE(app.canSkipDialogue());
+    app.beginDialogueSkip();
+    app.popScene();
+    app.completeCommand(fanren::script::CommandResult{true});
+    tick(app, 5);
+    EXPECT_EQ(app.state().flag("test_bust.card"), 1) << "跳到了脚本结束，卡片没拦住";
+    EXPECT_EQ(dynamic_cast<fanren::game::IntroCardScene*>(app.topScene()), nullptr);
     app.shutdown();
 }
 

@@ -420,10 +420,12 @@ void DialogueScene::renderBusts(Application& app, const engine::Rect& box) const
     engine::Engine& eng = app.engine();
     const ui::Theme& theme = app.theme();
     const engine::Rect bottomBox = boxArea(theme);
-    const engine::Rect area = bustDialogueArea(box, bottomBox, boxAreaFor(0, theme).y);
+    const engine::Rect right = bustDialogueArea(box, bottomBox);
     // 框是半透明的：压在框后面的那一截会隐约透出来，读字时像底下糊着一块。只画到框顶那道金线为止（bustVisibleRows），
     // 切口正好叫金线压住——看上去就是人站在框后面。
-    const int rows = bustVisibleRows(area, box, box.y != bottomBox.y);
+    const int rows = bustVisibleRows(right, box, box.y != bottomBox.y);
+    // 主角站在右边、叫立绘挡住时改站左侧（施工图 3.5.2）。
+    const engine::Rect area = bustAvoidHero(right, rows, app.heroScreenRect());
     if (rows <= 0) return;
     const engine::RectF dst{static_cast<float>(area.x), static_cast<float>(area.y), static_cast<float>(area.w),
                             static_cast<float>(rows)};

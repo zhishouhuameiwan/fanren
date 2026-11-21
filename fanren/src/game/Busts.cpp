@@ -62,15 +62,14 @@ const std::string& BustStage::currentRole() const {
     return current_ ? current_->shot.role : kNone;
 }
 
-engine::Rect bustDialogueArea(const engine::Rect& box, const engine::Rect& bottomBox, int baseBoxTop) {
+engine::Rect bustDialogueArea(const engine::Rect& box, const engine::Rect& bottomBox) {
     const int x = engine::kLogicalWidth - kBustRightMargin - kBustW;
     if (box.y != bottomBox.y) {
-        // 框被挪上去了：贴屏幕底；框只挪到半中腰时人往下沉，头顶落在框底以下 kBustHeadGap（不叫半透明的框压住脸）。
+        // 框被挪上去了：贴屏幕底；头顶至少落在框底以下 kBustHeadGap（不叫半透明的框压住脸），下半截出屏。
         const int y = std::max(engine::kLogicalHeight - kBustH, box.y + box.h + kBustHeadGap - kBustHeadLine);
         return engine::Rect{x, y, kBustW, kBustH};
     }
-    const int bottom = std::max(box.y, baseBoxTop) + kBustBelowBoxTop;
-    return engine::Rect{x, bottom - kBustH, kBustW, kBustH};
+    return engine::Rect{x, kBustTopBoxDown, kBustW, kBustH};
 }
 
 int bustVisibleRows(const engine::Rect& bust, const engine::Rect& box, bool raised) {
@@ -81,11 +80,19 @@ int bustVisibleRows(const engine::Rect& bust, const engine::Rect& box, bool rais
     return std::min(bust.h, box.y + kBustTuck - bust.y);
 }
 
+engine::Rect bustAvoidHero(const engine::Rect& bust, int rows, const engine::Rect& hero) {
+    if (hero.w <= 0 || hero.h <= 0 || rows <= 0) return bust;
+    const int top = std::max(bust.y, 0);
+    const int bottom = std::min(bust.y + std::min(rows, bust.h), engine::kLogicalHeight);
+    const bool hit = hero.x < bust.x + bust.w && bust.x < hero.x + hero.w && hero.y < bottom && top < hero.y + hero.h;
+    if (!hit) return bust;
+    return engine::Rect{kBustLeftX, bust.y, bust.w, bust.h};
+}
+
 engine::RectF bustRosterSource(const engine::RectF& cell) {
-    // 840×1260 的格子：头顶线 376，上面留 40；左右各裁 120。别的尺寸按比例。
+    // 840×1260 的格子：头顶线 60，上面留 20；左右不裁。别的尺寸按比例。
     const float top = cell.h * static_cast<float>(kBustHeadLine * 2 - 40) / 1260.f;
-    const float side = cell.w * 120.f / 840.f;
-    return engine::RectF{cell.x + side, cell.y + top, cell.w - side * 2.f, cell.h - top};
+    return engine::RectF{cell.x, cell.y + top, cell.w, cell.h - top};
 }
 
 engine::RectF bustRosterArea(const engine::Rect& area, const engine::RectF& src) {

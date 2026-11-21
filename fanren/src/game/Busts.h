@@ -58,28 +58,31 @@ private:
 
 // ---- 摆位（纯函数）----
 // 屏幕上画成 420×630（表里存两倍 840×1260，窗口放大到两倍时仍然清楚），站在右侧、右边距 60。
-//   · 框在底部（常态）：底边落在框顶以下 40，人像从框后面探出来；框因为选项多长高了也不跟着往上抬——
-//     底边最高到「没有选项时的框顶 + 40」，多出来的那截由框压住（不然三个选项就把头顶推出屏幕）。
-//   · 框被 keepHeroInSight 挪到上面：底边贴屏幕底边。框只挪到半中腰（主角站得不够低，框只抬了一截）时，
-//     贴底的话脸正好叫半透明的框压住——那时人往下沉，头顶落在框底以下 kBustHeadGap，下半截出屏
-//     （施工方的取舍，施工图没写这一种；框贴到顶边时与施工图一致）。
-// 头顶线：格子里头顶所在的高度，屏幕上 kBustHeadLine（tools/artgen/busts.py 的 HEAD_LINE 是它的两倍，376）。
+// 头顶线：格子里头顶所在的高度，屏幕上 kBustHeadLine = 30（tools/artgen/busts.py 的 HEAD_LINE 是它的两倍，60）；
+// 人物从头顶到格底在屏幕上高 600（施工图 3.5.1）。
+//   · 框在底部（常态）：格子顶边在 y = kBustTopBoxDown（18），头顶约在 y = 48；只画到框顶金线下 kBustTuck（框半透明，
+//     框后那截不画），露出头到腰胯。框因为选项多长高了也不跟着往上抬，多出来的那截由框压住。
+//   · 框被 keepHeroInSight 挪上去：底边贴屏幕底；但头顶至少落在框底以下 kBustHeadGap（不叫半透明的框压住脸），
+//     这时下半截出屏。头顶线 30 时框只要底边低于 108 就是后一种，所以框贴到顶边（底边 248）时也是头顶在框下、下半截出屏。
+//   · 主角的屏幕矩形与右侧立绘画出来的那一块相交：改站左侧，格子左边 x = kBustLeftX（160），不镜像（施工图 3.5.2）。
 inline constexpr int kBustW = 420;
 inline constexpr int kBustH = 630;
 inline constexpr int kBustRightMargin = 60;
-inline constexpr int kBustBelowBoxTop = 40;
-inline constexpr int kBustHeadLine = 188;
+inline constexpr int kBustTopBoxDown = 18;
+inline constexpr int kBustHeadLine = 30;
 inline constexpr int kBustHeadGap = 12;
+inline constexpr int kBustLeftX = 160;
 
-// box：这一帧对话框实际画的位置；bottomBox：没挪之前它该在的位置（boxArea）；baseBoxTop：没有选项时框顶的 y。
-[[nodiscard]] engine::Rect bustDialogueArea(const engine::Rect& box, const engine::Rect& bottomBox, int baseBoxTop);
-// 立绘画出来的行数（从顶上数）：框半透明，压在框后面的那截不画，画到框顶那道金线下 kBustTuck 为止；
-// 框被挪到上面（raised）时整幅都画：那时立绘贴屏幕底，框在她上方，挪到半中腰时压住的是她的身子，不裁。
+// box：这一帧对话框实际画的位置；bottomBox：没挪之前它该在的位置（boxArea）。站右侧。
+[[nodiscard]] engine::Rect bustDialogueArea(const engine::Rect& box, const engine::Rect& bottomBox);
+// 立绘画出来的行数（从顶上数）：框在底部时画到框顶那道金线下 kBustTuck 为止（框半透明，框后那截不画）；
+// 框被挪到上面（raised）时整幅都画。
 inline constexpr int kBustTuck = 3;
 [[nodiscard]] int bustVisibleRows(const engine::Rect& bust, const engine::Rect& box, bool raised);
+// 躲主角：bust 画出来的那一块（顶上 rows 行，裁到屏幕里）与 hero 相交就改站左侧；hero 为空矩形（没有世界层）时不动。
+[[nodiscard]] engine::Rect bustAvoidHero(const engine::Rect& bust, int rows, const engine::Rect& hero);
 
-// 队伍页的大图：格子里头顶线以上那一大截是留给对白的空（框在底部时头不出屏），队伍页用不着——
-// 取格子中间那块（bustRosterSource：上面裁到头顶线以上 40、左右各裁 120，按 840×1260 的比例算），
+// 队伍页的大图：整个人（头到格底）——格子上面裁到头顶线以上 20、左右不裁（最宽的一位约 827，不能裁），按 840×1260 的比例算；
 // 在 area（页面里留给大图的那一栏）里按它的宽高比放到高 kBustRosterH，底边贴 area 底、水平居中；放不下就按 area 缩。
 inline constexpr int kBustRosterH = 560;
 [[nodiscard]] engine::RectF bustRosterSource(const engine::RectF& cell);
