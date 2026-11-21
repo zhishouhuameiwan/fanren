@@ -23,7 +23,6 @@ talk("", "ch07.shulin.morning")
 intro_card("huangshan_shijie")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 talk("huangshan_shijie", "ch07.shulin.help")
 talk("", "ch07.shulin.chaser")
-intro_card("duobao_nv")   -- 登场卡（docs/heroine-art-build.md 3.5.3）
 
 local pick = choice{
     "ch07.shulin.opt_help",
@@ -37,6 +36,7 @@ if pick == 1 then
 else
     talk("", "ch07.shulin.hide")
 end
+intro_card("duobao_nv")   -- 登场卡（docs/heroine-art-build.md 3.5.3；她出手的那一拍：镜子与水晶球）
 talk("", "ch07.shulin.mirror")
 if take("story_yin_gou", 1) then
     talk("", "ch07.shulin.hook")

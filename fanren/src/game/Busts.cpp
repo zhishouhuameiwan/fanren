@@ -65,15 +65,15 @@ const std::string& BustStage::currentRole() const {
 engine::Rect bustDialogueArea(const engine::Rect& box, const engine::Rect& bottomBox) {
     const int x = engine::kLogicalWidth - kBustRightMargin - kBustW;
     if (box.y != bottomBox.y) {
-        // 框被挪上去了：贴屏幕底；头顶至少落在框底以下 kBustHeadGap（不叫半透明的框压住脸），下半截出屏。
-        const int y = std::max(engine::kLogicalHeight - kBustH, box.y + box.h + kBustHeadGap - kBustHeadLine);
-        return engine::Rect{x, y, kBustW, kBustH};
+        // 框被挪上去了：哪边地方大站哪边。站框下时头顶落在框底以下 kBustHeadGap，下半截出屏。
+        const int above = box.y - kBustHeadTop;
+        const int below = engine::kLogicalHeight - (box.y + box.h + kBustHeadGap);
+        if (above < below) return engine::Rect{x, box.y + box.h + kBustHeadGap - kBustHeadLine, kBustW, kBustH};
     }
     return engine::Rect{x, kBustTopBoxDown, kBustW, kBustH};
 }
 
-int bustVisibleRows(const engine::Rect& bust, const engine::Rect& box, bool raised) {
-    if (raised) return bust.h;
+int bustVisibleRows(const engine::Rect& bust, const engine::Rect& box) {
     const bool boxBelowTop = box.y > bust.y && box.y < bust.y + bust.h;
     const bool overlapsX = box.x < bust.x + bust.w && bust.x < box.x + box.w;
     if (!boxBelowTop || !overlapsX) return bust.h;

@@ -73,6 +73,7 @@ struct PathEffect {
     };
     Kind kind = Kind::Say;
     std::string textKey;
+    std::string face;   // Say：表情（条目的 face，只给 text_key 那一句）；空 = normal
     core::PathReveal reveal;
     core::BagEntry item;
     std::string flag;

@@ -22,6 +22,7 @@
 #include <gtest/gtest.h>
 
 #include "TempDir.h"
+#include "core/rules/PathActions.h"
 #include "engine/TextLayout.h"
 #include "game/Application.h"
 #include "game/Busts.h"
@@ -130,36 +131,39 @@ TEST(BustLayout, WithTheBoxAtTheBottomTheCellTopSitsAt18AndOnlyTheRowsAboveTheBo
     EXPECT_EQ(bust.y + fanren::game::kBustHeadLine, 48) << "头顶约在 y = 48";
     EXPECT_EQ(bust.h - fanren::game::kBustHeadLine, 600) << "人物从头顶到格底在屏幕上高 600";
     // 框是半透明的：框后面那一截不画，画到框顶金线下 3 像素。
-    EXPECT_EQ(fanren::game::bustVisibleRows(bust, kBottomBox, false), kBottomBox.y + 3 - bust.y);
+    EXPECT_EQ(fanren::game::bustVisibleRows(bust, kBottomBox), kBottomBox.y + 3 - bust.y);
 }
 
 TEST(BustLayout, ATallerChoiceBoxDoesNotLiftTheBust) {
     const Rect tall{48, 300, 1184, 372};
     const Rect bust = fanren::game::bustDialogueArea(tall, tall);
     EXPECT_EQ(bust.y, 18) << "框因选项长高了，立绘不跟着往上抬";
-    EXPECT_EQ(fanren::game::bustVisibleRows(bust, tall, false), tall.y + 3 - bust.y) << "多出来的那截由框压住";
+    EXPECT_EQ(fanren::game::bustVisibleRows(bust, tall), tall.y + 3 - bust.y) << "多出来的那截由框压住";
 }
 
-TEST(BustLayout, WithTheBoxRaisedTheHeadStaysBelowTheBox) {
-    // 框贴到顶边：头顶线 30 时，「头顶在框底以下 12」比「贴屏幕底」更靠下，下半截出屏。
-    const Rect top{48, 48, 1184, 200};
+TEST(BustLayout, WithTheBoxRaisedTheBustStandsOnWhicheverSideHasMoreRoom) {
+    // 框贴到顶边（e02b 那样，框 184–382）：上方余地 136 < 下方余地 326 → 站框下，头顶在框底以下 12，整幅画、下半截出屏。
+    const Rect top{48, 184, 1184, 198};
     const Rect atTop = fanren::game::bustDialogueArea(top, kBottomBox);
     EXPECT_EQ(atTop.y + fanren::game::kBustHeadLine, top.y + top.h + fanren::game::kBustHeadGap);
     EXPECT_GT(atTop.y + atTop.h, 720);
     EXPECT_EQ(atTop.x + atTop.w, 1220);
-    EXPECT_EQ(fanren::game::bustVisibleRows(atTop, top, true), 630) << "整幅都画";
-    // 框只抬到半中腰：同一条规则，人沉得更深。
-    const Rect mid{48, 235, 1184, 200};
-    const Rect atMid = fanren::game::bustDialogueArea(mid, kBottomBox);
-    EXPECT_EQ(atMid.y + fanren::game::kBustHeadLine, mid.y + mid.h + fanren::game::kBustHeadGap);
-    // 框底比 108 还高（只有很矮的框才会）：贴屏幕底。
-    const Rect high{48, -150, 1184, 200};
-    EXPECT_EQ(fanren::game::bustDialogueArea(high, kBottomBox).y + 630, 720);
+    EXPECT_EQ(fanren::game::bustVisibleRows(atTop, top), 630) << "站框下：整幅都画";
+    // 框只抬到偏低的半中腰（e02c 那样，框 378–574）：上方余地 330 ≥ 下方余地 134 → 照常态摆，只画到框顶金线下 3。
+    const Rect low{48, 378, 1184, 196};
+    const Rect atLow = fanren::game::bustDialogueArea(low, kBottomBox);
+    EXPECT_EQ(atLow.y, 18);
+    EXPECT_EQ(fanren::game::bustVisibleRows(atLow, low), low.y + 3 - 18) << "露头到胸";
+    // 两边一样大：站上方（「上方不小于下方」）。框高 200：框顶 y 使 y − 48 = 720 − (y + 212) → y = 278。
+    const Rect even{48, 278, 1184, 200};
+    EXPECT_EQ(fanren::game::bustDialogueArea(even, kBottomBox).y, 18);
+    const Rect justBelow{48, 277, 1184, 200};
+    EXPECT_EQ(fanren::game::bustDialogueArea(justBelow, kBottomBox).y + fanren::game::kBustHeadLine, 277 + 200 + 12);
 }
 
 TEST(BustLayout, WhenTheHeroWouldBeCoveredTheBustStandsOnTheLeft) {
     const Rect bust = fanren::game::bustDialogueArea(kBottomBox, kBottomBox);
-    const int rows = fanren::game::bustVisibleRows(bust, kBottomBox, false);
+    const int rows = fanren::game::bustVisibleRows(bust, kBottomBox);
     // 主角站在右边（镜头贴地图右沿）：与画出来的那一块相交 → 改站左侧，格子左边 x = 160，大小不变。
     const Rect heroRight{900, 150, 144, 144};
     const Rect moved = fanren::game::bustAvoidHero(bust, rows, heroRight);
@@ -740,6 +744,57 @@ TEST(IntroCard, TheTourScriptRunsAndEveryCardHasItsText) {
         EXPECT_LE(fanren::engine::splitGraphemes(line).size(), 17u) << role << "：" << line;   // 16 字 + 句号
     }
     EXPECT_EQ(app.text("card.baiyi_shaonv.line").find("南宫"), std::string::npos) << "问名之前的那张不点名";
+    app.shutdown();
+}
+
+// ---------------------------------------------------------------------------
+// 路径行动带表情（第三轮：禁地荒山陈巧倩那句打探配冷脸）
+// ---------------------------------------------------------------------------
+
+TEST(PathActionFace, TheFaceRidesOnTheTextKeyLineOnly) {
+    fanren::core::PathAction ask;
+    ask.id = "x_dating";
+    ask.kind = fanren::core::PathActionKind::Inquire;
+    ask.textKey = "t.x";
+    ask.doneFlag = "ch07.path.x_dating";
+    fanren::core::GameState state;
+    std::vector<fanren::rules::PathEffect> effects = fanren::rules::pathActionEffects(ask, state);
+    ASSERT_FALSE(effects.empty());
+    EXPECT_TRUE(effects[0].face.empty()) << "不写 face：照旧（对话框按 normal）";
+    ask.face = "angry";
+    effects = fanren::rules::pathActionEffects(ask, state);
+    ASSERT_FALSE(effects.empty());
+    EXPECT_EQ(effects[0].kind, fanren::rules::PathEffect::Kind::Say);
+    EXPECT_EQ(effects[0].face, "angry");
+}
+
+TEST(PathActionFace, ChenDatingIsSaidWithTheColdFaceAndOthersStayNormal) {
+    fanren::game::Application app;
+    ASSERT_TRUE(app.init(repoRoot(), /*headless=*/true).ok);
+    const fanren::core::PathAction* chen = nullptr;
+    const fanren::core::PathAction* plain = nullptr;
+    for (const fanren::core::PathAction& action : app.data().pathActions) {
+        if (action.id == "chen_dating") chen = &action;
+        if (plain == nullptr && action.kind == fanren::core::PathActionKind::Inquire && action.face.empty()) {
+            plain = &action;
+        }
+    }
+    ASSERT_NE(chen, nullptr);
+    ASSERT_NE(plain, nullptr);
+    EXPECT_EQ(chen->face, "angry") << "data/pathactions/ch07.json 的 chen_dating 写了 face";
+    const auto spoken = [&app](const fanren::core::PathAction& action, const std::string& role) {
+        app.applyPathEffects(action, fanren::rules::pathActionEffects(action, app.state()), role);
+        app.tick(kFrame);
+        auto* dialogue = dynamic_cast<fanren::game::DialogueScene*>(app.topScene());
+        std::string face = dialogue == nullptr ? std::string("(没有对话框)") : dialogue->face();
+        while (dynamic_cast<fanren::game::DialogueScene*>(app.topScene()) != nullptr) {
+            app.popScene();
+            app.tick(kFrame);
+        }
+        return face;
+    };
+    EXPECT_EQ(spoken(*chen, "chen_shimei"), "angry") << "表情一路送到对话框";
+    EXPECT_EQ(spoken(*plain, "hanli"), "normal") << "不带表情的照旧是 normal";
     app.shutdown();
 }
 

@@ -62,8 +62,9 @@ private:
 // 人物从头顶到格底在屏幕上高 600（施工图 3.5.1）。
 //   · 框在底部（常态）：格子顶边在 y = kBustTopBoxDown（18），头顶约在 y = 48；只画到框顶金线下 kBustTuck（框半透明，
 //     框后那截不画），露出头到腰胯。框因为选项多长高了也不跟着往上抬，多出来的那截由框压住。
-//   · 框被 keepHeroInSight 挪上去：底边贴屏幕底；但头顶至少落在框底以下 kBustHeadGap（不叫半透明的框压住脸），
-//     这时下半截出屏。头顶线 30 时框只要底边低于 108 就是后一种，所以框贴到顶边（底边 248）时也是头顶在框下、下半截出屏。
+//   · 框被 keepHeroInSight 挪上去：哪边地方大站哪边（施工图 3.5 复审第二次的决定）。框上方的余地 = 框顶 − 48（常态的头顶），
+//     框下方的余地 = 720 −（框底 + kBustHeadGap）。上方不小于下方 → 照常态摆（格子顶 18），只画到这一帧框顶金线下 kBustTuck；
+//     否则站到框下：头顶落在框底以下 kBustHeadGap，整幅都画、下半截出屏。
 //   · 主角的屏幕矩形与右侧立绘画出来的那一块相交：改站左侧，格子左边 x = kBustLeftX（160），不镜像（施工图 3.5.2）。
 inline constexpr int kBustW = 420;
 inline constexpr int kBustH = 630;
@@ -75,10 +76,11 @@ inline constexpr int kBustLeftX = 160;
 
 // box：这一帧对话框实际画的位置；bottomBox：没挪之前它该在的位置（boxArea）。站右侧。
 [[nodiscard]] engine::Rect bustDialogueArea(const engine::Rect& box, const engine::Rect& bottomBox);
-// 立绘画出来的行数（从顶上数）：框在底部时画到框顶那道金线下 kBustTuck 为止（框半透明，框后那截不画）；
-// 框被挪到上面（raised）时整幅都画。
+// 立绘画出来的行数（从顶上数）：框在立绘头顶以下时画到框顶那道金线下 kBustTuck 为止（框半透明，框后那截不画）；
+// 立绘站在框下（头顶在框底以下）时整幅都画。
 inline constexpr int kBustTuck = 3;
-[[nodiscard]] int bustVisibleRows(const engine::Rect& bust, const engine::Rect& box, bool raised);
+inline constexpr int kBustHeadTop = kBustTopBoxDown + kBustHeadLine;   // 常态的头顶 y（48）
+[[nodiscard]] int bustVisibleRows(const engine::Rect& bust, const engine::Rect& box);
 // 躲主角：bust 画出来的那一块（顶上 rows 行，裁到屏幕里）与 hero 相交就改站左侧；hero 为空矩形（没有世界层）时不动。
 [[nodiscard]] engine::Rect bustAvoidHero(const engine::Rect& bust, int rows, const engine::Rect& hero);
 

@@ -32,10 +32,11 @@ using core::PathActionKind;
     return 3;
 }
 
-[[nodiscard]] PathEffect say(const std::string& textKey) {
+[[nodiscard]] PathEffect say(const std::string& textKey, const std::string& face = std::string{}) {
     PathEffect effect;
     effect.kind = PathEffect::Kind::Say;
     effect.textKey = textKey;
+    effect.face = face;
     return effect;
 }
 
@@ -102,7 +103,7 @@ std::vector<PathEffect> pathActionEffects(const PathAction& action, const core::
     std::vector<PathEffect> effects;
     switch (action.kind) {
         case PathActionKind::Inquire: {
-            effects.push_back(say(action.textKey));
+            effects.push_back(say(action.textKey, action.face));
             // 做过的打探只是重看：揭过的破绽、给过的东西、置过的旗标都不再来一遍——
             // 否则按两下 E 就多拿一份物件。
             if (done(action, state)) break;
@@ -128,7 +129,7 @@ std::vector<PathEffect> pathActionEffects(const PathAction& action, const core::
             break;
         }
         case PathActionKind::Challenge: {
-            effects.push_back(say(action.textKey));
+            effects.push_back(say(action.textKey, action.face));
             PathEffect fight;
             fight.kind = PathEffect::Kind::StartBattle;
             fight.battleId = action.battleId;

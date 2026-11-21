@@ -1967,7 +1967,9 @@ def check_quests(maps: list[ParsedMap], flags: set[str], defined: dict, report: 
 # 下面几张表与 C++ 加载器是同一张，两边要一起改。
 PATH_TOP_FIELDS = {"id", "name", "chapter", "entries", "note"}
 PATH_COMMON_FIELDS = {"id", "kind", "map", "npc", "when", "until", "realm", "done_flag",
-                      "text_key", "refuse_key", "origin", "note"}
+                      "text_key", "refuse_key", "origin", "note", "face"}
+# face：text_key 那一句的表情（女角色立绘第二轮，docs/heroine-art-build-e.md），只认对白头像的四个。
+PATH_FACES = {"normal", "smile", "angry", "hurt"}
 PATH_KIND_FIELDS = {
     "inquire": {"reveal", "give", "set_flags"},
     "purchase": {"item_id", "count", "herb_age", "price", "deal_key", "poor_key"},
@@ -2205,6 +2207,8 @@ def check_path_entry(rel, chapter, entry, ctx, report):
     if unknown:
         report.error(where, f"有 {kind} 不认识的字段 {'、'.join(unknown)}"
                             "（字段表见 docs/interfaces-octo-pathactions.md 第 2 节）")
+    if "face" in entry and entry["face"] not in PATH_FACES:
+        report.error(where, f"face 只认 normal / smile / angry / hurt，实际是 {entry['face']!r}")
     match = PATH_ID_RE.match(entry_id) if isinstance(entry_id, str) else None
     if not match or match.group(1) != PATH_KIND_WORD[kind]:
         report.error(where, f"id 的形状是 <npc 短名>_{PATH_KIND_WORD[kind]}[序号]")

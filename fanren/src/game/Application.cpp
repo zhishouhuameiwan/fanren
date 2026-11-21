@@ -875,7 +875,7 @@ bool Application::applyPathEffect(const core::PathAction& action, const rules::P
     // **不要加 default:**：规则层多一种效果时让编译器告警，而不是悄悄跳过。
     switch (effect.kind) {
         case Kind::Say:
-            sayAs(speakerRole, effect.textKey);
+            sayAs(speakerRole, effect.textKey, effect.face.empty() ? std::string(script::kDefaultFace) : effect.face);
             return true;
         case Kind::RevealWeakness: {
             // 契约 5.4 的两条路里取「此刻就写」：玩家打探完回头就去打，开战那一刻才并进去的话，

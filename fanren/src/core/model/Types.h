@@ -794,6 +794,9 @@ struct PathAction {
     rules::Realm minRealm = rules::Realm::Mortal;
     std::string doneFlag;   // chNN.path.<id>，做成一次即置 1
     std::string textKey;    // 打探：那段情报；求购：开价；切磋：邀战
+    // text_key 那一句说话人的表情（normal / smile / angry / hurt，对白头像与立绘取格用）；空 = normal。
+    // 女角色立绘第二轮加的（docs/heroine-art-build-e.md）：禁地荒山陈巧倩那一句打探配冷脸。
+    std::string face;
     std::string refuseKey;  // 阅历不足时对方那一句（有门槛才有）
 
     // 打探：头一回才发，再按一次只是重看那段情报。
